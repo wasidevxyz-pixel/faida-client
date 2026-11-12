@@ -1642,7 +1642,8 @@ async function renderCustomHtmlToPdf(fullHtml, options = {}) {
         }
 
         if (!processedHtml.includes('<base ') && processedHtml.includes('<head')) {
-            processedHtml = processedHtml.replace(/<head[^>]*>/i, '$&\n<base href="http://127.0.0.1:3000/">');
+            const appUrl = process.env.APP_URL || `http://127.0.0.1:${process.env.PORT || 5000}/`;
+            processedHtml = processedHtml.replace(/<head[^>]*>/i, `$&\n<base href="${appUrl}">`);
         }
 
         const page = await browser.newPage();

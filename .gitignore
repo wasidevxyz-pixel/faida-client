@@ -51,6 +51,7 @@ local_face_db.json
 !Backend/.env.example
 !ai-brain/.env.example
 !mobile-app/.env.example
+Backend/wasi.txt
 appsettings.json
 **/appsettings.json
 !appsettings.json.example

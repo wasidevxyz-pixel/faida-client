@@ -238,7 +238,7 @@ const settingsSchema = new mongoose.Schema({
   mongodbUri: {
     type: String,
     trim: true,
-    default: process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/BAS-SOFTWARE'
+    default: process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/FAIDA-CLIENT'
   },
   backupFolderPath: {
     type: String,

@@ -441,7 +441,7 @@ app.use('/EXPORT', express.static(path.join(__dirname, '../EXPORT')));
 // ... [skipping db connection] ...
 
 // Database connection
-mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/BAS-SOFTWARE')
+mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/FAIDA-CLIENT')
   .then(async () => {
     console.log('Connected to MongoDB');
     await aiProviderManager.ensureDefaults();
@@ -825,7 +825,7 @@ app.use('/api', (req, res, next) => {
 // Error handling middleware
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5000;
 const HOST = '0.0.0.0';
 const server = app.listen(PORT, HOST, () => {
   console.log(`Server is running on ${HOST}:${PORT}`);

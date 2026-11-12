@@ -114,7 +114,7 @@ export const clearApiCache = async () => {
 
 // Server Addresses (Official Cloudflare Production Domain)
 const PRIMARY_URL = 'https://bas.dwatson.co/api/v1';
-const LOCAL_FALLBACK_URL = 'http://192.168.1.4:5001/api/v1';
+const LOCAL_FALLBACK_URL = 'http://192.168.1.4:5000/api/v1';
 let activeBaseUrl = PRIMARY_URL;
 
 // Auto-clean any stale local LAN URL from storage so mobile app always uses production domain

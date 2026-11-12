@@ -27,28 +27,12 @@ exports.getWHItems = async (req, res) => {
         // Add search support
         if (req.query.search) {
             const searchTerm = req.query.search.trim();
-            // If it's numeric, create a regex that ignores leading zeros (e.g. search 123 matches 00123, search 00123 matches 123)
-            const isNumeric = /^\d+$/.test(searchTerm);
-            let searchRegex;
-            
-            if (isNumeric) {
-                // Strip leading zeros from searching term
-                const stripped = searchTerm.replace(/^0+/, '');
-                if (stripped === '') {
-                    // It was all zeros, e.g. "000"
-                    searchRegex = { $regex: '^0+$', $options: 'i' };
-                } else {
-                    // Match any number of leading zeros followed by the stripped term
-                    searchRegex = { $regex: `^0*${stripped}$`, $options: 'i' };
-                }
-            } else {
-                searchRegex = { $regex: searchTerm, $options: 'i' };
-            }
+            const searchRegex = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
             queryObj.$or = [
-                { name: { $regex: searchTerm, $options: 'i' } },
-                { itemsCode: searchRegex },
-                { barcode: searchRegex }
+                { name: { $regex: searchRegex, $options: 'i' } },
+                { itemsCode: { $regex: searchRegex, $options: 'i' } },
+                { barcode: { $regex: searchRegex, $options: 'i' } }
             ];
         }
 
@@ -61,10 +45,8 @@ exports.getWHItems = async (req, res) => {
             delete queryObj.showInactive;
         }
 
-        // Apply category restrictions for non-admins
         if (req.user && req.user.role !== 'admin') {
             if (req.user.allowedWHItemCategories && req.user.allowedWHItemCategories.length > 0) {
-                // If a category was searched for specifically, make sure it's allowed
                 if (queryObj.category) {
                     if (queryObj.category.$in) {
                         const requestedCats = Array.isArray(queryObj.category.$in) ? queryObj.category.$in : [queryObj.category.$in];
@@ -82,7 +64,7 @@ exports.getWHItems = async (req, res) => {
                 } else {
                     queryObj.category = { $in: req.user.allowedWHItemCategories };
                 }
-            } else {
+            } else if (!req.posCatalog) {
                 return res.status(200).json({ success: true, count: 0, totalCount: 0, data: [] });
             }
         }
@@ -122,6 +104,11 @@ exports.getWHItems = async (req, res) => {
     }
 };
 
+exports.getWHPOSItems = async (req, res) => {
+    req.posCatalog = true;
+    return exports.getWHItems(req, res);
+};
+
 // @desc    Get single WH Item
 // @route   GET /api/v1/wh-items/:id
 exports.getWHItem = async (req, res) => {
@@ -136,6 +123,41 @@ exports.getWHItem = async (req, res) => {
 
         if (!item) {
             return res.status(404).json({ success: false, message: 'Item not found' });
+        }
+
+        res.status(200).json({ success: true, data: item });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+exports.getWHItemByBarcode = async (req, res) => {
+    try {
+        const code = String(req.params.code || '').trim();
+        if (!code) {
+            return res.status(400).json({ success: false, message: 'Barcode is required' });
+        }
+
+        const escapedCode = code.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const query = {
+            isActive: { $ne: false },
+            $or: [
+                { barcode: { $regex: `^${escapedCode}$`, $options: 'i' } },
+                { itemsCode: { $regex: `^${escapedCode}$`, $options: 'i' } }
+            ]
+        };
+        if (req.user && req.user.role !== 'admin') {
+            const allowedCategories = req.user.allowedWHItemCategories || [];
+            if (allowedCategories.length === 0) {
+                return res.status(404).json({ success: false, message: `Item not found for code ${code}` });
+            }
+            query.category = { $in: allowedCategories };
+        }
+
+        const item = await WHItem.findOne(query).lean();
+
+        if (!item) {
+            return res.status(404).json({ success: false, message: `Item not found for code ${code}` });
         }
 
         res.status(200).json({ success: true, data: item });

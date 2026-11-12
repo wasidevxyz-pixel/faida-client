@@ -16,6 +16,10 @@ const whSaleReturnSchema = new mongoose.Schema({
         ref: 'WHCustomer',
         required: true
     },
+    originalSale: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'WHSale'
+    },
     whCategory: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'WHItemCategory'
@@ -43,6 +47,14 @@ const whSaleReturnSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: 'WHItem',
             required: true
+        },
+        name: {
+            type: String,
+            trim: true
+        },
+        itemName: {
+            type: String,
+            trim: true
         },
         barcode: {
             type: String,
@@ -170,12 +182,23 @@ const whSaleReturnSchema = new mongoose.Schema({
 
     status: {
         type: String,
-        enum: ['Draft', 'Posted', 'Cancelled'],
+        enum: ['Draft', 'Pending Approval', 'Posted', 'Cancelled'],
         default: 'Posted'
     },
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
+    },
+    reviewedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    },
+    reviewedAt: {
+        type: Date
+    },
+    reviewRemarks: {
+        type: String,
+        trim: true
     }
 }, {
     timestamps: true
@@ -184,7 +207,9 @@ const whSaleReturnSchema = new mongoose.Schema({
 whSaleReturnSchema.index({ returnDate: -1 });
 whSaleReturnSchema.index({ customer: 1, returnDate: -1 });
 whSaleReturnSchema.index({ status: 1 });
+whSaleReturnSchema.index({ status: 1, createdAt: 1 });
 whSaleReturnSchema.index({ returnNo: 1 });
+whSaleReturnSchema.index({ originalSale: 1, status: 1 });
 
 // Pre-save middleware for return number generation
 whSaleReturnSchema.pre('save', async function () {

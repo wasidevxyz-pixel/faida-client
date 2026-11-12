@@ -1,0 +1,150 @@
+body {
+  min-height: 100vh;
+  margin: 0;
+  background: #edf2f7;
+  color: #172033;
+}
+
+.approval-topbar {
+  min-height: 64px;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #fff;
+  background: linear-gradient(110deg, #102d54, #0755a4);
+}
+
+.approval-topbar small {
+  color: #d9eaff;
+}
+
+.approval-page {
+  padding: 18px;
+}
+
+.approval-panel {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 18px;
+  background: #fff;
+  border: 1px solid #dce4ee;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(20, 45, 80, 0.07);
+}
+
+.approval-heading,
+.approval-card-heading,
+.approval-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.approval-status {
+  min-height: 24px;
+  margin: 12px 0;
+  color: #526174;
+  font-size: .88rem;
+}
+
+.approval-status.error {
+  color: #b42318;
+}
+
+.approval-list {
+  display: grid;
+  gap: 12px;
+}
+
+.approval-card {
+  padding: 16px;
+  border: 1px solid #dce4ee;
+  border-left: 4px solid #e6a700;
+  border-radius: 9px;
+  background: #fff;
+}
+
+.approval-card h3 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.approval-card-meta {
+  color: #637083;
+  font-size: .82rem;
+}
+
+.approval-lines {
+  margin: 12px 0;
+  border: 1px solid #e5eaf1;
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+.approval-lines table {
+  margin: 0;
+  min-width: 520px;
+}
+
+.approval-lines th {
+  color: #41516a;
+  background: #f4f7fb;
+  font-size: .78rem;
+  white-space: nowrap;
+}
+
+.approval-lines td,
+.approval-lines th {
+  padding: 7px 10px;
+}
+
+.approval-lines-wrap {
+  overflow-x: auto;
+}
+
+.approval-card-footer {
+  padding-top: 12px;
+  border-top: 1px solid #e9edf3;
+}
+
+.approval-card-total {
+  font-weight: 750;
+  font-size: 1rem;
+}
+
+.approval-actions {
+  display: flex;
+  gap: 8px;
+}
+
+@media (max-width: 600px) {
+  .approval-topbar {
+    padding: 10px;
+  }
+
+  .approval-page {
+    padding: 10px;
+  }
+
+  .approval-panel,
+  .approval-card {
+    padding: 12px;
+  }
+
+  .approval-card-heading,
+  .approval-card-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .approval-actions {
+    width: 100%;
+  }
+
+  .approval-actions button {
+    flex: 1;
+  }
+}

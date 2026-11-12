@@ -78,8 +78,21 @@ const saleSchema = new mongoose.Schema({
         enum: ['pending', 'partial', 'paid'],
         default: 'pending'
     },
+    paymentMode: {
+        type: String,
+        enum: ['cash', 'credit', 'bank']
+    },
     paidAmount: {
         type: Number,
+        default: 0
+    },
+    cashReceived: {
+        type: Number,
+        min: 0
+    },
+    changeAmount: {
+        type: Number,
+        min: 0,
         default: 0
     },
     balanceAmount: {

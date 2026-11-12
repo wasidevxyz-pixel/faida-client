@@ -210,6 +210,8 @@
         '/supplier-payments-report': 'supp_pay_link',
 
         // Sale Routes
+        '/pos-sale': 'wh_pos_sale',
+        '/pos-return-queue': 'wh_pos_return_approve',
         '/sales': 'new_sale',
         '/sale-returns': 'sale_returns',
 

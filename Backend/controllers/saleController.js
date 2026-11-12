@@ -9,6 +9,99 @@ const ErrorResponse = require('../utils/errorResponse');
 const mongoose = require('mongoose');
 const AuditLog = require('../models/AuditLog');
 
+const createPosSale = asyncHandler(async (req, res, next) => {
+  const requestedItems = req.body.items;
+  if (!Array.isArray(requestedItems) || requestedItems.length === 0) {
+    return next(new ErrorResponse('Add at least one item to the sale', 400));
+  }
+
+  const quantities = new Map();
+  for (const line of requestedItems) {
+    const itemId = String(line.item || '');
+    const quantity = Number(line.quantity);
+    if (!mongoose.Types.ObjectId.isValid(itemId) || !Number.isFinite(quantity) || quantity <= 0) {
+      return next(new ErrorResponse('Each POS item must have a valid item and positive quantity', 400));
+    }
+    quantities.set(itemId, (quantities.get(itemId) || 0) + quantity);
+  }
+
+  const items = await Item.find({
+    _id: { $in: Array.from(quantities.keys()) },
+    isActive: true
+  }).select('name salePrice taxPercent stockQty');
+  if (items.length !== quantities.size) {
+    return next(new ErrorResponse('One or more selected items are missing or inactive', 400));
+  }
+
+  const roundMoney = (value) => Math.round((value + Number.EPSILON) * 100) / 100;
+  let subtotal = 0;
+  let taxAmount = 0;
+  const saleItems = items.map((item) => {
+    const quantity = quantities.get(String(item._id));
+    if (item.stockQty < quantity) {
+      throw new ErrorResponse(`Insufficient stock for item: ${item.name}`, 400);
+    }
+
+    const rate = roundMoney(item.salePrice);
+    const amount = roundMoney(rate * quantity);
+    const lineTax = roundMoney(amount * (item.taxPercent || 0) / 100);
+    subtotal += amount;
+    taxAmount += lineTax;
+
+    return {
+      item: item._id,
+      quantity,
+      rate,
+      amount,
+      taxAmount: lineTax
+    };
+  });
+  subtotal = roundMoney(subtotal);
+  taxAmount = roundMoney(taxAmount);
+  const grandTotal = roundMoney(subtotal + taxAmount);
+  const cashReceived = Number(req.body.cashReceived);
+
+  if (!Number.isFinite(cashReceived) || roundMoney(cashReceived) < grandTotal) {
+    return next(new ErrorResponse('Cash received must be at least the sale total', 400));
+  }
+
+  let walkInCustomer = await Party.findOne({
+    name: 'Walk-in Customer',
+    partyType: 'customer'
+  });
+  if (!walkInCustomer) {
+    walkInCustomer = await Party.create({
+      name: 'Walk-in Customer',
+      partyType: 'customer',
+      createdBy: req.user.id
+    });
+  }
+
+  req.body = {
+    invoiceNumber: undefined,
+    date: new Date(),
+    party: walkInCustomer._id,
+    items: saleItems,
+    subtotal,
+    taxAmount,
+    totalAmount: grandTotal,
+    discountAmount: 0,
+    grandTotal,
+    paymentStatus: 'paid',
+    paymentMode: 'cash',
+    paidAmount: grandTotal,
+    cashReceived: roundMoney(cashReceived),
+    changeAmount: roundMoney(cashReceived - grandTotal),
+    balanceAmount: 0,
+    branch: Array.isArray(req.user.branch) && req.user.branch.length === 1
+      ? req.user.branch[0]
+      : (typeof req.user.branch === 'string' ? req.user.branch : ''),
+    status: 'final'
+  };
+
+  return createSale(req, res, next);
+});
+
 // @desc    Get all sales
 // @route   GET /api/v1/sales
 // @access  Private
@@ -115,7 +208,7 @@ const createSale = asyncHandler(async (req, res, next) => {
           refId: createdSale._id,
           date: createdSale.date,
           createdBy: req.user.id,
-          notes: `Sale Invoice #${createdSale.invoiceNo}`
+          notes: `Sale Invoice #${createdSale.invoiceNumber}`
         }], { session });
       }
 
@@ -130,7 +223,7 @@ const createSale = asyncHandler(async (req, res, next) => {
         date: createdSale.date,
         debit: createdSale.paymentMode === 'credit' ? createdSale.balanceAmount : 0,
         credit: 0,
-        narration: `Sale Invoice #${createdSale.invoiceNo}`,
+        narration: `Sale Invoice #${createdSale.invoiceNumber}`,
         refType: 'sale',
         refId: createdSale._id,
         createdBy: req.user.id
@@ -144,7 +237,7 @@ const createSale = asyncHandler(async (req, res, next) => {
           date: createdSale.date,
           debit: 0,
           credit: createdSale.grandTotal,
-          narration: `Sale Invoice #${createdSale.invoiceNo}`,
+          narration: `Sale Invoice #${createdSale.invoiceNumber}`,
           refType: 'sale',
           refId: createdSale._id,
           createdBy: req.user.id
@@ -310,6 +403,7 @@ const getSalesSummary = asyncHandler(async (req, res, next) => {
 module.exports = {
   getSales,
   getSale,
+  createPosSale,
   createSale,
   updateSale,
   deleteSale,

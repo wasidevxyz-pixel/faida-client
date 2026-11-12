@@ -3,6 +3,7 @@ const router = express.Router();
 const {
   getSales,
   getSale,
+  createPosSale,
   createSale,
   updateSale,
   deleteSale,
@@ -23,6 +24,10 @@ router
     { path: 'items.item', select: 'name sku' }
   ]), getSales)
   .post(protect, authorize('admin', 'manager', 'sales'), createSale);
+
+router
+  .route('/pos')
+  .post(protect, authorize('admin', 'manager', 'sales'), createPosSale);
 
 router
   .route('/:id')

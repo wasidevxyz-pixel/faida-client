@@ -9,59 +9,17 @@ const { addLedgerEntry, deleteLedgerEntry } = require('../utils/whLedgerUtils');
 // @route   POST /api/v1/wh-sale-returns
 exports.createWHSaleReturn = async (req, res) => {
     try {
+        const requestedStatus = String(req.body.status || 'Posted').toLowerCase();
         const returnData = {
             ...req.body,
+            status: requestedStatus === 'posted' ? 'Pending Approval' : req.body.status || 'Pending Approval',
             createdBy: req.user ? req.user._id : null
         };
+        delete returnData.reviewedBy;
+        delete returnData.reviewedAt;
+        delete returnData.reviewRemarks;
 
         const saleReturn = await WHSaleReturn.create(returnData);
-
-        // Update Stock if Status is Posted
-        if (saleReturn.status === 'Posted') {
-            for (const line of saleReturn.items) {
-                const whItem = await WHItem.findById(line.item);
-                if (whItem) {
-                    const previousQty = (whItem.stock && whItem.stock.length > 0) ? whItem.stock[0].quantity : 0;
-                    const returnQty = parseFloat(line.quantity) || 0;
-                    const newQty = previousQty + returnQty; // Return increases stock
-
-                    if (whItem.stock && whItem.stock.length > 0) {
-                        whItem.stock[0].quantity = newQty;
-                    } else {
-                        whItem.stock = [{ quantity: newQty, opening: 0 }];
-                    }
-                    whItem.markModified('stock');
-                    await whItem.save();
-
-                    // Create Stock Log
-                    await WHStockLog.create({
-                        item: whItem._id,
-                        date: saleReturn.returnDate,
-                        type: 'in',
-                        qty: returnQty,
-                        previousQty: previousQty,
-                        newQty: newQty,
-                        refType: 'sales_return',
-                        refId: saleReturn._id,
-                        remarks: `Sale Return #${saleReturn.returnNo}`,
-                        createdBy: req.user ? req.user._id : null
-                    });
-                }
-            }
-
-            // Add Ledger Entry for Posted Sale Return
-            await addLedgerEntry({
-                customer: saleReturn.customer,
-                returnDate: saleReturn.returnDate,
-                description: `Sale Return - Memo #${saleReturn.returnNo}`,
-                refType: 'SaleReturn',
-                refId: saleReturn._id,
-                debit: 0,
-                credit: saleReturn.netTotal,
-                createdBy: req.user ? req.user._id : null
-            });
-        }
-
 
         res.status(201).json({ success: true, data: saleReturn });
     } catch (error) {
@@ -115,6 +73,7 @@ exports.getWHSaleReturn = async (req, res) => {
     try {
         const saleReturn = await WHSaleReturn.findById(req.params.id)
             .populate('customer')
+            .populate('originalSale', 'invoiceNo')
             .populate('whCategory')
             .populate({
                 path: 'items.item',
@@ -139,8 +98,18 @@ exports.updateWHSaleReturn = async (req, res) => {
 
         const existingStatus = saleReturn.status;
         const oldItems = JSON.parse(JSON.stringify(saleReturn.items)); // Deep copy old items
+        const updateData = { ...req.body };
+        delete updateData.reviewedBy;
+        delete updateData.reviewedAt;
+        delete updateData.reviewRemarks;
+        if (String(updateData.status || '').toLowerCase() === 'posted' && existingStatus !== 'Posted') {
+            updateData.status = 'Pending Approval';
+        }
 
-        saleReturn = await WHSaleReturn.findByIdAndUpdate(req.params.id, req.body, { returnDocument: 'after' });
+        saleReturn = await WHSaleReturn.findByIdAndUpdate(req.params.id, updateData, {
+            returnDocument: 'after',
+            runValidators: true
+        });
 
         // CASE 1: Transitioning to Posted OR already Posted (Modifying)
         if (saleReturn.status === 'Posted') {

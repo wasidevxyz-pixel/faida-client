@@ -51,6 +51,7 @@ async function createAdminGroup() {
             'wh_purchase': true,
             'wh_purchase_return': true,
             'wh_sale': true,
+            'wh_pos_sale': true,
             'wh_sale_return': true,
             'wh_customer_payment': true,
             'wh_barcode_print': true,

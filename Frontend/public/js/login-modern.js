@@ -1,5 +1,5 @@
 /**
- * D.Watson BAS Software - Modern 3D Animated Login Controller
+ * BW Software Agency - Modern 3D Animated Login Controller
  * Fully isolated within an IIFE; preserves existing authentication endpoints and sessions.
  */
 (() => {
@@ -144,7 +144,7 @@
     if (forgotPasswordLink) {
       forgotPasswordLink.addEventListener('click', (e) => {
         e.preventDefault();
-        showAlert('Please contact your D.Watson system administrator to reset credentials.', 'info');
+        showAlert('Please contact your BW SOFTWARE AGENCY system administrator to reset credentials.', 'info');
       });
     }
 

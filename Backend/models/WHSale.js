@@ -144,6 +144,14 @@ const whSaleSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    cashReceived: {
+        type: Number,
+        default: 0
+    },
+    changeAmount: {
+        type: Number,
+        default: 0
+    },
     invoiceBalance: {
         type: Number,
         default: 0

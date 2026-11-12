@@ -767,11 +767,14 @@ async function saveReturn(status = 'Posted') {
 
         const result = await res.json();
         if (result.success) {
-            alert('Return saved successfully!');
-            const savedId = result.data._id;
+            const isPendingApproval = result.data.status === 'Pending Approval';
+            alert(isPendingApproval
+                ? 'Return submitted for admin approval. Inventory will be updated after approval.'
+                : 'Return saved successfully!');
+            const savedReturn = result.data;
             resetForm();
             loadReturnList();
-            return savedId;
+            return savedReturn;
         } else {
             alert('Error: ' + result.error);
             return null;
@@ -986,9 +989,9 @@ function printInvoice(id) {
 }
 
 async function saveAndPrint() {
-    const savedId = await saveReturn('Posted');
-    if (savedId) {
-        printInvoice(savedId);
+    const savedReturn = await saveReturn('Posted');
+    if (savedReturn?.status === 'Posted') {
+        printInvoice(savedReturn._id);
     }
 }
 
@@ -1068,4 +1071,3 @@ async function loadNextReturnNumber() {
         console.error('Error loading next return number:', error);
     }
 }
-

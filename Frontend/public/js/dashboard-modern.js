@@ -1,5 +1,5 @@
 /**
- * D.Watson BAS Software - Modern 3D Animated Dashboard Controller
+ * BW Software Agency - Modern 3D Animated Dashboard Controller
  * Pure 3D Showcase Experience (No operational data tables, No transaction links)
  * Mouse Parallax, Ambient Cursor Glow, Theme Engine, Live Clock, Sidebar Sync.
  * Designed for Bilal Shah.
@@ -220,7 +220,7 @@
       { title: 'Barcode Printing', path: '/wh-barcode', category: 'Warehouse Tools', icon: 'fas fa-barcode', permission: 'wh_barcode_print', keywords: 'barcode sticker print label thermal a4 tags' },
 
       // Retail POS & Sales
-      { title: 'Retail POS', path: '/pos', category: 'Retail Operations', icon: 'fas fa-cash-register', permission: 'retail_pos', keywords: 'pos billing counter retail sale cash slip pharmacy counter sale' },
+      { title: 'POS Sale', path: '/pos-sale', category: 'Warehouse & Sales', icon: 'fas fa-cash-register', permission: 'wh_pos_sale', keywords: 'pos billing counter retail sale cash slip walk-in barcode scanner' },
       { title: 'Retail Items', path: '/items', category: 'Retail Inventory', icon: 'fas fa-box', permission: 'items', keywords: 'retail items pharmacy products medicine price' },
       { title: 'New Sale', path: '/sales', category: 'Retail Operations', icon: 'fas fa-cart-shopping', permission: 'new_sale', keywords: 'new sale retail invoice counter bill' },
       { title: 'Sales Return', path: '/sale-returns', category: 'Retail Operations', icon: 'fas fa-arrow-rotate-left', permission: 'sale_returns', keywords: 'sales return retail refund item back' },

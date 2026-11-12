@@ -224,6 +224,7 @@ window.applyUserPreferences();
             '/category-voucher': { title: 'Category Voucher', icon: 'fas fa-tags', category: 'Accounts & Ledger' },
             '/category-voucher-list': { title: 'Category Voucher List', icon: 'fas fa-list', category: 'Accounts & Ledger' },
             '/closing-sheet': { title: 'Closing Sheet', icon: 'fas fa-cash-register', category: 'Daily Reconciliation' },
+            '/pos-sale': { title: 'POS Sale', icon: 'fas fa-cash-register', category: 'Point of Sale' },
             '/sales': { title: 'Retail POS Counter', icon: 'fas fa-shopping-cart', category: 'Point of Sale' },
             '/purchase': { title: 'Purchase Entry', icon: 'fas fa-truck-loading', category: 'Procurement' },
             '/items': { title: 'Items Registration', icon: 'fas fa-box-open', category: 'Stock Catalog' },
@@ -1275,6 +1276,8 @@ if (typeof SidebarNavigation === 'undefined') {
                         { label: 'Item Registration', link: '/wh-item', permission: 'wh_item' },
                         { label: 'WH Purchase', link: '/wh-purchase', permission: 'wh_purchase' },
                         { label: 'WH Purchase Return', link: '/wh-purchase-return', permission: 'wh_purchase_return' },
+                        { label: 'POS Cash Sale', link: '/pos-sale', permission: 'wh_pos_sale' },
+                        { label: 'Sale Return Approval Queue', link: '/pos-return-queue', permission: 'wh_pos_return_approve' },
                         { label: 'WH Sale Entry', link: '/wh-sale', permission: 'wh_sale' },
                         { label: 'WH Sale Entry Return', link: '/wh-sale-return', permission: 'wh_sale_return' },
                         { label: 'WH Customer Payment', link: '/wh-customer-payment', permission: 'wh_customer_payment' },
@@ -2207,4 +2210,3 @@ if (typeof SidebarNavigation === 'undefined') {
         startSidebar();
     }
 }
-

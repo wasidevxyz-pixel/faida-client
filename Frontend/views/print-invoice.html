@@ -46,6 +46,7 @@
             min-height: auto;
             padding: 10px !important;
             font-size: 12px;
+            page: thermal;
         }
 
         .format-thermal .invoice-title {
@@ -269,6 +270,11 @@
                 padding: 5mm !important;
             }
         }
+
+        @page thermal {
+            size: 80mm auto;
+            margin: 0;
+        }
     </style>
 </head>
 
@@ -329,6 +335,14 @@
                     case 'sale':
                         endpoint = `/api/v1/sales/${id}`;
                         title = 'TAX INVOICE';
+                        break;
+                    case 'wh-sale':
+                        endpoint = `/api/v1/wh-sales/${id}`;
+                        title = 'CASH SALE';
+                        break;
+                    case 'wh-sale-return':
+                        endpoint = `/api/v1/wh-sale-returns/${id}`;
+                        title = 'CASH SALE RETURN';
                         break;
                     case 'purchase':
                         endpoint = `/api/v1/purchases/${id}`;
@@ -393,6 +407,9 @@
                 const company = companyData.data || {};
 
                 renderInvoice(data, type, title, company);
+                if (urlParams.get('autoprint') === '1') {
+                    setTimeout(() => window.print(), 400);
+                }
 
             } catch (error) {
                 console.error('Print error:', error);
@@ -421,7 +438,7 @@
 
             // Map fields based on document type
             const docNo = doc.invoiceNumber || doc.invoiceNo || doc.returnInvoiceNo || doc.returnNo || doc.paymentNo || doc.receiptNo || doc.voucherNo || doc.expenseNo || 'N/A';
-            const docDate = new Date(doc.date).toLocaleDateString();
+            const docDate = new Date(doc.date || doc.invoiceDate || doc.createdAt).toLocaleDateString();
 
             // Party details
             let party = doc.customer || doc.customerId || doc.party || doc.supplier || doc.supplierId || {};
@@ -431,7 +448,7 @@
                 party = { name: doc.payee || doc.paidTo || doc.head || 'General', address: '' };
             }
 
-            const partyName = party.name || 'Unknown Party';
+            const partyName = party.name || party.customerName || 'Unknown Party';
             let partyAddress = 'Address Not Available';
             if (party.address) {
                 if (typeof party.address === 'object') {
@@ -501,9 +518,18 @@
             }
 
             // Totals
-            const subTotal = (doc.subTotal || doc.amount || 0).toFixed(2);
-            const taxTotal = (doc.taxAmount || 0).toFixed(2);
-            const grandTotal = (doc.grandTotal || doc.totalReturnAmount || doc.amount || 0).toFixed(2);
+            const subTotalValue = Number(doc.subtotal || doc.subTotal || doc.totalAmount || doc.amount || 0);
+            const subTotal = subTotalValue.toFixed(2);
+            const taxTotal = (doc.taxAmount || doc.globalTaxAmount || 0).toFixed(2);
+            const grandTotal = (doc.grandTotal || doc.netTotal || doc.totalReturnAmount || doc.amount || 0).toFixed(2);
+            const percentageDiscount = Number(doc.globalDiscountPercent || 0);
+            const flatDiscount = Number(doc.globalDiscountAmount || 0);
+            const percentageDiscountAmount = Math.round((subTotalValue * percentageDiscount / 100 + Number.EPSILON) * 100) / 100;
+            const adjustmentRows = ['wh-sale', 'wh-sale-return'].includes(type) ? `
+                ${percentageDiscountAmount > 0 ? `<tr><td>Discount (${percentageDiscount.toFixed(2)}%)</td><td class="text-end fw-bold">${percentageDiscountAmount.toFixed(2)}</td></tr>` : ''}
+                ${flatDiscount > 0 ? `<tr><td>Flat discount</td><td class="text-end fw-bold">${flatDiscount.toFixed(2)}</td></tr>` : ''}
+                ${Number(doc.miscCharges || 0) > 0 ? `<tr><td>Misc. charges</td><td class="text-end fw-bold">${Number(doc.miscCharges).toFixed(2)}</td></tr>` : ''}
+            ` : '';
             const createdBy = doc.createdBy?.name || 'System';
 
             let itemsHtml = items.map((item, index) => {
@@ -525,10 +551,10 @@
                 // Regular Invoice Row
                 const itemData = item.itemId || item.item || {};
                 const name = itemData.name || item.name || 'Unknown Item';
-                const code = itemData.sku || itemData.itemCode || '';
+                const code = item.barcode || itemData.barcode || itemData.sku || itemData.itemsCode || itemData.itemCode || '';
                 const qty = item.quantity || item.returnQty || 0;
-                const price = item.price || item.salePrice || item.purchasePrice || item.cost || 0;
-                const total = item.total || item.returnAmount || (qty * price) || 0;
+                const price = item.price || item.rate || item.retailPrice || item.pcsPrice || item.salePrice || item.purchasePrice || item.cost || 0;
+                const total = item.total || item.amount || item.netTotal || item.subTotal || item.returnAmount || (qty * price) || 0;
 
                 return `
                     <tr>
@@ -608,6 +634,9 @@
                             <div class="info-label small text-muted text-uppercase fw-bold">Invoice No</div>
                             <div class="fw-bold text-dark">${docNo}</div>
                         </div>
+                        ${type === 'wh-sale-return' && doc.originalSale?.invoiceNo ? `
+                        <div class="alert alert-light py-2 mb-3">Original sale invoice: <strong>${doc.originalSale.invoiceNo}</strong></div>
+                        ` : ''}
                         <div class="col-3 border-end">
                             <div class="info-label small text-muted text-uppercase fw-bold">Date</div>
                             <div class="fw-bold text-dark">${docDate}</div>
@@ -648,10 +677,29 @@
                             <td>Tax</td>
                             <td class="text-end fw-bold">${taxTotal}</td>
                         </tr>
+                        ${adjustmentRows}
                         <tr>
                             <td class="grand-total">Grand Total</td>
                             <td class="text-end grand-total">${grandTotal}</td>
                         </tr>
+                        ${type === 'wh-sale-return' ? `
+                        <tr>
+                            <td>Cash refunded</td>
+                            <td class="text-end fw-bold">${Number(doc.paidAmount || doc.netTotal || 0).toFixed(2)}</td>
+                        </tr>` : ''}
+                        ${((type === 'sale' && doc.paymentMode === 'cash') || (type === 'wh-sale' && doc.payMode === 'Cash')) ? `
+                        <tr>
+                            <td>Paid</td>
+                            <td class="text-end fw-bold">${Number(doc.paidAmount || 0).toFixed(2)}</td>
+                        </tr>
+                        <tr>
+                            <td>Cash received</td>
+                            <td class="text-end fw-bold">${Number(doc.cashReceived || doc.paidAmount || 0).toFixed(2)}</td>
+                        </tr>
+                        <tr>
+                            <td>Change</td>
+                            <td class="text-end fw-bold">${Number(doc.changeAmount || 0).toFixed(2)}</td>
+                        </tr>` : ''}
                     </table>
                 </div>
 
@@ -690,4 +738,3 @@
 </body>
 
 </html>
-

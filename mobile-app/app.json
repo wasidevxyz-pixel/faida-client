@@ -1,0 +1,50 @@
+{
+  "expo": {
+    "name": "BAS-SOFTWARE",
+    "slug": "muhammad-bilal",
+    "version": "1.0.5",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#FFFFFF",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "package": "com.bilalshah7310steam.bilalshah",
+      "permissions": [
+        "INTERNET",
+        "ACCESS_NETWORK_STATE",
+        "ACCESS_WIFI_STATE",
+        "CAMERA"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-sharing",
+      "@react-native-community/datetimepicker",
+      "expo-secure-store",
+      "expo-camera",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to let you set employee profile pictures.",
+          "cameraPermission": "The app accesses your camera to let you take employee profile pictures."
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "eb84f05d-9891-43b6-9c10-51f5cd7ce408"
+      }
+    },
+    "owner": "muhammadbilal333s-team"
+  }
+}

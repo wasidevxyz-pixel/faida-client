@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script>
+        (function() {
+            var params = new URLSearchParams(window.location.search);
+            var tab = params.get('tab');
+            var edit = params.get('edit');
+            var target = (tab === 'category') ? '/category-voucher' : '/supplier-voucher';
+            if (edit) target += '?edit=' + encodeURIComponent(edit);
+            window.location.replace(target);
+        })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Vouchers - Bilal Accounting System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #3a86ff;
+            --secondary-blue: #4361ee;
+            --dark-blue: #1e3a8a;
+            --light-blue: #f1f5f9;
+            --success-green: #06d6a0;
+            --danger-red: #ef476f;
+            --warning-yellow: #ffd166;
+            --card-header-bg: #4b91ad;
+            /* Match the image color */
+        }
+
+        body {
+            background-color: #f8fafc;
+            font-family: 'Inter', -apple-system, sans-serif;
+        }
+
+        .main-content {
+            padding: 20px;
+            margin-top: 10px;
+        }
+
+        .page-header {
+            margin-bottom: 25px;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+
+        .page-subtitle {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        /* Improved Tabs Styling */
+        .nav-tabs-custom {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            justify-content: flex-start !important;
+            /* Force 1 row */
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 25px;
+            gap: 0px !important;
+            background: #ffffff;
+            padding: 8px 15px 0 15px;
+            border-radius: 10px 10px 0 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            overflow: hidden !important;
+        }
+
+        .nav-tabs-custom .nav-item {
+            margin-bottom: -2px;
+            margin-right: 0 !important;
+            flex: 0 0 auto !important;
+        }
+
+        .nav-tabs-custom .nav-link {
+            border: 2px solid transparent !important;
+            color: #475569 !important;
+            /* Darker grey for visibility */
+            font-weight: 700 !important;
+            padding: 12px 25px !important;
+            border-radius: 8px 8px 0 0 !important;
+            transition: all 0.2s ease-in-out;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: transparent;
+        }
+
+        .nav-tabs-custom .nav-link i {
+            font-size: 1.1rem;
+            color: #64748b;
+        }
+
+        .nav-tabs-custom .nav-link:hover {
+            color: var(--primary-blue) !important;
+            background-color: #f8fafc !important;
+            border-bottom-color: #cbd5e1 !important;
+        }
+
+        .nav-tabs-custom .nav-link.active {
+            color: white !important;
+            background-color: var(--primary-blue) !important;
+            border: 2px solid var(--primary-blue) !important;
+            border-bottom-color: var(--primary-blue) !important;
+            box-shadow: 0 -4px 10px rgba(58, 134, 255, 0.2);
+        }
+
+        .nav-tabs-custom .nav-link.active i {
+            color: white;
+        }
+
+        /* Category Tab Active Color */
+        #category-tab.active {
+            background-color: var(--success-green) !important;
+            border-color: var(--success-green) !important;
+        }
+
+        #category-tab.active i {
+            color: white;
+        }
+
+        /* Card Styling */
+        .card-custom {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .card-header-blue {
+            background-color: var(--card-header-bg);
+            color: white;
+            padding: 12px 20px;
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 25px;
+            background-color: white;
+        }
+
+        /* Professional Mobile Enhancements */
+        @media (max-width: 768px) {
+            .page-header {
+                padding: 0.5rem 1rem !important;
+                background-color: var(--primary-blue) !important;
+            }
+
+            .main-content {
+                padding: 10px !important;
+                padding-bottom: 80px !important;
+            }
+
+            .nav-tabs-custom {
+                border-bottom: 2px solid var(--primary-blue) !important;
+                padding: 5px !important;
+                background-color: #fff !important;
+                overflow-x: auto !important;
+                display: flex !important;
+                flex-wrap: nowrap !important;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .nav-tabs-custom .nav-link {
+                padding: 10px 15px !important;
+                font-size: 0.8rem !important;
+                border-radius: 8px 8px 0 0 !important;
+            }
+
+            .card-custom {
+                border-radius: 12px !important;
+                border: none !important;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
+            }
+
+            .card-body {
+                padding: 15px !important;
+            }
+
+            .form-label {
+                font-size: 0.75rem !important;
+                color: #64748b !important;
+            }
+
+            .form-control,
+            .form-select {
+                height: 38px !important;
+                font-size: 0.85rem !important;
+                border-radius: 8px !important;
+            }
+
+            /* Bottom Action Bar */
+            .action-bar-mobile {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: white;
+                display: flex !important;
+                justify-content: space-around;
+                padding: 8px 5px;
+                box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.1);
+                z-index: 1050;
+                border-top: 1px solid #e2e8f0;
+                height: 65px;
+            }
+
+            .action-btn-mobile {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                background: none;
+                border: none;
+                color: #64748b;
+                font-size: 0.65rem;
+                font-weight: 600;
+                flex: 1;
+                transition: all 0.2s;
+            }
+
+            .action-btn-mobile i {
+                font-size: 1.25rem;
+                margin-bottom: 3px;
+            }
+
+            .action-btn-mobile:active {
+                color: var(--primary-blue);
+            }
+
+            .btn-save-mobile i {
+                color: #10b981;
+            }
+
+            .btn-list-mobile i {
+                color: #3b82f6;
+            }
+
+            .btn-clear-mobile i {
+                color: #f59e0b;
+            }
+
+            .col-12.text-end.mt-4 {
+                display: none !important;
+                /* Hide desktop buttons */
+            }
+        }
+
+        /* Improved Tabs Styling */
+        .nav-tabs-custom {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            justify-content: flex-start !important;
+            /* Force 1 row */
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 25px;
+            gap: 0px !important;
+            background: #ffffff;
+            padding: 8px 15px 0 15px;
+            border-radius: 10px 10px 0 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            overflow: hidden !important;
+        }
+
+        .nav-tabs-custom .nav-item {
+            margin-bottom: -2px;
+            margin-right: 0 !important;
+            flex: 0 0 auto !important;
+        }
+
+        .nav-tabs-custom .nav-link {
+            border: 2px solid transparent !important;
+            color: #475569 !important;
+            /* Darker grey for visibility */
+            font-weight: 700 !important;
+            padding: 12px 25px !important;
+            border-radius: 8px 8px 0 0 !important;
+            transition: all 0.2s ease-in-out;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: transparent;
+        }
+
+        .nav-tabs-custom .nav-link i {
+            font-size: 1.1rem;
+            color: #64748b;
+        }
+
+        .nav-tabs-custom .nav-link:hover {
+            color: var(--primary-blue) !important;
+            background-color: #f8fafc !important;
+            border-bottom-color: #cbd5e1 !important;
+        }
+
+        .nav-tabs-custom .nav-link.active {
+            color: white !important;
+            background-color: var(--primary-blue) !important;
+            border: 2px solid var(--primary-blue) !important;
+            border-bottom-color: var(--primary-blue) !important;
+            box-shadow: 0 -4px 10px rgba(58, 134, 255, 0.2);
+        }
+
+        .nav-tabs-custom .nav-link.active i {
+            color: white;
+        }
+
+        /* Category Tab Active Color */
+        #category-tab.active {
+            background-color: var(--success-green) !important;
+            border-color: var(--success-green) !important;
+        }
+
+        #category-tab.active i {
+            color: white;
+        }
+
+        /* Card Styling */
+        .card-custom {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .card-header-blue {
+            background-color: var(--card-header-bg);
+            color: white;
+            padding: 12px 20px;
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 25px;
+            background-color: white;
+        }
+
+        /* Form Controls */
+        .form-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 8px;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            padding: 10px 12px;
+            font-size: 0.9rem;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.15);
+        }
+
+        /* Buttons */
+        .btn-custom-save {
+            background-color: var(--card-header-bg);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            font-weight: 600;
+            border-radius: 6px;
+        }
+
+        .btn-custom-save:hover {
+            background-color: #3d7a94;
+            color: white;
+        }
+
+        .btn-custom-reset {
+            background-color: #64748b;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            font-weight: 600;
+            border-radius: 6px;
+        }
+
+        /* List Styling */
+        .voucher-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 40px;
+            margin-bottom: 20px;
+        }
+
+        .filter-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .data-table {
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .table thead th {
+            background-color: #f1f5f9;
+            color: #475569;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            padding: 12px 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .table tbody td {
+            padding: 12px 15px;
+            font-size: 0.9rem;
+            vertical-align: middle;
+            color: #334155;
+        }
+
+        .badge-supplier {
+            background-color: #007bff;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            margin-right: 5px;
+        }
+
+        .action-btns .btn {
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            margin: 0 2px;
+        }
+
+        /* Top Nav Overrides */
+        .top-nav {
+            background: white;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Top Nav -->
+    <!-- Standardized Page Header -->
+    <div class="page-header px-3">
+        <div style="flex: 1; display: flex; align-items: center;">
+            <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+            <h4 class="mb-0">Payment Vouchers</h4>
+        </div>
+        <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
+            <div class="dropdown">
+                <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown" style="cursor: pointer;">
+                    <div class="avatar-circle me-2 bg-primary text-white d-flex align-items-center justify-content-center"
+                        style="width: 35px; height: 35px; border-radius: 50%; font-weight: bold;">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <span id="userName" class="me-2">User</span>
+                    <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                    <li><a class="dropdown-item" href="/profile"><i class="fas fa-user-circle me-2"></i>
+                            Profile</a></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+                    <li><a class="dropdown-item logout-btn" href="#"><i
+                                class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Horizontal Tabs -->
+    <ul class="nav nav-tabs nav-tabs-custom" id="paymentTabs" role="tablist">
+        <li class="nav-item" id="tab-li-supplier">
+            <button class="nav-link active" id="supplier-tab" data-bs-toggle="tab" data-bs-target="#supplier-content"
+                type="button" role="tab"><i class="fas fa-truck"></i> Supplier
+                Voucher</button>
+        </li>
+        <li class="nav-item" id="tab-li-category">
+            <button class="nav-link" id="category-tab" data-bs-toggle="tab" data-bs-target="#category-content"
+                type="button" role="tab"><i class="fas fa-tags"></i> Category Voucher</button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="paymentTabsContent">
+        <!-- Supplier Voucher Tab -->
+        <div class="tab-pane fade show active" id="supplier-content" role="tabpanel">
+            <div class="card card-custom">
+                <div class="card-header-blue">Create Supplier Payment Voucher</div>
+                <div class="card-body">
+                    <form id="supplierVoucherForm">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label class="form-label">Voucher Number</label>
+                                <input type="text" id="voucherNo" class="form-control" readonly placeholder="PV1189">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Date</label>
+                                <input type="date" id="voucherDate" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Branch</label>
+                                <select id="branchSelect" class="form-select">
+                                    <option value="">Select Branch</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Supplier</label>
+                                <select id="supplierSelect" class="form-select">
+                                    <option value="">Select Supplier</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Payment Method</label>
+                                <select id="paymentMethod" class="form-select">
+                                    <option value="Cash">Cash</option>
+                                    <option value="Bank">Bank</option>
+                                    <option value="Cheque">Cheque</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Amount (PKR)</label>
+                                <input type="number" id="voucherAmount" class="form-control" placeholder="0.00">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Amount in Words</label>
+                                <input type="text" id="voucherAmountWords" class="form-control bg-light" readonly placeholder="Rupees Only">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Description</label>
+                                <textarea id="voucherDescription" class="form-control" rows="4"></textarea>
+                            </div>
+                            <div class="col-12 text-end mt-4">
+                                <button type="button" class="btn btn-info text-white me-2"
+                                    onclick="window.location.href='/payment-vouchers-list?tab=supplier'"><i
+                                        class="fas fa-list me-2"></i> Voucher List</button>
+                                <button type="button" class="btn btn-custom-reset me-2"
+                                    onclick="resetForm('supplierVoucherForm')"><i class="fas fa-redo me-2"></i>
+                                    Reset</button>
+                                <button type="submit" class="btn btn-custom-save"><i class="fas fa-save me-2"></i>
+                                    Save Voucher</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Voucher Tab -->
+        <div class="tab-pane fade" id="category-content" role="tabpanel">
+            <div class="card card-custom">
+                <div class="card-header-blue bg-success">Create Category Payment Voucher</div>
+                <div class="card-body">
+                    <form id="categoryVoucherForm">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label class="form-label">Voucher Number</label>
+                                <input type="text" id="catVoucherNo" class="form-control" readonly placeholder="PV1190">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Date</label>
+                                <input type="date" id="catVoucherDate" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Branch</label>
+                                <select id="catBranchSelect" class="form-select">
+                                    <option value="">Select Branch</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label mb-0">Customer Category</label>
+                                    <button type="button" class="btn btn-sm btn-outline-success border-0 p-0"
+                                        onclick="openQuickAddCategory()" title="Add New Category">
+                                        <i class="fas fa-plus-circle"></i>
+                                    </button>
+                                </div>
+                                <select id="catCustomerCategory" class="form-select">
+                                    <option value="">Select Category</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Payment Method</label>
+                                <select id="catPaymentMethod" class="form-select">
+                                    <option value="Cash">Cash</option>
+                                    <option value="Bank">Bank</option>
+                                    <option value="Cheque">Cheque</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Amount (PKR)</label>
+                                <input type="number" id="catVoucherAmount" class="form-control" placeholder="0.00">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Amount in Words</label>
+                                <input type="text" id="catVoucherAmountWords" class="form-control bg-light" readonly placeholder="Rupees Only">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Description</label>
+                                <textarea id="catVoucherDescription" class="form-control" rows="4"></textarea>
+                            </div>
+                            <div class="col-12 text-end mt-4">
+                                <button type="button" class="btn btn-info text-white me-2"
+                                    onclick="window.location.href='/payment-vouchers-list?tab=category'"><i
+                                        class="fas fa-list me-2"></i> Voucher List</button>
+                                <button type="button" class="btn btn-custom-reset me-2"
+                                    onclick="resetForm('categoryVoucherForm')"><i class="fas fa-redo me-2"></i>
+                                    Reset</button>
+                                <button type="submit" class="btn btn-custom-save bg-success"><i
+                                        class="fas fa-save me-2"></i> Save Voucher</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Hidden Print Container -->
+    <div id="printArea" style="display: none;"></div>
+
+    <!-- Mobile Bottom Action Bar -->
+    <div class="action-bar-mobile d-none">
+        <button type="button" class="action-btn-mobile btn-save-mobile" onclick="handleMobileSave()">
+            <i class="fas fa-save"></i>
+            <span>Save</span>
+        </button>
+        <button type="button" class="action-btn-mobile btn-list-mobile" onclick="handleMobileList()">
+            <i class="fas fa-list"></i>
+            <span>List</span>
+        </button>
+        <button type="button" class="action-btn-mobile btn-clear-mobile" onclick="handleMobileReset()">
+            <i class="fas fa-redo"></i>
+            <span>Reset</span>
+        </button>
+    </div>
+
+    <script>
+        function handleMobileSave() {
+            const activeTab = document.querySelector('#paymentTabs .nav-link.active').getAttribute('data-bs-target');
+            if (activeTab === '#supplier-content') {
+                document.querySelector('#supplierVoucherForm').requestSubmit();
+            } else {
+                document.querySelector('#categoryVoucherForm').requestSubmit();
+            }
+        }
+
+        function handleMobileList() {
+            const activeTab = document.querySelector('#paymentTabs .nav-link.active').getAttribute('data-bs-target');
+            if (activeTab === '#supplier-content') {
+                window.location.href = '/payment-vouchers-list?tab=supplier';
+            } else {
+                window.location.href = '/payment-vouchers-list?tab=category';
+            }
+        }
+
+        function handleMobileReset() {
+            const activeTab = document.querySelector('#paymentTabs .nav-link.active').getAttribute('data-bs-target');
+            if (activeTab === '#supplier-content') {
+                resetForm('supplierVoucherForm');
+            } else {
+                resetForm('categoryVoucherForm');
+            }
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244513"></script>
+    <script src="/js/desktop-ui.js"></script>
+    <script src="/js/payment-vouchers.js?v=106"></script>
+</body>
+
+</html>
+

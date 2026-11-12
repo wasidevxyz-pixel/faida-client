@@ -1,0 +1,1872 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/desktop-style.css?v=106" rel="stylesheet">
+    <link href="/css/sidebar.css?v=106" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Custom Styles for Bank Screens based on images */
+        .bank-section-header,
+        #bank-payments .bg-primary,
+        #bank-to-bank .bg-primary {
+            background: linear-gradient(135deg, #07132b 0%, #0d2149 50%, #102a5c 100%) !important;
+            border: 1px solid rgba(0, 212, 255, 0.35) !important;
+            box-shadow: 0 4px 15px rgba(7, 19, 43, 0.3) !important;
+            color: #ffffff !important;
+        }
+
+        .bank-section-header h5,
+        #bank-payments .bg-primary h5,
+        #bank-to-bank .bg-primary h5 {
+            color: #ffffff !important;
+            font-weight: 700 !important;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6) !important;
+        }
+
+        #bankTabs .nav-link {
+            font-weight: 600;
+            color: #475569;
+            border-radius: 8px 8px 0 0;
+            transition: all 0.2s ease;
+        }
+
+        #bankTabs .nav-link.active {
+            background: linear-gradient(135deg, #07132b 0%, #0d2149 50%, #102a5c 100%) !important;
+            color: #ffffff !important;
+            border-top: 3px solid #00d4ff !important;
+            border-left: 1px solid rgba(0, 212, 255, 0.25) !important;
+            border-right: 1px solid rgba(0, 212, 255, 0.25) !important;
+            border-bottom: none !important;
+            box-shadow: 0 -2px 10px rgba(7, 19, 43, 0.25) !important;
+        }
+
+        .kpi-card {
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .kpi-green,
+        .bg-kpi-green {
+            background-color: #28a745 !important;
+            color: white !important;
+        }
+
+        .kpi-red,
+        .bg-kpi-red {
+            background-color: #dc3545 !important;
+            color: white !important;
+        }
+
+        .kpi-blue,
+        .bg-kpi-blue,
+        #bp-balance-display,
+        #btb-from-pre,
+        #btb-from-new,
+        #btb-to-pre,
+        #btb-to-new {
+            background: linear-gradient(135deg, #07132b 0%, #0d2149 50%, #102a5c 100%) !important;
+            border: 1.5px solid rgba(0, 212, 255, 0.45) !important;
+            color: #00d4ff !important;
+            font-weight: 700 !important;
+            font-size: 1.15rem !important;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.35) !important;
+        }
+
+        .kpi-orange,
+        .bg-kpi-orange {
+            background-color: #fd7e14 !important;
+            color: white !important;
+        }
+
+        .kpi-dark,
+        .bg-kpi-dark {
+            background-color: #000 !important;
+            color: #0f0 !important;
+        }
+
+        /* Ensure inputs with backgrounds look professional */
+        input.bg-kpi-green,
+        input.bg-kpi-red,
+        input.bg-kpi-blue,
+        input.bg-kpi-orange {
+            border: none !important;
+            font-weight: bold !important;
+            text-align: center;
+        }
+
+        .pending-chq-container {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 15px;
+            height: 100%;
+        }
+
+        .form-label-bold {
+            font-weight: bold;
+            font-size: 0.85rem;
+            margin-bottom: 2px;
+            display: block;
+        }
+
+        .discovery-col {
+            border-left: 1px solid #dee2e6;
+            border-right: 1px solid #dee2e6;
+            padding: 0 15px;
+        }
+
+        /* Black bg, lime text */
+
+        .tab-content {
+            padding: 10px;
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-top: none;
+            height: calc(100vh - 150px);
+            overflow: visible;
+            /* Changed from hidden to visible to allow dropdowns */
+        }
+
+        .right-grid {
+            flex: 1;
+            overflow-x: auto;
+            overflow-y: auto;
+        }
+
+        .table-responsive {
+            overflow-y: auto;
+            overflow-x: auto;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background: #fff;
+            padding: 8px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 100;
+        }
+
+        .filter-group {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            margin-bottom: 0;
+            color: #334155;
+        }
+
+        .bank-controls-bar {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 6px 12px;
+        }
+
+        .bank-action-buttons-group {
+            flex: 1 1 auto;
+            justify-content: flex-end;
+            min-width: 0;
+        }
+
+        .bank-search-box {
+            min-width: 170px;
+            flex: 1 1 200px;
+            max-width: 280px;
+        }
+
+        @media (max-width: 1300px) {
+            .bank-controls-bar {
+                align-items: stretch !important;
+            }
+            .bank-action-buttons-group {
+                width: 100%;
+                justify-content: flex-start;
+            }
+        }
+
+        @media (min-width: 768.02px) {
+            body.sidebar-mini {
+                padding-left: var(--sidebar-width-mini, 60px) !important;
+            }
+            body.sidebar-full {
+                padding-left: var(--sidebar-width-full, 280px) !important;
+            }
+        }
+
+        .form-control-sm,
+        .form-select-sm {
+            font-size: 0.85rem;
+        }
+
+        /* Grid Styles */
+        .custom-grid th {
+            background-color: #0056b3;
+            color: white;
+            font-weight: 500;
+            white-space: nowrap;
+            padding: 5px;
+            font-size: 0.85rem;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: inset 0 -1px 0 #dee2e6;
+        }
+
+        /* Strict tab switching guarantee: Never let inactive tab-panes remain visible */
+        .tab-content > .tab-pane:not(.active) {
+            display: none !important;
+        }
+
+        /* Flex column layout on bank-detail ONLY when it is active */
+        #bank-detail.active {
+            display: flex !important;
+            flex-direction: column;
+        }
+
+        /* Professional Mobile Enhancements */
+        @media (max-width: 768px) {
+            .page-header {
+                padding: 0.5rem 1rem !important;
+                background-color: #0056b3 !important;
+            }
+
+            .container-fluid {
+                padding: 8px !important;
+                padding-bottom: 80px !important;
+                /* Space for action bar */
+            }
+
+            #pending-chq .container-fluid {
+                padding: 10px !important;
+                padding-bottom: 20px !important;
+            }
+
+            #bankTabs.nav-tabs {
+                border-bottom: 2px solid #0056b3 !important;
+                padding: 5px !important;
+                background-color: #fff !important;
+                overflow-x: auto !important;
+                display: flex !important;
+                flex-wrap: nowrap !important;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            #bankTabs .nav-link {
+                padding: 6px 12px !important;
+                font-size: 0.8rem !important;
+                border-radius: 8px 8px 0 0 !important;
+                margin-right: 5px !important;
+            }
+
+            .tab-content {
+                height: auto !important;
+                min-height: calc(100vh - 180px) !important;
+                border: none !important;
+                padding: 10px 0 !important;
+                overflow: visible !important;
+            }
+
+            .tab-pane {
+                height: auto !important;
+                min-height: unset !important;
+            }
+
+            .filter-row {
+                padding: 10px !important;
+                border-radius: 12px !important;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+                margin-bottom: 12px !important;
+                display: block !important;
+            }
+
+            .filter-group {
+                width: 100% !important;
+                margin-bottom: 8px !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 8px !important;
+            }
+
+            .filter-group label {
+                width: 85px !important;
+                min-width: 85px !important;
+                font-size: 0.75rem !important;
+            }
+
+            .filter-group .form-control,
+            .filter-group .form-select,
+            .filter-group input,
+            .filter-group select {
+                flex: 1 1 auto !important;
+                width: auto !important;
+                min-width: 0 !important;
+            }
+
+            .form-control,
+            .form-select {
+                height: 38px !important;
+                font-size: 0.85rem !important;
+                border-radius: 8px !important;
+            }
+
+            .table-responsive {
+                height: auto !important;
+                max-height: 50vh !important;
+                min-height: 200px !important;
+                overflow: auto !important;
+                border-radius: 12px !important;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
+                background: white;
+            }
+
+            /* Bottom Action Bar */
+            .action-bar-mobile {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: white;
+                display: flex !important;
+                justify-content: space-around;
+                padding: 8px 5px;
+                box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.1);
+                z-index: 1050;
+                border-top: 1px solid #e2e8f0;
+                height: 65px;
+            }
+
+            .action-btn-mobile {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                background: none;
+                border: none;
+                color: #64748b;
+                font-size: 0.65rem;
+                font-weight: 600;
+                flex: 1;
+                transition: all 0.2s;
+            }
+
+            .action-btn-mobile i {
+                font-size: 1.25rem;
+                margin-bottom: 3px;
+            }
+
+            .action-btn-mobile.active {
+                color: #0056b3;
+            }
+
+            .action-btn-mobile.btn-search i {
+                color: #3b82f6;
+            }
+
+            .action-btn-mobile.btn-update i {
+                color: #10b981;
+            }
+
+            .action-btn-mobile.btn-print i {
+                color: #8b5cf6;
+            }
+
+            .action-btn-mobile.btn-save i {
+                color: #10b981;
+            }
+
+            .action-btn-mobile.btn-refresh i {
+                color: #f59e0b;
+            }
+
+            /* Tab Specific Mobile UI */
+            .split-container {
+                display: flex !important;
+                flex-direction: column !important;
+                height: auto !important;
+                gap: 15px !important;
+            }
+
+            .left-form {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin-bottom: 0 !important;
+                border-right: none !important;
+                padding: 15px !important;
+                border-radius: 12px !important;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+                display: block !important;
+                height: auto !important;
+            }
+
+            .right-grid {
+                width: 100% !important;
+                max-width: 100% !important;
+                height: auto !important;
+            }
+
+            #bank-summary .table-responsive,
+            #bank-payments .right-grid .table-responsive,
+            #bank-to-bank .right-grid .table-responsive {
+                height: auto !important;
+                max-height: 400px !important;
+                overflow-y: auto !important;
+            }
+
+            .d-flex.justify-content-between.align-items-center.mb-2 {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 10px;
+            }
+
+            /* Hide ONLY desktop action buttons inside controls bar on mobile */
+            .bank-controls-bar .bank-action-buttons-group .btn {
+                display: none !important;
+            }
+
+            .bank-controls-bar .bank-search-box {
+                width: 100% !important;
+                max-width: 100% !important;
+                flex: 1 1 100% !important;
+            }
+
+            .badge {
+                font-size: 0.8rem !important;
+                padding: 6px 12px !important;
+            }
+        }
+
+        .custom-grid td {
+            font-size: 0.85rem;
+            padding: 4px;
+            vertical-align: middle;
+        }
+
+        .custom-grid tfoot td {
+            position: sticky;
+            bottom: 0;
+            background-color: #000 !important;
+            color: #fff !important;
+            z-index: 10;
+            border-top: 2px solid #dee2e6;
+        }
+
+        /* Bank Detail specific row colors */
+        .row-red {
+            background-color: #dc3545 !important;
+            color: white;
+        }
+
+        .row-red input {
+            color: black;
+        }
+
+        /* Split Layout for Pending Chq & Payments */
+        .split-container {
+            display: flex;
+            gap: 15px;
+            height: 100%;
+        }
+
+        .left-form {
+            width: 300px;
+            border-right: 1px solid #ddd;
+            padding-right: 10px;
+            overflow-y: auto;
+        }
+
+        .right-grid {
+            flex: 1;
+            overflow: auto;
+        }
+
+        /* Professional Tab Styling */
+        .nav-tabs {
+            border-bottom: 2px solid #0056b3;
+            background-color: #f1f3f4;
+            padding-top: 5px;
+            padding-left: 5px;
+        }
+
+        .nav-tabs .nav-link {
+            border: 1px solid transparent;
+            border-bottom: none;
+            color: #495057;
+            background-color: #e9ecef;
+            margin-right: 4px;
+            border-radius: 4px 4px 0 0;
+            font-weight: 600;
+            padding: 8px 16px;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .nav-tabs .nav-link:hover {
+            background-color: #dde2e6;
+            color: #212529;
+            border-color: #dee2e6 #dee2e6 #fff;
+        }
+
+        .nav-tabs .nav-link.active {
+            background-color: #0056b3;
+            color: #fff;
+            border-color: #0056b3 #0056b3 #0056b3;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Ensure tab text is visible and horizontal */
+        .nav-link {
+            white-space: nowrap;
+        }
+
+        /* Professional Tab Styling - Horizontal Layout Fix */
+        #bankTabs.nav-tabs {
+            border-bottom: 2px solid #0056b3;
+            background-color: #f8f9fa;
+            padding-top: 5px;
+            padding-left: 5px;
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            justify-content: flex-start !important;
+            gap: 2px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scrollbar-width: none;
+        }
+
+        #bankTabs.nav-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Specific override for sidebar.css interference */
+        #bankTabs .nav-item {
+            margin-bottom: 0;
+            padding: 0;
+            flex: 0 0 auto !important;
+            width: auto !important;
+            /* Override sidebar.css width: 100% */
+        }
+
+        #bankTabs .nav-link {
+            border: 1px solid #dee2e6;
+            border-bottom: none;
+            color: #444 !important;
+            /* Override sidebar.css color: white */
+            background-color: #e9ecef;
+            margin: 0;
+            border-radius: 4px 4px 0 0;
+            font-weight: 600;
+            padding: 8px 15px;
+            transition: all 0.2s ease-in-out;
+            white-space: nowrap;
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        #bankTabs .nav-link:hover {
+            background-color: #dbe4ea;
+            color: #000 !important;
+            border-color: #cddceb;
+            margin-bottom: -1px;
+        }
+
+        #bankTabs .nav-link.active {
+            background-color: #0056b3 !important;
+            color: #fff !important;
+            border-color: #0056b3 #0056b3 #0056b3;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: -2px;
+        }
+
+        /* White Date Picker Icon for clear visibility on colored rows */
+        .batch-date-input::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+        }
+
+        /* Clear and visible grid text */
+        .custom-grid {
+            font-size: 0.95rem;
+            width: 100% !important;
+        }
+
+        #bankDetailsTable {
+            width: 100% !important;
+            table-layout: auto;
+        }
+
+        .custom-grid td {
+            vertical-align: middle;
+            padding: 8px 12px !important;
+        }
+
+        .x-small {
+            font-size: 0.75rem;
+            color: #6c757d;
+            display: block;
+        }
+
+        /* Print Styles */
+        @media print {
+            @page {
+                size: portrait;
+                margin: 0.5cm;
+            }
+
+            /* Hide Non-Print Elements */
+            .page-header,
+            .filter-row,
+            .btn,
+            button,
+            .kpi-card,
+            .sidebar-container,
+            .nav-tabs,
+            #bankTabs,
+            #selectAllBatches,
+            .d-print-none {
+                display: none !important;
+            }
+
+            /* Basic Body Visibility */
+            body * {
+                visibility: hidden;
+            }
+
+            .tab-pane.active,
+            .tab-pane.active * {
+                visibility: visible;
+            }
+
+            .tab-pane.active {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: white;
+            }
+
+            body,
+            html {
+                background: white !important;
+                height: 100%;
+                overflow: visible !important;
+            }
+
+            .container-fluid {
+                visibility: hidden;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            .tab-content {
+                border: none !important;
+                padding: 0 !important;
+                overflow: visible !important;
+                height: auto !important;
+            }
+
+            .table-responsive {
+                overflow: visible !important;
+                height: auto !important;
+                max-height: none !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+
+            /* Hide specific columns */
+            #bankDetailsTable th:nth-child(2),
+            #bankDetailsTable td:nth-child(2),
+            #bankDetailsTable th:nth-child(3),
+            #bankDetailsTable td:nth-child(3) {
+                display: none !important;
+            }
+
+            /* Main Table Formatting */
+            .custom-grid {
+                font-size: 8pt !important;
+                width: 100% !important;
+                border-collapse: collapse !important;
+            }
+
+            /* Header Override - Pure White */
+            .custom-grid th {
+                background-color: #ffffff !important;
+                color: black !important;
+                border: 1px solid #000 !important;
+                padding: 4px !important;
+                font-size: 8pt !important;
+                text-align: center !important;
+                vertical-align: middle !important;
+            }
+
+            /* Cell Override - Pure White */
+            .custom-grid td {
+                background-color: #ffffff !important;
+                color: black !important;
+                border: 1px solid #000 !important;
+                padding: 4px !important;
+                vertical-align: middle !important;
+                text-align: center !important;
+            }
+
+            /* Input Override - Transparent/Black */
+            .custom-grid td input {
+                background-color: transparent !important;
+                color: black !important;
+                border: none !important;
+                text-align: center !important;
+                width: 100% !important;
+            }
+
+            .custom-grid tr {
+                height: auto !important;
+            }
+
+            /* NUCLEAR ROW OVERRIDE: Force ALL known colored rows to be White */
+            /* Using ID + Class for max specificity */
+            #bankDetailsTable tr.row-red,
+            #bankDetailsTable td.row-red,
+            #bankDetailsTable tr.bg-danger,
+            #bankDetailsTable td.bg-danger,
+            #bankDetailsTable tr.bg-success,
+            #bankDetailsTable td.bg-success,
+            #bankDetailsTable tr.kpi-red,
+            #bankDetailsTable td.kpi-red,
+            #bankDetailsTable tr.kpi-green,
+            #bankDetailsTable td.kpi-green,
+            #bankDetailsTable tr[style],
+            #bankDetailsTable td[style] {
+                background-color: #ffffff !important;
+                background: #ffffff !important;
+                color: #000000 !important;
+                -webkit-print-color-adjust: economy !important;
+                print-color-adjust: economy !important;
+                --bs-table-bg: transparent !important;
+                --bs-table-accent-bg: transparent !important;
+            }
+
+            /* Universal Fallback */
+            #bankDetailsTable tbody tr td {
+                background-color: #ffffff !important;
+            }
+
+            /* Footer/Totals */
+            tfoot td,
+            .custom-grid tfoot td {
+                background-color: white !important;
+                color: black !important;
+                font-weight: bold !important;
+                border: 1px solid #000 !important;
+            }
+
+            .print-header {
+                display: block !important;
+                text-align: center;
+                margin-bottom: 10px;
+            }
+
+            .print-only-footer {
+                display: table-footer-group !important;
+            }
+
+            .print-totals {
+                display: block !important;
+                margin-top: 15px;
+                page-break-inside: avoid;
+            }
+
+            thead {
+                display: table-header-group;
+            }
+
+            tfoot {
+                display: table-footer-group;
+            }
+        }
+
+        .split-container {
+            display: flex;
+            gap: 20px;
+            height: 100%;
+        }
+
+        .left-form {
+            width: 350px;
+            background: #f8f9fa;
+            padding: 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            height: fit-content;
+        }
+
+
+
+        .left-form label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .left-form .kpi-card {
+            min-height: 35px;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-header px-3">
+        <div style="flex: 1; display: flex; align-items: center;">
+            <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+            <i class="fas fa-university me-2"></i> Bank Management
+        </div>
+        <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
+            <div class="dropdown">
+                <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown" style="cursor: pointer;">
+                    <i class="fas fa-user-circle me-2" style="font-size: 1.2rem;"></i>
+                    <span id="userName" class="me-2">User</span>
+                    <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                    <li><a class="dropdown-item logout-btn" href="#"><i
+                                class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container-fluid p-2">
+        <!-- Tabs Navigation -->
+        <ul class="nav nav-tabs d-flex flex-row" id="bankTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#bank-detail" type="button">Bank
+                    Detail</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#pending-chq" type="button">Pending
+                    Chq</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#bank-summary" type="button">Bank
+                    Summary</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#bank-payments" type="button">Bank
+                    Payments</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#bank-to-bank" type="button">Bank To
+                    Bank</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="bankTabContent">
+
+            <!-- TAB 1: BANK DETAIL -->
+            <div class="tab-pane fade show active h-100" id="bank-detail">
+                <!-- PRINT HEADER -->
+                <div class="print-header d-none">
+                    <h3 class="fw-bold m-0 text-uppercase">D Watson Pharmacy & Super Store</h3>
+                    <h5 class="m-0 mb-2">BANK DETAIL REPORT</h5>
+                    <div class="d-flex justify-content-center gap-4 small border-bottom border-dark pb-2 mb-2">
+                        <span><strong>Branch:</strong> <span id="print-branch">-</span></span>
+                        <span><strong>From:</strong> <span id="print-from">-</span></span>
+                        <span><strong>To:</strong> <span id="print-to">-</span></span>
+                    </div>
+                </div>
+                <!-- Filters -->
+                <div class="filter-row mb-2">
+                    <div class="filter-group">
+                        <label>Date Filter</label>
+                        <select id="bd-date-filter-type" class="form-select form-select-sm" style="width: 150px;">
+                            <option value="entry">Entry Date</option>
+                            <option value="cheque">Cheque Date</option>
+                            <option value="batch_transfer">Batch Transfer Date</option>
+                            <option value="clearance">Clearance Date (System)</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>From</label>
+                        <input type="date" id="bd-from-date" class="form-control form-control-sm from-date">
+                    </div>
+                    <div class="filter-group">
+                        <label>To</label>
+                        <input type="date" id="bd-to-date" class="form-control form-control-sm to-date">
+                    </div>
+                    <div class="filter-group">
+                        <label>Branch</label>
+                        <select id="bd-branch" class="form-select form-select-sm branch-select"
+                            style="width: 120px;"></select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Department</label>
+                        <select id="bd-dept" class="form-select form-select-sm dept-select"
+                            style="width: 150px;"></select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Banks</label>
+                        <select id="bd-bank-select" class="form-select form-select-sm bank-select"
+                            style="width: 150px;">
+                            <option value="">All Banks</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- KPI & Controls -->
+                <div class="bank-controls-bar d-flex justify-content-between align-items-center mb-2 d-print-none flex-wrap gap-2">
+                    <div class="d-flex align-items-center flex-wrap gap-2 py-1">
+                        <div class="form-check form-check-inline me-3 mb-0">
+                            <input class="form-check-input" type="radio" name="bankActionType" id="deductionOption"
+                                checked value="deduction">
+                            <label class="form-check-label fw-bold text-primary" for="deductionOption">Bank Deduction</label>
+                        </div>
+                        <div class="form-check form-check-inline me-3 mb-0">
+                            <input class="form-check-input" type="radio" name="bankActionType" id="paymentOption"
+                                value="payment">
+                            <label class="form-check-label fw-bold text-primary" for="paymentOption">Bank Payment</label>
+                        </div>
+                        <span id="bd-green-total" class="badge bg-success text-white p-2 px-3 shadow-sm"
+                            style="font-size: 0.95rem; border-radius: 8px;">0.00</span>
+                        <span id="bd-red-total" class="badge bg-danger text-white p-2 px-3 shadow-sm"
+                            style="font-size: 0.95rem; border-radius: 8px;">0.00</span>
+                    </div>
+                    <div class="d-flex gap-2 flex-wrap align-items-center bank-action-buttons-group py-1">
+                        <button class="btn btn-primary btn-sm px-3" onclick="searchBankDetails()"><i class="fas fa-search me-1"></i>Search</button>
+                        <button class="btn btn-success btn-sm px-3" onclick="updateBankRowsStatus()"><i class="fas fa-save me-1"></i>Update</button>
+                        <button class="btn btn-danger btn-sm px-3 no-print" onclick="deleteSelectedBankEntries()" id="bd-delete-btn" style="display:none;" title="Delete selected entries">
+                            <i class="fas fa-trash-alt me-1"></i>Delete
+                        </button>
+                        <button class="btn btn-info btn-sm text-white" onclick="printBankLedger()"><i class="fas fa-print me-1"></i>Print</button>
+                        <button class="btn btn-warning btn-sm no-print text-dark fw-bold" onclick="openAIMatchModal()" title="Find combination of batches"><i class="fas fa-robot me-1"></i>AI Match</button>
+                        <button class="btn btn-danger btn-sm no-print text-white fw-bold" onclick="openDuplicateModal()" title="Find duplicate cheques or entries"><i class="fas fa-copy me-1"></i>Find Duplicates</button>
+                        <div class="bank-search-box">
+                            <input type="text" id="globalSearchInput" class="form-control form-control-sm w-100"
+                                placeholder="Search..." onkeyup="filterBankGrid()">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grid -->
+                <div class="table-responsive flex-grow-1" style="min-height: 250px; overflow: auto;">
+                    <table class="table table-bordered custom-grid mb-0 w-100" id="bankDetailsTable" style="width: 100%;">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th class="text-center">
+                                    <span id="selectAllBatchesControl" class="d-none" title="Select all visible Bank Deduction entries">
+                                        <input type="checkbox" id="selectAllBatches" aria-label="Select all visible Bank Deduction entries">
+                                        <span class="small d-block">All</span>
+                                    </span>
+                                </th>
+                                <th>Batch Transfer Date</th>
+                                <th>Bank</th>
+                                <th>Department</th>
+                                <th>Amount</th>
+                                <th>Rate</th>
+                                <th>Deduction</th>
+                                <th>Total</th>
+                                <th>Remarks</th>
+                                <th>Batch No</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bankDetailsBody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                        <tfoot class="print-only-footer" style="display: none;">
+                            <tr class="fw-bold" style="background-color: #f0f0f0; --bs-table-bg: #f0f0f0;">
+                                <!-- 1: Date -->
+                                <td style="border-top: 2px solid #000 !important;"></td>
+                                <!-- 2: Checkbox (Hidden by CSS) -->
+                                <td></td>
+                                <!-- 3: BatchDate (Hidden by CSS) -->
+                                <td></td>
+                                <!-- 4: Bank -->
+                                <td style="border-top: 2px solid #000 !important;"></td>
+                                <!-- 5: Dept - Label Here -->
+                                <td class="text-end text-uppercase"
+                                    style="border-top: 2px solid #000 !important; font-weight: bold;">Grand Totals:</td>
+                                <!-- 6: Amount -->
+                                <td class="text-end" id="print-total-amount"
+                                    style="border-top: 2px solid #000 !important; font-weight: bold;">0</td>
+                                <!-- 7: Rate -->
+                                <td class="text-center" style="border-top: 2px solid #000 !important;">-</td>
+                                <!-- 8: Deduction -->
+                                <td class="text-end" id="print-total-deduction"
+                                    style="border-top: 2px solid #000 !important; font-weight: bold;">0</td>
+                                <!-- 9: Net Total -->
+                                <td class="text-end" id="print-total-net"
+                                    style="border-top: 2px solid #000 !important; font-weight: bold;">0</td>
+                                <!-- 10: Remarks -->
+                                <td style="border-top: 2px solid #000 !important;"></td>
+                                <!-- 11: BatchNo -->
+                                <td style="border-top: 2px solid #000 !important;"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <!-- PRINT TOTALS REMOVED - NOW INTEGRATED IN TABLE -->
+
+            </div>
+
+            <!-- TAB 2: PENDING CHQ -->
+            <div class="tab-pane fade h-100" id="pending-chq" role="tabpanel">
+                <style>
+                    /* Scoped styles for Pending Cheque Tab */
+                    #pending-chq .main-card {
+                        background: rgba(255, 255, 255, 0.95);
+                        border-radius: 16px;
+                        border: 1px solid rgba(255, 255, 255, 0.2);
+                        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                        padding: 1.5rem;
+                        margin-bottom: 1rem;
+                    }
+
+                    #pending-chq .amount-input {
+                        font-family: 'Courier New', monospace;
+                        font-weight: 700;
+                        font-size: 1.1rem;
+                        text-align: right;
+                    }
+
+                    #pending-chq .bg-amount-green {
+                        background-color: #ecfdf5;
+                        color: #00b96b;
+                        border-color: #10b981;
+                    }
+
+                    #pending-chq .bg-amount-red {
+                        background-color: #fef2f2;
+                        color: #ef476f;
+                        border-color: #ef4444;
+                    }
+
+                    #pending-chq .bg-amount-blue {
+                        background-color: #eff6ff;
+                        color: #4361ee;
+                        border-color: #3b82f6;
+                    }
+
+                    #pending-chq .balance-breakdown {
+                        font-size: 0.8rem;
+                        background: #f8fafc;
+                        padding: 0.5rem;
+                        margin-top: 5px;
+                        display: none;
+                    }
+
+                    #pending-chq .history-card {
+                        background-color: #e2e8f0;
+                        /* Distinct list background */
+                        border: 1px solid #cbd5e1;
+                    }
+
+                    #pending-chq .history-header {
+                        background-color: #334155;
+                        color: white;
+                    }
+                </style>
+
+                <div class="container-fluid h-100 overflow-auto p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="fw-bold text-primary"><i class="fas fa-check-double me-2"></i>Pending Cheque Manager
+                        </h4>
+                        <span class="badge bg-success">Professional V2</span>
+                    </div>
+
+                    <!-- Top Controls -->
+                    <div class="main-card mb-4">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Branch</label>
+                                <select class="form-select" id="new-branch">
+                                    <option value="">Select Branch...</option>
+                                    <!-- Populated by JS -->
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Bank Filter (Optional)</label>
+                                <select class="form-select" id="new-bank">
+                                    <option value="">All Banks</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <button class="btn btn-primary w-100" id="btn-refresh">
+                                    <i class="fas fa-sync-alt me-2"></i> Refresh Data
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-4 mb-4">
+                        <!-- Calculations -->
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-header bg-white fw-bold text-primary">
+                                    <i class="fas fa-calculator me-2"></i>Calculations
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">Bank Date</label>
+                                        <input type="date" class="form-control" id="new-bank-date">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label d-flex justify-content-between">
+                                            <span>Bank Amount (Branch Total)</span>
+                                            <a href="javascript:void(0)" onclick="toggleBreakdown()"
+                                                class="small text-decoration-none">View Details</a>
+                                        </label>
+                                        <input type="text" class="form-control amount-input bg-amount-green"
+                                            id="new-bank-amount" readonly value="0.00">
+                                        <div class="balance-breakdown" id="breakdown-panel">
+                                            <div class="d-flex justify-content-between"><span>Verified Daily
+                                                    Cash:</span> <span id="val-dc">0</span></div>
+                                            <div class="d-flex justify-content-between"><span>Bank Txns:</span> <span
+                                                    id="val-bt">0</span></div>
+                                            <div class="d-flex justify-content-between"><span>Transfers:</span> <span
+                                                    id="val-tr">0</span></div>
+                                            <div class="d-flex justify-content-between border-top mt-1 pt-1 fw-bold">
+                                                <span>Total:</span> <span id="val-total">0</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label d-flex justify-content-between align-items-center">
+                                            <span>Pending Cheque (Unverified)</span>
+                                            <a href="#" id="view-unverified-link" class="small text-primary" 
+                                               style="font-size:0.75rem; text-decoration:none;"
+                                               title="Open Bank Detail with all-time date range to find &amp; verify old entries">
+                                                🔍 View &amp; Verify All
+                                            </a>
+                                        </label>
+                                        <input type="text" class="form-control amount-input bg-amount-blue"
+                                            id="new-pending-chq" readonly value="0.00">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Statement -->
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-header bg-white fw-bold text-dark">
+                                    <i class="fas fa-file-invoice-dollar me-2"></i>Statement & Difference
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">Statement Date</label>
+                                        <input type="date" class="form-control" id="new-stmt-date">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Statement Amount</label>
+                                        <input type="number" class="form-control amount-input text-dark"
+                                            id="new-statement" value="0" oninput="calculateProDiff()"
+                                            onkeyup="calculateProDiff()" onchange="calculateProDiff()">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Difference</label>
+                                        <input type="text" class="form-control amount-input bg-amount-green"
+                                            id="new-diff" readonly value="0.00">
+                                    </div>
+                                    <div class="mt-4">
+                                        <button class="btn btn-success w-100" id="btn-save">
+                                            <i class="fas fa-save me-2"></i> Save Record
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Grid -->
+                    <div class="card border-0 shadow-sm history-card">
+                        <div class="card-header fw-bold history-header">
+                            <i class="fas fa-history me-2"></i>History
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>System Date</th>
+                                        <th>Statement Date</th>
+                                        <th>Branch</th>
+                                        <th class="text-end">Bank Amount</th>
+                                        <th class="text-end">Pending Chq</th>
+                                        <th class="text-end">Statement</th>
+                                        <th class="text-end">Diff</th>
+                                        <th class="text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="grid-body">
+                                    <tr>
+                                        <td colspan="7" class="text-center py-4 text-muted">No data available</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Load New Logic Script -->
+                <script src="/js/pending-cheque-v2.js?v=23"></script>
+            </div>
+
+
+            <!-- TAB 3: BANK SUMMARY (PROFESSIONAL) -->
+            <div class="tab-pane fade h-100" id="bank-summary">
+                <style>
+                    /* Reuse Pro Styles */
+                    .kpi-card {
+                        color: white !important;
+                        padding: 10px;
+                        border-radius: 6px;
+                        font-weight: bold;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 10px;
+                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                    }
+
+                    .bg-kpi-green {
+                        background: linear-gradient(45deg, #28a745, #218838) !important;
+                    }
+
+                    .bg-kpi-red {
+                        background: linear-gradient(45deg, #dc3545, #c82333) !important;
+                    }
+
+                    .bg-kpi-blue {
+                        background: linear-gradient(45deg, #0d6efd, #0b5ed7) !important;
+                    }
+
+                    .bg-kpi-dark {
+                        background: linear-gradient(45deg, #343a40, #212529) !important;
+                        color: #0f0 !important;
+                    }
+
+                    .row-deposit {
+                        background-color: #d4edda;
+                    }
+
+                    .row-withdrawal {
+                        background-color: #f8d7da;
+                    }
+
+                    .row-transfer {
+                        background-color: #fff3cd;
+                    }
+
+                    /* Print Specific for Tab Content */
+                    @media print {
+                        body * {
+                            visibility: hidden;
+                        }
+
+                        #bank-summary,
+                        #bank-summary * {
+                            visibility: visible;
+                        }
+
+                        #bank-summary {
+                            position: absolute;
+                            left: 0;
+                            top: 0;
+                            width: 100%;
+                        }
+
+                        .no-print {
+                            display: none !important;
+                        }
+
+                        .kpi-card {
+                            background: none !important;
+                            border: 1px solid #000;
+                            color: #000 !important;
+                        }
+
+                        table th {
+                            background-color: #eee !important;
+                            color: #000 !important;
+                        }
+                    }
+                </style>
+
+                <!-- Filter Bar (Pro) -->
+                <div
+                    class="filter-bar border rounded bg-light p-2 mb-3 d-flex flex-wrap gap-2 align-items-end no-print">
+                    <div class="filter-group">
+                        <label class="form-label small fw-bold mb-0">From Date</label>
+                        <input type="date" id="pro-from-date" class="form-control form-control-sm">
+                    </div>
+                    <div class="filter-group">
+                        <label class="form-label small fw-bold mb-0">To Date</label>
+                        <input type="date" id="pro-to-date" class="form-control form-control-sm">
+                    </div>
+                    <div class="filter-group">
+                        <label class="form-label small fw-bold mb-0">Branch</label>
+                        <select id="pro-branch" class="form-select form-select-sm" style="width: 150px;"
+                            onchange="loadProBanks()">
+                            <option value="">All Branches</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="form-label small fw-bold mb-0">Bank</label>
+                        <select id="pro-bank-select" class="form-select form-select-sm" style="width: 150px;">
+                            <option value="">All Banks</option>
+                        </select>
+
+                    </div>
+                    <div class="filter-group">
+                        <label class="form-label small fw-bold mb-0">Department</label>
+                        <select id="pro-dept" class="form-select form-select-sm" style="width: 150px;">
+                            <option value="">All Departments</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="form-label small fw-bold mb-0">Transaction Type</label>
+                        <select id="pro-type" class="form-select form-select-sm" style="width: 150px;">
+                            <option value="All Types">All Types</option>
+                            <option value="Batch Transfer">Batch Transfer (Daily Cash)</option>
+                            <option value="Deposit">Deposit</option>
+                            <option value="Withdrawal">Withdrawal</option>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                        </select>
+                    </div>
+                    <div class="filter-group flex-grow-1">
+                        <label class="form-label small fw-bold mb-0">Global Search</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" id="pro-search" class="form-control" placeholder="Search..."
+                                onkeyup="filterProTable()">
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <button class="btn btn-primary btn-sm" onclick="fetchProReport()"><i
+                                class="fas fa-sync-alt me-1"></i>
+                            Generate</button>
+                        <button class="btn btn-secondary btn-sm" onclick="window.print()"><i
+                                class="fas fa-print me-1"></i>
+                            Print</button>
+                    </div>
+                </div>
+
+                <!-- KPI Cards (Pro IDs) -->
+                <div class="row g-2 mb-3">
+                    <div class="col-md-3">
+                        <div class="kpi-card bg-kpi-green">
+                            <span>Opening Balance</span>
+                            <span id="kpi-opening">0</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="kpi-card bg-kpi-blue">
+                            <span>Total Deposits (+)</span>
+                            <span id="kpi-deposit">0</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="kpi-card bg-kpi-red">
+                            <span>Total Withdrawals (-)</span>
+                            <span id="kpi-withdrawal">0</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="kpi-card bg-kpi-dark">
+                            <span>Closing Balance</span>
+                            <span id="kpi-closing">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-none">
+                    <!-- Hidden spacer to consume rest of old structure if needed -->
+                    <div class="col-md">
+                        <div class="d-flex flex-column">
+                            <small class="fw-bold">Closing Balance</small>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Table (Pro Version) -->
+                <div class="table-responsive" style="height: calc(100% - 220px);">
+                    <table class="table table-bordered table-sm table-hover table-custom" id="proTable">
+                        <thead class="table-light sticky-top" style="top: 0; z-index: 5;">
+                            <tr>
+                                <th>Date</th>
+                                <th>Effective Date</th>
+                                <th>Bank</th>
+                                <th>Type</th>
+                                <th>Ref / Batch No</th>
+                                <th>Description</th>
+                                <th class="text-end">Debit (Received)</th>
+                                <th class="text-end">Credit (Paid)</th>
+                                <th class="text-end">Balance</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="proTableBody">
+                            <!-- Data injected here -->
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+            <!-- TAB 4: BANK PAYMENTS -->
+            <div class="tab-pane fade h-100" id="bank-payments">
+                <div class="bank-section-header text-white text-center p-2 mb-3 rounded shadow-sm">
+                    <h5 class="mb-0"><i class="fas fa-money-check-alt me-2"></i> Bank Payments Entry</h5>
+                </div>
+                <div class="split-container">
+                    <!-- Left Form -->
+                    <div class="left-form">
+                        <input type="hidden" id="bp-id"> <!-- Hidden ID for updates -->
+                        <div class="mb-2">
+                            <label class="form-label">Transaction Type</label>
+                            <select id="bp-type" class="form-select form-select-sm">
+                                <option value="received">Received</option>
+                                <option value="paid" selected>Paid</option>
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Cheque Date</label>
+                            <input type="date" id="bp-cheque-date" class="form-control form-control-sm" min="2020-01-01" max="2040-12-31">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Branch</label>
+                            <select id="bp-branch" class="form-select form-select-sm branch-select"></select>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Department</label>
+                            <select id="bp-dept" class="form-select form-select-sm dept-select"></select>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Bank</label>
+                            <select id="bp-bank" class="form-select form-select-sm bank-select"></select>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Amount</label>
+                            <input type="number" id="bp-amount" class="form-control form-control-sm">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Bank Balance</label>
+                            <div id="bp-balance-display" class="kpi-card kpi-blue justify-content-center">0</div>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Remarks</label>
+                            <input type="text" id="bp-remarks" class="form-control form-control-sm">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Invoice No</label>
+                            <input type="text" id="bp-invoice-no" class="form-control form-control-sm">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Invoice Date</label>
+                            <input type="date" id="bp-invoice-date" class="form-control form-control-sm" min="2020-01-01" max="2040-12-31">
+                        </div>
+                        <div class="d-flex gap-2 mt-3">
+                            <button class="btn btn-success btn-sm w-50" onclick="saveBankPayment()">Save</button>
+                            <button class="btn btn-danger btn-sm w-50" onclick="clearBankPaymentForm()">Clear</button>
+                        </div>
+                    </div>
+
+                    <!-- Right Grid -->
+                    <div class="right-grid">
+                        <div
+                            class="filter-row p-1 mb-3 border rounded bg-light d-flex align-items-center gap-2 flex-nowrap overflow-auto">
+                            <!-- Dynamic Date Range Group -->
+                            <div class="d-flex align-items-center gap-2 border-end pe-2">
+                                <select id="bp-date-filter-type" class="form-select form-select-sm" style="width: 110px;" onchange="loadBankPayments()">
+                                    <option value="chq">Chq. Date</option>
+                                    <option value="post">Post Date</option>
+                                    <option value="inv">Inv. Date</option>
+                                </select>
+                                <div class="filter-group mb-0">
+                                    <input type="date" id="bp-dynamic-from" class="form-control form-control-sm"
+                                        style="width: 120px;">
+                                </div>
+                                <span class="text-muted small">to</span>
+                                <div class="filter-group mb-0">
+                                    <input type="date" id="bp-dynamic-to" class="form-control form-control-sm"
+                                        style="width: 120px;">
+                                </div>
+                                <button class="btn btn-outline-danger btn-sm px-2 py-1" onclick="clearDateRange('bp-dynamic'); loadBankPayments();">
+                                    <i class="bi bi-x"></i> Clear
+                                </button>
+                            </div>
+
+                            <!-- Other Filters -->
+                            <div class="d-flex align-items-center gap-2">
+                                <select id="bp-filter-type" class="form-select form-select-sm"
+                                    onchange="filterBankPaymentsGrid()" style="width: 90px;">
+                                    <option value="">Type</option>
+                                    <option value="received">Received</option>
+                                    <option value="paid">Paid</option>
+                                </select>
+                                <select id="bp-filter-bank" class="form-select form-select-sm"
+                                    onchange="filterBankPaymentsGrid()" style="width: 120px;">
+                                    <option value="">All Banks</option>
+                                </select>
+                                <button class="btn btn-primary btn-sm px-3" onclick="loadBankPayments()">Search</button>
+                            </div>
+
+                            <div class="filter-group ms-auto mb-0">
+                                <input type="text" id="bp-global-search" class="form-control form-control-sm"
+                                    placeholder="Search..." onkeyup="filterBankPaymentsGrid()" style="width: 150px;">
+                            </div>
+                        </div>
+
+                        <!-- Dropdown filters for loaded data (Hidden as they are now range-based search) -->
+                        <div class="d-none">
+                            <select id="bp-filter-chq-date"></select>
+                            <select id="bp-filter-inv-date"></select>
+                        </div>
+
+                        <div class="table-responsive" style="max-height: calc(100% - 60px);">
+                            <table class="table table-bordered table-hover mb-0 custom-grid" style="font-size: 0.85rem;">
+                                <thead class="table-primary text-nowrap">
+                                    <tr>
+                                        <th class="ps-3" style="width: 100px;">Post Date</th>
+                                        <th style="width: 100px;">Cheque Date</th>
+                                        <th style="width: 100px;">Invoice Date</th>
+                                        <th>Bank Name</th>
+                                        <th style="width: 80px;">Type</th>
+                                        <th>Remarks</th>
+                                        <th style="width: 100px;">InvoiceNo</th>
+                                        <th class="text-end" style="width: 120px;">Amount</th>
+                                        <th class="text-center" style="width: 100px;">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bankPaymentsBody">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                                <tfoot class="fw-bold">
+                                    <tr class="table-warning">
+                                        <td colspan="7" class="text-end">Total:</td>
+                                        <td id="bp-grid-total" class="text-end">0.00</td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: BANK TO BANK -->
+            <div class="tab-pane fade h-100" id="bank-to-bank">
+                <div class="bank-section-header text-white text-center p-2 mb-3 rounded shadow-sm">
+                    <h5 class="mb-0"><i class="fas fa-exchange-alt me-2"></i> Bank To Bank Payments</h5>
+                </div>
+                <div class="split-container">
+                    <!-- Left Form -->
+                    <div class="left-form" style="width: 350px;">
+                        <div class="mb-2">
+                            <label class="form-label">Date</label>
+                            <input type="date" id="btb-date" class="form-control form-control-sm">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Branch</label>
+                            <select id="btb-branch" class="form-select form-select-sm branch-select"></select>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">From</label>
+                            <select id="btb-from-bank" class="form-select form-select-sm bank-select"
+                                onchange="updateBTBBalances()"></select>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Pre Balance</label>
+                            <div id="btb-from-pre" class="kpi-card kpi-blue justify-content-center">0</div>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">New Balance</label>
+                            <div id="btb-from-new" class="kpi-card kpi-blue justify-content-center">0</div>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">To</label>
+                            <select id="btb-to-bank" class="form-select form-select-sm bank-select"
+                                onchange="updateBTBBalances()"></select>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Pre Balance</label>
+                            <div id="btb-to-pre" class="kpi-card kpi-blue justify-content-center">0</div>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">New Balance</label>
+                            <div id="btb-to-new" class="kpi-card kpi-blue justify-content-center">0</div>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Amount</label>
+                            <input type="number" id="btb-amount" class="form-control form-control-sm"
+                                oninput="updateBTBBalances()">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Remarks</label>
+                            <input type="text" id="btb-remarks" class="form-control form-control-sm">
+                        </div>
+                        <div class="d-flex gap-2 mt-3">
+                            <button class="btn btn-success btn-sm w-50" onclick="saveBankTransfer()">Save</button>
+                            <button class="btn btn-danger btn-sm w-50" onclick="clearBTBForm()">Clear</button>
+                        </div>
+                    </div>
+
+                    <!-- Right Grid -->
+                    <div class="right-grid">
+                        <div
+                            class="filter-row p-1 mb-3 border rounded bg-light d-flex align-items-center gap-2 flex-nowrap overflow-auto">
+                            <div class="d-flex align-items-center gap-1 border-end pe-2">
+                                <span class="fw-bold text-primary small" style="font-size: 0.7rem;">Entry Date</span>
+                                <div class="filter-group mb-0">
+                                    <label class="x-small mb-0">From</label>
+                                    <input type="date" id="btb-filter-from" class="form-control form-control-sm"
+                                        style="width: 120px;">
+                                </div>
+                                <div class="filter-group mb-0">
+                                    <label class="x-small mb-0">To</label>
+                                    <input type="date" id="btb-filter-to" class="form-control form-control-sm"
+                                        style="width: 120px;">
+                                </div>
+                            </div>
+                            <button class="btn btn-primary btn-sm px-3" onclick="loadBTBTransfers()">Search</button>
+                            <input type="text" id="btb-search" class="form-control form-control-sm ms-auto"
+                                style="width: 200px;" placeholder="Search Transfers..." onkeyup="filterBTBGrid()">
+                        </div>
+
+                        <div class="table-responsive" style="max-height: calc(100% - 60px);">
+
+                            <table class="table table-bordered table-sm custom-grid">
+                                <thead>
+                                    <tr>
+                                        <th>Dated</th>
+                                        <th>From Bank Name</th>
+                                        <th>To Bank Name</th>
+                                        <th>Amount</th>
+                                        <th>Remarks</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="btbGridBody">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                                <tfoot class="fw-bold">
+                                    <tr>
+                                        <td colspan="3" class="text-end">Total</td>
+                                        <td id="btb-total-amount" class="text-end">0</td>
+                                        <td colspan="2"></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Action Bar -->
+    <div class="action-bar-mobile d-none">
+        <button type="button" class="action-btn-mobile btn-search" onclick="handleMobileSearch()">
+            <i class="fas fa-search"></i>
+            <span>Search</span>
+        </button>
+        <button type="button" class="action-btn-mobile btn-save" id="mobileSaveBtn" onclick="handleMobileSave()">
+            <i class="fas fa-save"></i>
+            <span>Save</span>
+        </button>
+        <button type="button" class="action-btn-mobile btn-print" onclick="handleMobilePrint()">
+            <i class="fas fa-print"></i>
+            <span>Print</span>
+        </button>
+        <button type="button" class="action-btn-mobile btn-refresh" onclick="handleMobileRefresh()">
+            <i class="fas fa-sync"></i>
+            <span>Refresh</span>
+        </button>
+    </div>
+
+    <script>
+        function handleMobileSearch() {
+            const activeTabId = document.querySelector('#bankTabs .nav-link.active')?.getAttribute('data-bs-target');
+            if (activeTabId === '#bank-detail') searchBankDetails();
+            else if (activeTabId === '#bank-summary') (typeof searchBankSummary === 'function' ? searchBankSummary() : fetchProReport());
+            else if (activeTabId === '#bank-payments') (typeof searchBankPayments === 'function' ? searchBankPayments() : loadBankPayments());
+            else if (activeTabId === '#bank-to-bank') (typeof searchBTB === 'function' ? searchBTB() : loadBTBTransfers());
+        }
+
+        function handleMobileSave() {
+            const activeTabId = document.querySelector('#bankTabs .nav-link.active')?.getAttribute('data-bs-target');
+            if (activeTabId === '#pending-chq') document.getElementById('btn-save')?.click();
+            else if (activeTabId === '#bank-detail') updateBankRowsStatus();
+            else if (activeTabId === '#bank-payments') saveBankPayment();
+            else if (activeTabId === '#bank-to-bank') (typeof saveBTB === 'function' ? saveBTB() : saveBankTransfer());
+        }
+
+        function handleMobilePrint() {
+            const activeTabId = document.querySelector('#bankTabs .nav-link.active')?.getAttribute('data-bs-target');
+            if (activeTabId === '#bank-detail') printBankLedger();
+            else if (activeTabId === '#bank-summary') (typeof printBankSummary === 'function' ? printBankSummary() : window.print());
+            else if (activeTabId === '#bank-payments') (typeof printBankPayments === 'function' ? printBankPayments() : window.print());
+            else window.print();
+        }
+
+        function handleMobileRefresh() {
+            const activeTabId = document.querySelector('#bankTabs .nav-link.active')?.getAttribute('data-bs-target');
+            if (activeTabId === '#pending-chq') document.getElementById('btn-refresh')?.click();
+            else location.reload();
+        }
+
+        // Update button text/icons based on active tab
+        document.querySelectorAll('#bankTabs .nav-link').forEach(tab => {
+            tab.addEventListener('shown.bs.tab', function (e) {
+                const target = e.target.getAttribute('data-bs-target');
+                const saveBtnSpan = document.querySelector('#mobileSaveBtn span');
+                const saveBtnIcon = document.querySelector('#mobileSaveBtn i');
+
+                if (saveBtnSpan && saveBtnIcon) {
+                    if (target === '#bank-detail') {
+                        saveBtnSpan.innerText = 'Update';
+                        saveBtnIcon.className = 'fas fa-check-circle';
+                    } else {
+                        saveBtnSpan.innerText = 'Save';
+                        saveBtnIcon.className = 'fas fa-save';
+                    }
+                }
+            });
+        });
+    </script>
+
+    <!-- AI Match Modal -->
+    <div class="modal fade" id="aiMatchModal" tabindex="-1" aria-labelledby="aiMatchModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="aiMatchModalLabel"><i class="fas fa-robot me-2"></i>AI Match Finder</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="small text-muted mb-3">Find a combination of batches (Totals) that sum up to your target amount.</p>
+                    <div class="mb-3">
+                        <label for="aiTargetAmount" class="form-label fw-bold">Target Amount <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="aiTargetAmount" placeholder="e.g. 150000" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="aiTolerance" class="form-label fw-bold">Tolerance/Difference Allowed</label>
+                        <input type="number" class="form-control" id="aiTolerance" value="1000" placeholder="e.g. 1000">
+                        <small class="text-muted">Maximum acceptable difference between sum and target.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="aiReference" class="form-label fw-bold">Reference Filter (Optional)</label>
+                        <input type="text" class="form-control" id="aiReference" placeholder="e.g. alf, hbl">
+                        <small class="text-muted">Only consider rows whose Remarks contain this word.</small>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label for="aiDateFrom" class="form-label fw-bold">From Date (Optional)</label>
+                            <input type="date" class="form-control" id="aiDateFrom">
+                        </div>
+                        <div class="col-6">
+                            <label for="aiDateTo" class="form-label fw-bold">To Date (Optional)</label>
+                            <input type="date" class="form-control" id="aiDateTo">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="aiStatusFilter" class="form-label fw-bold">Entry Status</label>
+                        <select class="form-select" id="aiStatusFilter">
+                            <option value="all" selected>All Entries</option>
+                            <option value="unverified">Unverified Only (Red)</option>
+                            <option value="verified">Verified Only (Green)</option>
+                        </select>
+                    </div>
+                    
+                    <button type="button" class="btn btn-primary w-100 fw-bold" onclick="runAIMatch()"><i class="fas fa-search me-2"></i>Find Matches</button>
+
+                    <div id="aiMatchResults" class="mt-4" style="display: none;">
+                        <h6 class="fw-bold border-bottom pb-2">Results</h6>
+                        <div id="aiMatchStatus" class="alert alert-info py-2 small mb-2"></div>
+                        <ul id="aiMatchList" class="list-group list-group-sm mb-3" style="max-height: 200px; overflow-y: auto;">
+                        </ul>
+                        <button type="button" class="btn btn-success w-100 btn-sm" id="btnHighlightMatches" onclick="highlightAIMatches()"><i class="fas fa-highlighter me-2"></i>Highlight in Grid</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Duplicate Finder Modal -->
+    <div class="modal fade" id="duplicateMatchModal" tabindex="-1" aria-labelledby="duplicateMatchModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="duplicateMatchModalLabel"><i class="fas fa-copy me-2"></i>Find Duplicate Cheques</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="dupStatusFilter" class="form-label fw-bold">Entry Status</label>
+                        <select class="form-select" id="dupStatusFilter">
+                            <option value="all">All Entries</option>
+                            <option value="unverified">Unverified Only (Red)</option>
+                            <option value="verified">Verified Only (Green)</option>
+                        </select>
+                        <small class="text-muted">Choose which entries to scan for duplicates.</small>
+                    </div>
+                    
+                                        <div class="mb-3">
+                        <label for="dupMatchCriteria" class="form-label fw-bold">Match Criteria</label>
+                        <select class="form-select" id="dupMatchCriteria">
+                            <option value="strict">Cheque Number & Amount (Exact Match)</option>
+                            <option value="lenient">Cheque Number Only (Ignore Amount)</option>
+                        </select>
+                        <small class="text-muted">Choose how duplicates are identified.</small>
+                    </div>
+                    
+                    <button type="button" class="btn btn-danger w-100 fw-bold mb-3" onclick="findDuplicates()"><i class="fas fa-search me-2"></i>Scan for Duplicates</button>
+
+                    <div id="duplicateMatchStatus" class="d-none"></div>
+                    
+                    <div id="duplicateMatchResults" style="display: none;">
+                        <h6 class="fw-bold mt-3 border-bottom pb-2">Potential Duplicates Found:</h6>
+                        <div id="duplicateMatchList" class="accordion mt-2">
+                            <!-- Duplicates will be injected here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244444"></script>
+    <script src="/js/desktop-ui.js"></script>
+    <script src="/js/bank-payments-logic.js?v=6"></script>
+    <script src="/js/bank-management.js?v=2026-09-19-4"></script>
+</body>
+</html>

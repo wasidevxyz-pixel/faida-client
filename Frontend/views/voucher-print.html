@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voucher Print</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400;500;700&display=swap');
+
+        :root {
+            --voucher-gold: #8b6b23;
+            --voucher-border: #333;
+        }
+
+        body {
+            background: #f0f0f0;
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .voucher-container {
+            background: white;
+            width: 210mm;
+            height: 148.5mm;
+            /* A5 Landscape */
+            margin: 0 auto;
+            padding: 30px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            border: 2px solid var(--voucher-border);
+            overflow: hidden;
+        }
+
+        .header-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .company-info {
+            text-align: center;
+        }
+
+        .company-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            color: var(--voucher-gold);
+            text-transform: uppercase;
+            margin: 0;
+            letter-spacing: 1px;
+        }
+
+        .company-slogan {
+            font-size: 0.9rem;
+            color: #666;
+            font-style: italic;
+            margin-bottom: 5px;
+        }
+
+        .company-contacts {
+            font-size: 0.85rem;
+            color: #444;
+            line-height: 1.4;
+        }
+
+        .voucher-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+            border-bottom: none;
+        }
+
+        .vr-no-box,
+        .date-box {
+            font-weight: 500;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .field-label {
+            white-space: nowrap;
+            margin-right: 5px;
+            font-weight: 600;
+        }
+
+        .field-line {
+            border-bottom: 1.5px solid var(--voucher-border);
+            min-width: 120px;
+            padding: 0 10px;
+            text-align: center;
+        }
+
+        .voucher-title {
+            font-size: 1.4rem;
+            color: var(--voucher-gold);
+            font-weight: 700;
+            text-transform: uppercase;
+            text-align: center;
+            flex-grow: 1;
+        }
+
+        .content-body {
+            margin-top: 30px;
+        }
+
+        .data-row {
+            display: flex;
+            align-items: flex-end;
+            margin-bottom: 15px;
+        }
+
+        .data-label {
+            font-weight: 600;
+            width: 140px;
+            flex-shrink: 0;
+        }
+
+        .data-value {
+            flex-grow: 1;
+            border-bottom: 1px solid #999;
+            padding: 2px 10px;
+            font-weight: 500;
+            min-height: 25px;
+        }
+
+        .amount-box-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 40px;
+        }
+
+        .rs-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .rs-label {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-right: 10px;
+        }
+
+        .amount-box {
+            border: 2px solid var(--voucher-border);
+            padding: 10px 20px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            min-width: 180px;
+        }
+
+        .footer-signatures {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 60px;
+        }
+
+        .sig-box {
+            text-align: center;
+            width: 200px;
+        }
+
+        .sig-line {
+            border-top: 1.5px solid var(--voucher-border);
+            margin-bottom: 5px;
+        }
+
+        .sig-text {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .voucher-container {
+                box-shadow: none;
+                margin: 0;
+                border: 2px solid #000;
+            }
+
+            .no-print {
+                display: none;
+            }
+        }
+
+        .no-print-top {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="no-print no-print-top">
+        <button class="btn btn-primary btn-sm" onclick="window.print()">Print Voucher</button>
+        <button class="btn btn-secondary btn-sm" onclick="window.close()">Close</button>
+    </div>
+
+    <div class="voucher-container" id="voucherPrint">
+        <div class="header-section">
+            <div class="company-info">
+                <h1 class="company-name" id="cName">COMPANY NAME</h1>
+                <div class="company-slogan" id="cSlogan">Company Slogan</div>
+                <div class="company-contacts" id="cDetails">
+                    Address Line 1, Address Line 2<br>
+                    Mobile: 00000000, Email: contact@company.com
+                </div>
+            </div>
+        </div>
+
+        <div class="voucher-title-row">
+            <div class="vr-no-box">
+                <span class="field-label">Vr. No. :</span>
+                <span class="field-line" id="vNo">JV-01</span>
+            </div>
+            <div class="voucher-title" id="vTypeTitle">Payment Voucher</div>
+            <div class="date-box">
+                <span class="field-label">Date :</span>
+                <span class="field-line" id="vDate">12/20/2025</span>
+            </div>
+        </div>
+
+        <div class="content-body">
+            <div class="data-row">
+                <div class="data-label" id="targetLabel">Paid to</div>
+                <div class="data-value" id="targetAccount">PARTY NAME HERE</div>
+            </div>
+            <div class="data-row">
+                <div class="data-label">The sum of Rupees</div>
+                <div class="data-value" id="amountWords">FIVE THOUSAND ONLY</div>
+            </div>
+            <div class="data-row">
+                <div class="data-label">Towards</div>
+                <div class="data-value" id="vDetail">PAYMENT FOR MATERIALS</div>
+            </div>
+            <!-- Empty line for visual match -->
+            <div class="data-row">
+                <div class="data-label"></div>
+                <div class="data-value"></div>
+            </div>
+        </div>
+
+        <div class="amount-box-row">
+            <div class="rs-container">
+                <span class="rs-label">Rs.</span>
+                <div class="amount-box" id="vAmount">5,000.00</div>
+            </div>
+            <div class="footer-signatures">
+                <div class="sig-box">
+                    <div class="sig-line"></div>
+                    <div class="sig-text">Authorised By</div>
+                </div>
+                <div class="sig-box ms-5">
+                    <div class="sig-line"></div>
+                    <div class="sig-text">Received By</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
+
+            if (!id) {
+                alert('Voucher ID missing');
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                const type = urlParams.get('type') || 'voucher';
+
+                // 1. Fetch Company Info
+                const companyRes = await fetch('/api/v1/settings/company-info', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const companyData = await companyRes.json();
+                if (companyData.success) {
+                    const c = companyData.data;
+                    document.getElementById('cName').textContent = c.companyName || 'BAS SOFTWARE';
+                    document.getElementById('cSlogan').textContent = c.slogan || 'The Professional Solution';
+                    document.getElementById('cDetails').innerHTML = `
+                        ${c.address || ''}<br>
+                        Phone: ${c.phone || ''} | Email: ${c.email || ''}
+                    `;
+                }
+
+                // 2. Fetch Data (Voucher or Expense)
+                const endpoint = type === 'expense' ? `/api/v1/expenses/${id}` : `/api/v1/vouchers/${id}`;
+                const res = await fetch(endpoint, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const responseData = await res.json();
+
+                if (responseData.success) {
+                    const doc = responseData.data;
+
+                    if (type === 'expense') {
+                        // MAP EXPENSE DATA (Including Head/Sub Head, Removing Category)
+                        document.getElementById('vNo').textContent = doc.expenseNo || '-';
+                        document.getElementById('vDate').textContent = new Date(doc.date).toLocaleDateString();
+                        document.getElementById('vTypeTitle').textContent = doc.type === 'receipt' ? 'Receipt Voucher' : 'Expense Voucher';
+                        document.getElementById('targetLabel').textContent = doc.type === 'receipt' ? 'Received from' : 'Paid to';
+
+                        const amount = Math.abs(doc.amount || 0);
+                        document.getElementById('vAmount').textContent = amount.toLocaleString(undefined, { minimumFractionDigits: 2 });
+                        document.getElementById('amountWords').textContent = numberToWords(amount) + ' ONLY';
+
+                        // Show Main Head as the Party/Target
+                        document.getElementById('targetAccount').textContent = doc.head || 'General';
+
+                        // Show Sub Head and Remarks in the "Towards" section
+                        let towards = doc.subHead ? `(${doc.subHead}) ` : '';
+                        towards += doc.notes || doc.description || '';
+                        document.getElementById('vDetail').textContent = towards || '-';
+
+                    } else {
+                        // MAP VOUCHER DATA
+                        document.getElementById('vNo').textContent = doc.voucherNo;
+                        document.getElementById('vDate').textContent = new Date(doc.date).toLocaleDateString();
+
+                        let typeTitle = 'Voucher';
+                        let targetLabel = 'Account';
+
+                        if (doc.voucherType === 'CPV' || doc.voucherType === 'BPV') {
+                            typeTitle = 'Payment Voucher';
+                            targetLabel = 'Paid to';
+                        } else if (doc.voucherType === 'CRV' || doc.voucherType === 'BRV') {
+                            typeTitle = 'Receipt Voucher';
+                            targetLabel = 'Received from';
+                        } else {
+                            typeTitle = 'Journal Voucher';
+                            targetLabel = 'Debit Account';
+                        }
+
+                        document.getElementById('vTypeTitle').textContent = typeTitle;
+                        document.getElementById('targetLabel').textContent = targetLabel;
+
+                        const amount = doc.totalDebit;
+                        document.getElementById('vAmount').textContent = amount.toLocaleString(undefined, { minimumFractionDigits: 2 });
+                        document.getElementById('amountWords').textContent = numberToWords(amount) + ' ONLY';
+
+                        const mainLines = doc.entries.filter(e => !(e.detail && e.detail.includes('Auto-balanced')));
+                        const accountNames = mainLines.map(e => e.account).join(', ');
+                        const details = mainLines.map(e => e.detail).filter(d => d).join(', ') || doc.narration || '';
+
+                        document.getElementById('targetAccount').textContent = accountNames;
+                        document.getElementById('vDetail').textContent = details;
+                    }
+                }
+
+            } catch (err) {
+                console.error(err);
+            }
+        });
+
+        function numberToWords(number) {
+            const units = ['', 'ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE', 'TEN', 'ELEVEN', 'TWELVE', 'THIRTEEN', 'FOURTEEN', 'FIFTEEN', 'SIXTEEN', 'SEVENTEEN', 'EIGHTEEN', 'NINETEEN'];
+            const tens = ['', '', 'TWENTY', 'THIRTY', 'FORTY', 'FIFTY', 'SIXTY', 'SEVENTY', 'EIGHTY', 'NINETY'];
+            const scales = ['', 'THOUSAND', 'MILLION', 'BILLION'];
+
+            function convertBase(num) {
+                let words = [];
+                let chunks = [];
+                let numStr = num.toString();
+
+                while (numStr.length > 0) {
+                    chunks.push(numStr.slice(-3));
+                    numStr = numStr.slice(0, -3);
+                }
+
+                for (let i = 0; i < chunks.length; i++) {
+                    let chunk = parseInt(chunks[i]);
+                    if (chunk === 0) continue;
+
+                    let chunkWords = [];
+                    if (chunk >= 100) {
+                        chunkWords.push(units[Math.floor(chunk / 100)], 'HUNDRED');
+                        chunk %= 100;
+                    }
+
+                    if (chunk >= 20) {
+                        chunkWords.push(tens[Math.floor(chunk / 10)]);
+                        chunk %= 10;
+                    }
+
+                    if (chunk > 0) {
+                        chunkWords.push(units[chunk]);
+                    }
+
+                    if (scales[i]) {
+                        chunkWords.push(scales[i]);
+                    }
+
+                    words = chunkWords.concat(words);
+                }
+                return words.join(' ');
+            }
+
+            const mainNumber = Math.floor(number);
+            const decimals = Math.round((number - mainNumber) * 100);
+
+            let result = convertBase(mainNumber) + ' RUPEES';
+            if (decimals > 0) {
+                result += ' AND ' + convertBase(decimals) + ' PAISA';
+            }
+            return result;
+        }
+    </script>
+</body>
+
+</html>
+

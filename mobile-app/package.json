@@ -1,0 +1,35 @@
+{
+  "name": "mobile-app",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "@capacitor/android": "^8.5.1",
+    "@capacitor/cli": "^8.5.1",
+    "@capacitor/core": "^8.5.1",
+    "@expo/vector-icons": "^15.0.2",
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "@react-native-community/datetimepicker": "9.1.0",
+    "expo": "~57.0.17",
+    "expo-camera": "~57.0.5",
+    "expo-haptics": "~57.0.3",
+    "expo-image-picker": "~57.0.20",
+    "expo-local-authentication": "~57.0.3",
+    "expo-print": "~57.0.1",
+    "expo-secure-store": "~57.0.4",
+    "expo-sharing": "~57.0.16",
+    "expo-status-bar": "~57.0.1",
+    "expo-updates": "~57.0.18",
+    "react": "19.2.3",
+    "react-native": "0.86.3",
+    "react-native-svg": "15.15.4",
+    "socket.io-client": "^4.8.3"
+  },
+  "scripts": {
+    "start": "expo start",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "web": "expo start --web",
+    "build:apk": "eas build -p android --profile preview"
+  },
+  "private": true
+}

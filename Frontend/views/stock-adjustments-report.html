@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Adjustments Report - Bilal Accounting System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <style>
+        .report-container {
+            padding: 15px;
+            height: calc(100vh - 60px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-panel {
+            background: linear-gradient(135deg, #1a5f7a 0%, #0288d1 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            color: white;
+        }
+
+        .filter-panel label {
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .filter-panel .form-control,
+        .filter-panel .form-select {
+            border: none;
+            border-radius: 5px;
+        }
+
+        .quick-filters {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .quick-filters .btn {
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .data-panel {
+            flex: 1;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .data-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .data-header h5 {
+            margin: 0;
+            color: #1a5f7a;
+        }
+
+        .summary-cards {
+            display: flex;
+            gap: 15px;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .summary-card {
+            flex: 1;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .summary-card.total-adj {
+            background: linear-gradient(135deg, #ad1457 0%, #e91e63 100%);
+            color: white;
+        }
+
+        .summary-card.increase {
+            background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
+            color: white;
+        }
+
+        .summary-card.decrease {
+            background: linear-gradient(135deg, #c62828 0%, #e53935 100%);
+            color: white;
+        }
+
+        .summary-card.value-impact {
+            background: linear-gradient(135deg, #1565c0 0%, #1976d2 100%);
+            color: white;
+        }
+
+        .summary-card .label {
+            font-size: 12px;
+            opacity: 0.9;
+            text-transform: uppercase;
+        }
+
+        .summary-card .value {
+            font-size: 22px;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+
+        .table-container {
+            flex: 1;
+            overflow: auto;
+            padding: 0;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 0;
+        }
+
+        .data-table thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .data-table th {
+            background: linear-gradient(135deg, #1a5f7a 0%, #0288d1 100%);
+            color: white;
+            padding: 12px 15px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 11px;
+        }
+
+        .data-table td {
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+
+        .data-table tbody tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .data-table tbody tr:hover {
+            background: #fce4ec;
+        }
+
+        .group-header {
+            background: #fce4ec !important;
+            font-weight: 600;
+        }
+
+        .group-header td {
+            padding: 8px 15px;
+            font-size: 14px;
+            color: #1a5f7a;
+        }
+
+        .group-total {
+            background: #f8bbd9 !important;
+            font-weight: 600;
+        }
+
+        .total-row {
+            background: linear-gradient(135deg, #1a5f7a 0%, #0288d1 100%) !important;
+        }
+
+        .total-row td {
+            color: white !important;
+            font-weight: 700;
+            padding: 15px;
+        }
+
+        .no-data {
+            padding: 50px;
+            text-align: center;
+            color: #666;
+        }
+
+        .no-data i {
+            font-size: 50px;
+            color: #ddd;
+            margin-bottom: 15px;
+        }
+
+        .loading {
+            padding: 50px;
+            text-align: center;
+        }
+
+        .qty-increase {
+            color: #2e7d32;
+            font-weight: 600;
+        }
+
+        .qty-decrease {
+            color: #c62828;
+            font-weight: 600;
+        }
+
+        .badge-increase {
+            background: #2e7d32;
+        }
+
+        .badge-decrease {
+            background: #c62828;
+        }
+
+        @media (max-width: 768px) {
+            .filter-panel .row>div {
+                margin-bottom: 10px;
+            }
+
+            .summary-cards {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .summary-cards>.summary-card {
+                margin: 0;
+            }
+        }
+
+        /* Professional Print Styles */
+        @media print {
+            @page {
+                size: A4 landscape;
+                margin: 5mm;
+            }
+
+            body {
+                background: white;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            /* Hide Navigation, Filters, and Interactive Elements */
+            .page-header,
+            .filter-panel,
+            .quick-filters,
+            .sidebar,
+            #sidebarToggle,
+            .dropdown,
+            .btn,
+            button,
+            .data-header,
+            /* Hide toolbar headers */
+            footer,
+            .no-data {
+                display: none !important;
+            }
+
+            /* Reset Containers */
+            .report-container {
+                padding: 0;
+                margin: 0;
+                height: auto;
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .data-panel {
+                box-shadow: none;
+                border: none;
+                background: transparent;
+                display: block;
+            }
+
+            .table-container {
+                overflow: visible;
+                display: block;
+            }
+
+            /* Show Custom Print Header */
+            .print-header {
+                display: block !important;
+                border-bottom: 2px solid #333;
+                padding-bottom: 10px;
+                margin-bottom: 20px !important;
+            }
+
+            /* Summary Cards - Show them nicely */
+            .summary-cards {
+                display: flex !important;
+                padding: 0 0 20px 0;
+                gap: 10px;
+                background: transparent;
+                border: none;
+                page-break-inside: avoid;
+            }
+
+            .summary-card {
+                border: 1px solid #ccc;
+                box-shadow: none;
+                padding: 10px;
+                flex: 1;
+            }
+
+            /* Table Styles for Print */
+            .data-table {
+                width: 100% !important;
+                border-collapse: collapse;
+                margin-bottom: 20px;
+            }
+
+            .data-table th {
+                background: black !important;
+                color: white !important;
+                border: 1px solid #000 !important;
+                padding: 5px;
+                font-size: 10px;
+            }
+
+            .data-table td {
+                border: 1px solid #ccc;
+                padding: 5px;
+                font-size: 10px;
+            }
+
+            .total-row {
+                background: #f1f1f1 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .total-row td {
+                color: black !important;
+                font-weight: bold;
+                border-top: 2px solid #333;
+            }
+        }
+
+        @media (max-width: 768px) {
+
+            .data-table,
+            .data-table tbody,
+            .data-table tr,
+            .data-table td {
+                display: block;
+                width: 100%;
+            }
+
+            .data-table thead {
+                display: none;
+            }
+
+            .data-table tr {
+                margin-bottom: 15px;
+                border: 1px solid #dee2e6;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                background: white;
+                position: relative;
+            }
+
+            .data-table td {
+                text-align: right !important;
+                padding-left: 50% !important;
+                padding-right: 15px !important;
+                position: relative;
+                border-bottom: 1px solid #f1f1f1;
+                font-size: 0.9rem;
+                height: auto !important;
+                min-height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+            }
+
+            .data-table td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 15px;
+                width: 40%;
+                white-space: nowrap;
+                font-weight: 700;
+                text-align: left;
+                color: #6c757d;
+                font-size: 0.8rem;
+                text-transform: uppercase;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+
+            /* Group Header & Total Styles */
+            .data-table tr.group-header td {
+                background: #fce4ec !important;
+                color: #1a5f7a;
+                font-weight: bold;
+                text-align: left !important;
+                padding-left: 15px !important;
+                justify-content: flex-start;
+            }
+
+            .data-table tr.group-header td::before {
+                display: none;
+            }
+
+            /* Hide print header on mobile */
+            .print-header {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="print-header" style="display:none; text-align:center; margin-bottom:20px;">
+        <h2 style="margin:0; text-transform:uppercase; letter-spacing:1px;">Bilal Accounting System</h2>
+        <h4 id="printBranchName" style="margin:5px 0 0; color:#555;">All Branches</h4>
+        <h5 id="printReportTitle"
+            style="margin:5px 0; border-bottom:1px solid #ccc; display:inline-block; padding-bottom:5px;">Stock
+            Adjustments Report</h5>
+        <p id="printDateRange" style="margin:5px 0 0; font-size:12px; color:#666;">-</p>
+    </div>
+
+    <div class="page-header px-3">
+        <div style="flex: 1; display: flex; align-items: center;">
+            <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+            <i class="fas fa-sliders-h me-2"></i> Stock Adjustments Report
+        </div>
+        <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
+            <div class="dropdown">
+                <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown" style="cursor: pointer;">
+                    <i class="fas fa-user-circle me-2" style="font-size: 1.2rem;"></i>
+                    <span id="userName" class="me-2">User</span>
+                    <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                    <li><a class="dropdown-item logout-btn" href="#"><i
+                                class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="report-container">
+        <div class="filter-panel">
+            <div class="row g-3">
+                <div class="col-md-2">
+                    <label>From Date</label>
+                    <input type="date" id="filterFromDate" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-2">
+                    <label>To Date</label>
+                    <input type="date" id="filterToDate" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-2">
+                    <label>Branch</label>
+                    <select id="filterBranch" class="form-select form-select-sm">
+                        <option value="">All Branches</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label>Adjustment Type</label>
+                    <select id="filterType" class="form-select form-select-sm">
+                        <option value="">All Types</option>
+                        <option value="increase">Increase</option>
+                        <option value="decrease">Decrease</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label>Group By</label>
+                    <select id="filterGroupBy" class="form-select form-select-sm">
+                        <option value="none">No Grouping</option>
+                        <option value="date">Date Wise</option>
+                        <option value="type">Type Wise</option>
+                        <option value="item">Item Wise</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label>Global Search</label>
+                    <input type="text" id="filterSearch" class="form-control form-control-sm"
+                        placeholder="Item, reason...">
+                </div>
+            </div>
+            <div class="row g-3 mt-1">
+                <div class="col-md-3 d-flex align-items-end gap-2">
+                    <button class="btn btn-light btn-sm" onclick="loadReport()"><i class="fas fa-search me-1"></i>
+                        Search</button>
+                    <button class="btn btn-warning btn-sm" onclick="printReport()"><i class="fas fa-print me-1"></i>
+                        Print</button>
+                    <button class="btn btn-success btn-sm" onclick="exportExcel()"><i
+                            class="fas fa-file-excel me-1"></i> Excel</button>
+                </div>
+            </div>
+            <div class="quick-filters">
+                <span class="me-2"><i class="fas fa-clock me-1"></i> Quick:</span>
+                <button class="btn btn-outline-light btn-sm" onclick="setDateRange('today')">Today</button>
+                <button class="btn btn-outline-light btn-sm" onclick="setDateRange('week')">This Week</button>
+                <button class="btn btn-outline-light btn-sm" onclick="setDateRange('month')">This Month</button>
+                <button class="btn btn-outline-light btn-sm" onclick="setDateRange('lastMonth')">Last Month</button>
+                <button class="btn btn-outline-light btn-sm" onclick="setDateRange('year')">This Year</button>
+            </div>
+        </div>
+
+        <div class="data-panel">
+            <div class="data-header">
+                <h5><i class="fas fa-list me-2"></i>Adjustment Details</h5>
+                <div><span id="recordCount" class="badge" style="background:#e91e63">0 adjustments</span></div>
+            </div>
+
+            <div class="summary-cards">
+                <div class="summary-card total-adj">
+                    <div class="label"><i class="fas fa-sliders-h me-1"></i> Total Adjustments</div>
+                    <div class="value" id="totalAdjustments">0</div>
+                </div>
+                <div class="summary-card increase">
+                    <div class="label"><i class="fas fa-plus me-1"></i> Increases</div>
+                    <div class="value" id="totalIncreases">0</div>
+                </div>
+                <div class="summary-card decrease">
+                    <div class="label"><i class="fas fa-minus me-1"></i> Decreases</div>
+                    <div class="value" id="totalDecreases">0</div>
+                </div>
+                <div class="summary-card value-impact">
+                    <div class="label"><i class="fas fa-chart-line me-1"></i> Value Impact</div>
+                    <div class="value" id="valueImpact">0</div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 100px">Date</th>
+                            <th style="width: 100px">Ref #</th>
+                            <th>Item</th>
+                            <th style="width: 100px">Type</th>
+                            <th style="width: 80px" class="text-center">Quantity</th>
+                            <th style="width: 100px" class="text-end">Value</th>
+                            <th>Reason</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportTableBody">
+                        <tr>
+                            <td colspan="7" class="no-data"><i class="fas fa-search"></i>
+                                <p>Select filters and click "Search"</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244530"></script>
+    <script src="/js/desktop-ui.js?v=12"></script>
+    <script>
+        function formatCurrency(amt) { return new Intl.NumberFormat('en-PK', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amt || 0); }
+        function formatDate(d) { if (!d) return '-'; return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }); }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            if (!localStorage.getItem('token')) { window.location.href = 'login'; return; }
+            setDateRange('month');
+            loadFilters();
+        });
+
+        function setDateRange(range) {
+            const today = new Date();
+            let from = new Date(), to = new Date();
+            switch (range) {
+                case 'today': from = to = today; break;
+                case 'week': from = new Date(today); from.setDate(today.getDate() - today.getDay()); to = new Date(from); to.setDate(from.getDate() + 6); break;
+                case 'month': from = new Date(today.getFullYear(), today.getMonth(), 1); to = new Date(today.getFullYear(), today.getMonth() + 1, 0); break;
+                case 'lastMonth': from = new Date(today.getFullYear(), today.getMonth() - 1, 1); to = new Date(today.getFullYear(), today.getMonth(), 0); break;
+                case 'year': from = new Date(today.getFullYear(), 0, 1); to = new Date(today.getFullYear(), 11, 31); break;
+            }
+            document.getElementById('filterFromDate').value = from.toISOString().split('T')[0];
+            document.getElementById('filterToDate').value = to.toISOString().split('T')[0];
+        }
+
+        async function loadFilters() {
+            const token = localStorage.getItem('token');
+            try {
+                const res = await fetch('/api/v1/stores', { headers: { 'Authorization': `Bearer ${token}` } });
+                if (res.ok) { const d = await res.json(); (d.data || []).forEach(s => document.getElementById('filterBranch').innerHTML += `<option value="${s._id}">${s.name}</option>`); }
+            } catch (e) { }
+        }
+
+        async function loadReport() {
+            const token = localStorage.getItem('token');
+            const tbody = document.getElementById('reportTableBody');
+            tbody.innerHTML = `<tr><td colspan="7" class="loading"><div class="spinner-border" style="color:#e91e63"></div><p class="mt-2 text-muted">Loading...</p></td></tr>`;
+
+            const startDate = document.getElementById('filterFromDate').value;
+            const endDate = document.getElementById('filterToDate').value;
+            const branch = document.getElementById('filterBranch').value;
+            const type = document.getElementById('filterType').value;
+            const groupBy = document.getElementById('filterGroupBy').value;
+            const search = document.getElementById('filterSearch').value;
+
+            // Update Print Header
+            if (document.getElementById('printBranchName')) {
+                const branchSelect = document.getElementById('filterBranch');
+                document.getElementById('printBranchName').textContent = branchSelect.options[branchSelect.selectedIndex]?.text || 'All Branches';
+            }
+            if (document.getElementById('printDateRange')) document.getElementById('printDateRange').textContent = `Period: ${formatDate(startDate)} to ${formatDate(endDate)}`;
+
+            let title = 'Stock Adjustments Report';
+            if (type === 'increase') title += ' - Increases';
+            else if (type === 'decrease') title += ' - Decreases';
+            if (document.getElementById('printReportTitle')) document.getElementById('printReportTitle').textContent = title;
+
+            let query = '?limit=10000';
+            if (startDate) query += `&startDate=${startDate}`;
+            if (endDate) query += `&endDate=${endDate}`;
+            if (branch) query += `&store=${branch}`;
+            if (type) query += `&type=${type}`;
+
+            try {
+                const res = await fetch(`/api/v1/stock-adjustments${query}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (!res.ok) throw new Error('Failed to fetch');
+                const result = await res.json();
+                let adjustments = result.data || [];
+
+                if (search) {
+                    const sl = search.toLowerCase();
+                    adjustments = adjustments.filter(a => (a.item?.name || '').toLowerCase().includes(sl) || (a.reason || '').toLowerCase().includes(sl));
+                }
+
+                let total = adjustments.length, increases = 0, decreases = 0, valueImpact = 0;
+                adjustments.forEach(a => {
+                    const isIncrease = a.type === 'increase' || a.quantity > 0;
+                    if (isIncrease) { increases++; valueImpact += Math.abs(a.value || a.quantity * (a.cost || 0)); }
+                    else { decreases++; valueImpact -= Math.abs(a.value || a.quantity * (a.cost || 0)); }
+                });
+
+                document.getElementById('totalAdjustments').textContent = total;
+                document.getElementById('totalIncreases').textContent = increases;
+                document.getElementById('totalDecreases').textContent = decreases;
+                document.getElementById('valueImpact').textContent = formatCurrency(valueImpact);
+                document.getElementById('recordCount').textContent = `${adjustments.length} adjustments`;
+
+                if (adjustments.length === 0) { tbody.innerHTML = `<tr><td colspan="7" class="no-data"><i class="fas fa-inbox"></i><p>No adjustments found</p></td></tr>`; return; }
+
+                if (groupBy && groupBy !== 'none') renderGroupedTable(adjustments, groupBy);
+                else renderSimpleTable(adjustments);
+            } catch (e) {
+                console.error(e);
+                tbody.innerHTML = `<tr><td colspan="7" class="no-data text-danger"><i class="fas fa-exclamation-triangle"></i><p>Error: ${e.message}</p></td></tr>`;
+            }
+        }
+
+        function renderSimpleTable(adjustments) {
+            const tbody = document.getElementById('reportTableBody');
+            let html = '';
+            adjustments.forEach(a => {
+                const isIncrease = a.type === 'increase' || a.quantity > 0;
+                const qty = Math.abs(a.quantity || 0);
+                const value = a.value || qty * (a.cost || 0);
+
+                html += `<tr>
+                    <td data-label="Date">${formatDate(a.date || a.createdAt)}</td>
+                    <td data-label="Ref #"><strong>${a.referenceNumber || '-'}</strong></td>
+                    <td data-label="Item">${a.item?.name || '-'}</td>
+                    <td data-label="Type"><span class="badge ${isIncrease ? 'badge-increase' : 'badge-decrease'}">${isIncrease ? 'Increase' : 'Decrease'}</span></td>
+                    <td data-label="Quantity" class="text-center ${isIncrease ? 'qty-increase' : 'qty-decrease'}">${isIncrease ? '+' : '-'}${qty}</td>
+                    <td data-label="Value" class="text-end">${formatCurrency(value)}</td>
+                    <td data-label="Reason">${a.reason || a.notes || '-'}</td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+        }
+
+        function renderGroupedTable(adjustments, groupField) {
+            const tbody = document.getElementById('reportTableBody');
+            const groups = {};
+            adjustments.forEach(a => {
+                let key = '';
+                if (groupField === 'date') key = formatDate(a.date || a.createdAt);
+                else if (groupField === 'type') key = (a.type === 'increase' || a.quantity > 0) ? 'Increase' : 'Decrease';
+                else if (groupField === 'item') key = a.item?.name || 'Unknown';
+                else key = 'All';
+                if (!groups[key]) groups[key] = [];
+                groups[key].push(a);
+            });
+
+            let html = '';
+            Object.keys(groups).sort().forEach(k => {
+                const items = groups[k];
+                html += `<tr class="group-header"><td colspan="7"><i class="fas fa-folder-open me-2"></i>${k} (${items.length})</td></tr>`;
+                items.forEach(a => {
+                    const isIncrease = a.type === 'increase' || a.quantity > 0;
+                    const qty = Math.abs(a.quantity || 0);
+                    const value = a.value || qty * (a.cost || 0);
+
+                    html += `<tr>
+                        <td data-label="Date">${formatDate(a.date || a.createdAt)}</td>
+                        <td data-label="Ref #"><strong>${a.referenceNumber || '-'}</strong></td>
+                        <td data-label="Item">${a.item?.name || '-'}</td>
+                        <td data-label="Type"><span class="badge ${isIncrease ? 'badge-increase' : 'badge-decrease'}">${isIncrease ? 'Increase' : 'Decrease'}</span></td>
+                        <td data-label="Quantity" class="text-center ${isIncrease ? 'qty-increase' : 'qty-decrease'}">${isIncrease ? '+' : '-'}${qty}</td>
+                        <td data-label="Value" class="text-end">${formatCurrency(value)}</td>
+                        <td data-label="Reason">${a.reason || a.notes || '-'}</td>
+                    </tr>`;
+                });
+            });
+            tbody.innerHTML = html;
+        }
+
+        function printReport() { window.print(); }
+        function exportExcel() { alert('Excel export coming soon!'); }
+    </script>
+</body>
+
+</html>
+

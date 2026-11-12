@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Payments - Bilal Accounting System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <style>
+        .split-layout {
+            display: flex;
+            gap: 15px;
+            height: calc(100vh - 120px);
+            padding: 10px;
+        }
+
+        .form-panel {
+            width: 350px;
+            background: #fff;
+            padding: 15px;
+            border: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: auto;
+        }
+
+        .grid-panel {
+            flex: 1;
+            background: #fff;
+            border: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group {
+            margin-bottom: 8px;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .form-control-sm {
+            font-size: 13px;
+        }
+
+        .cash-display {
+            background: black;
+            color: lime;
+            font-family: monospace;
+            font-size: 24px;
+            font-weight: bold;
+            padding: 5px;
+            text-align: center;
+            border-radius: 4px;
+        }
+
+        .grid-header {
+            background: var(--primary-blue, #0056b3);
+            color: white;
+            padding: 5px 10px;
+        }
+
+        .grid-controls {
+            padding: 10px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .data-table th {
+            font-size: 12px;
+            background: #007bff;
+            color: white;
+            padding: 5px;
+        }
+
+        .data-table td {
+            font-size: 12px;
+            padding: 5px;
+        }
+
+        .action-bar-bottom {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            padding: 10px;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 10px;
+            justify-content: flex-start;
+            border-top: 1px solid #ddd;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-header px-3">
+        <div style="flex: 1; display: flex; align-items: center;">
+            <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+            <i class="fas fa-hand-holding-usd me-2"></i> Customer Payments
+        </div>
+        <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
+            <div class="dropdown">
+                <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown" style="cursor: pointer;">
+                    <i class="fas fa-user-circle me-2" style="font-size: 1.2rem;"></i>
+                    <span id="userName" class="me-2">User</span>
+                    <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                    <li><a class="dropdown-item logout-btn" href="#"><i
+                                class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="split-layout">
+        <!-- Form Panel -->
+        <div class="form-panel">
+            <div class="form-group">
+                <label>Received</label>
+                <select id="payType" class="form-select form-select-sm">
+                    <option value="received">Received</option>
+                    <option value="refund">Refund</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Date</label>
+                <input type="date" id="paymentDate" class="form-control form-control-sm">
+            </div>
+            <div class="form-group">
+                <label>Branch</label>
+                <select id="branch" class="form-select form-select-sm">
+                    <option value="Shop">Shop</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Customer</label>
+                <div class="input-group input-group-sm">
+                    <select id="customer" class="form-select"></select>
+                    <button class="btn btn-primary" onclick="openCustomerModal()"><i class="fas fa-plus"></i></button>
+                    <button class="btn btn-warning" onclick="refreshCustomers()"><i class="fas fa-sync"></i></button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Pre Balance</label>
+                <input type="number" id="preBalance" class="form-control form-control-sm" readonly>
+            </div>
+            <div class="form-group">
+                <label>Amount</label>
+                <input type="number" id="amount" class="form-control form-control-sm">
+            </div>
+            <div class="form-group">
+                <label>Discount %</label>
+                <div class="input-group input-group-sm">
+                    <input type="number" id="discountPercent" class="form-control" placeholder="%">
+                    <span class="input-group-text">Rs</span>
+                    <input type="number" id="discountRs" class="form-control" placeholder="Rs" readonly>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Balance</label>
+                <input type="number" id="balance" class="form-control form-control-sm" readonly>
+            </div>
+            <div class="form-group">
+                <label>Pay Mode</label>
+                <select id="payMode" class="form-select form-select-sm">
+                    <option value="cash">Cash</option>
+                    <option value="bank">Bank</option>
+                    <option value="cheque">Cheque</option>
+                    <option value="online">Online</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Cash In Hand</label>
+                <div id="cashInHandDisplay" class="cash-display">0</div>
+            </div>
+            <div class="form-group">
+                <label>Remarks</label>
+                <input type="text" id="remarks" class="form-control form-control-sm">
+            </div>
+        </div>
+
+        <!-- Grid Panel -->
+        <div class="grid-panel">
+            <div class="grid-controls">
+                <label>From</label>
+                <input type="date" id="filterFromDate" class="form-control form-control-sm" style="width: 130px;">
+                <label>To</label>
+                <input type="date" id="filterToDate" class="form-control form-control-sm" style="width: 130px;">
+                <select class="form-select form-select-sm" style="width: 80px;">
+                    <option>A-3</option>
+                </select>
+                <button class="btn btn-primary btn-sm" onclick="loadPayments()">Search</button>
+            </div>
+            <div class="table-responsive flex-1">
+                <table class="table table-bordered table-striped data-table mb-0">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>ID</th>
+                            <th>Dated</th>
+                            <th>Customer_Name</th>
+                            <th>Type</th>
+                            <th>Pre_Balance</th>
+                            <th>Amount</th>
+                            <th>Discount</th>
+                            <th>Balance</th>
+                            <th>Payment_Mode</th>
+                            <th>Bank_Name</th>
+                            <th>Remarks</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="paymentsTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="action-bar-bottom">
+        <button class="btn btn-success" onclick="savePayment()" data-action="save"><i class="fas fa-save"></i>
+            Save</button>
+        <button class="btn btn-primary" onclick="printPayment()"><i class="fas fa-print"></i> Print</button>
+        <button class="btn btn-danger" onclick="clearForm()"><i class="fas fa-times"></i> Clear</button>
+        <button class="btn btn-info" onclick="viewLedger()"><i class="fas fa-book"></i> Ledger</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244462"></script>
+    <script src="/js/desktop-ui.js?v=custom"></script>
+    <script src="/js/customer-payments.js"></script>
+</body>
+
+</html>
+

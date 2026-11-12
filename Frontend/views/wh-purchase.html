@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WH Purchase Entry - BAS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <link href="/css/responsive-global.css" rel="stylesheet">
+    <style>
+        .form-label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 0.2rem;
+            color: #495057;
+        }
+
+        .form-control,
+        .form-select {
+            font-size: 0.85rem;
+            padding: 0.3rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+            border-color: #0d6efd;
+        }
+
+        .card-header-custom {
+            background: linear-gradient(45deg, #0d6efd, #0dcaf0);
+            color: white;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+
+        .table-custom th {
+            background-color: #20c997 !important;
+            color: white !important;
+            text-align: center;
+            font-weight: 500;
+            white-space: nowrap;
+            padding: 8px 4px;
+            font-size: 0.8rem;
+        }
+
+        .table-custom td {
+            vertical-align: middle;
+            padding: 4px;
+        }
+
+        .table-custom input {
+            border: 1px solid #dee2e6;
+            text-align: right;
+            padding: 2px 5px;
+            font-size: 0.85rem;
+            width: 100%;
+        }
+
+        .table-custom input.text-start {
+            text-align: left !important;
+        }
+
+        .footer-totals-card {
+            background-color: transparent;
+            border: none;
+        }
+
+        .total-box {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-left: 4px solid #0d6efd;
+            border-radius: 8px;
+            padding: 8px 12px;
+            text-align: right;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .total-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .total-box.border-secondary {
+            border-left-color: #6c757d !important;
+        }
+
+        .total-box.border-primary {
+            border-left-color: #0d6efd !important;
+        }
+
+        .total-box.border-danger {
+            border-left-color: #dc3545 !important;
+        }
+
+        .total-box.border-warning {
+            border-left-color: #ffc107 !important;
+        }
+
+        .total-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6c757d;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .total-value {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #212529;
+        }
+
+        .total-box.bg-primary .total-label {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .total-box.bg-primary .total-value {
+            color: white;
+        }
+
+        /* Floating Action Button for Item Reg */
+        .btn-link-item {
+            background: #fd7e14;
+            color: white;
+            border: none;
+            font-size: 0.8rem;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-link-item:hover {
+            background: #e36a09;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .calc-input {
+            background-color: #f8f9fa;
+        }
+
+        /* Custom Tab Styles */
+        /* Custom Tab Styles */
+        .nav-tabs {
+            border-bottom: 1px solid #dee2e6;
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+        }
+
+        .nav-tabs .nav-item {
+            margin-bottom: -1px;
+        }
+
+        .nav-tabs .nav-link {
+            display: block;
+            padding: 0.5rem 1rem;
+            color: #495057 !important;
+            /* Force dark color */
+            border: 1px solid transparent;
+            border-top-left-radius: .25rem;
+            border-top-right-radius: .25rem;
+            background-color: transparent;
+        }
+
+        .nav-tabs .nav-link:hover {
+            border-color: #e9ecef #e9ecef #dee2e6;
+            color: #0d6efd !important;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: #0d6efd !important;
+            background-color: #fff !important;
+            border-color: #dee2e6 #dee2e6 #fff;
+            border-bottom: 2px solid #0d6efd;
+        }
+
+        /* Fix for list tab width */
+        #list-content {
+            width: 100%;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        /* Header Button Styles */
+        .page-header .btn {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.2s;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 500;
+        }
+
+        .btn-header-light {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-header-light:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            border-color: white;
+        }
+
+        .btn-header-success {
+            background: #28a745;
+            border-color: #28a745 !important;
+        }
+
+        .btn-header-success:hover {
+            background: #218838;
+            filter: brightness(1.1);
+        }
+
+        .btn-header-info {
+            background: #17a2b8;
+            border-color: #17a2b8 !important;
+        }
+
+        .btn-header-warning {
+            background: #ffc107;
+            color: #212529 !important;
+            border-color: #ffc107 !important;
+        }
+
+        .btn-header-warning:hover {
+            background: #e0a800;
+        }
+
+        .list-group-item-action:hover,
+        .list-group-item-action.active {
+            background-color: #0d6efd !important;
+            color: white !important;
+        }
+
+        .list-group-item-action:hover .text-muted,
+        .list-group-item-action.active .text-muted {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        /* Professional Mobile Enhancements */
+        @media (max-width: 768px) {
+            .page-header {
+                padding: 0.4rem 0.8rem !important;
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                min-height: 52px !important;
+            }
+
+            /* On mobile, desktop action buttons are moved to the bottom action bar */
+            .page-header .btn,
+            .page-header #header-action-zone,
+            .page-header .btn-header-light,
+            .page-header .btn-header-info,
+            .page-header .btn-header-success,
+            .page-header .btn-header-warning,
+            .page-header > div:last-child {
+                display: none !important;
+            }
+
+            /* Prevent menu hamburger button from being covered or overlapped */
+            .page-header #sidebarToggle,
+            .page-header #sidebarToggleBtnHeader,
+            .page-header .bas-menu-trigger-btn {
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                font-size: 1.25rem !important;
+                min-width: 38px !important;
+                min-height: 38px !important;
+                color: #ffffff !important;
+                margin-right: 12px !important;
+                flex-shrink: 0 !important;
+                cursor: pointer !important;
+                z-index: 20 !important;
+            }
+
+            .page-header h5,
+            .page-header .bas-header-title {
+                font-size: 0.95rem !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                margin: 0 !important;
+                color: #ffffff !important;
+            }
+
+            .main-content {
+                padding-bottom: 80px;
+                /* Space for sticky bottom bar */
+                overflow-x: hidden;
+            }
+
+            .action-bar-mobile {
+                position: fixed !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                height: 62px !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: space-around !important;
+                background: #ffffff !important;
+                border-top: 1px solid #e2e8f0 !important;
+                box-shadow: 0 -3px 12px rgba(0, 0, 0, 0.08) !important;
+                z-index: 1050 !important;
+                padding: 4px 6px !important;
+            }
+
+            .action-btn-mobile {
+                flex: 1;
+                display: inline-flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+                padding: 4px 2px !important;
+                font-size: 0.68rem !important;
+                font-weight: 600 !important;
+                border: none !important;
+                background: transparent !important;
+                color: #475569 !important;
+                text-decoration: none !important;
+                cursor: pointer !important;
+                transition: all 0.2s ease !important;
+            }
+
+            .action-btn-mobile span {
+                color: #475569 !important;
+                font-size: 0.68rem !important;
+                font-weight: 600 !important;
+                margin-top: 2px !important;
+            }
+
+            .action-btn-mobile i {
+                font-size: 1.2rem !important;
+                margin-bottom: 2px !important;
+            }
+
+            .action-btn-mobile:active,
+            .action-btn-mobile:hover {
+                background: rgba(2, 132, 199, 0.08) !important;
+                border-radius: 6px !important;
+            }
+
+            /* Dedicated distinct icon colors */
+            .action-btn-mobile.action-btn-entry i {
+                color: #0284c7 !important;
+            }
+
+            .action-btn-mobile.action-btn-post i {
+                color: #10b981 !important;
+            }
+
+            .action-btn-mobile.action-btn-print i {
+                color: #8b5cf6 !important;
+            }
+
+            .action-btn-mobile.action-btn-new i {
+                color: #f59e0b !important;
+            }
+
+            .action-btn-mobile.action-btn-list i {
+                color: #0284c7 !important;
+            }
+
+            .card-body {
+                padding: 12px 10px !important;
+            }
+
+            /* Responsive Table Font */
+            .table-custom th,
+            .table-custom td {
+                font-size: 0.75rem !important;
+            }
+
+            .table-responsive {
+                height: calc(100vh - 450px) !important;
+                min-height: 300px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar Placeholder -->
+    <div id="sidebar-container"></div>
+
+    <div class="main-content">
+        <div
+            class="page-header px-3 py-2 d-flex justify-content-between align-items-center bg-primary text-white shadow-sm mb-3">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-bars me-3 text-white" id="sidebarToggle"
+                    style="cursor:pointer; font-size: 1.2rem;"></i>
+                <h5 class="mb-0 text-white"><i class="fas fa-shopping-cart me-2"></i>WH Purchase Entry</h5>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-header-light" onclick="switchToList()" id="listBtn">
+                    <i class="fas fa-list me-1"></i> List
+                </button>
+                <button class="btn btn-header-info d-none d-md-inline-flex" onclick="syncData()" id="syncBtn">
+                    <i class="fas fa-sync-alt me-1"></i> Sync Items
+                </button>
+                <a href="/wh-supplier" target="_blank" class="btn btn-header-light d-none d-md-inline-flex">
+                    <i class="fas fa-truck me-1"></i> New Supplier
+                </a>
+                <a href="/wh-item" target="_blank" class="btn btn-header-light d-none d-md-inline-flex">
+                    <i class="fas fa-box me-1"></i> New Item
+                </a>
+                <div class="vr mx-1 d-none d-md-block" style="height: 20px; opacity: 0.3;"></div>
+
+                <!-- These buttons will be hidden on mobile as they are moved to the bottom bar -->
+                <button class="btn btn-header-light d-none d-md-inline-flex" onclick="savePurchase('Draft')"
+                    id="btnSaveDraft">
+                    <i class="fas fa-save me-1"></i> Save Draft
+                </button>
+                <button class="btn btn-header-success d-none d-md-inline-flex" onclick="savePurchase('Posted')"
+                    id="btnPost">
+                    <i class="fas fa-check-circle me-1"></i> Post
+                </button>
+                <button class="btn btn-header-light d-none d-md-inline-flex" onclick="printInvoice(currentPurchaseId)"
+                    id="btnPrint">
+                    <i class="fas fa-print me-1"></i> Print
+                </button>
+                <button class="btn btn-header-warning d-none d-md-inline-flex" onclick="resetForm()" id="btnNew">
+                    <i class="fas fa-plus me-1"></i> New
+                </button>
+            </div>
+        </div>
+
+        <div class="container-fluid px-3" id="detailView">
+            <!-- Detail View -->
+            <form id="purchaseForm">
+                <input type="hidden" id="purchaseId">
+                <!-- Header Section -->
+                <div class="card shadow-sm mb-3 border-0">
+                    <div class="card-header-custom">
+                        <div class="row align-items-center">
+                            <div class="col">Purchase Header Details</div>
+                            <div class="col-auto">
+                                <span class="badge bg-white text-primary" id="statusBadge">DRAFT</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-3 bg-light">
+                        <div class="row g-2">
+                            <div class="col-6 col-md-2">
+                                <label class="form-label">Invoice No</label>
+                                <input type="text" class="form-control" id="invoiceNo" placeholder="Enter Inv #"
+                                    required>
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <label class="form-label">Date</label>
+                                <input type="date" class="form-control" id="invoiceDate" required>
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <label class="form-label">Supplier</label>
+                                <div class="input-group input-group-sm">
+                                    <select class="form-select" id="supplierSelect" required>
+                                        <option value="">Select Supplier</option>
+                                    </select>
+                                    <button class="btn btn-outline-secondary" type="button"
+                                        onclick="refreshSuppliers()">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <label class="form-label">Remarks</label>
+                                <input type="text" class="form-control" id="remarks" placeholder="Optional remarks">
+                            </div>
+                            <div class="col-6 col-md-2">
+                                <label class="form-label">Tax Category</label>
+                                <select class="form-select" id="taxCategory">
+                                    <option value="DEFAULT">DEFAULT</option>
+                                    <option value="EXEMPT">EXEMPT</option>
+                                </select>
+                            </div>
+                        </div>
+                        <!-- Extra Filters as requested -->
+                        <div class="row g-2 mt-1">
+                            <div class="col-md-2">
+                                <label class="form-label text-muted small">Warehouse Cat.</label>
+                                <select class="form-select form-select-sm" id="whCategoryFilter">
+                                    <option value="">All Categories</option>
+                                </select>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Items Grid -->
+                <div class="card shadow-sm border-0 mb-3" style="min-height: 400px;">
+                    <div class="card-body p-0">
+                        <div class="table-responsive" style="height: 400px; overflow-y: auto;">
+                            <table class="table table-bordered table-custom table-hover mb-0" id="purchaseTable">
+                                <thead style="position: sticky; top: 0; z-index: 10;">
+                                    <tr>
+                                        <th style="width: 35px;">#</th>
+                                        <th style="width: 130px;" class="text-start">Barcode</th>
+                                        <th style="width: 350px;" class="text-start">Item Name</th>
+                                        <th style="width: 0;" class="d-none">Batch</th>
+                                        <th style="width: 105px;">Expiry</th>
+                                        <th style="width: 70px;">Qty</th>
+                                        <th style="width: 65px;">Bonus</th>
+                                        <th style="width: 90px;">Cost</th>
+                                        <th style="width: 65px;">Disc%</th>
+                                        <th style="width: 80px;">D.Val</th>
+                                        <th style="width: 65px;">Tax%</th>
+                                        <th style="width: 80px;">T.Val</th>
+                                        <th style="width: 100px;">Net Total</th>
+                                        <th style="width: 85px;">Retail</th>
+                                        <th style="width: 40px;"><i class="fas fa-trash"></i></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="purchaseTableBody">
+                                    <!-- Rows will be added here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- Quick Add Row Footer -->
+                    <div class="card-footer bg-light p-2">
+                        <div class="row g-1 align-items-end">
+                            <div class="col-md-3 position-relative">
+                                <input type="text" class="form-control form-control-sm" id="quickItemSearch"
+                                    placeholder="Scan Barcode or Type Name (Alt+I)" oninput="filterQuickSearch(this)"
+                                    onkeydown="handleQuickSearchKeydown(event)">
+                                <div class="list-group position-absolute" id="quickSearchSuggestions"
+                                    style="z-index: 1050; display:none; max-height: 250px; overflow-y: auto; width: 100%; bottom: 100%; margin-bottom: 5px; box-shadow: 0 -5px 15px rgba(0,0,0,0.1);">
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <button type="button" class="btn btn-success btn-sm w-100" onclick="addNewRow()">
+                                    <i class="fas fa-plus"></i> Add Row
+                                </button>
+                            </div>
+                            <div class="col-auto">
+                                <small class="text-muted">Press <b>F2</b> to focus Item Search. <b>Enter</b> on
+                                    Qty to
+                                    add next.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Separate Footer Totals Card -->
+            <div class="card shadow-sm border-0 mt-3 mb-3">
+                <div class="card-body p-3 bg-light rounded shadow-sm">
+                    <div class="row g-3">
+                        <div class="col-6 col-md-2">
+                            <div class="total-box border-secondary bg-white">
+                                <span class="total-label text-muted small">Current Stock</span>
+                                <div class="total-value text-dark" id="currentStockDisplay">0</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-2">
+                            <div class="total-box border-primary bg-white">
+                                <span class="total-label text-muted small">Total Qty</span>
+                                <div class="total-value text-primary" id="totalQty">0</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-2">
+                            <div class="total-box border-primary bg-white">
+                                <span class="total-label text-muted small">Sub Total</span>
+                                <div class="total-value text-primary" id="subTotal">0.00</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-2">
+                            <div class="total-box border-danger bg-white">
+                                <span class="total-label text-muted small">Total Discount</span>
+                                <div class="total-value text-danger" id="totalDiscount">0.00</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-2">
+                            <div class="total-box border-warning bg-white">
+                                <span class="total-label text-muted small">Total Tax</span>
+                                <div class="total-value text-warning" id="totalTax">0.00</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-2">
+                            <div class="total-box bg-primary text-white border-0">
+                                <span class="total-label text-white-50 small">Grand Total</span>
+                                <div class="total-value text-white" id="grandTotal">0.00</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- List View (Hidden by default) -->
+        <div class="container-fluid px-3" id="listView" style="display: none;">
+            <!-- Filters -->
+            <div class="card shadow-sm border-0 mb-2">
+                <div class="card-header bg-dark text-white p-2">
+                    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
+                        <div class="d-flex flex-column flex-md-row align-items-md-center gap-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-nowrap">Purchase List</span>
+                                <button class="btn btn-sm btn-light d-md-none" onclick="switchToDetail()">Back</button>
+                            </div>
+
+                            <div class="d-flex flex-column flex-md-row align-items-md-center gap-2">
+                                <div class="d-flex align-items-center gap-1">
+                                    <input type="date" id="listFromDate" class="form-control form-control-sm"
+                                        style="width: 135px;">
+                                    <span class="text-white small">to</span>
+                                    <input type="date" id="listToDate" class="form-control form-control-sm"
+                                        style="width: 135px;">
+                                </div>
+                                <div class="input-group input-group-sm mb-0"
+                                    style="width: 100%; min-width: 250px; max-width: 350px;">
+                                    <input type="text" id="listSearch" class="form-control"
+                                        placeholder="Inv# or Supplier"
+                                        onkeydown="if(event.key==='Enter') loadPurchaseList()">
+                                    <button class="btn btn-primary" onclick="loadPurchaseList()">
+                                        <i class="fas fa-search me-1"></i> Search
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-none d-md-block">
+                            <button class="btn btn-sm btn-light fw-bold" onclick="switchToDetail()">Back to
+                                Entry</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0">
+                    <div class="table-responsive" style="height: calc(100vh - 200px); overflow-y: auto;">
+                        <table class="table table-striped table-hover mb-0" id="purchaseListTable">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Inv #</th>
+                                    <th>Posting #</th>
+                                    <th>Date</th>
+                                    <th>Supplier</th>
+                                    <th>Remarks</th>
+                                    <th>Total Qty</th>
+                                    <th>Grand Total</th>
+                                    <th>Status</th>
+                                    <th>User</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="purchaseListBody">
+                                <!-- List Items -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Authorization Modal -->
+    <div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white py-2">
+                    <h5 class="modal-title fs-6">Authorization Required</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">User</label>
+                        <input type="text" class="form-control form-control-sm bg-light" id="authUser" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Password</label>
+                        <input type="password" class="form-control form-control-sm" id="authPassword"
+                            placeholder="Enter Password">
+                    </div>
+                </div>
+                <div class="modal-footer p-2">
+                    <button type="button" class="btn btn-primary btn-sm w-100" onclick="confirmAndSave()">
+                        <i class="fas fa-check-circle me-1"></i> Verify & Proceed
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Action Bar (Professional View) -->
+    <div class="fixed-bottom bg-white border-top p-2 d-md-none shadow-lg action-bar-mobile" style="z-index: 1050;">
+        <div class="d-flex justify-content-between w-100 pb-1">
+            <button type="button" class="action-btn-mobile action-btn-entry" onclick="switchToDetail()" id="mobileEntryBtn">
+                <i class="fas fa-edit"></i>
+                <span>Entry</span>
+            </button>
+            <button type="button" class="action-btn-mobile action-btn-post" onclick="savePurchase('Posted')">
+                <i class="fas fa-check-circle"></i>
+                <span>Post</span>
+            </button>
+            <button type="button" class="action-btn-mobile action-btn-print" onclick="printInvoice(currentPurchaseId)">
+                <i class="fas fa-print"></i>
+                <span>Print</span>
+            </button>
+            <button type="button" class="action-btn-mobile action-btn-new" onclick="resetForm()">
+                <i class="fas fa-plus-circle"></i>
+                <span>New</span>
+            </button>
+            <button type="button" class="action-btn-mobile action-btn-list" onclick="switchToList()" id="mobileListBtn">
+                <i class="fas fa-list"></i>
+                <span>List</span>
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/sidebar.js?v=1789486244561"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/wh-purchase.js?v=20261027111500"></script>
+</body>
+
+</html>

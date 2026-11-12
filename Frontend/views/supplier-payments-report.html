@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supplier Payments Report - Bilal Accounting System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <style>
+        .report-container {
+            padding: 15px;
+            height: calc(100vh - 60px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-panel {
+            background: linear-gradient(135deg, #1a5f7a 0%, #0288d1 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            color: white;
+        }
+
+        .filter-panel label {
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .filter-panel .form-control,
+        .filter-panel .form-select {
+            border: none;
+            border-radius: 5px;
+        }
+
+        .quick-filters {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .quick-filters .btn {
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .data-panel {
+            flex: 1;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .data-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .data-header h5 {
+            margin: 0;
+            color: #1a5f7a;
+        }
+
+        .summary-cards {
+            display: flex;
+            gap: 15px;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .summary-card {
+            flex: 1;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .summary-card.total-payments {
+            background: linear-gradient(135deg, #1a5f7a 0%, #0288d1 100%);
+            color: white;
+        }
+
+        .summary-card.cash-payments {
+            background: linear-gradient(135deg, #1565c0 0%, #1976d2 100%);
+            color: white;
+        }
+
+        .summary-card.bank-payments {
+            background: linear-gradient(135deg, #6a1b9a 0%, #8e24aa 100%);
+            color: white;
+        }
+
+        .summary-card.cheque-payments {
+            background: linear-gradient(135deg, #00695c 0%, #009688 100%);
+            color: white;
+        }
+
+        .summary-card .label {
+            font-size: 12px;
+            opacity: 0.9;
+            text-transform: uppercase;
+        }
+
+        .summary-card .value {
+            font-size: 22px;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+
+        .table-container {
+            flex: 1;
+            overflow: auto;
+            padding: 0;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 0;
+        }
+
+        .data-table thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .data-table th {
+            background: linear-gradient(135deg, #1a5f7a 0%, #0288d1 100%);
+            color: white;
+            padding: 12px 15px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .data-table td {
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+
+        .data-table tbody tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .data-table tbody tr:hover {
+            background: #fbe9e7;
+        }
+
+        .group-header {
+            background: #fbe9e7 !important;
+            font-weight: 600;
+        }
+
+        .group-header td {
+            padding: 8px 15px;
+            font-size: 14px;
+            color: #1a5f7a;
+        }
+
+        .group-total {
+            background: #ffccbc !important;
+            font-weight: 600;
+        }
+
+        .total-row {
+            background: linear-gradient(135deg, #1a5f7a 0%, #0288d1 100%) !important;
+        }
+
+        .total-row td {
+            color: white !important;
+            font-weight: 700;
+            padding: 15px;
+        }
+
+        .no-data {
+            padding: 50px;
+            text-align: center;
+            color: #666;
+        }
+
+        .no-data i {
+            font-size: 50px;
+            color: #ddd;
+            margin-bottom: 15px;
+        }
+
+        .loading {
+            padding: 50px;
+            text-align: center;
+        }
+
+        .badge-cash {
+            background: #1565c0;
+        }
+
+        .badge-bank {
+            background: #6a1b9a;
+        }
+
+        .badge-cheque {
+            background: #00695c;
+        }
+
+        @media (max-width: 768px) {
+            .filter-panel .row>div {
+                margin-bottom: 10px;
+            }
+
+            .summary-cards {
+                flex-direction: column;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: white !important;
+            }
+
+            .page-header,
+            .filter-panel,
+            .quick-filters {
+                display: none !important;
+            }
+
+            .print-header {
+                display: block !important;
+            }
+
+            .report-container {
+                padding: 0 !important;
+                height: auto !important;
+            }
+
+            .data-panel {
+                box-shadow: none !important;
+                border-radius: 0 !important;
+            }
+
+            .data-header {
+                background: none !important;
+                border-bottom: 2px solid #333 !important;
+            }
+
+            .summary-cards {
+                display: none !important;
+            }
+
+            .table-container {
+                overflow: visible !important;
+            }
+
+            .data-table th {
+                background: #333 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .total-row {
+                background: #333 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="print-header" style="display:none; text-align:center; margin-bottom:20px;">
+        <h2 style="margin:0; text-transform:uppercase; letter-spacing:1px;">Bilal Accounting System</h2>
+        <h4 id="printBranchName" style="margin:5px 0 0; color:#555;">All Branches</h4>
+        <h5 id="printReportTitle"
+            style="margin:5px 0; border-bottom:1px solid #ccc; display:inline-block; padding-bottom:5px;">Supplier
+            Payments Report</h5>
+        <p id="printDateRange" style="margin:5px 0 0; font-size:12px; color:#666;">-</p>
+    </div>
+
+    <div class="page-header px-3">
+        <div style="flex: 1; display: flex; align-items: center;">
+            <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+            <i class="fas fa-file-invoice-dollar me-2"></i> Supplier Payments Report
+        </div>
+        <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
+            <div class="dropdown">
+                <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown" style="cursor: pointer;">
+                    <i class="fas fa-user-circle me-2" style="font-size: 1.2rem;"></i>
+                    <span id="userName" class="me-2">User</span>
+                    <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                    <li><a class="dropdown-item logout-btn" href="#"><i
+                                class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="report-container">
+        <div class="filter-panel">
+            <div class="row g-3">
+                <div class="col-md-2">
+                    <label>From Date</label>
+                    <input type="date" id="filterFromDate" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-2">
+                    <label>To Date</label>
+                    <input type="date" id="filterToDate" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-2">
+                    <label>Branch</label>
+                    <select id="filterBranch" class="form-select form-select-sm">
+                        <option value="">All Branches</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label>Supplier</label>
+                    <select id="filterSupplier" class="form-select form-select-sm">
+                        <option value="">All Suppliers</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label>Payment Mode</label>
+                    <select id="filterPaymentMode" class="form-select form-select-sm">
+                        <option value="">All</option>
+                        <option value="cash">Cash</option>
+                        <option value="bank">Bank Transfer</option>
+                        <option value="cheque">Cheque</option>
+                        <option value="online">Online</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label>Group By</label>
+                    <select id="filterGroupBy" class="form-select form-select-sm">
+                        <option value="none">No Grouping</option>
+                        <option value="date">Date Wise</option>
+                        <option value="supplier">Supplier Wise</option>
+                        <option value="paymentMode">Payment Mode Wise</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label>Global Search</label>
+                    <input type="text" id="filterSearch" class="form-control form-control-sm"
+                        placeholder="Voucher #, Supplier, Remarks...">
+                </div>
+                <div class="col-md-3 d-flex align-items-end gap-2">
+                    <button class="btn btn-light btn-sm" onclick="loadReport()"><i class="fas fa-search me-1"></i>
+                        Search</button>
+                    <button class="btn btn-warning btn-sm" onclick="printReport()"><i class="fas fa-print me-1"></i>
+                        Print</button>
+                    <button class="btn btn-success btn-sm" onclick="exportExcel()"><i
+                            class="fas fa-file-excel me-1"></i> Excel</button>
+                </div>
+            </div>
+            <div class="quick-filters">
+                <span class="me-2"><i class="fas fa-clock me-1"></i> Quick:</span>
+                <button class="btn btn-outline-light btn-sm" onclick="setDateRange('today')">Today</button>
+                <button class="btn btn-outline-light btn-sm" onclick="setDateRange('week')">This Week</button>
+                <button class="btn btn-outline-light btn-sm" onclick="setDateRange('month')">This Month</button>
+                <button class="btn btn-outline-light btn-sm" onclick="setDateRange('lastMonth')">Last Month</button>
+                <button class="btn btn-outline-light btn-sm" onclick="setDateRange('year')">This Year</button>
+            </div>
+        </div>
+
+        <div class="data-panel">
+            <div class="data-header">
+                <h5><i class="fas fa-list me-2"></i>Payment Details</h5>
+                <div><span id="recordCount" class="badge" style="background:#ff5722">0 payments</span></div>
+            </div>
+
+            <div class="summary-cards">
+                <div class="summary-card total-payments">
+                    <div class="label"><i class="fas fa-chart-line me-1"></i> Total Payments</div>
+                    <div class="value" id="totalPayments">0</div>
+                </div>
+                <div class="summary-card cash-payments">
+                    <div class="label"><i class="fas fa-money-bill me-1"></i> Cash</div>
+                    <div class="value" id="cashPayments">0</div>
+                </div>
+                <div class="summary-card bank-payments">
+                    <div class="label"><i class="fas fa-university me-1"></i> Bank</div>
+                    <div class="value" id="bankPayments">0</div>
+                </div>
+                <div class="summary-card cheque-payments">
+                    <div class="label"><i class="fas fa-money-check me-1"></i> Cheque</div>
+                    <div class="value" id="chequePayments">0</div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 100px">Date</th>
+                            <th style="width: 120px">Voucher #</th>
+                            <th>Supplier</th>
+                            <th style="width: 100px">Mode</th>
+                            <th style="width: 150px">Reference</th>
+                            <th>Remarks</th>
+                            <th style="width: 120px" class="text-end">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportTableBody">
+                        <tr>
+                            <td colspan="7" class="no-data"><i class="fas fa-search"></i>
+                                <p>Select filters and click "Search"</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244533"></script>
+    <script src="/js/desktop-ui.js?v=12"></script>
+    <script>
+        function formatCurrency(amt) { return new Intl.NumberFormat('en-PK', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amt || 0); }
+        function formatDate(d) { if (!d) return '-'; return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }); }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            if (!localStorage.getItem('token')) { window.location.href = 'login'; return; }
+            setDateRange('month');
+            loadFilters();
+        });
+
+        function setDateRange(range) {
+            const today = new Date();
+            let from = new Date(), to = new Date();
+            switch (range) {
+                case 'today': from = to = today; break;
+                case 'week': from = new Date(today); from.setDate(today.getDate() - today.getDay()); to = new Date(from); to.setDate(from.getDate() + 6); break;
+                case 'month': from = new Date(today.getFullYear(), today.getMonth(), 1); to = new Date(today.getFullYear(), today.getMonth() + 1, 0); break;
+                case 'lastMonth': from = new Date(today.getFullYear(), today.getMonth() - 1, 1); to = new Date(today.getFullYear(), today.getMonth(), 0); break;
+                case 'year': from = new Date(today.getFullYear(), 0, 1); to = new Date(today.getFullYear(), 11, 31); break;
+            }
+            document.getElementById('filterFromDate').value = from.toISOString().split('T')[0];
+            document.getElementById('filterToDate').value = to.toISOString().split('T')[0];
+        }
+
+        async function loadFilters() {
+            const token = localStorage.getItem('token');
+            try {
+                const res = await fetch('/api/v1/stores', { headers: { 'Authorization': `Bearer ${token}` } });
+                if (res.ok) { const d = await res.json(); (d.data || []).forEach(s => document.getElementById('filterBranch').innerHTML += `<option value="${s._id}">${s.name}</option>`); }
+            } catch (e) { }
+            try {
+                const res = await fetch('/api/v1/parties?partyType=supplier&limit=500', { headers: { 'Authorization': `Bearer ${token}` } });
+                if (res.ok) { const d = await res.json(); (d.data || []).forEach(s => document.getElementById('filterSupplier').innerHTML += `<option value="${s._id}">${s.name}</option>`); }
+            } catch (e) { }
+        }
+
+        async function loadReport() {
+            const token = localStorage.getItem('token');
+            const tbody = document.getElementById('reportTableBody');
+            tbody.innerHTML = `<tr><td colspan="7" class="loading"><div class="spinner-border" style="color:#ff5722"></div><p class="mt-2 text-muted">Loading...</p></td></tr>`;
+
+            const startDate = document.getElementById('filterFromDate').value;
+            const endDate = document.getElementById('filterToDate').value;
+            const supplier = document.getElementById('filterSupplier').value;
+            const paymentMode = document.getElementById('filterPaymentMode').value;
+            const groupBy = document.getElementById('filterGroupBy').value;
+            const search = document.getElementById('filterSearch').value;
+
+            let query = '?limit=10000';
+            if (startDate) query += `&startDate=${startDate}`;
+            if (endDate) query += `&endDate=${endDate}`;
+            if (supplier) query += `&supplier=${supplier}`;
+            if (paymentMode) query += `&paymentMode=${paymentMode}`;
+
+            // Update Print Header
+            const branch = document.getElementById('filterBranch').value;
+            const branchText = branch ? document.querySelector(`#filterBranch option[value="${branch}"]`)?.text : 'All Branches';
+            if (document.getElementById('printBranchName')) document.getElementById('printBranchName').textContent = branchText;
+            if (document.getElementById('printDateRange')) document.getElementById('printDateRange').textContent = `Period: ${formatDate(startDate)} to ${formatDate(endDate)}`;
+            const supText = supplier ? document.querySelector(`#filterSupplier option[value="${supplier}"]`)?.text : 'All Suppliers';
+            if (supplier) document.getElementById('printReportTitle').textContent = `Supplier Payments Report - ${supText}`;
+
+            try {
+                const res = await fetch(`/api/v1/supplier-payments${query}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (!res.ok) throw new Error('Failed to fetch');
+                const result = await res.json();
+                let payments = result.data || [];
+
+                if (search) {
+                    const sl = search.toLowerCase();
+                    payments = payments.filter(p => (p.voucherNumber || '').toLowerCase().includes(sl) || (p.supplier?.name || '').toLowerCase().includes(sl) || (p.remarks || '').toLowerCase().includes(sl));
+                }
+
+                let total = 0, cash = 0, bank = 0, cheque = 0;
+                payments.forEach(p => {
+                    const amt = p.amount || 0;
+                    total += amt;
+                    if (p.paymentMode === 'cash') cash += amt;
+                    else if (p.paymentMode === 'bank') bank += amt;
+                    else if (p.paymentMode === 'cheque') cheque += amt;
+                });
+
+                document.getElementById('totalPayments').textContent = formatCurrency(total);
+                document.getElementById('cashPayments').textContent = formatCurrency(cash);
+                document.getElementById('bankPayments').textContent = formatCurrency(bank);
+                document.getElementById('chequePayments').textContent = formatCurrency(cheque);
+                document.getElementById('recordCount').textContent = `${payments.length} payments`;
+
+                if (payments.length === 0) { tbody.innerHTML = `<tr><td colspan="7" class="no-data"><i class="fas fa-inbox"></i><p>No payments found</p></td></tr>`; return; }
+
+                if (groupBy && groupBy !== 'none') renderGroupedTable(payments, groupBy);
+                else renderSimpleTable(payments);
+            } catch (e) {
+                console.error(e);
+                tbody.innerHTML = `<tr><td colspan="7" class="no-data text-danger"><i class="fas fa-exclamation-triangle"></i><p>Error: ${e.message}</p></td></tr>`;
+            }
+        }
+
+        function renderSimpleTable(payments) {
+            const tbody = document.getElementById('reportTableBody');
+            let html = '', total = 0;
+            payments.forEach(p => {
+                const amt = p.amount || 0;
+                total += amt;
+                const modeClass = p.paymentMode === 'cash' ? 'badge-cash' : p.paymentMode === 'bank' ? 'badge-bank' : 'badge-cheque';
+                html += `<tr>
+                    <td>${formatDate(p.date || p.createdAt)}</td>
+                    <td><strong>${p.voucherNumber || '-'}</strong></td>
+                    <td>${p.supplier?.name || '-'}</td>
+                    <td><span class="badge ${modeClass}">${p.paymentMode || 'Cash'}</span></td>
+                    <td>${p.reference || p.chequeNumber || '-'}</td>
+                    <td>${p.remarks || p.notes || '-'}</td>
+                    <td class="text-end fw-bold" style="color:#d84315">${formatCurrency(amt)}</td>
+                </tr>`;
+            });
+            html += `<tr class="total-row"><td colspan="6" class="text-end">Grand Total</td><td class="text-end">${formatCurrency(total)}</td></tr>`;
+            tbody.innerHTML = html;
+        }
+
+        function renderGroupedTable(payments, groupField) {
+            const tbody = document.getElementById('reportTableBody');
+            const groups = {};
+            payments.forEach(p => {
+                let key = '';
+                if (groupField === 'date') key = formatDate(p.date || p.createdAt);
+                else if (groupField === 'supplier') key = p.supplier?.name || 'Unknown';
+                else if (groupField === 'paymentMode') key = p.paymentMode || 'Cash';
+                else key = 'All';
+                if (!groups[key]) groups[key] = [];
+                groups[key].push(p);
+            });
+
+            let html = '', grandTotal = 0;
+            Object.keys(groups).sort().forEach(k => {
+                const items = groups[k];
+                let groupTotal = 0;
+                html += `<tr class="group-header"><td colspan="7"><i class="fas fa-folder-open me-2"></i>${k} (${items.length})</td></tr>`;
+                items.forEach(p => {
+                    const amt = p.amount || 0;
+                    groupTotal += amt;
+                    const modeClass = p.paymentMode === 'cash' ? 'badge-cash' : p.paymentMode === 'bank' ? 'badge-bank' : 'badge-cheque';
+                    html += `<tr>
+                        <td>${formatDate(p.date || p.createdAt)}</td>
+                        <td><strong>${p.voucherNumber || '-'}</strong></td>
+                        <td>${p.supplier?.name || '-'}</td>
+                        <td><span class="badge ${modeClass}">${p.paymentMode || 'Cash'}</span></td>
+                        <td>${p.reference || p.chequeNumber || '-'}</td>
+                        <td>${p.remarks || p.notes || '-'}</td>
+                        <td class="text-end fw-bold" style="color:#d84315">${formatCurrency(amt)}</td>
+                    </tr>`;
+                });
+                html += `<tr class="group-total"><td colspan="6" class="text-end">Subtotal</td><td class="text-end">${formatCurrency(groupTotal)}</td></tr>`;
+                grandTotal += groupTotal;
+            });
+            html += `<tr class="total-row"><td colspan="6" class="text-end">Grand Total</td><td class="text-end">${formatCurrency(grandTotal)}</td></tr>`;
+            tbody.innerHTML = html;
+        }
+
+        function printReport() { window.print(); }
+        function exportExcel() { alert('Excel export coming soon!'); }
+    </script>
+</body>
+
+</html>
+

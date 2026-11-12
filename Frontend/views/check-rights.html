@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Permission Checker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding: 40px;
+            background: #f0f2f5;
+            font-family: sans-serif;
+        }
+
+        .card {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: none;
+        }
+
+        .status-ok {
+            color: green;
+            font-weight: bold;
+        }
+
+        .status-bad {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="card p-4">
+            <h2 class="mb-4">User Permission Diagnostic</h2>
+
+            <div class="mb-3">
+                <strong>Logged In User:</strong> <span id="userName">Checking...</span>
+            </div>
+            <div class="mb-3">
+                <strong>Role:</strong> <span id="userRole">...</span>
+            </div>
+            <div class="mb-3">
+                <strong>Group:</strong> <span id="userGroup">...</span>
+            </div>
+
+            <hr>
+
+            <h4>Report Permissions Status:</h4>
+            <div id="reportStatus" class="mb-3"></div>
+
+            <button onclick="forceRefresh()" class="btn btn-primary">Force Refresh Permissions from Server</button>
+            <button onclick="window.location.href='/main'" class="btn btn-secondary ms-2">Go to Main Menu</button>
+
+            <hr>
+
+            <h5>Full Raw Rights (Debug):</h5>
+            <pre id="jsonDump" style="background: #eee; padding: 10px; max-height: 300px; overflow: auto;"></pre>
+        </div>
+    </div>
+
+    <script>
+        function check() {
+            try {
+                const userStr = localStorage.getItem('user');
+                if (!userStr) {
+                    document.getElementById('userName').innerText = "Not Logged In";
+                    return;
+                }
+
+                const user = JSON.parse(userStr);
+                document.getElementById('userName').innerText = user.name || user.email;
+                document.getElementById('userRole').innerText = user.role;
+                document.getElementById('userGroup').innerText = user.group ? user.group.name : 'No Group';
+
+                const rights = user.rights || {};
+                const reportKeys = ['reports', 'sales_reports', 'warehouse_sales_reports', 'cash_counter_rpt_link'];
+
+                let html = '<ul class="list-group">';
+                reportKeys.forEach(key => {
+                    const hasRight = rights[key] === true;
+                    const icon = hasRight ? '✅' : '❌';
+                    const color = hasRight ? 'text-success' : 'text-danger';
+                    html += `<li class="list-group-item">
+                        <span class="${color} fw-bold">${icon} ${key}</span>: ${hasRight ? 'Access Granted' : 'Access Denied'}
+                    </li>`;
+                });
+                html += '</ul>';
+
+                document.getElementById('reportStatus').innerHTML = html;
+                document.getElementById('jsonDump').innerText = JSON.stringify(rights, null, 2);
+
+            } catch (e) {
+                document.getElementById('reportStatus').innerText = "Error reading local storage: " + e.message;
+            }
+        }
+
+        async function forceRefresh() {
+            const token = localStorage.getItem('token');
+            if (!token) return alert('No token found');
+
+            try {
+                const res = await fetch('/api/v1/auth/me', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                localStorage.setItem('user', JSON.stringify(data));
+                alert('Permissions refreshed from server!');
+                check();
+            } catch (e) {
+                alert('Error refreshing: ' + e.message);
+            }
+        }
+
+        check();
+    </script>
+</body>
+
+</html>
+

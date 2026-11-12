@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Backup & Restore - BAS</title>
+    <link rel="stylesheet" href="/css/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .backup-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            height: 100%;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 10px 0;
+        }
+
+        .backup-list-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .backup-item {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .backup-item:hover {
+            border-color: var(--primary-color);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .backup-details h5 {
+            margin: 0 0 5px 0;
+            color: #fff;
+        }
+
+        .backup-details small {
+            color: var(--text-muted);
+        }
+
+        .danger-zone {
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            background: rgba(220, 53, 69, 0.05);
+        }
+
+        .danger-zone h3 {
+            color: #dc3545;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+        }
+    
+        .modal-content {
+            background-color: #1a1a1a;
+            margin: 10% auto;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            width: 50%;
+            max-width: 600px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            color: var(--text-color);
+        }
+    
+        .close-modal {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+    
+        .close-modal:hover, .close-modal:focus {
+            color: #fff;
+            text-decoration: none;
+        }
+    
+        .modal-header h2 {
+            margin-top: 0;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+    
+        .modal-body {
+            padding: 20px 0;
+        }
+    
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-boxes"></i>
+                    <span>BAS Inventory</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="/dashboard" class="nav-item">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/sales" class="nav-item">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Sales</span>
+                </a>
+                <a href="/purchases" class="nav-item">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span>Purchases</span>
+                </a>
+                <a href="/items" class="nav-item">
+                    <i class="fas fa-box"></i>
+                    <span>Items</span>
+                </a>
+                <a href="/parties" class="nav-item">
+                    <i class="fas fa-users"></i>
+                    <span>Parties</span>
+                </a>
+                <a href="/reports" class="nav-item">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Reports</span>
+                </a>
+                <a href="/settings" class="nav-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+                <a href="/backup" class="nav-item active">
+                    <i class="fas fa-database"></i>
+                    <span>Backup & Restore</span>
+                </a>
+                <div class="nav-divider"></div>
+                <a href="#" class="nav-item" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="breadcrumb">
+                    <h1 class="page-title">Database Backup & Restore</h1>
+                    <span class="current-date" id="currentDate"></span>
+                </div>
+                <div class="user-profile">
+                    <span class="user-name" id="userName">Admin</span>
+                    <div class="avatar">A</div>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                <!-- Stats Row -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: rgba(var(--primary-rgb), 0.1); color: var(--primary-color);">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Last Backup</h3>
+                                <p class="stat-value" id="lastBackupDate">Never</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: rgba(40, 167, 69, 0.1); color: #28a745;">
+                                <i class="fas fa-database"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Total Backups</h3>
+                                <p class="stat-value" id="totalBackups">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: rgba(23, 162, 184, 0.1); color: #17a2b8;">
+                                <i class="fas fa-hdd"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Total Size</h3>
+                                <p class="stat-value" id="totalSize">0 B</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <!-- Backup Configuration -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h2><i class="fas fa-cogs"></i> Configuration</h2>
+                            </div>
+                            <div class="card-body">
+                                <form id="backupSettingsForm">
+                                    <div class="form-group mb-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="autoBackupEnabled">
+                                            <label class="form-check-label" for="autoBackupEnabled">Enable Automated Daily Backup</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group mb-3">
+                                        <label for="autoBackupTime">Daily Backup Time</label>
+                                        <input type="time" class="form-control" id="autoBackupTime">
+                                    </div>
+
+                                    <div class="form-group mb-3">
+                                        <label for="backupFolderPath">Backup Directory Path (Local Folder)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-folder"></i></span>
+                                            <input type="text" class="form-control" id="backupFolderPath" placeholder="e.g., E:\MyBackups">
+                                        </div>
+                                        <small class="text-muted">Absolute path where backups will be saved.</small>
+                                    </div>
+
+                                    <div class="form-group mb-3">
+                                        <label for="mongoToolsPath">MongoDB Tools Path (Optional)</label>
+                                        <input type="text" class="form-control" id="mongoToolsPath" placeholder="Path to mongodump.exe">
+                                        <small class="text-muted">Leave empty if added to system PATH.</small>
+                                    </div>
+
+                                    <div class="d-grid gap-2">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save"></i> Save Settings
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mega Cloud Settings -->
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h2><i class="fas fa-cloud"></i> Mega Cloud Backup</h2>
+                            </div>
+                            <div class="card-body">
+                                <form id="megaSettingsForm">
+                                    <div class="form-group mb-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="megaEnabled">
+                                            <label class="form-check-label" for="megaEnabled">
+                                                <strong>Enable Mega Cloud Upload</strong>
+                                            </label>
+                                        </div>
+                                        <small class="text-muted d-block mt-2">Automatically upload compressed ZIP backups to your Mega cloud storage</small>
+                                    </div>
+
+                                    <!-- Connected Account Banner -->
+                                    <div id="megaConnectedBanner" class="p-3 mb-3 border rounded shadow-sm" style="display: none; background: #f0fdf4; border-color: #86efac !important;">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Connected</span>
+                                                <strong class="text-success" style="font-size: 0.95rem;">Mega Account Active & Saved</strong>
+                                            </div>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" id="btnToggleMegaEdit">
+                                                <i class="fas fa-edit me-1"></i>Change Account
+                                            </button>
+                                        </div>
+                                        <div class="text-muted" style="font-size: 0.85rem;">
+                                            <i class="fas fa-envelope text-primary me-1"></i> Account: <strong id="connectedEmailDisplay" class="text-dark">wasitech10@gmail.com</strong>
+                                            <span class="ms-3 text-success"><i class="fas fa-lock me-1"></i>Credentials saved permanently (no re-login needed)</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Mega Status & Quota Display -->
+                                    <div id="megaStatusContainer" class="mt-2 mb-3" style="display:none;">
+                                        <h6><i class="fas fa-cloud text-primary me-1"></i> Cloud Quota & Sync Status</h6>
+                                        <div id="megaStatusContent" style="font-size: 0.9rem;"></div>
+                                    </div>
+
+                                    <!-- Credentials Form (Collapsible when connected) -->
+                                    <div id="megaCredentialsContainer">
+                                        <div class="form-group mb-3">
+                                            <label for="megaEmail">Mega Account Email</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                                <input type="email" class="form-control" id="megaEmail" placeholder="your-email@mega.nz" autocomplete="off">
+                                            </div>
+                                            <small class="text-muted d-block mt-1">Use your registered Mega email (e.g. wasitech10@gmail.com)</small>
+                                        </div>
+
+                                        <div class="form-group mb-3">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <label for="megaPassword" class="mb-0">Mega Account Password</label>
+                                                <span id="megaPasswordBadge" class="badge bg-success text-white" style="display: none; font-size: 0.75rem;"><i class="fas fa-check-circle me-1"></i>Password Saved</span>
+                                            </div>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                                <input type="password" class="form-control" id="megaPassword" placeholder="Your Mega password" autocomplete="new-password">
+                                            </div>
+                                            <small class="text-muted d-block mt-1" id="megaPasswordHelp"><i class="fas fa-shield-alt text-warning me-1"></i>Password is encrypted before storing</small>
+                                        </div>
+
+                                        <div class="form-group mb-3">
+                                            <label for="megaBackupFolderName">Mega Folder Name</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fas fa-folder"></i></span>
+                                                <input type="text" class="form-control" id="megaBackupFolderName" placeholder="BAS_Backups">
+                                            </div>
+                                            <small class="text-muted">Where backups will be stored in Mega (auto-created if missing)</small>
+                                        </div>
+
+                                        <div class="form-group mb-3">
+                                            <label for="keepLocalBackupDays">Keep Local Backup Days</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                                                <input type="number" class="form-control" id="keepLocalBackupDays" min="0" value="7">
+                                            </div>
+                                            <small class="text-muted">Days to keep local backups after uploading to Mega (0 = delete immediately)</small>
+                                        </div>
+
+                                        <div class="d-flex gap-2">
+                                            <button type="button" class="btn btn-info flex-grow-1" id="btnTestMegaConnection">
+                                                <i class="fas fa-plug"></i> Test Connection
+                                            </button>
+                                            <button type="submit" class="btn btn-primary flex-grow-1">
+                                                <i class="fas fa-save"></i> Save Settings
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mega Cloud Backups List -->
+                <div class="col-md-12 mb-4" id="megaFilesSection">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h2><i class="fas fa-cloud"></i> Mega Cloud Backups (Stored in Drive)</h2>
+                            <button type="button" class="btn btn-sm btn-outline-light" onclick="loadMegaFiles()">
+                                <i class="fas fa-sync-alt"></i> Refresh Cloud Backups
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Archive Name</th>
+                                            <th>Date Uploaded</th>
+                                            <th>Cloud Size</th>
+                                            <th class="text-center">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="megaFilesTableBody">
+                                        <tr>
+                                            <td colspan="4" class="text-center text-muted">Loading cloud backups from Mega...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Manual Actions -->
+                <div class="col-md-12 mb-4">
+                    <!-- Manual Backup -->
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h2><i class="fas fa-save"></i> Manual Backup</h2>
+                                </div>
+                                <div class="card-body text-center">
+                                    <p>Create an immediate full backup of the <strong>BAS-SOFTWARE</strong> database.</p>
+                                    <button id="btnManualBackup" class="btn btn-success btn-lg w-100">
+                                        <i class="fas fa-cloud-upload-alt"></i> BACKUP NOW
+                                    </button>
+                                    <div id="backupStatus" class="mt-3 text-start"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mega Manual Upload -->
+                        <div class="col-md-6 mb-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h2><i class="fas fa-cloud"></i> Backup & Upload to Mega</h2>
+                                </div>
+                                <div class="card-body text-center">
+                                    <p>Create backup and upload to Mega in one click.</p>
+                                    <button id="btnBackupAndUploadMega" class="btn btn-info btn-lg w-100">
+                                        <i class="fas fa-server"></i> BACKUP + UPLOAD TO MEGA
+                                    </button>
+                                    <div id="megaUploadStatus" class="mt-3 text-start"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Real-time Backup Queue Status -->
+                    <div class="col-md-12 mb-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h2>
+                                    <i class="fas fa-tasks"></i> Backup Queue Status
+                                    <small class="float-end">
+                                        <i class="fas fa-spinner fa-spin" id="queueSpinner" style="display:none;"></i>
+                                        <span id="queueConnectionStatus" class="badge bg-secondary">Disconnected</span>
+                                    </small>
+                                </h2>
+                            </div>
+                            <div class="card-body">
+                                <div id="backupQueueContainer" style="max-height: 400px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 8px; padding: 15px;">
+                                    <div id="queueEmptyState" class="text-center text-muted py-4">
+                                        <p><i class="fas fa-inbox"></i> Waiting for backup events...</p>
+                                        <small>Real-time notifications will appear here when backups start.</small>
+                                    </div>
+                                    <div id="backupQueueList"></div>
+                                </div>
+                                <div class="mt-3">
+                                    <button id="btnClearQueue" class="btn btn-sm btn-secondary">
+                                        <i class="fas fa-trash"></i> Clear Queue
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Restore (Danger Zone) -->
+                    <div class="card danger-zone">
+                        <div class="card-header bg-transparent border-danger">
+                            <h2><i class="fas fa-exclamation-triangle"></i> Restore Database</h2>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-danger"><strong>WARNING:</strong> This will overwrite all current data!</p>
+                            <div class="form-group mb-3">
+                                <label>Backup Folder Path</label>
+                                <input type="text" class="form-control" id="restoreFolderPath" placeholder="Full path to 'backup-timestamp' folder">
+                            </div>
+                            <button id="btnRestore" class="btn btn-danger w-100">
+                                <i class="fas fa-history"></i> RESTORE DATABASE
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Backups List (Optional - requires API to list files) -->
+                <!-- We can add this if getBackupsList is implemented fully -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="restoreModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close-modal">&times;</span>
+                <h2 class="text-danger"><i class="fas fa-exclamation-triangle"></i> Confirm Restoration</h2>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to restore the database from:</p>
+                <code id="modalRestorePath" style="display:block; padding:10px; background:#333; margin-bottom:15px;"></code>
+                <p class="text-danger">
+                    <strong>THIS ACTION CANNOT BE UNDONE.</strong><br>
+                    Current data will be completely replaced by the backup data.
+                </p>
+                <div class="form-group mt-3">
+                    <label>Type <strong>CONFIRM</strong> to proceed:</label>
+                    <input type="text" class="form-control" id="confirmInput">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary close-modal-btn">Cancel</button>
+                <button class="btn btn-danger" id="btnConfirmRestore" disabled>Yes, Restore Database</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mega Cloud Direct Restore Modal -->
+    <div class="modal fade" id="megaRestoreModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title"><i class="fas fa-cloud-download-alt me-2"></i>Restore from Mega Cloud</h5>
+                    <button type="button" class="btn-close btn-close-white close-modal-btn" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger">
+                        <strong>WARNING:</strong> This will stream the backup directly from Mega Drive and restore it into your database. All current data will be overwritten!
+                    </div>
+                    <p>Archive: <strong id="megaRestoreFileName" class="font-monospace text-primary">backup.zip</strong></p>
+                    <p>Date: <strong id="megaRestoreFileDate">Date</strong></p>
+                    <p>Size: <strong id="megaRestoreFileSize">0 MB</strong></p>
+                    <div class="form-check mt-3">
+                        <input class="form-check-input" type="checkbox" id="confirmMegaRestoreCheckbox">
+                        <label class="form-check-label text-danger fw-bold" for="confirmMegaRestoreCheckbox">
+                            I confirm: Overwrite database with this Mega backup
+                        </label>
+                    </div>
+                    <div id="megaRestoreProgressIndicator" style="display:none;" class="mt-3 p-2 text-center bg-light border rounded">
+                        <div class="spinner-border text-primary spinner-border-sm me-2" role="status"></div>
+                        <span class="text-primary fw-bold" id="megaRestoreProgressText">Streaming from Mega & restoring database...</span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary close-modal-btn" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-danger" id="btnConfirmMegaRestore" onclick="executeMegaRestore()" disabled>Restore Database Now</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244442"></script>
+    <script src="/js/utils.js?v=20260904_2"></script>
+    <script src="/js/backup.js?v=20260904_9"></script>
+</body>
+
+</html>
+
+

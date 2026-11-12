@@ -1,0 +1,23 @@
+# Ignore dependencies
+node_modules/
+
+# Ignore Expo and build folders
+.expo/
+dist/
+web-build/
+ios/
+
+# Ignore local configs and caches
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+.DS_Store
+*.pem
+.env*.local
+*.tsbuildinfo
+.claude/
+CLAUDE.md
+AGENTS.md
+task.md
+walkthrough.md
+implementation_plan.md

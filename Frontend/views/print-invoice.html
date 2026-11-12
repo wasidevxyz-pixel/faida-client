@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Print Invoice</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #95a5a6;
+            --border-color: #ddd;
+        }
+
+        body {
+            background: #f5f5f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .page-container {
+            background: white;
+            margin: 20px auto;
+            padding: 40px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* A4 Format */
+        .format-a4 {
+            width: 210mm;
+            min-height: 297mm;
+        }
+
+        /* A3 Format */
+        .format-a3 {
+            width: 297mm;
+            min-height: 420mm;
+        }
+
+        /* Thermal Printer Format (80mm width) */
+        .format-thermal {
+            width: 80mm;
+            min-height: auto;
+            padding: 10px !important;
+            font-size: 12px;
+        }
+
+        .format-thermal .invoice-title {
+            font-size: 1.2rem;
+        }
+
+        .format-thermal .company-logo {
+            max-width: 60mm;
+            max-height: 40px;
+        }
+
+        .format-thermal .main-table th,
+        .format-thermal .main-table td {
+            padding: 5px 3px;
+            font-size: 11px;
+        }
+
+        .format-thermal .info-box {
+            padding: 8px;
+            font-size: 11px;
+        }
+
+        .format-thermal h5,
+        .format-thermal h6 {
+            font-size: 0.9rem;
+        }
+
+        .format-thermal .totals-table {
+            width: 100%;
+        }
+
+        /* Hide thermal layout in standard formats */
+        .format-a4 .thermal-details,
+        .format-a3 .thermal-details {
+            display: none;
+        }
+
+        /* Hide standard layout in thermal format */
+        .format-thermal .standard-details {
+            display: none;
+        }
+
+        /* Hide terms and signatures in thermal format */
+        .format-thermal .terms-box,
+        .format-thermal .footer-section {
+            display: none;
+        }
+
+        /* Compact margins for thermal */
+        .format-thermal .row {
+            margin-bottom: 0.5rem !important;
+        }
+
+        .invoice-header {
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .company-logo {
+            max-width: 200px;
+            max-height: 100px;
+            object-fit: contain;
+        }
+
+        .invoice-title {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            height: 100%;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--secondary-color);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .main-table {
+            width: 100%;
+            margin: 30px 0;
+            border-collapse: collapse;
+        }
+
+        .main-table th {
+            background: var(--primary-color);
+            color: white;
+            padding: 12px;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .main-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .main-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .totals-section {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .totals-table {
+            width: 300px;
+        }
+
+        .totals-table td {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .totals-table .grand-total {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            border-top: 2px solid var(--primary-color);
+            padding-top: 10px;
+        }
+
+        .footer-section {
+            margin-top: 50px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+            font-size: 0.9rem;
+            color: var(--secondary-color);
+        }
+
+        .terms-box {
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 30px;
+            font-size: 0.9rem;
+        }
+
+        .signature-box {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .signature-line {
+            border-top: 1px solid #333;
+            width: 200px;
+            margin: 10px auto;
+        }
+
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 8rem;
+            color: rgba(0, 0, 0, 0.05);
+            z-index: 0;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        /* Print Controls */
+        .print-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            .page-container {
+                box-shadow: none;
+                margin: 0;
+                padding: 0;
+                width: 100% !important;
+            }
+
+            .print-controls {
+                display: none;
+            }
+
+            .format-a4 {
+                width: 100%;
+                min-height: auto;
+            }
+
+            .format-a3 {
+                width: 100%;
+                min-height: auto;
+            }
+
+            .format-thermal {
+                width: 80mm;
+                min-height: auto;
+                padding: 5mm !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Print Controls -->
+    <div class="print-controls no-print">
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="window.print()">
+                <i class="fas fa-print me-1"></i> Print
+            </button>
+            <button class="btn btn-secondary" onclick="window.close()">
+                <i class="fas fa-times me-1"></i> Close
+            </button>
+        </div>
+        <hr class="my-2">
+        <select class="form-select form-select-sm" id="formatSelect" onchange="changeFormat(this.value)">
+            <option value="a4">A4 Format</option>
+            <option value="a3">A3 Format</option>
+            <option value="thermal">Thermal (80mm)</option>
+        </select>
+    </div>
+
+    <!-- Invoice Container -->
+    <div id="invoiceContent" class="page-container format-a4">
+        <!-- Content loaded dynamically -->
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3">Generating Invoice Preview...</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const type = urlParams.get('type');
+            const id = urlParams.get('id');
+            const format = urlParams.get('format') || 'a4';
+
+            // Set initial format
+            document.getElementById('formatSelect').value = format;
+            changeFormat(format);
+
+            if (!type || !id) {
+                showError('Missing document information');
+                return;
+            }
+
+            try {
+                // Determine endpoint based on type
+                let endpoint = '';
+                let title = '';
+
+                switch (type) {
+                    case 'sale':
+                        endpoint = `/api/v1/sales/${id}`;
+                        title = 'TAX INVOICE';
+                        break;
+                    case 'purchase':
+                        endpoint = `/api/v1/purchases/${id}`;
+                        title = 'PURCHASE ORDER';
+                        break;
+                    case 'sale-return':
+                        endpoint = `/api/v1/sales-returns/${id}`;
+                        title = 'CREDIT NOTE';
+                        break;
+                    case 'purchase-return':
+                        endpoint = `/api/v1/purchase-returns/${id}`;
+                        title = 'DEBIT NOTE';
+                        break;
+                    case 'supplier-payment':
+                        endpoint = `/api/v1/supplier-payments/${id}`;
+                        title = 'PAYMENT VOUCHER';
+                        break;
+                    case 'cash-sale':
+                        endpoint = `/api/v1/cash-sales/${id}`;
+                        title = 'CASH MEMO';
+                        break;
+                    case 'customer-payment':
+                        endpoint = `/api/v1/customer-payments/${id}`;
+                        title = 'RECEIPT VOUCHER';
+                        break;
+                    case 'voucher':
+                        endpoint = `/api/v1/vouchers/${id}`;
+                        title = 'JOURNAL VOUCHER';
+                        break;
+                    case 'expense':
+                        endpoint = `/api/v1/expenses/${id}`;
+                        title = 'EXPENSE VOUCHER';
+                        break;
+                    case 'customer-demand':
+                        endpoint = `/api/v1/customer-demands/${id}`;
+                        title = 'CUSTOMER DEMAND';
+                        break;
+                    case 'wh-customer-payment':
+                        endpoint = `/api/v1/wh-customer-payments/${id}`;
+                        title = 'WH RECEIPT VOUCHER';
+                        break;
+                    default:
+
+                        throw new Error('Invalid document type');
+                }
+
+                const token = localStorage.getItem('token');
+                const response = await fetch(endpoint, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) throw new Error('Failed to fetch document data');
+
+                const responseData = await response.json();
+                const data = responseData.data;
+
+                // Load Company Settings
+                const companyResponse = await fetch('/api/v1/settings/company-info', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const companyData = await companyResponse.json();
+                const company = companyData.data || {};
+
+                renderInvoice(data, type, title, company);
+
+            } catch (error) {
+                console.error('Print error:', error);
+                showError(error.message);
+            }
+        });
+
+        function changeFormat(format) {
+            const container = document.getElementById('invoiceContent');
+            container.classList.remove('format-a4', 'format-a3', 'format-thermal');
+            container.classList.add(`format-${format}`);
+        }
+
+        function showError(msg) {
+            document.getElementById('invoiceContent').innerHTML = `
+                <div class="alert alert-danger m-5">
+                    <h4 class="alert-heading">Error</h4>
+                    <p>${msg}</p>
+                </div>
+            `;
+        }
+
+        function renderInvoice(doc, type, title, company) {
+            const isReturn = type.includes('return');
+            const isPurchase = type.includes('purchase');
+
+            // Map fields based on document type
+            const docNo = doc.invoiceNumber || doc.invoiceNo || doc.returnInvoiceNo || doc.returnNo || doc.paymentNo || doc.receiptNo || doc.voucherNo || doc.expenseNo || 'N/A';
+            const docDate = new Date(doc.date).toLocaleDateString();
+
+            // Party details
+            let party = doc.customer || doc.customerId || doc.party || doc.supplier || doc.supplierId || {};
+            // For Vouchers/Expenses, party might not exist or be different
+            if (type === 'voucher' || type === 'expense') {
+                // Determine party or payee
+                party = { name: doc.payee || doc.paidTo || doc.head || 'General', address: '' };
+            }
+
+            const partyName = party.name || 'Unknown Party';
+            let partyAddress = 'Address Not Available';
+            if (party.address) {
+                if (typeof party.address === 'object') {
+                    const addr = party.address;
+                    const parts = [];
+
+                    // Add street
+                    if (addr.street) parts.push(addr.street);
+                    if (addr.country) parts.push(addr.country);
+
+                    partyAddress = parts.filter(part => part).join(', ');
+                } else {
+                    partyAddress = party.address;
+                }
+            }
+            const partyPhone = party.phone || 'N/A';
+            const partyEmail = party.email || 'N/A';
+
+            // Items
+            let items = doc.items || [];
+
+            // Normalize Items for Voucher/Expense/Payment
+            if (type === 'supplier-payment' || type === 'customer-payment' || type === 'wh-customer-payment') {
+                items = [{
+                    name: 'Payment Amount',
+
+                    quantity: 1,
+                    price: doc.amount,
+                    total: doc.amount
+                }];
+                if (doc.discountAmount > 0) {
+                    items.push({
+                        name: 'Discount/Adjustment',
+                        quantity: 1,
+                        price: doc.discountAmount,
+                        total: doc.discountAmount
+                    });
+                }
+            } else if (type === 'expense') {
+                items = [{
+                    name: doc.head + (doc.subHead ? ` - ${doc.subHead}` : ''),
+                    quantity: 1,
+                    price: doc.amount,
+                    total: doc.amount
+                }];
+            } else if (type === 'cash-sale') {
+                items = [{
+                    name: 'Cash Sale - ' + (doc.department ? doc.department.name : ''),
+                    quantity: 1,
+                    price: doc.sales || doc.totalAmount,
+                    total: doc.sales || doc.totalAmount
+                }];
+            } else if (type === 'voucher' && doc.entries) {
+                items = doc.entries.map(e => ({
+                    name: e.account + (e.detail ? ` (${e.detail})` : ''),
+                    quantity: 1,
+                    price: e.debit > 0 ? e.debit : 0, // Showing Debit as price?? 
+                    // Voucher needs specific layout usually. Mapping to regular table for now.
+                    // Let's show Debit in Price, and skip Total? Or show Credit?
+                    // Better: Description | Debit | Credit
+                    // But current table is Qty | Price | Total
+                    // Let's force: Name = Account, Qty = '', Price = Debit, Total = Credit (hacky)
+                    isVoucher: true,
+                    debit: e.debit,
+                    credit: e.credit
+                }));
+            }
+
+            // Totals
+            const subTotal = (doc.subTotal || doc.amount || 0).toFixed(2);
+            const taxTotal = (doc.taxAmount || 0).toFixed(2);
+            const grandTotal = (doc.grandTotal || doc.totalReturnAmount || doc.amount || 0).toFixed(2);
+            const createdBy = doc.createdBy?.name || 'System';
+
+            let itemsHtml = items.map((item, index) => {
+                if (item.isVoucher) {
+                    // Voucher Specific Row
+                    return `
+                    <tr>
+                        <td class="text-center">${index + 1}</td>
+                        <td>
+                            <div class="fw-bold">${item.name}</div>
+                        </td>
+                        <td class="text-center">-</td>
+                        <td class="text-end">${item.debit > 0 ? item.debit.toFixed(2) + ' Dr' : ''}</td>
+                        <td class="text-end">${item.credit > 0 ? item.credit.toFixed(2) + ' Cr' : ''}</td>
+                    </tr>
+                    `;
+                }
+
+                // Regular Invoice Row
+                const itemData = item.itemId || item.item || {};
+                const name = itemData.name || item.name || 'Unknown Item';
+                const code = itemData.sku || itemData.itemCode || '';
+                const qty = item.quantity || item.returnQty || 0;
+                const price = item.price || item.salePrice || item.purchasePrice || item.cost || 0;
+                const total = item.total || item.returnAmount || (qty * price) || 0;
+
+                return `
+                    <tr>
+                        <td class="text-center">${index + 1}</td>
+                        <td>
+                            <div class="fw-bold">${name}</div>
+                            <small class="text-muted">${code}</small>
+                        </td>
+                        <td class="text-center">${qty}</td>
+                        <td class="text-end">${parseFloat(price).toFixed(2)}</td>
+                        <td class="text-end">${parseFloat(total).toFixed(2)}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            const html = `
+                <!-- Header Title Row -->
+                <div class="d-flex justify-content-between align-items-start mb-3 border-bottom pb-2">
+                    <div>
+                         ${company.logo ? `<img src="${company.logo}" class="company-logo" alt="Logo">` : ''}
+                    </div>
+                    <div class="text-end">
+                        <div class="invoice-title">${title}</div>
+                        <div class="text-muted small">Original Copy</div>
+                    </div>
+                </div>
+
+                <!-- From/To Details Row - Thermal Optimized -->
+                <div class="row mb-3 thermal-details">
+                    <div class="col-12 mb-2">
+                        <div class="p-2 bg-light rounded">
+                            <div class="fw-bold small text-muted mb-1">FROM:</div>
+                            <div class="fw-bold">${company.companyName || 'My Company'}</div>
+                            <div class="small">${company.address || ''}</div>
+                            <div class="small">PAN: ${company.pan || 'N/A'} | GSTIN: ${company.taxNumber || 'N/A'}</div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="p-2 bg-light rounded">
+                            <div class="fw-bold small text-muted mb-1">TO:</div>
+                            <div class="fw-bold">${partyName}</div>
+                            <div class="small">${partyAddress}</div>
+                            <div class="small">PAN: ${party.panNumber || 'N/A'} | GSTIN: ${party.taxNumber || 'N/A'}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Standard From/To Details Row - For A4/A3 -->
+                <div class="row mb-4 standard-details">
+                    <div class="col-6">
+                        <div class="p-3 bg-light rounded h-100">
+                            <h6 class="text-uppercase text-muted mb-2 small fw-bold">From:</h6>
+                            <h5 class="mb-1 text-primary">${company.companyName || 'My Company'}</h5>
+                            <p class="mb-0 text-muted small">
+                                ${company.address || ''}<br>
+                                Phone: ${company.phone || ''} | Email: ${company.email || ''}<br>
+                                GSTIN: ${company.taxNumber || 'N/A'} | PAN: ${company.pan || 'N/A'}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-3 bg-light rounded h-100 text-end">
+                            <h6 class="text-uppercase text-muted mb-2 small fw-bold">To:</h6>
+                            <h5 class="mb-1 text-primary">${partyName}</h5>
+                            <p class="mb-0 text-muted small">
+                                ${partyAddress}<br>
+                                Phone: ${partyPhone} | Email: ${partyEmail}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Invoice Meta Data Row -->
+                <div class="info-box mb-4">
+                    <div class="row text-center">
+                        <div class="col-3 border-end">
+                            <div class="info-label small text-muted text-uppercase fw-bold">Invoice No</div>
+                            <div class="fw-bold text-dark">${docNo}</div>
+                        </div>
+                        <div class="col-3 border-end">
+                            <div class="info-label small text-muted text-uppercase fw-bold">Date</div>
+                            <div class="fw-bold text-dark">${docDate}</div>
+                        </div>
+                        <div class="col-3 border-end">
+                            <div class="info-label small text-muted text-uppercase fw-bold">Payment Mode</div>
+                            <div class="fw-bold text-dark text-uppercase">${doc.paymentMode || doc.payMode || doc.returnMode || 'Cash'}</div>
+                        </div>
+                        <div class="col-3">
+                            <div class="info-label small text-muted text-uppercase fw-bold">Created By</div>
+                            <div class="fw-bold text-dark">${createdBy}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <table class="main-table">
+                    <thead>
+                        <tr>
+                            <th class="text-center" style="width: 50px;">#</th>
+                            <th>Item Description</th>
+                            <th class="text-center" style="width: 100px;">Qty</th>
+                            <th class="text-end" style="width: 150px;">Price</th>
+                            <th class="text-end" style="width: 150px;">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${itemsHtml}
+                    </tbody>
+                </table>
+
+                <div class="totals-section">
+                    <table class="totals-table">
+                        <tr>
+                            <td>Sub Total</td>
+                            <td class="text-end fw-bold">${subTotal}</td>
+                        </tr>
+                        <tr>
+                            <td>Tax</td>
+                            <td class="text-end fw-bold">${taxTotal}</td>
+                        </tr>
+                        <tr>
+                            <td class="grand-total">Grand Total</td>
+                            <td class="text-end grand-total">${grandTotal}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="terms-box">
+                            <strong class="d-block mb-2">Terms & Conditions:</strong>
+                            <ol class="mb-0 ps-3 small text-muted">
+                                <li>Goods once sold will not be taken back.</li>
+                                <li>Interest @18% p.a. will be charged if payment is not made within the due date.</li>
+                                <li>Subject to local jurisdiction only.</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row footer-section">
+                    <div class="col-6">
+                        <div class="signature-box text-start">
+                             <div class="signature-line ms-0"></div>
+                             <p>Customer's Signature</p>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                         <div class="signature-box text-end">
+                             <div class="signature-line ms-auto"></div>
+                             <p>Authorized Signatory</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('invoiceContent').innerHTML = html;
+        }
+    </script>
+</body>
+
+</html>
+

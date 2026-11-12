@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warehouse Payment Report - Bilal Accounting System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            border-radius: 0 !important;
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #1e4c8c 0%, #2c5ba9 100%);
+            --accent-color: #00a65a;
+        }
+
+        body {
+            background-color: #f8fafc;
+        }
+
+        .report-container {
+            padding: 15px;
+            height: calc(100vh - 60px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-panel {
+            background: var(--primary-gradient);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            color: white;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-panel label {
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 6px;
+            display: block;
+            opacity: 0.9;
+        }
+
+        .filter-panel .form-control,
+        .filter-panel .form-select {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: white !important;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .filter-panel .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .filter-panel .form-control:focus,
+        .filter-panel .form-select:focus {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+            border-color: white;
+        }
+
+        .filter-panel .form-select option {
+            color: #333;
+        }
+
+        .data-panel {
+            flex: 1;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #edf2f7;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            padding: 20px;
+            background: #f8fafc;
+            border-bottom: 1px solid #edf2f7;
+        }
+
+        .summary-card {
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(0, 0, 0, 0.03);
+            transition: transform 0.2s;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .summary-card.green {
+            background: #eff6ff;
+            color: #1e40af;
+        }
+
+        .summary-card.teal {
+            background: #fff1f2;
+            color: #9f1239;
+        }
+
+        .summary-card.red {
+            background: #f0fdf4;
+            color: #166534;
+        }
+
+        .summary-card.orange {
+            background: #fffbeb;
+            color: #b45309;
+        }
+
+        .summary-card.dark {
+            background: #1e3a8a;
+            color: white;
+        }
+
+        .summary-card .label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-bottom: 4px;
+            opacity: 0.8;
+            display: block;
+        }
+
+        .summary-card .value {
+            font-size: 1.1rem;
+            font-weight: 800;
+        }
+
+        .table-container {
+            flex: 1;
+            overflow: auto;
+        }
+
+        .category-section {
+            border: 1px solid #dee2e6;
+            margin-bottom: 30px;
+            overflow: hidden;
+            border-radius: 0 !important;
+        }
+
+        .category-header {
+            background: transparent !important;
+            color: #1e4c8c !important;
+            padding: 15px 15px;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 1rem;
+            text-align: center !important;
+            border-bottom: 2px solid #1e4c8c !important;
+            margin-top: 10px;
+        }
+
+        .data-table thead th {
+            background: #1e4c8c !important;
+            color: white !important;
+            padding: 10px 15px;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            border-left: 1px solid rgba(255, 255, 255, 0.2) !important;
+            border-bottom: 1px solid #1e4c8c !important;
+            text-align: center;
+        }
+
+        .data-table thead th:first-child {
+            border-left: none !important;
+        }
+
+        .data-table tbody td {
+            padding: 10px 15px;
+            border: 1px solid #dee2e6;
+            font-size: 0.85rem;
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        .total-row td {
+            background: #f1f3f5 !important;
+            color: #1e4c8c !important;
+            font-weight: 800 !important;
+            text-align: center !important;
+            padding: 12px 10px !important;
+            border-top: 1px solid #dee2e6 !important;
+        }
+
+        .grand-total-section {
+            margin-top: 30px;
+            border: none;
+            overflow: hidden;
+        }
+
+        .grand-total-table {
+            width: 100%;
+            background: #1e4c8c;
+            color: white;
+        }
+
+        .grand-total-table td {
+            padding: 15px;
+            border-left: 1px solid rgba(255, 255, 255, 0.2);
+            background: #1e4c8c !important;
+            color: white !important;
+            text-align: center;
+        }
+
+        .grand-total-table td:first-child {
+            border-left: none;
+            text-align: left;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .grand-total-value {
+            font-size: 1.3rem;
+            font-weight: 800;
+        }
+
+        .grand-total-sublabel {
+            display: block;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            opacity: 0.8;
+            margin-bottom: 2px;
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        .grand-total-section span {
+            color: #fff !important;
+        }
+
+        .text-info,
+        .text-warning,
+        .text-success,
+        .balance-danger,
+        .balance-success,
+        .grand-total-sublabel {
+            color: #000 !important;
+        }
+
+        .grand-total-sublabel {
+            opacity: 1 !important;
+            font-weight: 700 !important;
+        }
+
+        /* Fix for print table boundaries */
+        .table-responsive {
+            overflow: visible !important;
+        }
+
+
+        /* Print Header Visibility Fix */
+        .print-header {
+            display: none;
+        }
+
+        /* Professional Print Styles */
+        @media print {
+            @page {
+                size: A4 portrait;
+                /* Portrait typically works for these 5 columns */
+                margin: 5mm;
+            }
+
+            body {
+                background: white;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                font-family: 'Inter', sans-serif;
+            }
+
+            /* Hide Navigation, Filters, and Interactive Elements */
+            .page-header,
+            .filters-section,
+            .sidebar,
+            #sidebarToggle,
+            .dropdown,
+            .btn,
+            button,
+            .page-title,
+            .page-subtitle,
+            .main-content > .d-flex,
+            footer,
+            .loading-overlay,
+            .empty-state,
+            .input-group,
+            .filter-panel,
+            #sidebar-container {
+                display: none !important;
+            }
+
+            /* Reset Containers */
+            .main-container,
+            .main-content,
+            .report-container,
+            .data-panel,
+            .table-container,
+            .table-responsive,
+            .category-card,
+            .category-section {
+                padding: 0 !important;
+                margin: 0 !important;
+                max-width: 100% !important;
+                width: 100% !important;
+                height: auto !important;
+                overflow: visible !important;
+                display: block !important;
+            }
+
+            .report-card {
+                box-shadow: none !important;
+                border: none !important;
+                background: transparent !important;
+                padding: 0 !important;
+            }
+
+            .report-section {
+                padding: 0 !important;
+            }
+
+            /* Print Header */
+            .print-header {
+                display: block !important;
+                margin-bottom: 30px;
+                border-bottom: 3px solid #1e4c8c;
+                padding-bottom: 15px;
+            }
+
+            .print-header-top {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+            }
+
+            .print-logo-section {
+                flex: 0 0 150px;
+            }
+
+            .print-company-section {
+                flex: 1;
+                text-align: center;
+            }
+
+            .print-meta-section {
+                flex: 0 0 180px;
+                text-align: right;
+                font-size: 0.7rem;
+                color: #64748b;
+                line-height: 1.4;
+            }
+
+            .print-meta-section strong {
+                color: #1e293b;
+            }
+
+            .print-report-title-bar {
+                background: #1e4c8c !important;
+                color: white !important;
+                text-align: center;
+                padding: 10px;
+                font-size: 1.5rem;
+                font-weight: 800;
+                text-transform: uppercase;
+                margin-top: 10px;
+                border-radius: 4px;
+            }
+
+            /* Summary Cards in Print */
+            .summary-cards {
+                display: grid !important;
+                grid-template-columns: repeat(4, 1fr) !important;
+                gap: 10px !important;
+                padding: 15px 0 !important;
+                background: transparent !important;
+                border: none !important;
+            }
+
+            .summary-card {
+                padding: 10px !important;
+                border: 1px solid #edf2f7 !important;
+                background: white !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .summary-card.green { background: #eff6ff !important; border-color: #dbeafe !important; }
+            .summary-card.teal { background: #fff1f2 !important; border-color: #ffe4e6 !important; }
+            .summary-card.orange { background: #fffbeb !important; border-color: #fef3c7 !important; }
+            .summary-card.red { background: #f0fdf4 !important; border-color: #dcfce7 !important; }
+
+            .summary-card .label { color: #475569 !important; }
+            .summary-card .value { color: #1e293b !important; font-size: 1rem !important; }
+
+            /* Table Styles for Print */
+            .category-card {
+                break-inside: avoid;
+                page-break-inside: avoid;
+                margin-bottom: 25px !important;
+            }
+
+            .category-header {
+                background: #f1f5f9 !important;
+                color: #1e4c8c !important;
+                font-weight: 800;
+                border-left: 4px solid #1e4c8c !important;
+                text-align: left !important;
+                padding: 8px 15px !important;
+                margin-bottom: 0 !important;
+            }
+
+            .data-table thead th {
+                background: #1e4c8c !important;
+                color: white !important;
+                border: 1px solid #1e4c8c !important;
+                font-size: 0.8rem !important;
+            }
+
+            .data-table tbody td {
+                border: 1px solid #e2e8f0 !important;
+                font-size: 0.8rem !important;
+            }
+
+            .total-row td {
+                background: #f8fafc !important;
+                color: #1e4c8c !important;
+                font-weight: 800 !important;
+            }
+
+            /* Signature Section */
+            .print-footer-signatures {
+                display: flex !important;
+                justify-content: space-between;
+                margin-top: 50px;
+                padding: 20px 0;
+                break-inside: avoid;
+            }
+
+            .sig-box {
+                width: 200px;
+                text-align: center;
+            }
+
+            .sig-line {
+                border-top: 1px solid #333;
+                margin-bottom: 5px;
+            }
+
+            .sig-label {
+                font-size: 10px;
+                text-transform: uppercase;
+                font-weight: 700;
+                color: #444;
+            }
+
+            /* Table Styles for Print */
+            .category-card {
+                break-inside: avoid;
+                page-break-inside: avoid;
+                margin-bottom: 20px !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+
+            .category-header {
+                background: #000 !important;
+                /* Black header for contrast */
+                color: white !important;
+                font-weight: 700;
+                text-transform: uppercase;
+                padding: 8px;
+                font-size: 0.9rem;
+                margin-bottom: 5px;
+                border: 1px solid #000 !important;
+            }
+
+            .data-table {
+                width: 100% !important;
+                border-collapse: collapse;
+                margin-bottom: 0;
+            }
+
+            .data-table thead th {
+                background: #f0f0f0 !important;
+                color: #000 !important;
+                border: 1px solid #999 !important;
+                padding: 5px;
+                font-size: 0.8rem;
+                font-weight: 700;
+            }
+
+            .data-table tbody td {
+                border: 1px solid #ccc !important;
+                padding: 5px;
+                font-size: 0.8rem;
+                color: #000 !important;
+            }
+
+            .data-table tfoot .total-row td {
+                background: #e0e0e0 !important;
+                color: #000 !important;
+                font-weight: 700;
+                padding: 5px !important;
+                border: 1px solid #999 !important;
+                margin: 0 !important;
+            }
+
+            /* Grand Total Section */
+            .grand-total-section {
+                margin-top: 20px;
+                break-inside: avoid;
+                page-break-inside: avoid;
+                box-shadow: none !important;
+                border: none !important;
+            }
+
+            .grand-total-table {
+                background: #1e4c8c !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                border-radius: 8px !important;
+                overflow: hidden !important;
+            }
+
+            .grand-total-table td {
+                color: white !important;
+                padding: 12px 8px !important;
+                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            }
+
+            .grand-total-sublabel {
+                color: rgba(255, 255, 255, 0.7) !important;
+                font-size: 0.6rem !important;
+            }
+
+            /* Utility */
+            .balance-danger { color: #dc2626 !important; font-weight: 600 !important; }
+            .balance-success { color: #16a34a !important; font-weight: 600 !important; }
+        }
+
+        /* Grand Total Section */
+        .grand-total-section {
+            margin-top: 30px;
+            margin-bottom: 50px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .grand-total-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #1e4c8c;
+            color: white;
+        }
+
+        .grand-total-table td {
+            padding: 10px 10px;
+            vertical-align: middle;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .grand-total-label {
+            font-size: 1.2rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: left;
+            /* Align Grand Total label to left */
+            padding-left: 20px;
+        }
+
+        .grand-total-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .grand-total-sublabel {
+            display: block;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            opacity: 0.8;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #b3d7ff !important;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Professional Print Header -->
+    <div class="print-header" style="display: none;">
+        <div class="print-header-top">
+            <div class="print-logo-section">
+                <img id="printCompanyLogo" src="" alt="Logo" style="max-height: 80px; display: none;">
+            </div>
+            <div class="print-company-section">
+                <h2 id="printCompanyName" style="margin: 0; color: #1e4c8c; font-weight: 800;">D.Watson Group</h2>
+                <p id="printCompanyInfo" style="margin: 0; font-size: 0.8rem; color: #64748b;"></p>
+            </div>
+            <div class="print-meta-section">
+                <div id="printDateNow"></div>
+                <div style="margin-top: 5px; font-weight: 600;">Report Type: Payment</div>
+            </div>
+        </div>
+        <div class="print-report-title-bar">
+            Warehouse Payment Report
+        </div>
+    </div>
+
+    <div id="sidebar-container"></div>
+
+    <!-- Main Content Wrapper -->
+    <div class="main-content">
+        <!-- Page Header -->
+        <div class="page-header px-3">
+            <div style="flex: 1; display: flex; align-items: center;">
+                <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+                <h4 class="mb-0">Payment Report</h4>
+            </div>
+            <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
+                <button class="btn btn-success btn-sm me-3" onclick="window.print()" id="printReportHeaderBtn"
+                    style="border-radius: 4px; padding: 5px 15px; font-weight: 600;">
+                    <i class="fas fa-print me-1"></i> Print Report
+                </button>
+                <div class="dropdown">
+                    <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown"
+                        style="cursor: pointer;">
+                        <i class="fas fa-user-circle me-2" style="font-size: 1.2rem;"></i>
+                        <span id="userName" class="me-2 text-white">User</span>
+                        <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                        <li><a class="dropdown-item logout-btn" href="#"><i
+                                    class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="report-container">
+            <div class="filter-panel shadow-sm">
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-3">
+                        <label>Branch</label>
+                        <select id="branchFilter" class="form-select">
+                            <option value="all">All Branches</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label>Category</label>
+                        <select id="categoryFilter" class="form-select">
+                            <option value="all">All Categories</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label>From Date</label>
+                        <input type="date" id="startDate" class="form-control">
+                    </div>
+                    <div class="col-md-2">
+                        <label>To Date</label>
+                        <input type="date" id="endDate" class="form-control">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button class="btn btn-light flex-fill fw-bold shadow-sm" id="generateBtn"
+                            onclick="loadReport()">
+                            <span class="spinner-border spinner-border-sm d-none me-1" id="generateSpinner"
+                                role="status" aria-hidden="true"></span>
+                            <i class="fas fa-sync me-1"></i> Generate
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        <div class="input-group"
+                            style="border: 1px solid #dee2e6; background: white; border-radius: 6px; overflow: hidden;">
+                            <span class="input-group-text bg-white border-0"><i
+                                    class="fas fa-search text-muted"></i></span>
+                            <input type="text" id="globalSearch" class="form-control border-0"
+                                placeholder="Search by branch or category name..." autocomplete="off">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="data-panel">
+                <!-- Summary Cards -->
+                <div id="summarySection" class="summary-cards d-none">
+                    <div class="summary-card green">
+                        <span class="label">Total Sales</span>
+                        <div id="totalSales" class="value">0.00</div>
+                    </div>
+                    <div class="summary-card teal">
+                        <span class="label">Total Cost</span>
+                        <div id="totalCost" class="value">0.00</div>
+                    </div>
+                    <div class="summary-card orange">
+                        <span class="label">Total Paid</span>
+                        <div id="totalPaid" class="value">0.00</div>
+                    </div>
+                    <div class="summary-card red">
+                        <span class="label">Total Balance</span>
+                        <div id="totalBalance" class="value">0.00</div>
+                    </div>
+                </div>
+
+                <!-- Report Content Area -->
+                <div class="table-container">
+                    <!-- Loading State -->
+                    <div id="loadingState" class="loading-overlay"
+                        style="display: none; padding: 40px; text-align: center;">
+                        <div class="spinner-grow text-info" style="width: 3rem; height: 3rem;" role="status text-info">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3 text-info fw-bold">Gathering data from all branches...</p>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div id="emptyState" class="empty-state">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Click "Generate" to view payment reports</p>
+                    </div>
+
+                    <!-- Results Area -->
+                    <div id="reportResults"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244511"></script>
+    <script>
+        // Report Logic
+        let allData = null;
+        let branches = [];
+        let categories = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Set default dates (current month)
+            // Set default dates (current month)
+            const now = new Date();
+            // Local Start of Month
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const firstDay = `${year}-${month}-01`;
+
+            // Local End of Month
+            const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            const endYear = end.getFullYear();
+            const endMonth = String(end.getMonth() + 1).padStart(2, '0');
+            const endDay = String(end.getDate()).padStart(2, '0');
+            const lastDay = `${endYear}-${endMonth}-${endDay}`;
+
+            document.getElementById('startDate').value = firstDay;
+            document.getElementById('endDate').value = lastDay;
+
+            // Load filters
+            await loadFilters();
+            await loadCompanyInfo();
+
+            // Set user name
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (document.getElementById('userName')) {
+                document.getElementById('userName').textContent = user.name || 'User';
+            }
+
+            // Global search event
+            document.getElementById('globalSearch').addEventListener('input', () => {
+                if (allData) renderReport(allData);
+            });
+        });
+
+        async function loadFilters() {
+            try {
+                const token = localStorage.getItem('token');
+                const headers = { 'Authorization': `Bearer ${token}` };
+
+                let branchRes = await fetch('/api/v1/stores', { headers });
+                if (!branchRes.ok) {
+                    branchRes = await fetch('/api/v1/sub-branches', { headers });
+                }
+                const catRes = await fetch('/api/v1/customer-categories', { headers });
+
+                const branchData = await branchRes.json();
+                const catData = await catRes.json();
+
+                const branchSelect = document.getElementById('branchFilter');
+                if (branchData.success && branchData.data) {
+                    const rawNames = branchData.data.map(item => (item.name || item.branchName || '').trim());
+                    const uniqueBranches = [...new Set(rawNames)].filter(n => n !== '').sort();
+
+                    uniqueBranches.forEach(name => {
+                        const opt = document.createElement('option');
+                        opt.value = name;
+                        opt.textContent = name;
+                        branchSelect.appendChild(opt);
+                    });
+                }
+
+                const catSelect = document.getElementById('categoryFilter');
+                catData.data.forEach(cat => {
+                    const option = document.createElement('option');
+                    option.value = cat._id;
+                    option.textContent = cat.name;
+                    catSelect.appendChild(option);
+                    categories.push({ id: cat._id, name: cat.name });
+                });
+
+                branches = branchData.data;
+            } catch (err) {
+                console.error('Error loading filters:', err);
+            }
+        }
+
+        async function loadCompanyInfo() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/v1/settings', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const result = await response.json();
+
+                if (result.success && result.data) {
+                    const settings = result.data;
+                    document.getElementById('printCompanyName').textContent = settings.companyName || 'D.Watson Group Of Pharmacies';
+                    document.getElementById('printCompanyInfo').textContent = settings.address || '';
+
+                    if (settings.logo) {
+                        const logoImg = document.getElementById('printCompanyLogo');
+                        logoImg.src = settings.logo;
+                        logoImg.style.display = 'block';
+                    }
+                }
+
+                // Add Generated Date
+                const today = new Date();
+                const genDate = document.getElementById('printDateNow');
+                if (genDate) {
+                    genDate.textContent = `Generated: ${today.toLocaleDateString('en-GB')} ${today.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`;
+                }
+            } catch (err) {
+                console.error('Error loading company info:', err);
+            }
+        }
+
+        function resetFilters() {
+            const now = new Date();
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+            document.getElementById('startDate').value = startOfMonth.toISOString().split('T')[0];
+            document.getElementById('endDate').value = endOfMonth.toISOString().split('T')[0];
+            document.getElementById('branchFilter').value = 'all';
+            document.getElementById('categoryFilter').value = 'all';
+            document.getElementById('globalSearch').value = '';
+
+            document.getElementById('reportResults').innerHTML = '';
+            document.getElementById('summarySection').classList.add('d-none');
+            document.getElementById('emptyState').classList.remove('d-none');
+        }
+
+        async function loadReport() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const branch = document.getElementById('branchFilter').value;
+            const categoryId = document.getElementById('categoryFilter').value;
+
+            if (!startDate || !endDate) {
+                alert('Please select date range');
+                return;
+            }
+
+            // UI States
+            document.getElementById('generateSpinner').classList.remove('d-none');
+            document.getElementById('generateBtn').disabled = true;
+            document.getElementById('loadingState').style.display = 'block';
+            document.getElementById('emptyState').classList.add('d-none');
+            document.getElementById('reportResults').innerHTML = '';
+            document.getElementById('summarySection').classList.add('d-none');
+
+            try {
+                const token = localStorage.getItem('token');
+                const headers = { 'Authorization': `Bearer ${token}` };
+                const limit = 10000;
+
+                // Fetch data in parallel
+                const [sheetsRes, vouchRes] = await Promise.all([
+                    fetch(`/api/v1/closing-sheets/report?startDate=${startDate}&endDate=${endDate}&branch=${branch}`, { headers }),
+                    fetch(`/api/v1/vouchers?startDate=${startDate}&endDate=${endDate}&branch=${branch}&limit=${limit}`, { headers })
+                ]);
+
+                const sheetsData = await sheetsRes.json();
+                const vouchData = await vouchRes.json();
+
+                // Update Print Meta
+                const pbMeta = document.getElementById('printBranchMeta');
+                if (pbMeta) pbMeta.textContent = branch === 'all' ? 'All Branches' : branch;
+
+                const pdMeta = document.getElementById('printDateMeta');
+                if (pdMeta) pdMeta.textContent = `${formatDatePrint(startDate)} to ${formatDatePrint(endDate)}`;
+
+                const pdNow = document.getElementById('printDateNow');
+                if (pdNow) pdNow.textContent = new Date().toLocaleString();
+
+                processData(sheetsData.data, vouchData.data);
+            } catch (err) {
+                console.error('Error loading report:', err);
+                alert('Error loading report data');
+            } finally {
+                document.getElementById('generateSpinner').classList.add('d-none');
+                document.getElementById('generateBtn').disabled = false;
+                document.getElementById('loadingState').style.display = 'none';
+            }
+        }
+
+        function formatDatePrint(dateStr) {
+            if (!dateStr) return '-';
+            const d = new Date(dateStr);
+            return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+
+        function processData(sheets, vouchers) {
+            const normalize = (name) => (name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+            const stats = {}; // Map<CategoryName, Map<BranchName, {sale, cost, payment}>>
+
+            const catMap = {};
+            categories.forEach(c => catMap[c.id] = c.name);
+
+            // 1. Process Closing Sheets (Sale & Cost)
+            sheets.forEach(sheet => {
+                const branchName = sheet.branch;
+                const dataObj = sheet.closing02?.data || sheet.closing02;
+
+                if (dataObj && dataObj.warehouseSale && Array.isArray(dataObj.warehouseSale)) {
+                    dataObj.warehouseSale.forEach(item => {
+                        const catName = catMap[item.category] || 'Unknown Category';
+
+                        // Category Filter
+                        const selectedCatId = document.getElementById('categoryFilter').value;
+                        if (selectedCatId !== 'all' && item.category !== selectedCatId) return;
+
+                        if (!stats[catName]) stats[catName] = {};
+                        if (!stats[catName][branchName]) {
+                            stats[catName][branchName] = { branch: branchName, sale: 0, cost: 0, payment: 0 };
+                        }
+
+                        stats[catName][branchName].sale += parseFloat(item.sale || 0);
+                        stats[catName][branchName].cost += parseFloat(item.cost || 0);
+                    });
+                }
+            });
+
+            // 2. Process Vouchers (Payments)
+            vouchers.forEach(v => {
+                const branchName = v.branch;
+                // Filter by branch if not 'all'
+                const selectedBranch = document.getElementById('branchFilter').value;
+                if (selectedBranch !== 'all' && branchName !== selectedBranch) return;
+
+                const categoryEntry = v.entries.find(e => e.detail === 'Category Wise Payment');
+                if (!categoryEntry) return;
+
+                const categoryNameFromVoucher = categoryEntry.account;
+                const amount = parseFloat(categoryEntry.debit || 0);
+
+                // Try to find matching category in our stats
+                let matchedCatName = categoryNameFromVoucher;
+                const knownCatNames = Object.values(catMap);
+
+                const match = knownCatNames.find(c =>
+                    normalize(c) === normalize(categoryNameFromVoucher) ||
+                    normalize(categoryNameFromVoucher).includes(normalize(c)) ||
+                    normalize(c).includes(normalize(categoryNameFromVoucher))
+                );
+
+                if (match) matchedCatName = match;
+
+                // Category Filter
+                const selectedCatId = document.getElementById('categoryFilter').value;
+                if (selectedCatId !== 'all') {
+                    const selectedCatName = catMap[selectedCatId];
+                    if (normalize(matchedCatName) !== normalize(selectedCatName)) return;
+                }
+
+                if (!stats[matchedCatName]) stats[matchedCatName] = {};
+                if (!stats[matchedCatName][branchName]) {
+                    stats[matchedCatName][branchName] = { branch: branchName, sale: 0, cost: 0, payment: 0 };
+                }
+
+                stats[matchedCatName][branchName].payment += amount;
+            });
+
+            allData = stats;
+            renderReport(stats);
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount || 0);
+        }
+
+        function renderReport(stats) {
+            const resultsArea = document.getElementById('reportResults');
+            const searchTerm = normalize(document.getElementById('globalSearch').value);
+            resultsArea.innerHTML = '';
+
+            let grandTotalSales = 0, grandTotalCost = 0, grandTotalPaid = 0;
+            let hasAnyData = false;
+
+            const sortedCatNames = Object.keys(stats).sort();
+
+            sortedCatNames.forEach(catName => {
+                const branchMap = stats[catName];
+                const branchesToShow = Object.values(branchMap).filter(b => {
+                    const matchesSearch = normalize(catName).includes(searchTerm) || normalize(b.branch).includes(searchTerm);
+                    const hasValues = b.sale !== 0 || b.cost !== 0 || b.payment !== 0;
+                    return matchesSearch && hasValues;
+                }).sort((a, b) => b.sale - a.sale);
+
+                if (branchesToShow.length === 0) return;
+                hasAnyData = true;
+
+                let catTotalSale = 0, catTotalCost = 0, catTotalPaid = 0;
+
+                let rowsHtml = '';
+                branchesToShow.forEach((b, idx) => {
+                    const balance = b.cost - b.payment;
+                    catTotalSale += b.sale;
+                    catTotalCost += b.cost;
+                    catTotalPaid += b.payment;
+
+                    rowsHtml += `
+                        <tr>
+                            <td data-label="S#">${idx + 1}</td>
+                            <td data-label="Branch">${b.branch}</td>
+                            <td data-label="Sales">${formatCurrency(b.sale)}</td>
+                            <td data-label="Cost">${formatCurrency(b.cost)}</td>
+                            <td data-label="Paid">${formatCurrency(b.payment)}</td>
+                            <td data-label="Balance" class="${balance > 0 ? 'balance-danger' : 'balance-success'}">${formatCurrency(balance)}</td>
+                        </tr>
+                    `;
+                });
+
+                const catBalance = catTotalCost - catTotalPaid;
+                grandTotalSales += catTotalSale;
+                grandTotalCost += catTotalCost;
+                grandTotalPaid += catTotalPaid;
+
+                const categorySection = `
+                    <div class="category-card">
+                        <div class="category-header">
+                            <i class="fas fa-box-open"></i> ${catName}
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <colgroup>
+                                    <col class="col-sno">
+                                    <col class="col-branch">
+                                    <col class="col-numeric">
+                                    <col class="col-numeric">
+                                    <col class="col-numeric">
+                                    <col class="col-numeric">
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th style="border-left: none !important;">S#</th>
+                                        <th style="border-left: 1px solid white !important;">Branch</th>
+                                        <th style="border-left: 1px solid white !important;">Sales</th>
+                                        <th style="border-left: 1px solid white !important;">Cost</th>
+                                        <th style="border-left: 1px solid white !important;">Paid</th>
+                                        <th style="border-left: 1px solid white !important;">Balance</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${rowsHtml}
+                                </tbody>
+                                <tfoot>
+                                    <tr class="total-row">
+                                        <td colspan="2" style="border-left: none !important;">Total</td>
+                                        <td data-label="Total Sales" style="border-left: 1px solid #dee2e6 !important;">${formatCurrency(catTotalSale)}</td>
+                                        <td data-label="Total Cost" style="border-left: 1px solid #dee2e6 !important;">${formatCurrency(catTotalCost)}</td>
+                                        <td data-label="Total Paid" style="border-left: 1px solid #dee2e6 !important;">${formatCurrency(catTotalPaid)}</td>
+                                        <td data-label="Total Balance" style="border-left: 1px solid #dee2e6 !important;">${formatCurrency(catBalance)}</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                `;
+                resultsArea.insertAdjacentHTML('beforeend', categorySection);
+            });
+
+            if (!hasAnyData) {
+                resultsArea.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <h5>No matches found</h5>
+                        <p>Try adjusting your search or filters.</p>
+                    </div>
+                `;
+                document.getElementById('summarySection').classList.add('d-none');
+            } else {
+                // Update Summary
+                document.getElementById('totalSales').textContent = formatCurrency(grandTotalSales);
+                document.getElementById('totalCost').textContent = formatCurrency(grandTotalCost);
+                document.getElementById('totalPaid').textContent = formatCurrency(grandTotalPaid);
+                document.getElementById('totalBalance').textContent = formatCurrency(grandTotalCost - grandTotalPaid);
+                document.getElementById('summarySection').classList.remove('d-none');
+
+                // Final Grand Total Row aligned with table columns
+                const grandTotalHtml = `
+                    <div class="grand-total-section">
+                        <table class="grand-total-table">
+                            <colgroup>
+                                <col class="col-sno">
+                                <col class="col-branch">
+                                <col class="col-numeric">
+                                <col class="col-numeric">
+                                <col class="col-numeric">
+                                <col class="col-numeric">
+                            </colgroup>
+                            <tr>
+                                <td colspan="2" class="grand-total-label" style="border-left: none !important;">
+                                    <i class="fas fa-calculator me-2"></i> Grand Total
+                                </td>
+                                <td class="grand-total-value" style="border-left: 1px solid rgba(255,255,255,0.3) !important;">
+                                    <span class="grand-total-sublabel">Sales</span>
+                                    ${formatCurrency(grandTotalSales)}
+                                </td>
+                                <td class="grand-total-value" style="border-left: 1px solid rgba(255,255,255,0.3) !important;">
+                                    <span class="grand-total-sublabel">Cost</span>
+                                    ${formatCurrency(grandTotalCost)}
+                                </td>
+                                <td class="grand-total-value" style="border-left: 1px solid rgba(255,255,255,0.3) !important;">
+                                    <span class="grand-total-sublabel">Paid</span>
+                                    ${formatCurrency(grandTotalPaid)}
+                                </td>
+                                <td class="grand-total-value" style="border-left: 1px solid rgba(255,255,255,0.3) !important;">
+                                    <span class="grand-total-sublabel">Balance</span>
+                                    ${formatCurrency(grandTotalCost - grandTotalPaid)}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                `;
+                resultsArea.insertAdjacentHTML('beforeend', grandTotalHtml);
+
+                // Add Signature Section for Print
+                const signatureHtml = `
+                    <div class="print-footer-signatures d-none">
+                        <div class="sig-box">
+                            <div class="sig-line"></div>
+                            <div class="sig-label">Prepared By</div>
+                        </div>
+                        <div class="sig-box">
+                            <div class="sig-line"></div>
+                            <div class="sig-label">Checked By</div>
+                        </div>
+                        <div class="sig-box">
+                            <div class="sig-line"></div>
+                            <div class="sig-label">Approved By</div>
+                        </div>
+                    </div>
+                `;
+                resultsArea.insertAdjacentHTML('beforeend', signatureHtml);
+            }
+        }
+
+        function normalize(name) {
+            return (name || '').toLowerCase().trim();
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244511"></script>
+</body>
+
+</html>

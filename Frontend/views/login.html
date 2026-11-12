@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="D.Watson BAS Software - Enterprise Business Automation, Inventory & POS Portal.">
+  <title>D.Watson - BAS Software | Enterprise Login</title>
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+  <!-- Preconnect & DNS Prefetch for External Assets -->
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+  <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Dedicated Isolated Stylesheet (Zero global leakage) -->
+  <link rel="stylesheet" href="/css/login-modern.css?v=20261024_v1">
+
+  <!-- Smart Dashboard Prefetching (Loads dashboard quietly during login idle time) -->
+  <link rel="prefetch" href="/main">
+  <link rel="prefetch" href="/css/dashboard-modern.css?v=20261024_v1">
+  <link rel="prefetch" href="/js/dashboard-modern.js?v=20261024_v1">
+</head>
+<body style="margin: 0; padding: 0; background-color: #060b18;">
+
+  <!-- Root Wrapper for Scoped Theming (theme-dark / theme-light) -->
+  <div class="bas-modern-login theme-dark" id="basModernLoginRoot">
+
+    <!-- Background Atmospheric Lighting & Grid Canvas -->
+    <div class="bas-bg-canvas" aria-hidden="true">
+      <div class="bas-bg-orb bas-bg-orb-1"></div>
+      <div class="bas-bg-orb bas-bg-orb-2"></div>
+      <div class="bas-bg-orb bas-bg-orb-3"></div>
+      <div class="bas-cursor-glow" id="basCursorGlow"></div>
+      <div class="bas-bg-grid"></div>
+    </div>
+
+    <!-- Top Navigation Bar -->
+    <header class="bas-login-topbar">
+      <a href="/" class="bas-brand-header">
+        <div class="bas-brand-logo-mark" aria-hidden="true">
+          <!-- Stylized D Logo Mark -->
+          <svg viewBox="0 0 24 24">
+            <path d="M4 4h7a8 8 0 0 1 8 8 8 8 0 0 1-8 8H4V4zm4 4v8h3a4 4 0 0 0 4-4 4 4 0 0 0-4-4H8z"/>
+          </svg>
+        </div>
+        <div class="bas-brand-text">
+          <span class="bas-brand-title">D.Watson</span>
+          <span class="bas-brand-subtitle">BAS Software</span>
+        </div>
+      </a>
+
+      <!-- Theme Switcher (Dark / Light) -->
+      <div class="bas-theme-toggle" role="group" aria-label="Theme selection">
+        <button type="button" class="bas-theme-toggle-btn active" id="themeDarkBtn" aria-label="Dark Mode">
+          <i class="fas fa-moon"></i>
+          <span>Dark</span>
+        </button>
+        <button type="button" class="bas-theme-toggle-btn" id="themeLightBtn" aria-label="Light Mode">
+          <i class="fas fa-sun"></i>
+          <span>Light</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Container: Hero + Glassmorphism Card -->
+    <main class="bas-login-container">
+
+      <!-- Left Column: 3D Animated Hero Experience -->
+      <section class="bas-login-hero" aria-label="Product Showcase">
+
+        <!-- 3D Perspective Stage -->
+        <div class="bas-3d-stage">
+          <div class="bas-3d-scene" id="bas3dScene">
+
+            <!-- 1. Futuristic Glowing Podium -->
+            <div class="bas-3d-podium">
+              <div class="bas-podium-ring"></div>
+              <div class="bas-podium-badge">BAS</div>
+            </div>
+
+            <!-- 2. Central 3D Terminal / Dashboard Display -->
+            <div class="bas-3d-terminal">
+              <div class="bas-terminal-topbar">
+                <span class="bas-terminal-dot r"></span>
+                <span class="bas-terminal-dot y"></span>
+                <span class="bas-terminal-dot g"></span>
+                <span class="bas-terminal-title">D.Watson Enterprise Intelligence</span>
+              </div>
+              <div class="bas-terminal-screen">
+                <div class="bas-screen-metrics">
+                  <div class="bas-mini-stat">
+                    <div class="bas-mini-stat-label">Daily Revenue</div>
+                    <div class="bas-mini-stat-val">Rs. 1.48M</div>
+                  </div>
+                  <div class="bas-mini-stat">
+                    <div class="bas-mini-stat-label">Stock Accuracy</div>
+                    <div class="bas-mini-stat-val">99.8%</div>
+                  </div>
+                  <div class="bas-mini-stat">
+                    <div class="bas-mini-stat-label">POS Nodes</div>
+                    <div class="bas-mini-stat-val">Online (12)</div>
+                  </div>
+                </div>
+
+                <!-- Animated SVG Data Graph -->
+                <svg class="bas-terminal-chart" viewBox="0 0 300 70" preserveAspectRatio="none">
+                  <defs>
+                    <linearGradient id="basChartGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="#0052d4"/>
+                      <stop offset="50%" stop-color="#00d4ff"/>
+                      <stop offset="100%" stop-color="#38ef7d"/>
+                    </linearGradient>
+                    <linearGradient id="basChartFill" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.3"/>
+                      <stop offset="100%" stop-color="#00d4ff" stop-opacity="0.0"/>
+                    </linearGradient>
+                  </defs>
+                  <path class="bas-chart-area" d="M 0,55 Q 35,45 70,50 T 140,25 T 210,35 T 280,10 L 280,70 L 0,70 Z" />
+                  <path class="bas-chart-line" d="M 0,55 Q 35,45 70,50 T 140,25 T 210,35 T 280,10" />
+                </svg>
+
+                <div class="bas-terminal-ticker">
+                  <span><i class="fas fa-network-wired me-1"></i> Cloud Synced</span>
+                  <span class="bas-ticker-pill"><span class="bas-ticker-dot"></span> Live Telemetry</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. Floating 3D Holographic Badges & Glass Tiles -->
+            <!-- Tile 1: Top Left - Revenue Card -->
+            <div class="bas-floating-tile bas-tile-1">
+              <div class="bas-tile-icon">
+                <i class="fas fa-chart-line"></i>
+              </div>
+              <div class="bas-tile-info">
+                <span class="bas-tile-val">+28.4%</span>
+                <span class="bas-tile-lbl">Annual Growth</span>
+              </div>
+            </div>
+
+            <!-- Tile 2: Top Right - 3D Isometric Inventory Box -->
+            <div class="bas-floating-tile bas-tile-2">
+              <div class="bas-iso-cube">
+                <div class="bas-cube-face f"></div>
+                <div class="bas-cube-face b"></div>
+                <div class="bas-cube-face r"></div>
+                <div class="bas-cube-face l"></div>
+                <div class="bas-cube-face t"></div>
+                <div class="bas-cube-face bt"></div>
+              </div>
+              <div class="bas-tile-info">
+                <span class="bas-tile-val">Inventory</span>
+                <span class="bas-tile-lbl">Auto-Reorder</span>
+              </div>
+            </div>
+
+            <!-- Tile 3: Middle Left - Dual Biometrics Verification Badge -->
+            <div class="bas-floating-tile bas-tile-3">
+              <div class="bas-tile-icon">
+                <i class="fas fa-fingerprint"></i>
+              </div>
+              <div class="bas-tile-info">
+                <span class="bas-tile-val">Dual Biometric</span>
+                <span class="bas-tile-lbl">Face & Fingerprint</span>
+              </div>
+            </div>
+
+            <!-- Tile 4: Bottom Right - Real-time Ledger Security -->
+            <div class="bas-floating-tile bas-tile-4">
+              <div class="bas-tile-icon">
+                <i class="fas fa-balance-scale"></i>
+              </div>
+              <div class="bas-tile-info">
+                <span class="bas-tile-val">Double-Entry</span>
+                <span class="bas-tile-lbl">General Ledger</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Hero Text -->
+        <div class="bas-login-hero-text">
+          <h1 class="bas-hero-heading">
+            Smarter Business, <br>
+            <span class="bas-gradient-text">Better Tomorrow</span>
+          </h1>
+          <p class="bas-hero-desc">
+            Manage your business with powerful tools, real-time insights and complete control — all in one place.
+          </p>
+        </div>
+
+      </section>
+
+      <!-- Right Column: Premium Glassmorphism Login Card -->
+      <section class="bas-login-card-wrapper" aria-label="Sign In Card">
+        <div class="bas-login-card">
+
+          <!-- Card Header -->
+          <div class="bas-card-header">
+            <div class="bas-card-brand-badge">
+              <div class="bas-card-brand-icon">
+                <svg viewBox="0 0 24 24">
+                  <path d="M4 4h7a8 8 0 0 1 8 8 8 8 0 0 1-8 8H4V4zm4 4v8h3a4 4 0 0 0 4-4 4 4 0 0 0-4-4H8z"/>
+                </svg>
+              </div>
+              <span class="bas-card-brand-label">D.Watson <span>BAS Software</span></span>
+            </div>
+            <h2 class="bas-card-title">Welcome Back</h2>
+            <p class="bas-card-subtitle">Sign in to your account to continue</p>
+          </div>
+
+          <!-- Alert Box -->
+          <div id="alertBox" class="bas-login-alert" role="alert" aria-live="assertive"></div>
+
+          <!-- Login Form -->
+          <form id="loginForm" novalidate>
+
+            <!-- Login ID / Username Field -->
+            <div class="bas-form-group">
+              <div class="bas-input-wrapper">
+                <i class="fas fa-user bas-input-icon"></i>
+                <input
+                  type="text"
+                  id="email"
+                  class="bas-login-input"
+                  placeholder="Username / Login ID"
+                  required
+                  autocomplete="username"
+                  autofocus
+                >
+              </div>
+            </div>
+
+            <!-- Password Field -->
+            <div class="bas-form-group">
+              <div class="bas-input-wrapper">
+                <i class="fas fa-lock bas-input-icon"></i>
+                <input
+                  type="password"
+                  id="password"
+                  class="bas-login-input"
+                  placeholder="Password"
+                  required
+                  autocomplete="current-password"
+                >
+                <button
+                  type="button"
+                  id="togglePasswordBtn"
+                  class="bas-pwd-toggle-btn"
+                  aria-label="Toggle password visibility"
+                  tabindex="-1"
+                >
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Options Row (Remember Me & Forgot Password) -->
+            <div class="bas-form-options">
+              <label class="bas-remember-wrapper" for="rememberMe">
+                <input type="checkbox" id="rememberMe">
+                <div class="bas-checkbox-custom" aria-hidden="true">
+                  <svg viewBox="0 0 24 24">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <span>Remember me</span>
+              </label>
+
+              <a href="#" id="forgotPasswordLink" class="bas-forgot-link">Forgot password?</a>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" id="submitBtn" class="bas-login-btn">
+              <span>Sign In</span>
+              <i class="fas fa-arrow-right bas-btn-arrow"></i>
+            </button>
+
+            <!-- Security Trust Indicators -->
+            <div class="bas-trust-row">
+              <div class="bas-trust-item">
+                <i class="fas fa-shield-halved"></i>
+                <span>Secure 256-bit Login</span>
+              </div>
+              <div class="bas-trust-item">
+                <i class="fas fa-building"></i>
+                <span>D.Watson Group</span>
+              </div>
+            </div>
+
+            <!-- Designer Credit & Branding -->
+            <div class="bas-designer-credit">
+              <div class="bas-designer-badge">
+                <i class="fas fa-code"></i> This software is designed by <strong>Bilal Shah</strong>
+                <span class="bas-credit-divider">|</span>
+                <a href="tel:03485511763" class="bas-designer-phone" title="Contact Bilal Shah">
+                  <i class="fas fa-phone"></i> 0348-5511763
+                </a>
+              </div>
+              <div class="bas-company-sub">
+                D.Watson Group of Companies &bull; BAS Software
+              </div>
+            </div>
+
+          </form>
+
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- Dedicated Isolated Controller Script -->
+  <script src="/js/login-modern.js?v=20261021_v6"></script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Access Denied - 403</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .error-container {
+            text-align: center;
+            background: white;
+            padding: 60px 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            width: 90%;
+        }
+
+        .error-code {
+            font-size: 120px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 0;
+            line-height: 1;
+        }
+
+        .error-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #333;
+            margin: 20px 0;
+        }
+
+        .error-message {
+            font-size: 16px;
+            color: #666;
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .error-icon {
+            font-size: 60px;
+            color: #ff6b6b;
+            margin-bottom: 20px;
+        }
+
+        .btn-back {
+            margin-top: 30px;
+        }
+
+        .details {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: left;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+
+        .details-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .details-item {
+            color: #666;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="error-container">
+        <div class="error-icon">
+            <i class="fas fa-lock"></i>
+        </div>
+        <p class="error-code">403</p>
+        <h1 class="error-title">Access Denied</h1>
+        <p class="error-message">
+            You don't have permission to access this page.<br>
+            Please contact your administrator if you believe this is an error.
+        </p>
+
+        <div id="detailsContainer" class="details" style="display: none;">
+            <div class="details-title">Details:</div>
+            <div class="details-item"><strong>Required Permission:</strong> <span id="requiredPerm">-</span></div>
+            <div class="details-item"><strong>Your Role:</strong> <span id="userRole">-</span></div>
+            <div class="details-item"><strong>Your Group:</strong> <span id="userGroup">-</span></div>
+        </div>
+
+        <div class="btn-back">
+            <a href="/main" class="btn btn-primary btn-lg">
+                <i class="fas fa-home me-2"></i>Return to Main
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Try to show detailed error info if available
+        document.addEventListener('DOMContentLoaded', function () {
+            const params = new URLSearchParams(window.location.search);
+            const requiredPerm = params.get('permission');
+            const detailsContainer = document.getElementById('detailsContainer');
+
+            if (requiredPerm) {
+                detailsContainer.style.display = 'block';
+                document.getElementById('requiredPerm').textContent = requiredPerm;
+
+                // Get user info from localStorage
+                try {
+                    const user = JSON.parse(localStorage.getItem('user'));
+                    if (user) {
+                        document.getElementById('userRole').textContent = user.role || 'Unknown';
+                        document.getElementById('userGroup').textContent = user.group && user.group.name ? user.group.name : 'No Group Assigned';
+                    }
+                } catch (e) {
+                    console.error('Error reading user info:', e);
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

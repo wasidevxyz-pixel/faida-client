@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Payroll</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/desktop-style.css?v=20261021_v6" rel="stylesheet">
+    <link href="/css/sidebar.css?v=20261021_v6" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --ref-blue-header: #1f569b;
+            --ref-green: #00b050;
+            --ref-blue-light: #1f84c1;
+            --ref-red: #e15a4b;
+            --ref-purple: #6b5ea5;
+            --ref-white: #ffffff;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            overflow-x: hidden;
+        }
+
+        .page-header {
+            background-color: var(--ref-blue-header) !important;
+            color: white !important;
+            height: 45px !important;
+            border-bottom: none !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .page-header .header-title {
+            font-size: 1.5rem;
+            font-weight: 500;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .section-container {
+            padding: 10px;
+        }
+
+        .card-custom {
+            border: 1px solid #ccc;
+            border-radius: 0px;
+            margin-bottom: 5px;
+            background: white;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .flex-grow-card {
+            flex-grow: 1;
+        }
+
+        .header-green {
+            background-color: var(--ref-green) !important;
+            color: white;
+        }
+
+        .header-blue {
+            background-color: var(--ref-blue-light) !important;
+            color: white;
+        }
+
+        .header-red {
+            background-color: var(--ref-red) !important;
+            color: white;
+        }
+
+        .section-header {
+            padding: 5px 10px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-label-custom {
+            font-weight: bold;
+            font-size: 0.8rem;
+            margin-bottom: 0px;
+            display: flex;
+            align-items: center;
+            color: #333;
+        }
+
+        .form-control-custom {
+            font-size: 0.9rem;
+            padding: 4px 8px;
+            border-radius: 0px;
+            border: 1px solid #ccc;
+            height: 34px;
+        }
+
+        /* Input Background Colors */
+        .bg-green-input {
+            background-color: var(--ref-green) !important;
+            color: white !important;
+        }
+
+        .bg-blue-input {
+            background-color: var(--ref-blue-light) !important;
+            color: white !important;
+        }
+
+        .bg-red-input {
+            background-color: var(--ref-red) !important;
+            color: white !important;
+        }
+
+        .bg-purple-input {
+            background-color: var(--ref-purple) !important;
+            color: white !important;
+        }
+
+        .row-custom {
+            margin-bottom: 7px;
+            padding: 0 5px;
+        }
+
+        /* Hide Number Input Arrows (Spinners) */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none !important;
+            display: none !important;
+            margin: 0 !important;
+        }
+
+        input[type=number] {
+            -moz-appearance: textfield !important;
+            appearance: textfield !important;
+        }
+
+        /* Extra insurance for Firefox internal elements */
+        input[type=number]::-moz-number-spin-box,
+        input[type=number]::-moz-number-spin-inner {
+            display: none !important;
+        }
+
+        .btn-ref-save {
+            background-color: #2e7d32;
+            color: white;
+            border-radius: 0px;
+            font-size: 0.9rem;
+            padding: 2px 15px;
+        }
+
+        .btn-ref-list {
+            background-color: #1f569b;
+            color: white;
+            border-radius: 0px;
+            font-size: 0.9rem;
+            padding: 2px 15px;
+        }
+
+        .footer-banner {
+            background-color: var(--ref-red);
+            color: white;
+            text-align: center;
+            padding: 5px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        /* Checkbox styling matched to reference */
+        .section-header .form-check-label {
+            font-size: 0.9rem;
+            font-weight: bold;
+            font-family: 'Times New Roman', Times, serif;
+            color: #fff !important;
+            margin-left: 2px;
+            cursor: pointer;
+        }
+
+        .section-header .form-check-input {
+            width: 13px;
+            height: 13px;
+            margin-top: 0;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 2px;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            position: relative;
+            vertical-align: middle;
+        }
+
+        .section-header .form-check-input:checked {
+            background-color: #fff;
+            /* Keep it white */
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23000' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
+        }
+
+        #sidebarToggle {
+            position: absolute;
+            left: 15px;
+            top: 12px;
+            cursor: pointer;
+        }
+
+        .user-profile-icon {
+            position: absolute;
+            right: 15px;
+            top: 10px;
+            color: white;
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .user-profile-icon img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1px solid white;
+        }
+
+        .refresh-icon {
+            position: absolute;
+            right: 120px;
+            top: 12px;
+            cursor: pointer;
+        }
+
+        .flex-column-custom {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+
+        .card-body-custom {
+            flex-grow: 1;
+            padding: 10px;
+        }
+
+        /* List Modal Styles */
+        #payrollListModal .modal-header {
+            background-color: var(--ref-blue-header);
+            color: white;
+            padding: 5px 15px;
+            border-bottom: none;
+            border-radius: 0;
+        }
+
+        #payrollListModal .modal-title {
+            font-size: 1.1rem;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        #payrollListModal .btn-close {
+            filter: invert(1) grayscale(100%) brightness(200%);
+            font-size: 0.8rem;
+        }
+
+        #payrollListModal .modal-content {
+            border-radius: 0;
+            border: none;
+        }
+
+        #payrollListModal .filters-bar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            flex-wrap: wrap;
+        }
+
+        #payrollListModal .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        #payrollListModal .filter-label {
+            font-weight: bold;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+
+        .btn-list-action {
+            border-radius: 0;
+            font-size: 0.75rem;
+            padding: 3px 10px;
+            color: white;
+            border: none;
+        }
+
+        .btn-list-search {
+            background-color: #2e7d32;
+        }
+
+        .btn-list-blue {
+            background-color: #1f84c1;
+        }
+
+        .payroll-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+        }
+
+        .payroll-table thead th {
+            background-color: var(--ref-blue-light);
+            color: white;
+            font-weight: bold;
+            padding: 5px;
+            border: 1px solid #ddd;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .payroll-table tbody td {
+            padding: 5px;
+            border: 1px solid #ddd;
+            vertical-align: middle;
+        }
+
+        .row-advance {
+            background-color: #e49a9a !important;
+            color: black !important;
+        }
+
+        .row-paid {
+            background-color: #2e7d32 !important;
+            color: white;
+        }
+
+        .btn-table-print {
+            background-color: var(--ref-blue-light);
+            color: white;
+            border: none;
+            font-size: 0.65rem;
+            padding: 2px 5px;
+        }
+
+        .btn-table-delete {
+            background-color: #c0392b;
+            color: white;
+            border: none;
+            font-size: 0.65rem;
+            padding: 2px 5px;
+        }
+
+        /* Searchable Dropdown Styles */
+        .search-container {
+            position: relative;
+        }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #ccc;
+            z-index: 1050;
+            max-height: 250px;
+            overflow-y: auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: none;
+        }
+
+        .search-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: #333;
+            border-bottom: 1px solid #eee;
+        }
+
+        .search-item:hover,
+        .search-item.active {
+            background-color: #1f84c1;
+            color: white;
+        }
+
+        .search-item b {
+            color: inherit;
+        }
+
+        /* Professional Mobile Enhancements */
+        @media (max-width: 768px) {
+            .page-header {
+                height: auto !important;
+                padding: 0.5rem 1rem !important;
+                background-color: var(--ref-blue-header) !important;
+            }
+
+            .page-header .header-title {
+                font-size: 1.1rem !important;
+                margin-left: 20px;
+            }
+
+            .page-header .refresh-icon,
+            .page-header .user-profile-icon {
+                display: none;
+            }
+
+            .container-fluid {
+                padding: 10px !important;
+                padding-bottom: 80px !important;
+            }
+
+            .card-custom {
+                margin-bottom: 15px !important;
+                border: none !important;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08) !important;
+                border-radius: 8px !important;
+            }
+
+            .section-header {
+                font-size: 0.85rem !important;
+                padding: 8px 12px !important;
+                border-radius: 8px 8px 0 0 !important;
+            }
+
+            .form-label-custom {
+                font-size: 0.75rem !important;
+                color: #64748b !important;
+            }
+
+            .form-control-custom {
+                height: 36px !important;
+                font-size: 0.85rem !important;
+            }
+
+            .row-custom {
+                margin-bottom: 10px !important;
+            }
+
+            /* Bottom Action Bar */
+            .action-bar-mobile {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: white;
+                display: flex !important;
+                justify-content: space-around;
+                padding: 8px 5px;
+                box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.1);
+                z-index: 1050;
+                border-top: 1px solid #e2e8f0;
+                height: 65px;
+            }
+
+            .action-btn-mobile {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                background: none;
+                border: none;
+                color: #64748b;
+                font-size: 0.65rem;
+                font-weight: 600;
+                flex: 1;
+                transition: all 0.2s;
+            }
+
+            .action-btn-mobile i {
+                font-size: 1.25rem;
+                margin-bottom: 3px;
+            }
+
+            .action-btn-mobile.btn-save i {
+                color: #10b981;
+            }
+
+            .action-btn-mobile.btn-list i {
+                color: #f59e0b;
+            }
+
+            .action-btn-mobile.btn-refresh i {
+                color: #3b82f6;
+            }
+
+            /* Hide desktop buttons */
+            .d-flex.gap-2.mt-auto.pt-3.px-2 {
+                display: none !important;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="page-header">
+        <i class="fas fa-bars" id="sidebarToggle"></i>
+        <div class="header-title">Employee PayRoll</div>
+        <i class="fas fa-sync-alt refresh-icon" onclick="location.reload()"></i>
+        <div class="user-profile-icon">
+            <span id="headerUserName" class="me-2 text-white" style="font-size: 0.85rem; font-weight: 500;">Dynamic
+                User</span>
+            <i class="fas fa-sign-out-alt ms-2 logout-btn" onclick="handleLogout()" title="Logout"
+                style="cursor: pointer; font-size: 1rem; color: #fff;"></i>
+        </div>
+    </div>
+
+    <div class="container-fluid section-container">
+        <div class="row g-2 align-items-stretch">
+            <!-- Left Column -->
+            <div class="col-md-4 flex-column-custom">
+                <div class="card card-custom flex-grow-card">
+                    <div class="section-header header-green">
+                        <span>Employee Profile</span>
+                        <div class="d-flex gap-3 align-items-center">
+                            <div class="form-check p-0 m-0 d-flex align-items-center">
+                                <input class="form-check-input" type="checkbox" id="payAdvSalary">
+                                <label class="form-check-label" for="payAdvSalary">Pay Adv Salary</label>
+                            </div>
+                            <div class="form-check p-0 m-0 d-flex align-items-center">
+                                <input class="form-check-input" type="checkbox" id="wkDays30">
+                                <label class="form-check-label" for="wkDays30">30 Wk Days</label>
+                            </div>
+                            <div class="form-check p-0 m-0 d-flex align-items-center">
+                                <input class="form-check-input" type="checkbox" id="salThrBank">
+                                <label class="form-check-label" for="salThrBank">Sal Thr Bank</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body-custom">
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">Month-Year</label></div>
+                            <div class="col-8"><input type="month" id="monthYear"
+                                    class="form-control form-control-custom"></div>
+                        </div>
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">Branch</label></div>
+                            <div class="col-8">
+                                <select id="branch" class="form-select form-control-custom">
+                                    <option value="">Select Branch</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">Code</label></div>
+                            <div class="col-8"><input type="text" id="code" class="form-control form-control-custom">
+                            </div>
+                        </div>
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">Employee</label></div>
+                            <div class="col-8">
+                                <div class="search-container">
+                                    <input type="text" id="employeeSearch" class="form-control form-control-custom"
+                                        placeholder="Type name to search...">
+                                    <input type="hidden" id="employee">
+                                    <div id="employeeSearchResults" class="search-results"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">Bank</label></div>
+                            <div class="col-8"><input type="text" id="bankName"
+                                    class="form-control form-control-custom bg-green-input" readonly></div>
+                        </div>
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">Department</label></div>
+                            <div class="col-8"><input type="text" id="department"
+                                    class="form-control form-control-custom bg-green-input" readonly></div>
+                        </div>
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">Designation</label></div>
+                            <div class="col-8"><input type="text" id="designation"
+                                    class="form-control form-control-custom bg-green-input" readonly></div>
+                        </div>
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">BasicSalary</label></div>
+                            <div class="col-8"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="basicSalary"
+                                    class="form-control form-control-custom bg-green-input" readonly></div>
+                        </div>
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">Total Days</label></div>
+                            <div class="col-6"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="totalDays"
+                                    class="form-control form-control-custom bg-green-input" readonly></div>
+                            <div class="col-2"><span class="form-label-custom">Per Month</span></div>
+                        </div>
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">Total Hrs Per</label></div>
+                            <div class="col-3"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="totalHrsPerDay"
+                                    class="form-control form-control-custom bg-green-input" readonly></div>
+                            <div class="col-1 p-0 text-center"><span
+                                    style="font-size: 0.75rem; font-weight:bold;">Day</span></div>
+                            <div class="col-3"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="totalHrsReqMonth"
+                                    class="form-control form-control-custom bg-green-input" readonly></div>
+                            <div class="col-1 p-0"><span class="form-label-custom">Mon</span></div>
+                        </div>
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">Off Day</label></div>
+                            <div class="col-8"><input type="text" id="offDay"
+                                    class="form-control form-control-custom bg-green-input" readonly></div>
+                        </div>
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">TotalWDsPer(Mon)</label></div>
+                            <div class="col-3"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="totalWdsPerMonth"
+                                    class="form-control form-control-custom bg-green-input" readonly></div>
+                            <div class="col-1 p-0"><span class="form-label-custom">Hrs</span></div>
+                            <div class="col-4"><input type="text" id="totalHrsPerMonth"
+                                    class="form-control form-control-custom bg-green-input" readonly></div>
+                        </div>
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">Salary Per</label></div>
+                            <div class="col-3"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="totalPerDay"
+                                    class="form-control form-control-custom bg-green-input" readonly></div>
+                            <div class="col-1 p-0 text-center"><span
+                                    style="font-size: 0.75rem; font-weight:bold;">Day</span></div>
+                            <div class="col-3"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="totalPerHr"
+                                    class="form-control form-control-custom bg-green-input" readonly></div>
+                            <div class="col-1 p-0"><span class="form-label-custom">Hr</span></div>
+                        </div>
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">Worked(Hrs)</label></div>
+                            <div class="col-3"><input type="text" id="workedHrs"
+                                    class="form-control form-control-custom bg-green-input" readonly></div>
+                            <div class="col-1 p-0"><span class="form-label-custom">Rs</span></div>
+                            <div class="col-4"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="workedAmount"
+                                    class="form-control form-control-custom bg-green-input" readonly></div>
+                        </div>
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">Worked Days</label></div>
+                            <div class="col-8"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="workedDays"
+                                    class="form-control form-control-custom bg-green-input" readonly></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Middle Column -->
+            <div class="col-md-4 flex-column-custom">
+                <!-- Earnings -->
+                <div class="card card-custom">
+                    <div class="section-header header-blue">Earnings</div>
+                    <div class="card-body-custom">
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">OverTime (Hrs)</label></div>
+                            <div class="col-3"><input type="text" id="overTimeHrs"
+                                    class="form-control form-control-custom bg-blue-input" readonly></div>
+                            <div class="col-1 p-0"><span class="form-label-custom">Rs</span></div>
+                            <div class="col-4"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="overTimeAmount"
+                                    class="form-control form-control-custom bg-blue-input" readonly></div>
+                        </div>
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">Rotti (Days)</label></div>
+                            <div class="col-3"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="rotiDays"
+                                    class="form-control form-control-custom bg-green-input" readonly></div>
+                            <div class="col-1 p-0"><span class="form-label-custom">Rs</span></div>
+                            <div class="col-4"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="rotiAmount"
+                                    class="form-control form-control-custom bg-blue-input" readonly></div>
+                        </div>
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">Nashta (Days)</label></div>
+                            <div class="col-3"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="nashtaDays"
+                                    class="form-control form-control-custom bg-green-input" readonly></div>
+                            <div class="col-1 p-0"><span class="form-label-custom">Rs</span></div>
+                            <div class="col-4"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="nashtaAmount"
+                                    class="form-control form-control-custom bg-blue-input" readonly></div>
+                        </div>
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">MonthlyComm</label></div>
+                            <div class="col-8"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="monthlyComm"
+                                    class="form-control form-control-custom bg-blue-input" readonly></div>
+                        </div>
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">UG Comm</label></div>
+                            <div class="col-8"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="ugComm"
+                                    class="form-control form-control-custom bg-blue-input" readonly></div>
+                        </div>
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">WareHouse Comm</label></div>
+                            <div class="col-8"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="warehouseComm"
+                                    class="form-control form-control-custom bg-blue-input" readonly></div>
+                        </div>
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">FixAllowance</label></div>
+                            <div class="col-8"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="fixAllowance"
+                                    class="form-control form-control-custom bg-blue-input" readonly></div>
+                        </div>
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">ST.LessAllow</label></div>
+                            <div class="col-8"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="stLessAllow"
+                                    class="form-control form-control-custom bg-blue-input" readonly></div>
+                        </div>
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">Other Allow</label></div>
+                            <div class="col-8"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="otherAllow"
+                                    class="form-control form-control-custom bg-blue-input" readonly></div>
+                        </div>
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">Total</label></div>
+                            <div class="col-8"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="earningsTotal"
+                                    class="form-control form-control-custom bg-blue-input" readonly></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Deductions -->
+                <div class="card card-custom">
+                    <div class="section-header header-red justify-content-between">
+                        <span>Deductions</span>
+                        <div class="form-check p-0 m-0 d-flex align-items-center">
+                            <input class="form-check-input checkbox-white-square" type="checkbox" id="checkShortWeek">
+                            <label class="form-check-label checkbox-label-custom" for="checkShortWeek">ShortWeek</label>
+                        </div>
+                    </div>
+                    <div class="card-body-custom">
+                        <!-- Row 1: ShortTime -->
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">ShortTime (Hrs)</label></div>
+                            <div class="col-3"><input type="text" id="shortTimeHrs"
+                                    class="form-control form-control-custom bg-blue-input" readonly></div>
+                            <div class="col-1 p-0"><span class="form-label-custom">Rs</span></div>
+                            <div class="col-4"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="shortTimeAmount"
+                                    class="form-control form-control-custom bg-blue-input" readonly></div>
+                        </div>
+                        <!-- Row 2: Total Absents and Allowed Leaves -->
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">Total Absents</label></div>
+                            <div class="col-3"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="totalAbsents"
+                                    class="form-control form-control-custom bg-blue-input" readonly></div>
+                            <div class="col-1 p-0"><span class="form-label-custom">Allowed Leaves</span></div>
+                            <div class="col-4"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="allowedLeaves"
+                                    class="form-control form-control-custom bg-blue-input" readonly></div>
+                        </div>
+                        <!-- Row 3: TSW and TFC (NOTE: TSW shortWeekDays is the ONLY editable deduction field) -->
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">TSW</label></div>
+                            <div class="col-3"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="shortWeekDays"
+                                    class="form-control form-control-custom bg-blue-input" title="Short Week Days (TSW) - Editable"></div>
+                            <div class="col-1 p-0"><span class="form-label-custom">TFC</span></div>
+                            <div class="col-4"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="tfc"
+                                    class="form-control form-control-custom bg-blue-input" readonly></div>
+                        </div>
+                        <!-- Row 4: Food and E.B -->
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">Food</label></div>
+                            <div class="col-3"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="foodDeduction"
+                                    class="form-control form-control-custom bg-blue-input" readonly></div>
+                            <div class="col-1 p-0"><span class="form-label-custom">T.Food Exp</span></div>
+                            <div class="col-4"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="ebDeduction"
+                                    class="form-control form-control-custom bg-blue-input" readonly></div>
+                        </div>
+                        <!-- Row 5: Umrah and Other Ded -->
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">Umrah</label></div>
+                            <div class="col-3"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="umrahDeduction"
+                                    class="form-control form-control-custom bg-blue-input" readonly></div>
+                            <div class="col-1 p-0"><span class="form-label-custom">Other Ded</span></div>
+                            <div class="col-4"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="otherDeduction"
+                                    class="form-control form-control-custom bg-blue-input" readonly></div>
+                        </div>
+                        <!-- Row 6: Security Deposit -->
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">SecurityDeposit</label></div>
+                            <div class="col-8"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="securityDeposit"
+                                    class="form-control form-control-custom bg-blue-input" readonly></div>
+                        </div>
+                        <!-- Row 7: Penalty and P.Days -->
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">Penalty</label></div>
+                            <div class="col-3"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="penalty"
+                                    class="form-control form-control-custom bg-blue-input" readonly></div>
+                            <div class="col-1 p-0"><span class="form-label-custom">P. Days</span></div>
+                            <div class="col-4"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="pDays"
+                                    class="form-control form-control-custom bg-blue-input" readonly></div>
+                        </div>
+                        <!-- Row 7: Total -->
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">Total</label></div>
+                            <div class="col-8"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="deductionsTotal"
+                                    class="form-control form-control-custom bg-blue-input font-weight-bold" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-md-4 flex-column-custom">
+                <div class="card card-custom flex-grow-card">
+                    <div class="section-header header-red justify-content-between">
+                        <span>Net Calculation</span>
+                        <i class="fas fa-sync-alt" style="cursor: pointer; font-size: 0.8rem;"
+                            onclick="refreshCurrentCalculation()" title="Recalculate from Backend"></i>
+                    </div>
+                    <div class="card-body-custom">
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">GrossTotal</label></div>
+                            <div class="col-8"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="grossTotal"
+                                    class="form-control form-control-custom bg-red-input" readonly></div>
+                        </div>
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">CMAdv</label></div>
+                            <div class="col-4"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="cmAdv"
+                                    class="form-control form-control-custom bg-green-input" readonly></div>
+                            <div class="col-1 p-0 text-center"><span
+                                    style="font-size: 0.75rem; font-weight:bold;">Rec</span></div>
+                            <div class="col-3"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="cmAdvRec"
+                                    class="form-control form-control-custom bg-green-input" readonly></div>
+                        </div>
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">PMAdv</label></div>
+                            <div class="col-4"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="pmAdv"
+                                    class="form-control form-control-custom bg-green-input" readonly></div>
+                            <div class="col-1 p-0 text-center"><span
+                                    style="font-size: 0.75rem; font-weight:bold;">Rec</span></div>
+                            <div class="col-3"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="pmAdvRec"
+                                    class="form-control form-control-custom bg-green-input" readonly></div>
+                        </div>
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">TotalAdv</label></div>
+                            <div class="col-4"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="totalAdv"
+                                    class="form-control form-control-custom bg-green-input" readonly></div>
+                            <div class="col-1 p-0 text-center"><span
+                                    style="font-size: 0.75rem; font-weight:bold;">Rec</span></div>
+                            <div class="col-3"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="totalAdvRec"
+                                    class="form-control form-control-custom bg-green-input" readonly></div>
+                        </div>
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">NetTotal</label></div>
+                            <div class="col-8"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="netTotal"
+                                    class="form-control form-control-custom bg-red-input" readonly></div>
+                        </div>
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">BankAmt</label></div>
+                            <div class="col-8"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="bankAmt"
+                                    class="form-control form-control-custom bg-purple-input" readonly></div>
+                        </div>
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">WHT</label></div>
+                            <div class="col-8"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="wht"
+                                    class="form-control form-control-custom bg-purple-input" readonly></div>
+                        </div>
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">BankPaid</label></div>
+                            <div class="col-8"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="bankPaid"
+                                    class="form-control form-control-custom bg-purple-input" readonly></div>
+                        </div>
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">CashPaid</label></div>
+                            <div class="col-8"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="cashPaid"
+                                    class="form-control form-control-custom bg-red-input" readonly></div>
+                        </div>
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">Balance</label></div>
+                            <div class="col-8"><input type="number" style="-moz-appearance: textfield !important; appearance: textfield !important;" id="balance"
+                                    class="form-control form-control-custom bg-red-input" readonly></div>
+                        </div>
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">Remarks</label></div>
+                            <div class="col-8"><input type="text" id="remarks" class="form-control form-control-custom">
+                            </div>
+                        </div>
+                        <div class="row row-custom align-items-center">
+                            <div class="col-4"><label class="form-label-custom">Branch Bank</label></div>
+                            <div class="col-8">
+                                <input type="text" id="branchBank"
+                                    class="form-control form-control-custom bg-blue-input" readonly>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2 mt-auto pt-3 px-2">
+                            <button class="btn btn-ref-save flex-grow-1" onclick="savePayroll()"><i
+                                    class="fas fa-save me-1"></i> Save (Alt+S)</button>
+                            <button class="btn btn-ref-list flex-grow-1" onclick="showList()"><i
+                                    class="fas fa-list me-1"></i> List (Alt+L)</button>
+                        </div>
+                        <div class="footer-banner mt-2">
+                            Total Employee Attendance - <span id="totalPresentEmployees">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payroll List Modal (Matched to Reference) -->
+    <div class="modal fade" id="payrollListModal" tabindex="-1">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Employee _ MonthlyPayRoll _ List</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="filters-bar">
+                        <div class="filter-item">
+                            <span class="filter-label">Month-Year</span>
+                            <input type="month" id="listMonthYear" class="form-control form-control-custom"
+                                style="width: 120px;">
+                        </div>
+                        <div class="filter-item">
+                            <select id="listBranch" class="form-select form-control-custom" style="width: 150px;">
+                                <option value="">Select Branch</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <select id="listDepartment" class="form-select form-control-custom" style="width: 150px;">
+                                <option value="">Select Department</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <select id="listEmployeeType" class="form-select form-control-custom" style="width: 150px;">
+                                <option value="all">All Emp</option>
+                                <option value="payAdvance">Pay Advance Emp</option>
+                                <option value="commission">Commission Emp</option>
+                                <option value="bank">Bank Emp</option>
+                                <option value="other">Other Emp</option>
+                                <option value="cashPaid">Cash Paid</option>
+                            </select>
+                        </div>
+                        <button class="btn-list-action btn-list-search" onclick="loadPayrollList()">Search</button>
+                        <button class="btn-list-action btn-list-blue" onclick="printSelected()">Print Selected</button>
+                        <button class="btn-list-action btn-list-blue" onclick="printAll()">Print All</button>
+                        <button class="btn-list-action btn-list-blue" onclick="sendSelectedPayrollsToDownloadCenter()"><i class="fas fa-file-pdf me-1"></i> Send Selected Slips to Download Center</button>
+                        <button class="btn-list-action btn-list-blue" onclick="deleteSelected()">Delete Selected</button>
+                        <button class="btn-list-action btn-list-blue">Send SMS</button>
+                    </div>
+
+                    <div class="px-2 py-1 bg-white border-bottom">
+                        <input type="text" id="listSearchText" class="form-control form-control-custom"
+                            style="width: 250px;" placeholder="Search">
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="payroll-table">
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" id="selectAllPayrolls"></th>
+                                    <th>Actions (Print, Delete, Checkbox)</th>
+                                    <th>PayRoll ID</th>
+                                    <th>Code</th>
+                                    <th>Date</th>
+                                    <th>Employee</th>
+                                    <th>Department</th>
+                                    <th>Designation</th>
+                                    <th>Branch</th>
+                                    <th>Basic_Salary</th>
+
+                                    <th>OverTime</th>
+                                    <th>Allowances</th>
+                                    <th>Gross_Total</th>
+                                    <th>Short Time & Other Ded</th>
+                                    <th>Advance_Deduction</th>
+                                    <th>WHT</th>
+                                    <th>Net_Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="payrollTableBody">
+                                <!-- Example rows will be rendered here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Authorization Modal -->
+    <div class="modal fade" id="authModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white py-2">
+                    <h5 class="modal-title fs-6">Authorization Required</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">User</label>
+                        <input type="text" class="form-control form-control-sm bg-light" id="authUser" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Password</label>
+                        <input type="password" class="form-control form-control-sm" id="authPassword"
+                            placeholder="Enter Password">
+                    </div>
+                </div>
+                <div class="modal-footer p-2">
+                    <button type="button" class="btn btn-danger btn-sm w-100" onclick="confirmDelete()">
+                        <i class="fas fa-check-circle me-1"></i> Verify & Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Action Bar -->
+    <div class="action-bar-mobile d-none">
+        <button type="button" class="action-btn-mobile btn-refresh" onclick="location.reload()">
+            <i class="fas fa-sync-alt"></i>
+            <span>Refresh</span>
+        </button>
+        <button type="button" class="action-btn-mobile btn-save" onclick="savePayroll()">
+            <i class="fas fa-save"></i>
+            <span>Save</span>
+        </button>
+        <button type="button" class="action-btn-mobile btn-list" onclick="showList()">
+            <i class="fas fa-list-alt"></i>
+            <span>List</span>
+        </button>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=20261021_v6"></script>
+    <script src="/js/payroll.js?v=20261021_v6"></script>
+
+</body>
+
+</html>
+
+

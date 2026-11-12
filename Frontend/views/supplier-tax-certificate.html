@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supplier Tax Certificate</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/sidebar.css">
+    <style>
+        .filter-panel {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        /* Certificate Print Styles */
+        .certificate-container {
+            width: 210mm;
+            /* A4 width */
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            display: none;
+            /* Hidden until generated */
+        }
+
+        .cert-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .cert-title {
+            font-family: 'Times New Roman', serif;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #000080;
+            /* Navy Blue */
+            margin-bottom: 5px;
+        }
+
+        .cert-subtitle {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .cert-line {
+            display: flex;
+            align-items: flex-end;
+            margin-bottom: 15px;
+            font-size: 14px;
+            flex-wrap: wrap;
+        }
+
+        .cert-field {
+            border-bottom: 1px solid black;
+            padding: 0 5px;
+            flex-grow: 1;
+            font-weight: bold;
+            text-align: center;
+            min-width: 50px;
+        }
+
+        .cert-label {
+            white-space: nowrap;
+            margin-right: 5px;
+        }
+
+        .cpr-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            margin-bottom: 30px;
+        }
+
+        .cpr-table th,
+        .cpr-table td {
+            border: 1px solid black;
+            padding: 5px;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        .cpr-table th {
+            background-color: black;
+            color: white;
+            text-align: center;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            .certificate-container,
+            .certificate-container * {
+                visibility: visible;
+            }
+
+            .certificate-container {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 20px;
+                display: block !important;
+            }
+
+            .filter-panel,
+            .sidebar-container,
+            .navbar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar placeholder (if needed) -->
+
+    <div class="main-content">
+        <div class="page-header px-3 d-flex justify-content-between align-items-center mb-4">
+            <div style="flex: 1; display: flex; align-items: center;">
+                <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+                <h4 class="mb-0 text-primary">Supplier Tax Certificate</h4>
+            </div>
+            <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
+                <div class="dropdown">
+                    <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown" style="cursor: pointer;">
+                        <i class="fas fa-user-circle me-2" style="font-size: 1.2rem;"></i>
+                        <span id="userName" class="me-2">User</span>
+                        <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                        <li><a class="dropdown-item logout-btn" href="#"><i
+                                    class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-panel">
+            <div class="row g-2 align-items-end">
+                <div class="col">
+                    <label>Sheet From</label>
+                    <input type="date" id="filterFromDate" class="form-control form-control-sm">
+                </div>
+                <div class="col">
+                    <label>Sheet To</label>
+                    <input type="date" id="filterToDate" class="form-control form-control-sm">
+                </div>
+                <div class="col">
+                    <label>Inv From</label>
+                    <input type="date" id="filterInvFromDate" class="form-control form-control-sm">
+                </div>
+                <div class="col">
+                    <label>Inv To</label>
+                    <input type="date" id="filterInvToDate" class="form-control form-control-sm">
+                </div>
+                <div class="col">
+                    <label>Branch</label>
+                    <select id="filterBranch" class="form-select form-select-sm" onchange="loadSuppliers()"></select>
+                </div>
+                <div class="col" style="min-width: 250px; flex-grow: 2;">
+                    <label>Supplier</label>
+                    <select id="filterSupplier" class="form-select form-select-sm"></select>
+                </div>
+            </div>
+            <div class="mt-3">
+                <button class="btn btn-success" onclick="generateCertificate()">Generate Certificate</button>
+                <button class="btn btn-primary" onclick="openCPRModal()">+ Add CPR</button>
+                <button class="btn btn-warning" onclick="window.print()">Print</button>
+            </div>
+        </div>
+
+        <!-- Certificate Preview Area -->
+        <div id="certificateContainer" class="certificate-container shadow">
+            <!-- Certificate Content will be injected here -->
+        </div>
+
+    </div>
+
+    <!-- CPR Modal -->
+    <div class="modal fade" id="cprModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">CPR Certificate Registration</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body bg-light">
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-3">
+                            <label class="small fw-bold">Cert No</label>
+                            <input type="text" id="cprCertNo" class="form-control" placeholder="Auto" readonly disabled>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="small fw-bold">Branch</label>
+                            <select id="cprBranch" class="form-select" onchange="loadCPRSuitableSuppliers()">
+                                <option value="">Branch</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="small fw-bold">Supplier</label>
+                            <select id="cprSupplier" class="form-select">
+                                <option value="">Supplier</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="small fw-bold">Issue Date</label>
+                            <input type="date" id="cprDate" class="form-control">
+                        </div>
+
+                        <div class="col-md-4 mt-2">
+                            <label class="small fw-bold">Tax Month</label>
+                            <select id="cprMonth" class="form-select">
+                                <option value="1">January</option>
+                                <option value="2">February</option>
+                                <option value="3">March</option>
+                                <option value="4">April</option>
+                                <option value="5">May</option>
+                                <option value="6">June</option>
+                                <option value="7">July</option>
+                                <option value="8">August</option>
+                                <option value="9">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mt-2">
+                            <label class="small fw-bold">Tax Year</label>
+                            <select id="cprYear" class="form-select"></select>
+                            <script>
+                                (function () {
+                                    const select = document.getElementById('cprMonth').parentElement.nextElementSibling.querySelector('select');
+                                    const year = new Date().getFullYear();
+                                    for (let i = year - 2; i <= year + 1; i++) {
+                                        const opt = document.createElement('option');
+                                        opt.value = i; opt.text = i;
+                                        if (i === year) opt.selected = true;
+                                        select.appendChild(opt);
+                                    }
+                                })();
+                            </script>
+                        </div>
+                        <div class="col-md-4 mt-2">
+                            <label class="small fw-bold">CPR Number</label>
+                            <input type="text" id="cprNumber" class="form-control" placeholder="IT-2025...">
+                        </div>
+                        <div class="col-12 mt-3">
+                            <button class="btn btn-primary w-100 fw-bold" onclick="saveCPR()">SAVE CPR
+                                REGISTRATION</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-2 border">
+                        <input type="text" id="cprSearch" class="form-control mb-2" placeholder="Search Certificates"
+                            onkeyup="filterCPRTable()">
+                        <table class="table table-striped table-sm" id="cprListTable">
+                            <thead class="bg-primary text-white">
+                                <tr style="color: white !important;">
+                                    <th style="color: white !important;">Certificate Number</th>
+                                    <th style="color: white !important;">Branch</th>
+                                    <th style="color: white !important;">Supplier</th>
+                                    <th style="color: white !important;">Period</th>
+                                    <th style="color: white !important;">Date</th>
+                                    <th style="color: white !important;">CPR</th>
+                                    <th style="color: white !important;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/sidebar.js?v=1789486244539"></script>
+    <script>
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set default dates
+            // Set default dates (Avoid valueAsDate due to UTC shift)
+            const today = new Date();
+            const y = today.getFullYear();
+            const m = String(today.getMonth() + 1).padStart(2, '0');
+            const d = String(today.getDate()).padStart(2, '0');
+
+            document.getElementById('filterFromDate').value = `${y}-${m}-01`;
+            document.getElementById('filterToDate').value = `${y}-${m}-${d}`;
+            document.getElementById('cprDate').value = `${y}-${m}-${d}`;
+
+            loadBranches();
+            loadSuppliers();
+        });
+
+        // --- Data Loading ---
+        async function loadBranches() {
+            try {
+                const res = await fetch('/api/v1/stores', { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } });
+                const data = await res.json();
+                const branchOpts = '<option value="">All Branches</option>' + data.data.map(b => `<option value="${b._id}">${b.name}</option>`).join('');
+                document.getElementById('filterBranch').innerHTML = branchOpts;
+                document.getElementById('cprBranch').innerHTML = branchOpts.replace('All Branches', 'Select Branch');
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadSuppliers() {
+            try {
+                const branchId = document.getElementById('filterBranch').value;
+                let url = '/api/v1/suppliers?limit=5000';
+                if (branchId) url += `&branch=${branchId}`;
+
+                const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } });
+                const data = await res.json();
+
+                const formatSupp = (s) => `${s.name} ${s.subCategory ? `(${s.subCategory})` : ''}`;
+                const opts = '<option value="">Select Supplier</option>' + data.data.map(s => `<option value="${s._id}">${formatSupp(s)}</option>`).join('');
+                document.getElementById('filterSupplier').innerHTML = opts;
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadCPRSuitableSuppliers() {
+            try {
+                const branchId = document.getElementById('cprBranch').value;
+                let url = '/api/v1/suppliers?limit=5000';
+                if (branchId) url += `&branch=${branchId}`;
+
+                const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } });
+                const data = await res.json();
+
+                const formatSupp = (s) => `${s.name} ${s.subCategory ? `(${s.subCategory})` : ''}`;
+
+                if (document.getElementById('cprSupplier')) {
+                    const cprOpts = '<option value="">All Suppliers</option>' + data.data.map(s => `<option value="${s._id}">${formatSupp(s)}</option>`).join('');
+                    document.getElementById('cprSupplier').innerHTML = cprOpts;
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        // --- CPR Modal Logic ---
+        const cprModal = new bootstrap.Modal(document.getElementById('cprModal'));
+        let currentCPRId = null;
+
+        function openCPRModal() {
+            document.getElementById('cprCertNo').value = '';
+            document.getElementById('cprNumber').value = '';
+            if (document.getElementById('cprSupplier')) document.getElementById('cprSupplier').value = '';
+            loadCPRSuitableSuppliers();
+            loadCPRList();
+            cprModal.show();
+        }
+
+        async function loadCPRList() {
+            const tbody = document.querySelector('#cprListTable tbody');
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center">Loading...</td></tr>';
+
+            try {
+                const res = await fetch('/api/v1/supplier-tax-cprs', { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } });
+                const result = await res.json();
+
+                if (result.data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-center">No CPRs found</td></tr>';
+                    return;
+                }
+
+                let rows = '';
+                const monthNames = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                result.data.forEach(c => {
+                    const sId = c.supplier ? (c.supplier._id || c.supplier) : '';
+                    let sName = c.supplier ? c.supplier.name : '-';
+                    if (c.supplier && c.supplier.subCategory) sName += ` (${c.supplier.subCategory})`;
+                    const taxPeriod = c.month ? `${monthNames[c.month]} ${c.year}` : '-';
+                    rows += `
+                         <tr>
+                             <td>${c.certificateNumber}</td>
+                             <td>${c.branch ? c.branch.name : '-'}</td>
+                             <td>${sName}</td>
+                             <td>${taxPeriod}</td>
+                             <td>${new Date(c.date).toLocaleDateString()}</td>
+                             <td>${c.cprNumber}</td>
+                             <td>
+                                 <button class="btn btn-sm btn-outline-primary" onclick="editCPR('${c._id}', '${c.certificateNumber}', '${c.branch ? c.branch._id : ''}', '${sId}', '${c.date}', '${c.cprNumber}', '${c.month || ''}', '${c.year || ''}')"><i class="fas fa-edit"></i></button>
+                                 <button class="btn btn-sm btn-outline-danger" onclick="deleteCPR('${c._id}')"><i class="fas fa-trash"></i></button>
+                             </td>
+                         </tr>
+                     `;
+                });
+                tbody.innerHTML = rows;
+            } catch (e) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-danger">Error loading data</td></tr>';
+            }
+        }
+
+        function editCPR(id, certNo, branchId, supplierId, date, cprNo, month, year) {
+            currentCPRId = id;
+            document.getElementById('cprCertNo').value = certNo;
+            document.getElementById('cprBranch').value = branchId;
+            if (document.getElementById('cprSupplier')) {
+                document.getElementById('cprSupplier').value = supplierId || "";
+            }
+            document.getElementById('cprDate').value = new Date(date).toISOString().split('T')[0];
+            document.getElementById('cprNumber').value = cprNo;
+            if (month) document.getElementById('cprMonth').value = month;
+            if (year) document.getElementById('cprYear').value = year;
+        }
+
+        async function saveCPR() {
+            const certNo = document.getElementById('cprCertNo').value;
+            const branch = document.getElementById('cprBranch').value;
+            const supplier = document.getElementById('cprSupplier') ? document.getElementById('cprSupplier').value : '';
+            const date = document.getElementById('cprDate').value;
+            const cprNo = document.getElementById('cprNumber').value;
+            const month = parseInt(document.getElementById('cprMonth').value);
+            const year = parseInt(document.getElementById('cprYear').value);
+
+            if (!branch || !cprNo || isNaN(month) || isNaN(year)) {
+                return alert('Please fill required fields (Branch, Date, Tax Month, Tax Year, CPR Number)');
+            }
+
+            const payload = {
+                branch,
+                supplier: supplier === "" ? null : supplier,
+                date,
+                cprNumber: cprNo,
+                month,
+                year
+            };
+
+            if (currentCPRId) payload.certificateNumber = certNo;
+
+            const method = currentCPRId ? 'PUT' : 'POST';
+            const url = currentCPRId ? `/api/v1/supplier-tax-cprs/${currentCPRId}` : '/api/v1/supplier-tax-cprs';
+
+            try {
+                const res = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const json = await res.json();
+                if (json.success) {
+                    alert('Saved Successfully');
+                    // Reset
+                    currentCPRId = null;
+                    document.getElementById('cprCertNo').value = '';
+                    document.getElementById('cprNumber').value = '';
+                    if (document.getElementById('cprSupplier')) document.getElementById('cprSupplier').value = '';
+                    loadCPRList();
+                } else {
+                    alert('Error: ' + (json.error || 'Failed to save'));
+                }
+            } catch (e) { alert(e.message); }
+        }
+
+        async function deleteCPR(id) {
+            if (!confirm('Are you sure?')) return;
+            try {
+                await fetch(`/api/v1/supplier-tax-cprs/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+                });
+                loadCPRList();
+            } catch (e) { alert(e); }
+        }
+
+        function filterCPRTable() {
+            const search = document.getElementById('cprSearch').value.toLowerCase();
+            const rows = document.querySelectorAll('#cprListTable tbody tr');
+            rows.forEach(row => {
+                row.style.display = row.innerText.toLowerCase().includes(search) ? '' : 'none';
+            });
+        }
+
+
+        // --- Certificate Generation ---
+        function generateCertificate() {
+            const supplierId = document.getElementById('filterSupplier').value;
+            const branchId = document.getElementById('filterBranch').value;
+            const fromDate = document.getElementById('filterFromDate').value;
+            const toDate = document.getElementById('filterToDate').value;
+
+            if (!supplierId) return alert('Please select a Supplier');
+
+            document.querySelector('#certificateContainer').style.display = 'block';
+            document.querySelector('#certificateContainer').innerHTML = '<div class="text-center p-5"><div class="spinner-border"></div></div>';
+
+            const invFromDate = document.getElementById('filterInvFromDate').value;
+            const invToDate = document.getElementById('filterInvToDate').value;
+
+            let taxUrl = `/api/v1/supplier-taxes?startDate=${fromDate}&endDate=${toDate}&limit=5000&branch=${branchId || ''}`;
+            if (invFromDate) taxUrl += `&invFromDate=${invFromDate}`;
+            if (invToDate) taxUrl += `&invToDate=${invToDate}`;
+
+            Promise.all([
+                fetch(`/api/v1/suppliers/${supplierId}`, { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } }).then(r => r.json()),
+                fetch(taxUrl, { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } }).then(r => r.json()),
+                // FETCH ALL CPRs for this supplier & branch (Filtering by Month/Year coverage in JS)
+                fetch(`/api/v1/supplier-tax-cprs?branch=${branchId || ''}`, { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } }).then(r => r.json()),
+                fetch(`/api/v1/settings/company-info`, { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } }).then(r => r.json())
+            ]).then(([suppRes, taxRes, cprRes, settingsRes]) => {
+                console.log('Fetched Data:', { supp: suppRes.data, taxes: taxRes.count, cprs: cprRes.count });
+                if (!suppRes.data) throw new Error('Supplier data not found');
+
+                // Filter CPRs to only those relevant to the report period if dates are provided
+                let filteredCPRs = cprRes.data;
+                if (fromDate && toDate) {
+                    const fDate = new Date(fromDate);
+                    const tDate = new Date(toDate);
+                    const fYM = fDate.getFullYear() * 12 + fDate.getMonth();
+                    const tYM = tDate.getFullYear() * 12 + tDate.getMonth();
+
+                    filteredCPRs = filteredCPRs.filter(c => {
+                        const cYM = c.year * 12 + (c.month - 1);
+                        return cYM >= fYM && cYM <= tYM;
+                    });
+                }
+
+                renderCertificate(suppRes.data, taxRes.data, filteredCPRs, settingsRes.data || {}, fromDate, toDate, supplierId);
+            }).catch(err => {
+                alert('Error generating certificate: ' + err.message);
+                document.querySelector('#certificateContainer').innerHTML = '';
+            });
+        }
+
+        function renderCertificate(supplier, taxData, cprs, companySettings, fromDate, toDate, targetSuppId) {
+            let totalAmount = 0; let totalTax = 0;
+            const invFromDate = document.getElementById('filterInvFromDate').value;
+            const invToDate = document.getElementById('filterInvToDate').value;
+
+            let relevantEntries = [];
+            let entryMeta = { strn: '', ntn: '', subCat: '' };
+
+            if (taxData) {
+                taxData.forEach(record => {
+                    if (record.entries) {
+                        record.entries.forEach(e => {
+                            const eSuppId = (e.supplier && (e.supplier._id || e.supplier)) ? (e.supplier._id || e.supplier) : null;
+                            if (String(eSuppId) === String(targetSuppId)) {
+                                if (invFromDate || invToDate) {
+                                    const iDate = e.invoiceDate ? new Date(e.invoiceDate).toISOString().split('T')[0] : null;
+                                    if (invFromDate && iDate < invFromDate) return;
+                                    if (invToDate && iDate > invToDate) return;
+                                }
+                                totalAmount += parseFloat(e.invoiceAmount || 0);
+                                totalTax += parseFloat(e.taxDeducted || 0);
+                                relevantEntries.push({ ...e, sheetDate: record.date });
+                                if (!entryMeta.ntn && e.ntn) entryMeta.ntn = e.ntn;
+                                if (!entryMeta.subCat && e.subCategory) entryMeta.subCat = e.subCategory;
+                            }
+                        });
+                    }
+                });
+            }
+
+            const listCPRs = cprs || [];
+            const supplierName = supplier.name || 'Unknown';
+            const supplierAddress = supplier.address || 'N/A';
+            const supplierNTN = supplier.ntn || entryMeta.ntn || '__________';
+            const supplierSTRN = supplier.strn || '__________';
+            const subCategory = entryMeta.subCat || supplier.subCategory || '';
+
+            const words = numberToWords(Math.round(totalTax));
+            const logoHtml = (companySettings && companySettings.logo)
+                ? `<img src="${companySettings.logo}" style="max-width: 150px; max-height: 80px;" alt="Logo">`
+                : `<div style="font-size: 30px; font-weight: bold; color: blue;">D. WATSON</div>`;
+
+            const companyName = companySettings.companyName || 'D.WATSON GROUP OF PHARMACIES';
+            const companyAddress = companySettings.address || '35-C Block D, Main Pwd Road ISB';
+            const companyNTN = companySettings.pan || '7232123-2';
+            const companySTRN = companySettings.taxNumber || '3277876124146';
+
+            const activeCPR = (listCPRs && listCPRs.length > 0) ? listCPRs[0] : null;
+            const serialNo = activeCPR ? activeCPR.certificateNumber : '__________';
+            const issueDate = activeCPR ? new Date(activeCPR.date).toLocaleDateString() : new Date().toLocaleDateString();
+
+            const html = `
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div style="width: 150px;">
+                        ${logoHtml}
+                    </div>
+                    <div class="text-center flex-grow-1">
+                        <h2 class="cert-title" style="color: #000080; margin:0;">${companyName}</h2>
+                        <div style="font-weight: bold;">${companyAddress}</div>
+                        <div style="font-weight: bold;">NTN: ${companyNTN} STRN: ${companySTRN}</div>
+                    </div>
+                    <div style="width: 150px;"></div>
+                </div>
+                
+                <h3 class="text-center cert-title" style="border-bottom: 2px solid #000; padding-bottom: 5px; margin-bottom: 20px;">
+                    Certificate of Collection or Deduction of Tax
+                </h3>
+                
+                <div class="d-flex justify-content-between mb-3 cert-line">
+                    <div>S.No <span class="cert-field" style="min-width: 80px; border-bottom: 1px solid black; display:inline-block;">${serialNo}</span></div>
+                    <div>Original / Duplicate <span class="cert-field" style="min-width: 100px; border-bottom: 1px solid black; display:inline-block;">Original</span></div>
+                    <div>Date of Issue : <span class="cert-field" style="min-width: 100px; border-bottom: 1px solid black; display:inline-block;">${issueDate}</span></div>
+                </div>
+                
+                <div class="cert-line">
+                    <span class="cert-label">Certified that the sum of Rupees</span>
+                    <span class="cert-field" style="min-width: 150px; border-bottom: 1px solid black; display:inline-block;">${Math.round(totalTax).toLocaleString()}</span>
+                    <span class="cert-label">(Amount of tax collected/deducted in figures)</span>
+                </div>
+                
+                <div class="cert-line">
+                    <span class="cert-field text-start" style="flex-grow:1; border-bottom: 1px solid black;">${words} Only/-</span>
+                    <span class="cert-label text-end">(amount in words)</span>
+                </div>
+                
+                <div class="cert-line">
+                    <span class="cert-label">on account of income tax has been deducted/collected from</span>
+                    <span class="cert-field" style="border-bottom: 1px solid black;">${supplierName} ${subCategory ? '(' + subCategory + ')' : ''}</span>
+                </div>
+                
+                <div class="cert-line">
+                    <span class="cert-label">(Name and Address of the person from whom tax collected/deducted)</span>
+                    <span class="cert-field" style="border-bottom: 1px solid black;">${supplierAddress}</span>
+                </div>
+                
+                <div class="cert-line">
+                    <span class="cert-label">Having National Tax Number</span>
+                    <span class="cert-field" style="max-width: 250px; border-bottom: 1px solid black;">${supplierNTN}</span>
+                    <span class="cert-label">/ STRN:</span>
+                    <span class="cert-field" style="max-width: 250px; border-bottom: 1px solid black;">${supplierSTRN}</span>
+                </div>
+                
+                <div class="cert-line">
+                    <span class="cert-label">on (Date of collection/ deduction) Or during the period</span>
+                    <span class="cert-field text-center">${formatDate(fromDate)} to ${formatDate(toDate)}</span>
+                    <span class="cert-label">(Period of collection/deduction)</span>
+                </div>
+                
+                <div class="d-flex justify-content-between mb-3">
+                    <div class="d-flex w-50">
+                        <span class="cert-label">under section *</span>
+                        <span class="cert-field text-center">153</span>
+                    </div>
+                    <div class="w-50 ps-4">
+                        (specify the Section of Income Tax Ordinance,2001)
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between mb-3">
+                    <div class="d-flex w-50">
+                        <span class="cert-label">On account of</span>
+                        <span class="cert-field text-center">Supplier</span>
+                    </div>
+                    <div class="w-50 ps-4">
+                        (specify nature)
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between mb-3">
+                    <div class="d-flex w-50">
+                        <span class="cert-label">vide</span>
+                        <span class="cert-field text-center" style="border-bottom: 1px solid black; flex-grow: 1;"></span>
+                    </div>
+                    <div class="w-50 ps-4">
+                        (particulars of LC, Contract etc.)
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between mb-3">
+                    <div class="d-flex w-50">
+                        <span class="cert-label">on the value/amount of Rupees</span>
+                        <span class="cert-field text-center" style="border-bottom: 1px solid black; flex-grow:1;">${Math.round(totalAmount).toLocaleString()}</span>
+                    </div>
+                    <div class="w-50 ps-4">
+                        (Gross amount on which tax deducted/collected in figures)
+                    </div>
+                </div>
+                
+                <p class="mt-4 mb-2">This is to further certify that the tax collected/deducted has been deposited in the Federal Government Account as per the following details:</p>
+                
+                <table class="cpr-table">
+                     <thead>
+                         <tr>
+                             <th>Month of Deduction</th>
+                             <th>CPR Number</th>
+                             <th class="text-end">Amount</th>
+                         </tr>
+                     </thead>
+                     <tbody>
+                         ${generateCPRRows(listCPRs, relevantEntries, targetSuppId)}
+                     </tbody>
+                </table>
+                
+                <div class="row mt-5">
+                    <div class="col-8">
+                         <div class="mb-2">Company / Office etc. collecting/deducting the tax:</div>
+                         <div class="d-flex mb-2">
+                             <span style="width: 80px;">Name.</span>
+                             <span style="border-bottom: 1px solid black; flex-grow: 1; text-align: center;">${companyName}</span>
+                         </div>
+                         <div class="d-flex">
+                             <span style="width: 80px;">Address.</span>
+                             <span style="border-bottom: 1px solid black; flex-grow: 1; text-align: center;">${companyAddress}</span>
+                         </div>
+                         <div class="d-flex mt-2">
+                             <span style="width: 80px;">NTN (if any)</span>
+                             <span style="border-bottom: 1px solid black; flex-grow: 1; text-align: center;">${companyNTN}</span>
+                         </div>
+                         <div class="d-flex mt-2">
+                             <span style="width: 80px;">Date</span>
+                             <span style="border-bottom: 1px solid black; flex-grow: 1; text-align: center;">${new Date().toLocaleDateString()}</span>
+                         </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="d-flex mb-4">
+                             <span style="width: 80px;">Name.</span>
+                             <span style="border-bottom: 1px solid black; flex-grow: 1;"></span>
+                        </div>
+                        <div class="d-flex">
+                             <span style="width: 80px;">Designation</span>
+                             <span style="border-bottom: 1px solid black; flex-grow: 1;"></span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.querySelector('#certificateContainer').innerHTML = html;
+        }
+
+        function generateCPRRows(cprs, relevantEntries, targetSuppId) {
+            if (!relevantEntries || relevantEntries.length === 0) return '<tr><td colspan="3" class="text-center">No Tax Deductions Found</td></tr>';
+
+            // 1. Group tax by Month/Year
+            const monthlyTaxMap = {};
+            relevantEntries.forEach(ent => {
+                const dateToUse = ent.sheetDate || ent.invoiceDate;
+                if (dateToUse) {
+                    const d = new Date(dateToUse);
+                    const key = `${d.getFullYear()}-${d.getMonth() + 1}`;
+                    monthlyTaxMap[key] = (monthlyTaxMap[key] || 0) + (ent.taxDeducted || 0);
+                }
+            });
+
+            // 2. Identify the best CPR for each Month/Year
+            const rows = [];
+            const monthNames = ["", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+            Object.keys(monthlyTaxMap).sort().forEach(key => {
+                const [year, month] = key.split('-').map(Number);
+                const tax = monthlyTaxMap[key];
+
+                // Find CPRs matching this month/year for THIS supplier or GLOBAL
+                const matchingCPRs = cprs.filter(c => {
+                    if (c.month !== month || c.year !== year) return false;
+                    const cprSuppId = c.supplier ? (c.supplier._id || c.supplier) : null;
+                    return !cprSuppId || String(cprSuppId) === String(targetSuppId);
+                });
+
+                // Prioritize specific supplier CPR over global
+                let bestCPR = matchingCPRs.find(c => c.supplier);
+                if (!bestCPR) bestCPR = matchingCPRs.find(c => !c.supplier);
+
+                rows.push(`
+                    <tr>
+                        <td>${monthNames[month]} ${year}</td>
+                        <td>${bestCPR ? bestCPR.cprNumber : '__________'}</td>
+                        <td class="text-end">${Math.round(tax).toLocaleString()}</td>
+                    </tr>
+                `);
+            });
+
+            return rows.join('') || '<tr><td colspan="3" class="text-center">No Data</td></tr>';
+        }
+
+        function formatDate(d) {
+            if (!d) return '';
+            // Manually parse YYYY-MM-DD to avoid timezone shifts
+            if (typeof d === 'string' && d.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                const [y, m, day] = d.split('-').map(Number);
+                const date = new Date(y, m - 1, day);
+                return date.toLocaleDateString();
+            }
+            return new Date(d).toLocaleDateString();
+        }
+
+        function numberToWords(n) {
+            const a = ['', 'One ', 'Two ', 'Three ', 'Four ', 'Five ', 'Six ', 'Seven ', 'Eight ', 'Nine ', 'Ten ', 'Eleven ', 'Twelve ', 'Thirteen ', 'Fourteen ', 'Fifteen ', 'Sixteen ', 'Seventeen ', 'Eighteen ', 'Nineteen '];
+            const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+
+            if ((n = n.toString()).length > 9) return 'overflow';
+            n = ('000000000' + n).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+            if (!n) return; var str = '';
+            str += (n[1] != 0) ? (a[Number(n[1])] || b[n[1][0]] + ' ' + a[n[1][1]]) + 'Crore ' : '';
+            str += (n[2] != 0) ? (a[Number(n[2])] || b[n[2][0]] + ' ' + a[n[2][1]]) + 'Lakh ' : '';
+            str += (n[3] != 0) ? (a[Number(n[3])] || b[n[3][0]] + ' ' + a[n[3][1]]) + 'Thousand ' : '';
+            str += (n[4] != 0) ? (a[Number(n[4])] || b[n[4][0]] + ' ' + a[n[4][1]]) + 'Hundred ' : '';
+            str += (n[5] != 0) ? ((str != '') ? 'and ' : '') + (a[Number(n[5])] || b[n[5][0]] + ' ' + a[n[5][1]]) + 'Only' : '';
+            return str || 'Zero';
+        }
+
+    </script>
+</body>
+
+</html>
+

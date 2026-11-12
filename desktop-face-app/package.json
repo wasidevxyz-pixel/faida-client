@@ -1,0 +1,26 @@
+{
+  "name": "bas-face-biometric-desktop",
+  "version": "1.0.0",
+  "description": "Cross-Platform Face Biometric Attendance Desktop Application for macOS and Windows",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "pack:mac": "electron-builder --mac",
+    "pack:win": "electron-builder --win"
+  },
+  "keywords": [
+    "biometric",
+    "face-recognition",
+    "attendance",
+    "desktop",
+    "erp"
+  ],
+  "author": "BAS Systems",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^33.2.0"
+  },
+  "dependencies": {
+    "@vladmandic/face-api": "^1.7.15"
+  }
+}

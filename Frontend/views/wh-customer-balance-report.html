@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WH Customer Balances - BAS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+
+        .report-container {
+            padding: 15px;
+            height: calc(100vh - 60px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header-panel {
+            background: var(--primary-gradient);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .data-panel {
+            flex: 1;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #edf2f7;
+        }
+
+        .table-container {
+            flex: 1;
+            overflow: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .data-table thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .data-table th {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 12px 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .data-table td {
+            padding: 12px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.9rem;
+        }
+
+        .balance-debit {
+            color: #dc2626;
+            font-weight: 700;
+        }
+
+        .balance-credit {
+            color: #16a34a;
+            font-weight: 700;
+        }
+
+        .print-header {
+            display: none;
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px double #333;
+            padding-bottom: 15px;
+        }
+
+        @media (max-width: 576px) {
+            .header-panel {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .header-panel .btn {
+                width: 100%;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 10px;
+                font-size: 0.8rem;
+            }
+        }
+
+        @media print {
+
+            .page-header,
+            .header-panel,
+            #sidebar-container {
+                display: none !important;
+            }
+
+            .main-content {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .report-container {
+                padding: 0;
+                height: auto;
+                display: block;
+            }
+
+            .print-header {
+                display: block;
+            }
+
+            .data-panel {
+                border: none;
+                box-shadow: none;
+                overflow: visible;
+            }
+
+            .table-container {
+                overflow: visible;
+            }
+
+            .data-table th {
+                background: #f8fafc !important;
+                color: black !important;
+                border-top: 1px solid #333;
+                border-bottom: 2px solid #333;
+            }
+        }
+
+        .custom-search-input::placeholder {
+            color: rgba(255, 255, 255, 0.6) !important;
+        }
+
+        .custom-search-input:focus {
+            background: rgba(255, 255, 255, 0.1) !important;
+            border-color: rgba(255, 255, 255, 0.5) !important;
+            color: white !important;
+            box-shadow: none;
+        }
+
+        #categoryFilter option {
+            background: white;
+            color: #333;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="sidebar-container"></div>
+
+    <div class="main-content">
+        <div class="page-header px-3">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer;"></i>
+                <h6 class="mb-0 fw-bold"><i class="fas fa-list-ul me-2"></i>WH CUSTOMER BALANCE LIST</h6>
+            </div>
+        </div>
+
+        <div class="report-container">
+            <!-- Print Header -->
+            <div class="print-header">
+                <h2 class="fw-bold mb-1">BILAL ACCOUNTING SOFTWARE</h2>
+                <h4 class="text-uppercase mb-2">Warehouse Customer Balance Summary</h4>
+                <div class="text-center mt-2">
+                    <span>Generated on: <span id="printDate"></span></span>
+                </div>
+            </div>
+
+            <div class="header-panel">
+                <div class="d-flex align-items-center gap-4 flex-grow-1">
+                    <div>
+                        <h5 class="mb-0 fw-bold text-white">Customer Balances</h5>
+                        <p class="mb-0 small opacity-75">Summary of all outstanding balances</p>
+                    </div>
+
+                    <div class="d-flex gap-3 flex-grow-1 mx-4" style="max-width: 700px;">
+                        <div class="position-relative" style="flex: 2;">
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-light-subtle text-white">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                                <input type="text" id="customerSearch"
+                                    class="form-control bg-transparent border-light-subtle text-white custom-search-input"
+                                    placeholder="Search by name or code..." oninput="filterBalances(this.value)"
+                                    autocomplete="off">
+                                <button class="btn btn-outline-light border-light-subtle" onclick="clearSearch()"
+                                    id="clearBtn" style="display:none">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div style="flex: 1;">
+                            <select id="categoryFilter"
+                                class="form-select bg-transparent border-light-subtle text-white"
+                                onchange="applyFilters()" style="color: white !important;">
+                                <option value="">All Categories</option>
+                            </select>
+                        </div>
+                        <div>
+                            <div class="form-check form-switch" style="padding-top: 8px;">
+                                <input class="form-check-input" type="checkbox" id="balanceOnlyFilter"
+                                    onchange="applyFilters()" style="cursor: pointer;">
+                                <label class="form-check-label text-white" for="balanceOnlyFilter"
+                                    style="cursor: pointer;">
+                                    Balance Only
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-info text-white fw-bold px-3 shadow-sm" onclick="syncAllBalances()" id="syncBtn">
+                        <i class="fas fa-sync me-1"></i>RE-SYNC ALL
+                    </button>
+                    <button class="btn btn-light fw-bold px-4 shadow-sm" onclick="loadBalances()">
+                        <i class="fas fa-sync-alt me-1"></i>REFRESH
+                    </button>
+                    <button class="btn btn-warning text-white fw-bold px-4 shadow-sm" onclick="window.print()">
+                        <i class="fas fa-print me-1"></i>PRINT
+                    </button>
+                </div>
+            </div>
+
+            <div class="data-panel">
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 100px">Code</th>
+                                <th>Customer Name</th>
+                                <th>Phone</th>
+                                <th style="width: 180px" class="text-end">Balance</th>
+                                <th style="width: 120px" class="text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="balanceTableBody">
+                            <tr>
+                                <td colspan="5" class="text-center py-5">
+                                    <div class="spinner-border text-primary"></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot class="bg-light">
+                            <tr>
+                                <th colspan="3" class="text-end py-3">GRAND TOTAL</th>
+                                <th id="grandTotal" class="text-end py-3 fs-5">0.00</th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244551"></script>
+    <script>
+        const token = localStorage.getItem('token');
+        let allBalances = [];
+        let allCategories = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('printDate').textContent = new Date().toLocaleString();
+            loadCategories();
+            loadBalances();
+        });
+
+        async function loadCategories() {
+            try {
+                console.log('Loading customer categories...');
+                const res = await fetch('/api/v1/wh-customer-categories', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                console.log('Categories response status:', res.status);
+                const data = await res.json();
+                console.log('Categories data:', data);
+
+                if (data.success && data.data) {
+                    allCategories = data.data;
+                    const select = document.getElementById('categoryFilter');
+                    data.data.forEach(cat => {
+                        const option = document.createElement('option');
+                        option.value = cat._id;
+                        option.textContent = cat.name;
+                        select.appendChild(option);
+                    });
+                    console.log(`Loaded ${data.data.length} categories`);
+                } else {
+                    console.error('Failed to load categories:', data);
+                }
+            } catch (err) {
+                console.error('Error loading categories:', err);
+            }
+        }
+
+        async function loadBalances() {
+            const tbody = document.getElementById('balanceTableBody');
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-5"><div class="spinner-border text-primary"></div></td></tr>';
+
+            try {
+                const res = await fetch('/api/v1/wh-ledger/balances', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    allBalances = data.data;
+                    applyFilters();
+                }
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-5 text-danger">${err.message}</td></tr>`;
+            }
+        }
+
+        function applyFilters() {
+            const searchTerm = document.getElementById('customerSearch').value.toLowerCase();
+            const categoryId = document.getElementById('categoryFilter').value;
+            const balanceOnly = document.getElementById('balanceOnlyFilter').checked;
+
+            let filtered = allBalances;
+
+            // Filter by search term
+            if (searchTerm) {
+                filtered = filtered.filter(c =>
+                    (c.customerName && c.customerName.toLowerCase().includes(searchTerm)) ||
+                    (c.code && c.code.toLowerCase().includes(searchTerm)) ||
+                    (c.phone && c.phone.toLowerCase().includes(searchTerm))
+                );
+            }
+
+            // Filter by category
+            if (categoryId) {
+                filtered = filtered.filter(c => c.categoryId && c.categoryId.toString() === categoryId);
+            }
+
+            // Filter by balance only
+            if (balanceOnly) {
+                filtered = filtered.filter(c => c.balance !== 0);
+            }
+
+            renderTable(filtered);
+        }
+
+        function renderTable(list) {
+            const tbody = document.getElementById('balanceTableBody');
+            let html = '';
+            let total = 0;
+
+            list.forEach(c => {
+                total += c.balance;
+                const balanceClass = c.balance > 0 ? 'balance-debit' : (c.balance < 0 ? 'balance-credit' : '');
+                const balanceText = Math.abs(c.balance).toLocaleString(undefined, { minimumFractionDigits: 2 });
+                const suffix = c.balance > 0 ? ' Dr' : (c.balance < 0 ? ' Cr' : '');
+
+                html += `
+                    <tr>
+                        <td class="fw-bold text-muted small">${c.code || '-'}</td>
+                        <td class="fw-bold">${c.customerName}</td>
+                        <td>${c.phone || '-'}</td>
+                        <td class="text-end ${balanceClass}">${balanceText}${suffix}</td>
+                        <td class="text-center">
+                            <span class="badge ${c.balance !== 0 ? 'bg-danger-subtle text-danger' : 'bg-success-subtle text-success'}">
+                                ${c.balance !== 0 ? 'Pending' : 'Clear'}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html || '<tr><td colspan="5" class="text-center py-5 text-muted">No records found</td></tr>';
+            document.getElementById('grandTotal').textContent = total.toLocaleString(undefined, { minimumFractionDigits: 2 });
+        }
+
+        function filterBalances(term) {
+            document.getElementById('clearBtn').style.display = term ? 'block' : 'none';
+            applyFilters();
+        }
+
+        function clearSearch() {
+            const input = document.getElementById('customerSearch');
+            input.value = '';
+            document.getElementById('clearBtn').style.display = 'none';
+            applyFilters();
+            input.focus();
+        }
+
+        async function syncAllBalances() {
+            const btn = document.getElementById('syncBtn');
+            const originalContent = btn.innerHTML;
+            
+            if (!confirm('This will recalculate all customer balances from their ledger entries. Continue?')) return;
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>SYNCING...';
+
+            try {
+                const res = await fetch('/api/v1/wh-customers/sync-all', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    alert('Success: ' + data.message);
+                    loadBalances(); // Refresh list
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (err) {
+                alert('Sync failed: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalContent;
+            }
+        }
+    </script>
+</body>
+
+</html>
+

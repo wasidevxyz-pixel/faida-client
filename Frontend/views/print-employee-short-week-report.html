@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Print - Employee Short Week (TSW) Deduction Report</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/all.min.css">
+    <style>
+        body {
+            background-color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 10px;
+            margin: 0;
+            padding: 0;
+            color: #000;
+        }
+
+        @page {
+            size: A4 landscape;
+            margin: 8mm;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+
+            body {
+                margin: 0;
+                padding: 0;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            thead {
+                display: table-header-group;
+            }
+
+            tr {
+                page-break-inside: avoid;
+            }
+        }
+
+        .report-header {
+            text-align: center;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 6px;
+        }
+
+        .report-header h1 {
+            font-size: 19px;
+            font-weight: 800;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #000;
+        }
+
+        .report-header h2 {
+            font-size: 13.5px;
+            font-weight: 700;
+            margin: 3px 0 2px 0;
+            color: #1e293b;
+        }
+
+        .meta-subtitle {
+            font-size: 11px;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .meta-info-bar {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 6px;
+            font-size: 9.5px;
+        }
+
+        .meta-pill {
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .summary-boxes {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .summary-box {
+            flex: 1;
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            border-radius: 6px;
+            padding: 5px 8px;
+            text-align: center;
+        }
+
+        .summary-box .s-label {
+            font-size: 8.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #64748b;
+        }
+
+        .summary-box .s-value {
+            font-size: 13px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-top: 1px;
+        }
+
+        .summary-box.danger .s-value {
+            color: #dc2626;
+        }
+
+        .print-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 9px;
+            margin-bottom: 12px;
+        }
+
+        .print-table th {
+            background-color: #1e4c8c !important;
+            color: #fff !important;
+            border: 1px solid #000;
+            padding: 4px 3px;
+            font-weight: 700;
+            text-align: center;
+            text-transform: uppercase;
+            font-size: 8.5px;
+        }
+
+        .print-table th.th-left { text-align: left; }
+        .print-table th.th-right { text-align: right; }
+
+        .print-table td {
+            border: 1px solid #94a3b8;
+            padding: 3px 3px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .print-table td.td-left { text-align: left; }
+        .print-table td.td-right { text-align: right; }
+
+        .print-table tbody tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        .group-header-row td {
+            background-color: #e2e8f0 !important;
+            color: #0f172a !important;
+            font-weight: 800;
+            font-size: 10px;
+            text-align: left;
+            padding: 4px 8px;
+            border: 1.5px solid #000;
+        }
+
+        .group-subtotal-row td {
+            background-color: #f1f5f9 !important;
+            font-weight: 700;
+            font-size: 9px;
+            padding: 4px 3px;
+            border-bottom: 1.5px solid #000;
+        }
+
+        .print-table tfoot td {
+            background-color: #e2e8f0 !important;
+            color: #000 !important;
+            font-weight: 800;
+            border: 1.5px solid #000;
+            padding: 5px 3px;
+            text-align: center;
+        }
+
+        .print-table tfoot td.td-right { text-align: right; }
+
+        .badge-tsw {
+            font-weight: 800;
+            color: #991b1b;
+        }
+
+        .footer-signatures {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+            padding: 0 20px;
+        }
+
+        .signature-line {
+            width: 150px;
+            border-top: 1px solid #000;
+            text-align: center;
+            padding-top: 3px;
+            font-weight: 600;
+            font-size: 9.5px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Top Control Bar (Hidden on print) -->
+    <div class="no-print d-flex justify-content-between align-items-center p-3 bg-light border-bottom mb-3">
+        <div>
+            <button onclick="window.close()" class="btn btn-secondary btn-sm me-2">
+                <i class="fas fa-times me-1"></i> Close
+            </button>
+            <button onclick="window.print()" class="btn btn-primary btn-sm">
+                <i class="fas fa-print me-1"></i> Print / Save as PDF
+            </button>
+        </div>
+        <div class="text-muted small">
+            Tip: Set orientation to <strong>Landscape</strong>.
+        </div>
+    </div>
+
+    <!-- Printable Area -->
+    <div class="px-3">
+        <!-- Header -->
+        <div class="report-header">
+            <h1>BILAL ACCOUNTING SYSTEM</h1>
+            <h2>EMPLOYEE SHORT WEEK (TSW) DEDUCTION REPORT</h2>
+            <div class="meta-subtitle" id="reportSubtitle">Month: Loading...</div>
+            <div class="meta-info-bar">
+                <div class="meta-pill" id="pillBranch">Branch: All Branches</div>
+                <div class="meta-pill" id="pillDept">Department: All Departments</div>
+                <div class="meta-pill" id="pillDesig">Designation: All Designations</div>
+                <div class="meta-pill" id="pillCriteria">Filter: Only Short Week</div>
+                <div class="meta-pill" id="pillPrintDate">Printed On: -</div>
+            </div>
+        </div>
+
+        <!-- Summary KPI Boxes -->
+        <div class="summary-boxes">
+            <div class="summary-box">
+                <div class="s-label">Employees with Short Week</div>
+                <div class="s-value" id="boxEmployees">0</div>
+            </div>
+            <div class="summary-box danger">
+                <div class="s-label">Total TSW Extra Days</div>
+                <div class="s-value" id="boxDays">0 Days</div>
+            </div>
+            <div class="summary-box">
+                <div class="s-label">Extra Short Hours</div>
+                <div class="s-value" id="boxExtraHrs">0:00</div>
+            </div>
+            <div class="summary-box">
+                <div class="s-label">Allowed Holidays</div>
+                <div class="s-value" id="boxAllowedHolidays">0 Days</div>
+            </div>
+            <div class="summary-box">
+                <div class="s-label">Total Absents (Days)</div>
+                <div class="s-value" id="boxAbsents">0 Days</div>
+            </div>
+            <div class="summary-box danger">
+                <div class="s-label">Extra TSW Deduction</div>
+                <div class="s-value" id="boxExtraDed">Rs. 0</div>
+            </div>
+            <div class="summary-box">
+                <div class="s-label">Grand Total Short Ded</div>
+                <div class="s-value" id="boxGrandTotalDed">Rs. 0</div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <table class="print-table">
+            <thead>
+                <tr>
+                    <th style="width: 25px;">#</th>
+                    <th style="width: 50px;">Month</th>
+                    <th style="width: 45px;">Code</th>
+                    <th class="th-left" style="min-width: 120px;">Employee Name</th>
+                    <th class="th-left" style="min-width: 85px;">Branch</th>
+                    <th class="th-left" style="min-width: 85px;">Department</th>
+                    <th class="th-left" style="min-width: 80px;">Designation</th>
+                    <th class="th-right" style="width: 60px;">Basic</th>
+                    <th style="width: 35px;">Duty</th>
+                    <th style="width: 45px;" title="Monthly Allowed Holidays">Alled Hol</th>
+                    <th style="width: 45px;" title="Employee Absent Days">Absent</th>
+                    <th style="width: 55px; background-color: #991b1b !important;" title="Extra Day Deduction">Extra Day Ded</th>
+                    <th style="width: 45px;">Req.(H)</th>
+                    <th style="width: 45px;">Worked</th>
+                    <th style="width: 45px;">Base ST</th>
+                    <th style="width: 50px; background-color: #991b1b !important;">Extra ST</th>
+                    <th style="width: 50px;">Total ST</th>
+                    <th class="th-right" style="width: 45px;">Rate/Hr</th>
+                    <th class="th-right" style="width: 65px; background-color: #991b1b !important;">TSW Ded</th>
+                    <th class="th-right" style="width: 65px;">Total Ded</th>
+                    <th class="th-right" style="width: 65px;">Net Salary</th>
+                </tr>
+            </thead>
+            <tbody id="printTableBody">
+                <tr>
+                    <td colspan="21" class="text-center py-4">Loading report data...</td>
+                </tr>
+            </tbody>
+            <tfoot id="printTableFoot" style="display: none;">
+                <tr>
+                    <td colspan="7" class="text-start ps-2 fw-bold">GRAND TOTALS</td>
+                    <td class="td-right" id="footBasic">0</td>
+                    <td>-</td>
+                    <td id="footAllowedHolidays" class="fw-bold">0</td>
+                    <td id="footAbsents" class="fw-bold text-danger">0</td>
+                    <td id="footDays" class="fw-bold text-danger">0 Days</td>
+                    <td id="footReq">0</td>
+                    <td id="footWorked">0</td>
+                    <td id="footBase">0</td>
+                    <td id="footExtraHrs" class="fw-bold text-danger">0:00</td>
+                    <td id="footTotalHrs">0:00</td>
+                    <td>-</td>
+                    <td class="td-right fw-bold text-danger" id="footExtraDed">0</td>
+                    <td class="td-right fw-bold" id="footTotalDed">0</td>
+                    <td class="td-right fw-bold" id="footNet">0</td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <!-- Signatures -->
+        <div class="footer-signatures">
+            <div class="signature-line">Prepared By (HR)</div>
+            <div class="signature-line">Verified By (Accounts)</div>
+            <div class="signature-line">Approved By (Director)</div>
+        </div>
+    </div>
+
+    <!-- Script -->
+    <script src="/js/print-employee-short-week-report.js?v=20260901-3"></script>
+</body>
+
+</html>

@@ -1,0 +1,2217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Preconnect & DNS Prefetch for External Assets -->
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <style>
+        :root {
+            --cyber-bg: #030712;
+            --cyber-surface: #060c18;
+            --cyber-card: #081120;
+            --cyber-cyan: #00f0ff;
+            --cyber-blue: #0ea5e9;
+            --cyber-emerald: #10b981;
+            --cyber-amber: #f59e0b;
+            --cyber-purple: #a855f7;
+            --cyber-rose: #f43f5e;
+            --cyber-text: #f8fafc;
+            --cyber-muted: #cbd5e1;
+        }
+
+        body {
+            background: var(--cyber-bg) !important;
+            color: var(--cyber-text) !important;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            overflow-x: hidden;
+        }
+
+        .main-content {
+            background: radial-gradient(circle at 50% 0%, #07152e 0%, #030712 75%) !important;
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
+
+        /* High-Contrast Readability Overrides for Dark Cyber Theme */
+        .text-muted,
+        small.text-muted,
+        span.text-muted,
+        div.text-muted,
+        p.text-muted {
+            color: #e2e8f0 !important; /* Luminous silver-white (>12:1 contrast against dark background) */
+            font-weight: 600 !important;
+        }
+
+        .text-muted-dim {
+            color: #cbd5e1 !important;
+        }
+
+        .hud-box-title {
+            color: #ffffff !important;
+            font-size: 0.82rem !important;
+            font-weight: 800 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.6px !important;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .hud-box-subtitle {
+            color: #e2e8f0 !important;
+            font-size: 0.76rem !important;
+            font-weight: 600 !important;
+        }
+
+        /* 3D Dynamic Specular Lighting Card System */
+        .cyber-lighting-card {
+            position: relative;
+            background: radial-gradient(650px circle at var(--mx, 50%) var(--my, 50%), rgba(0, 240, 255, 0.14), transparent 45%),
+                        linear-gradient(135deg, rgba(8, 17, 32, 0.95) 0%, rgba(4, 9, 18, 0.98) 100%) !important;
+            border: 1px solid rgba(14, 165, 233, 0.28) !important;
+            border-radius: 16px !important;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), 0 0 25px rgba(0, 240, 255, 0.08) !important;
+            overflow: hidden;
+            transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s ease;
+        }
+
+        .cyber-lighting-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(500px circle at var(--mx, 50%) var(--my, 50%), rgba(0, 240, 255, 0.2), transparent 50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .cyber-lighting-card:hover::before {
+            opacity: 1;
+        }
+
+        .cyber-lighting-card:hover {
+            border-color: rgba(0, 240, 255, 0.5) !important;
+            box-shadow: 0 20px 48px rgba(0, 0, 0, 0.85), 0 0 35px rgba(0, 240, 255, 0.22) !important;
+            transform: translateY(-2px);
+        }
+
+        /* Compact 3D Identity Cockpit Header */
+        .profile-cockpit-banner {
+            padding: 18px 24px;
+            background: radial-gradient(800px circle at var(--mx, 50%) var(--my, 30%), rgba(14, 165, 233, 0.22), transparent 50%),
+                        linear-gradient(135deg, #050d1c 0%, #0a1b38 60%, #0d2754 100%) !important;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.3);
+            position: relative;
+            box-shadow: inset 0 -15px 30px rgba(0, 0, 0, 0.6), 0 8px 30px rgba(0, 240, 255, 0.1);
+        }
+
+        /* 3D Volumetric Hologram Avatar Ring */
+        .avatar-3d-hologram-wrap {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            padding: 3px;
+            background: conic-gradient(from var(--rot, 0deg), #00f0ff, #0ea5e9, #a855f7, #10b981, #00f0ff);
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.6), inset 0 0 15px rgba(0, 240, 255, 0.4);
+            animation: holoSpin 7s linear infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        @keyframes holoSpin {
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        .avatar-3d-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #030814;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #00f0ff;
+        }
+
+        .profile-avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .profile-avatar-svg {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .profile-avatar-svg svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Cyber Title Glow */
+        .cyber-title-glow {
+            font-size: 1.75rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #ffffff 0%, #bae6fd 60%, #38bdf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(0, 240, 255, 0.35);
+        }
+
+        /* 3D Glassmorphic Action Buttons */
+        .btn-3d-cyber {
+            background: rgba(14, 165, 233, 0.18) !important;
+            border: 1px solid rgba(0, 240, 255, 0.5) !important;
+            color: #38bdf8 !important;
+            font-size: 0.78rem !important;
+            font-weight: 700 !important;
+            padding: 6px 14px !important;
+            border-radius: 8px !important;
+            transition: all 0.25s ease !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.15) !important;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        .btn-3d-cyber:hover {
+            background: linear-gradient(135deg, #0284c7 0%, #00f0ff 100%) !important;
+            color: #030712 !important;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.65), inset 0 1px 1px rgba(255, 255, 255, 0.4) !important;
+            transform: translateY(-2px);
+        }
+
+        /* Cyber HUD Pills */
+        .hud-pill {
+            background: rgba(14, 165, 233, 0.22);
+            border: 1px solid rgba(14, 165, 233, 0.45);
+            color: #38bdf8 !important;
+            border-radius: 6px;
+            padding: 3px 8px;
+            font-size: 0.74rem;
+            font-family: 'JetBrains Mono', 'Consolas', monospace;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+
+        .hud-pill:hover {
+            border-color: #00f0ff;
+            box-shadow: 0 0 12px rgba(0, 240, 255, 0.45);
+        }
+
+        .hud-pill-green {
+            background: rgba(16, 185, 129, 0.22);
+            border-color: rgba(16, 185, 129, 0.55);
+            color: #34d399 !important;
+        }
+
+        .hud-pill-amber {
+            background: rgba(245, 158, 11, 0.22);
+            border-color: rgba(245, 158, 11, 0.55);
+            color: #fbbf24 !important;
+        }
+
+        .hud-pill-purple {
+            background: rgba(168, 85, 247, 0.22);
+            border-color: rgba(168, 85, 247, 0.55);
+            color: #c084fc !important;
+        }
+
+        .hud-pill-rose {
+            background: rgba(244, 63, 94, 0.22);
+            border-color: rgba(244, 63, 94, 0.55);
+            color: #fb7185 !important;
+        }
+
+        /* 3D Server Blade Interactive Canvas Container */
+        .server-3d-box {
+            background: radial-gradient(circle at 50% 30%, #0d1e3d 0%, #030813 85%);
+            border: 1px solid rgba(0, 240, 255, 0.4);
+            border-radius: 14px;
+            padding: 14px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 45px rgba(0, 0, 0, 0.9), 0 12px 35px rgba(0, 240, 255, 0.15);
+        }
+
+        .server-3d-box::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: linear-gradient(rgba(0, 240, 255, 0.05) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(0, 240, 255, 0.05) 1px, transparent 1px);
+            background-size: 24px 24px;
+            pointer-events: none;
+        }
+
+        #serverBlade3dCanvas {
+            width: 100%;
+            height: 270px;
+            display: block;
+            border-radius: 10px;
+            cursor: grab;
+            position: relative;
+            z-index: 2;
+        }
+
+        #serverBlade3dCanvas:active {
+            cursor: grabbing;
+        }
+
+        /* Oscilloscope ECG Canvas */
+        .ecg-container {
+            background: #030712;
+            border: 1px solid rgba(14, 165, 233, 0.3);
+            border-radius: 10px;
+            padding: 8px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.85);
+        }
+
+        .ecg-grid-lines {
+            position: absolute;
+            inset: 0;
+            background-image: linear-gradient(rgba(14, 165, 233, 0.08) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(14, 165, 233, 0.08) 1px, transparent 1px);
+            background-size: 16px 16px;
+            pointer-events: none;
+        }
+
+        /* Health HUD Cards */
+        .health-stat-card {
+            background: var(--cyber-card);
+            border: 1px solid rgba(14, 165, 233, 0.25);
+            border-radius: 12px;
+            padding: 15px;
+            height: 100%;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .health-stat-card:hover {
+            border-color: rgba(0, 240, 255, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6), 0 0 18px rgba(0, 240, 255, 0.18);
+        }
+
+        .health-stat-val {
+            font-size: 1.85rem;
+            font-weight: 800;
+            color: #ffffff;
+            line-height: 1.1;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            letter-spacing: -0.5px;
+        }
+
+        .health-stat-score-circle {
+            width: 66px;
+            height: 66px;
+            border-radius: 50%;
+            background: rgba(0, 240, 255, 0.14);
+            border: 2px solid var(--cyber-cyan);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.55rem;
+            font-weight: 800;
+            color: var(--cyber-cyan);
+            box-shadow: 0 0 18px rgba(0, 240, 255, 0.4);
+        }
+
+        /* Custom Progress Bars */
+        .cyber-progress {
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            margin-top: 6px;
+        }
+
+        .cyber-progress-bar {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .pbar-blue {
+            background: linear-gradient(90deg, #0284c7, #38bdf8);
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+        }
+
+        .pbar-green {
+            background: linear-gradient(90deg, #10b981, #34d399);
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+
+        /* Spec list */
+        .spec-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .spec-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 0.78rem;
+        }
+
+        .spec-list li:last-child {
+            border-bottom: none;
+        }
+
+        .spec-label {
+            color: #e2e8f0 !important;
+            font-weight: 600 !important;
+            font-size: 0.8rem !important;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .spec-val {
+            font-weight: 800 !important;
+            color: #ffffff !important;
+            font-family: 'JetBrains Mono', 'Consolas', monospace;
+            font-size: 0.82rem !important;
+        }
+
+        /* 10 Branches Radar Cards */
+        .branch-radar-card {
+            background: linear-gradient(135deg, rgba(9, 21, 44, 0.95) 0%, rgba(5, 12, 26, 0.98) 100%) !important;
+            border: 1.5px solid rgba(14, 165, 233, 0.32) !important;
+            border-radius: 12px;
+            padding: 12px 14px;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+        }
+
+        .branch-radar-card:hover {
+            border-color: rgba(0, 240, 255, 0.7) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 240, 255, 0.3);
+            background: linear-gradient(135deg, rgba(11, 26, 56, 0.95) 0%, rgba(7, 16, 35, 0.98) 100%) !important;
+        }
+
+        .pulse-beacon {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 0 rgba(16, 185, 129, 0.7);
+            animation: beaconPulse 2s infinite;
+        }
+
+        @keyframes beaconPulse {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* Permissions Matrix Badges */
+        .perm-tile {
+            background: linear-gradient(135deg, rgba(9, 21, 44, 0.95) 0%, rgba(5, 12, 26, 0.98) 100%) !important;
+            border: 1.5px solid rgba(14, 165, 233, 0.32) !important;
+            border-radius: 10px;
+            padding: 11px 13px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+        }
+
+        .perm-tile:hover {
+            border-color: rgba(0, 240, 255, 0.65) !important;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.28);
+            transform: translateY(-2px);
+        }
+
+        .op-box {
+            background: linear-gradient(135deg, rgba(8, 20, 42, 0.95) 0%, rgba(5, 12, 26, 0.98) 100%) !important;
+            border: 1.5px solid rgba(0, 240, 255, 0.32) !important;
+            border-radius: 10px;
+            padding: 10px 12px;
+            text-align: center;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            transition: all 0.25s ease;
+        }
+
+        .op-box:hover {
+            border-color: rgba(0, 240, 255, 0.7) !important;
+            box-shadow: 0 0 18px rgba(0, 240, 255, 0.35);
+            transform: translateY(-2px);
+        }
+
+        .core-box {
+            background: linear-gradient(135deg, rgba(8, 20, 42, 0.95) 0%, rgba(5, 12, 26, 0.98) 100%) !important;
+            border: 1.5px solid rgba(0, 240, 255, 0.3) !important;
+            border-radius: 10px;
+            padding: 9px 11px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            transition: all 0.25s ease;
+        }
+
+        .core-box:hover {
+            border-color: rgba(0, 240, 255, 0.7) !important;
+            box-shadow: 0 0 18px rgba(0, 240, 255, 0.35);
+            transform: translateY(-2px);
+        }
+
+        .cyber-select {
+            background: #081730 !important;
+            color: #ffffff !important;
+            border: 1.5px solid rgba(0, 240, 255, 0.5) !important;
+            border-radius: 8px !important;
+            padding: 9px 13px !important;
+            font-weight: 600 !important;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .cyber-select:focus {
+            border-color: #00f0ff !important;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.45) !important;
+        }
+
+        .cyber-select option {
+            background: #08152b !important;
+            color: #ffffff !important;
+            padding: 6px;
+        }
+
+        /* Avatar Selection Modal */
+        .avatar-modal-cyber .modal-content {
+            background: #070f1e !important;
+            border: 1px solid rgba(0, 240, 255, 0.4) !important;
+            border-radius: 16px !important;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 35px rgba(0, 240, 255, 0.2) !important;
+            color: #f1f5f9;
+        }
+
+        .avatar-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            padding: 12px;
+        }
+
+        .avatar-option {
+            width: 75px;
+            height: 75px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.12) !important;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #050b14 !important;
+            overflow: hidden;
+        }
+
+        .avatar-option:hover {
+            transform: scale(1.1);
+            border-color: var(--cyber-cyan) !important;
+            box-shadow: 0 0 18px rgba(0, 240, 255, 0.5);
+        }
+
+        .avatar-option.selected {
+            border-color: var(--cyber-cyan) !important;
+            box-shadow: 0 0 22px rgba(0, 240, 255, 0.7) !important;
+        }
+
+        .avatar-option svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #030712;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Main Content Wrapper -->
+    <div class="main-content">
+        <!-- Standardized Page Header -->
+        <div class="page-header px-3" style="background: rgba(4, 11, 23, 0.92); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(0, 240, 255, 0.25);">
+            <div style="flex: 1; display: flex; align-items: center;">
+                <i class="fas fa-bars me-3 text-info" id="sidebarToggle" style="cursor:pointer; font-size: 1.05rem;"></i>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="hud-pill hud-pill-green"><i class="fas fa-satellite-dish me-1"></i>NODE ONLINE</span>
+                    <h5 class="mb-0 text-white fw-bold" style="letter-spacing: -0.3px;">Enterprise Operator Console</h5>
+                </div>
+            </div>
+            <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
+                <div class="dropdown">
+                    <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown" style="cursor: pointer;">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center me-2"
+                            style="width: 36px; height: 36px; overflow: hidden; border: 1.5px solid #00f0ff; background: #070e1c;" id="headerAvatarDisplay">
+                            <i class="fas fa-user text-info"></i>
+                        </div>
+                        <span id="headerUserName" class="me-2 d-none d-md-block fw-bold text-white">Operator</span>
+                        <i class="fas fa-chevron-down text-info" style="font-size: 0.7rem;"></i>
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-lg" style="background: #071120; border: 1px solid rgba(14, 165, 233, 0.35);">
+                        <li><a class="dropdown-item text-light active" href="/profile"><i class="fas fa-user-circle me-2 text-info"></i>Profile & Security</a></li>
+                        <li><hr class="dropdown-divider" style="border-color: rgba(255,255,255,0.12);"></li>
+                        <li><a class="dropdown-item logout-btn text-danger" href="#"><i class="fas fa-sign-out-alt me-2"></i>Sign Out</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid mt-3 px-3 px-md-4">
+            <div class="row justify-content-center">
+                <div class="col-xl-11 col-12">
+
+                    <!-- ======================================================== -->
+                    <!-- SECTION 1 (TOP): STREAMLINED CYBER COCKPIT WITH 3D LIGHTING -->
+                    <!-- ======================================================== -->
+                    <div class="cyber-lighting-card mb-3">
+                        <div class="profile-cockpit-banner d-flex flex-wrap align-items-center justify-content-between gap-3">
+                            <!-- Left: 3D Hologram Avatar + Identity -->
+                            <div class="d-flex align-items-center gap-3 gap-md-4 flex-wrap">
+                                <!-- 3D Volumetric Avatar Ring -->
+                                <div class="avatar-3d-hologram-wrap" id="avatarOuterBox">
+                                    <div class="avatar-3d-inner">
+                                        <img id="profileRealPhoto" class="profile-avatar-img d-none" alt="Operator Photo">
+                                        <div id="profileAvatarDisplay" class="profile-avatar-svg">
+                                            <i id="profilePlaceholder" class="fas fa-user-astronaut fs-2 text-info"></i>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                                        <span class="hud-pill hud-pill-green"><i class="fas fa-shield-alt me-1"></i>SECURITY CLEARANCE // LEVEL 1</span>
+                                        <span class="hud-pill" id="liveOperatorClock"><i class="far fa-clock me-1"></i>LIVE TIME</span>
+                                    </div>
+                                    <h2 class="cyber-title-glow mb-1" id="profileHeroName">Bilal Sh</h2>
+                                    
+                                    <!-- Compact Inline Security Clearance Row -->
+                                    <div class="d-flex align-items-center gap-2 flex-wrap" style="font-size: 0.8rem;">
+                                        <span id="profileHeroRoleBadge"><span class="hud-pill hud-pill-purple"><i class="fas fa-shield-alt me-1"></i>ADMIN</span></span>
+                                        <span class="hud-pill" id="profileHeroEmail"><i class="fas fa-user-check me-1 text-info"></i>bilal shah</span>
+                                        <span class="hud-pill hud-pill-amber" id="branchToggleBtn" style="cursor: pointer;" title="Click to view/hide all 10 branches">
+                                            <i class="fas fa-store me-1"></i>10 Stores Master Access <i class="fas fa-chevron-down ms-1" style="font-size: 0.65rem;"></i>
+                                        </span>
+                                    </div>
+
+                                    <!-- Collapsible 10 Stores Drawer (Clean on-demand) -->
+                                    <div id="branchesDrawer" class="d-none mt-2 p-2 rounded" style="background: rgba(3, 8, 18, 0.9); border: 1px dashed rgba(245, 158, 11, 0.45);">
+                                        <div class="d-flex flex-wrap gap-1" id="profileBranch">Loading...</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right: 3D Holographic Quick Action Buttons -->
+                            <div class="d-flex flex-column gap-2 align-items-md-end">
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <input type="file" id="realPhotoFileInput" accept="image/*" class="d-none">
+                                    <button type="button" class="btn-3d-cyber" id="uploadPhotoTriggerBtn">
+                                        <i class="fas fa-camera text-info"></i>Upload Photo
+                                    </button>
+                                    <button type="button" class="btn-3d-cyber" data-bs-toggle="modal" data-bs-target="#avatarModal">
+                                        <i class="fas fa-palette text-warning"></i>Choose SVG Avatar
+                                    </button>
+                                </div>
+                                <div style="font-size: 0.76rem; color: #e2e8f0 !important; font-weight: 600;">JPG, PNG, WEBP or 12 Vector Personas</div>
+                            </div>
+                        </div>
+
+                        <!-- Compact Active Terminals Strip -->
+                        <div class="px-3 py-2 border-top d-flex justify-content-between align-items-center flex-wrap gap-2" style="background: rgba(3, 8, 16, 0.75); border-color: rgba(14, 165, 233, 0.2) !important;">
+                            <div class="d-flex align-items-center gap-2" style="flex: 1; min-width: 0;">
+                                <i class="fas fa-network-wired text-success me-1"></i>
+                                <span class="fw-bold text-white small text-uppercase" style="letter-spacing: 0.5px; font-size: 0.78rem;">Connected Terminals:</span>
+                                <div id="sessionsListContainer" class="d-flex align-items-center gap-2 flex-wrap">
+                                    <span class="hud-pill hud-pill-green" style="font-size: 0.74rem;"><i class="fas fa-desktop me-1"></i>Workstation PC • 127.0.0.1 (Active)</span>
+                                    <span class="hud-pill hud-pill-amber" style="font-size: 0.74rem;"><i class="fas fa-mobile-screen me-1"></i>Mobile Scanner • 10.0.4.18 (Synced)</span>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2 fw-bold" style="font-size: 0.75rem; height: 26px;" id="terminateOtherSessionsBtn">
+                                <i class="fas fa-sign-out-alt me-1"></i><span id="terminateBtnText">Terminate Other Sessions</span>
+                            </button>
+                        </div>
+                    </div>
+
+
+                    <!-- ======================================================== -->
+                    <!-- SECTION 2: INTERACTIVE 3D SERVER BLADE TELEMETRY UNIT -->
+                    <!-- ======================================================== -->
+                    <div class="cyber-lighting-card mb-3 p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="rounded-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: rgba(0, 240, 255, 0.15); border: 1px solid var(--cyber-cyan); color: var(--cyber-cyan);">
+                                    <i class="fas fa-server"></i>
+                                </div>
+                                <div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <h6 class="mb-0 text-white fw-bold">Interactive 3D Server Blade Telemetry & Hardware Chassis</h6>
+                                        <span class="hud-pill hud-pill-green"><i class="fas fa-microchip me-1"></i>60 FPS 3D ENGINE</span>
+                                    </div>
+                                    <div style="font-size: 0.78rem; color: #e2e8f0 !important; font-weight: 600;">Dual cooling turbines, hot-swap SAS/NVMe bays, runtime pulse & 3D mouse lighting</div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="d-flex align-items-center gap-2 me-2">
+                                    <div class="pulse-beacon" id="liveServerPulse"></div>
+                                    <span class="small fw-bold text-success" id="serverStreamStatus" style="font-size: 0.76rem;">LIVE 5s</span>
+                                </div>
+                                <button class="btn btn-sm btn-outline-danger py-1 px-2 fw-bold" style="font-size: 0.76rem;" id="clearCacheBtn" title="Clear Server Cache">
+                                    <i class="fas fa-broom me-1"></i><span id="clearCacheBtnText">Clear Cache</span>
+                                </button>
+                                <button class="btn btn-sm btn-outline-info py-1 px-2 fw-bold" style="font-size: 0.76rem;" id="refreshHealthBtn" title="Refresh Telemetry">
+                                    <i class="fas fa-sync-alt" id="refreshSpinIcon"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 3D Interactive Server Blade Canvas -->
+                        <div class="server-3d-box mb-3">
+                            <canvas id="serverBlade3dCanvas"></canvas>
+                        </div>
+
+                        <!-- Runtime Event Loop & Oscilloscope ECG Waveform Banner -->
+                        <div class="health-stat-card mb-3 p-3">
+                            <div class="row g-2 align-items-center">
+                                <div class="col-lg-7 col-md-12">
+                                    <div class="d-flex align-items-center justify-content-between mb-1">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <i class="fas fa-heartbeat text-danger"></i>
+                                            <span class="hud-box-title" style="color: #f1f5f9 !important;">
+                                                Runtime Event Loop & Microtask Pulse Oscilloscope
+                                            </span>
+                                        </div>
+                                        <span class="hud-pill hud-pill-green" id="ecgStatusText" style="font-size: 0.72rem; font-weight: 700;">Optimal (< 2ms)</span>
+                                    </div>
+                                    <div class="ecg-container" style="height: 60px;">
+                                        <div class="ecg-grid-lines"></div>
+                                        <canvas id="liveEcgCanvas" style="width: 100%; height: 100%; display: block;"></canvas>
+                                    </div>
+                                </div>
+                                <div class="col-lg-5 col-md-12">
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <div class="op-box">
+                                                <div class="hud-box-title mb-1" style="color: #00f0ff !important; font-size: 0.78rem !important; justify-content: center; font-weight: 800 !important;"><i class="fas fa-wave-square me-1"></i>Event Loop Lag</div>
+                                                <div class="fw-bold" style="font-size: 1.35rem; color: #00f0ff !important; font-family: 'JetBrains Mono', monospace; text-shadow: 0 0 10px rgba(0, 240, 255, 0.4);" id="eventLoopLagMs">-- ms</div>
+                                                <div class="hud-box-subtitle" style="color: #e2e8f0 !important; font-weight: 600;">hrtime precision</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="op-box">
+                                                <div class="hud-box-title mb-1" style="color: #c084fc !important; font-size: 0.78rem !important; justify-content: center; font-weight: 800 !important;"><i class="fas fa-layer-group me-1"></i>Active Handles</div>
+                                                <div class="fw-bold" style="font-size: 1.35rem; color: #c084fc !important; font-family: 'JetBrains Mono', monospace; text-shadow: 0 0 10px rgba(192, 132, 252, 0.4);" id="activeHandles">--</div>
+                                                <div class="hud-box-subtitle" style="color: #e2e8f0 !important; font-weight: 600;"><span id="activeRequests" style="color: #00f0ff !important; font-weight: 800;">0</span> async pending</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4 Bento HUD Telemetry Cards -->
+                        <div class="row g-2 mb-3">
+                            <!-- Card 1: System Health Score -->
+                            <div class="col-xl-3 col-md-6">
+                                <div class="health-stat-card" style="background: linear-gradient(135deg, #07142c 0%, #0c234e 100%); border-color: rgba(0, 240, 255, 0.45);">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="hud-box-title" style="color: #ffffff !important; font-size: 0.84rem !important; font-weight: 800 !important;"><i class="fas fa-shield-alt text-info me-1"></i>System Health</span>
+                                        <span class="hud-pill" id="serverProcessId" style="font-size: 0.7rem;">PID: --</span>
+                                    </div>
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <div>
+                                            <div class="health-stat-val text-info" id="healthScore">--%</div>
+                                            <div id="healthStatus" style="font-size: 0.78rem; color: #e2e8f0 !important; font-weight: 600;"><i class="fas fa-check-circle text-success me-1"></i>Checking...</div>
+                                        </div>
+                                        <div class="health-stat-score-circle" id="healthScoreCircle">--</div>
+                                    </div>
+                                    <ul class="spec-list">
+                                        <li><span class="spec-label"><i class="fas fa-desktop text-info"></i> Hostname</span><span class="spec-val" id="serverHostname">--</span></li>
+                                        <li><span class="spec-label"><i class="fas fa-code-branch text-info"></i> Node Engine</span><span class="spec-val" id="serverNode">--</span></li>
+                                        <li><span class="spec-label"><i class="fas fa-clock text-info"></i> App Uptime</span><span class="spec-val" id="serverUptime">--</span></li>
+                                        <li><span class="spec-label"><i class="fas fa-cogs text-info"></i> Platform</span><span class="spec-val" id="serverPlatform">--</span></li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Card 2: Physical RAM Saturation -->
+                            <div class="col-xl-3 col-md-6">
+                                <div class="health-stat-card">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="hud-box-title" style="color: #ffffff !important; font-size: 0.84rem !important; font-weight: 800 !important;"><i class="fas fa-memory text-info me-1"></i>Physical RAM</span>
+                                        <span class="hud-pill hud-pill-green" style="font-size: 0.7rem;">DDR4 / DDR5</span>
+                                    </div>
+                                    <div class="health-stat-val text-white" id="memoryPercent">--%</div>
+                                    <div id="memoryDetails" style="font-size: 0.78rem; color: #e2e8f0 !important; font-weight: 600;">-- / --</div>
+                                    <div class="cyber-progress mb-2">
+                                        <div class="cyber-progress-bar pbar-blue" id="memoryBar" style="width: 0%;"></div>
+                                    </div>
+                                    <ul class="spec-list">
+                                        <li><span class="spec-label"><i class="fas fa-cube text-info"></i> Heap Used</span><span class="spec-val text-info" id="heapUsed">--</span></li>
+                                        <li><span class="spec-label"><i class="fas fa-cubes text-info"></i> Heap Total</span><span class="spec-val" id="heapTotal">--</span></li>
+                                        <li><span class="spec-label"><i class="fas fa-layer-group text-info"></i> Process RSS</span><span class="spec-val" id="processRss">--</span></li>
+                                        <li><span class="spec-label"><i class="fas fa-external-link-alt text-info"></i> External</span><span class="spec-val" id="processExternal">--</span></li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Card 3: Host Storage NVMe Drive -->
+                            <div class="col-xl-3 col-md-6">
+                                <div class="health-stat-card">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="hud-box-title" style="color: #ffffff !important; font-size: 0.84rem !important; font-weight: 800 !important;"><i class="fas fa-hdd text-success me-1"></i>NVMe Storage</span>
+                                        <span class="hud-pill hud-pill-green" id="diskDriveLabel" style="font-size: 0.7rem;">D:\ Drive</span>
+                                    </div>
+                                    <div class="health-stat-val text-white" id="diskPercent">--%</div>
+                                    <div id="diskDetails" style="font-size: 0.78rem; color: #e2e8f0 !important; font-weight: 600;">-- / --</div>
+                                    <div class="cyber-progress mb-2">
+                                        <div class="cyber-progress-bar pbar-green" id="diskBar" style="width: 0%;"></div>
+                                    </div>
+                                    <ul class="spec-list">
+                                        <li><span class="spec-label"><i class="fas fa-database text-success"></i> Used Space</span><span class="spec-val" id="diskUsed">--</span></li>
+                                        <li><span class="spec-label"><i class="fas fa-check text-success"></i> Free Available</span><span class="spec-val text-success" id="diskFree">--</span></li>
+                                        <li><span class="spec-label"><i class="fas fa-chart-pie text-success"></i> Capacity</span><span class="spec-val" id="diskTotal">--</span></li>
+                                        <li><span class="spec-label"><i class="fas fa-hourglass-half text-success"></i> System Uptime</span><span class="spec-val" id="systemUptime">--</span></li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Card 4: Database Core & Storage -->
+                            <div class="col-xl-3 col-md-6">
+                                <div class="health-stat-card">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="hud-box-title" style="color: #ffffff !important; font-size: 0.84rem !important; font-weight: 800 !important;"><i class="fas fa-database text-warning me-1"></i>MongoDB Engine</span>
+                                        <div class="pulse-beacon" id="dbPulse"></div>
+                                    </div>
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <span class="hud-pill hud-pill-green" id="dbStatus" style="font-size: 0.72rem;"><i class="fas fa-plug me-1"></i>Connected</span>
+                                        <span class="hud-pill hud-pill-amber" id="dbConnections" style="font-size: 0.72rem;">-- conns</span>
+                                    </div>
+                                    <ul class="spec-list">
+                                        <li><span class="spec-label"><i class="fas fa-tag text-warning"></i> Engine / DB</span><span class="spec-val"><span id="dbType">MongoDB</span> : <span id="dbName">--</span></span></li>
+                                        <li><span class="spec-label"><i class="fas fa-folder-open text-warning"></i> Collections</span><span class="spec-val" id="dbCollections">--</span></li>
+                                        <li><span class="spec-label"><i class="fas fa-weight-hanging text-warning"></i> Raw Size</span><span class="spec-val" id="dbDataSize">--</span></li>
+                                        <li><span class="spec-label"><i class="fas fa-compress-alt text-warning"></i> Compressed</span><span class="spec-val text-warning" id="dbSpace">--</span></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Multi-Core Silicon Heatmap -->
+                        <div class="health-stat-card mb-3 p-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="fas fa-microchip text-success"></i>
+                                    <span class="hud-box-title" style="color: #ffffff !important; font-size: 0.85rem !important; font-weight: 800 !important;">Multi-Core Silicon Heatmap & Dynamic Frequency</span>
+                                </div>
+                                <span class="hud-pill hud-pill-green" id="cpuModel" style="font-size: 0.76rem; font-weight: 800;">Detecting Processor...</span>
+                            </div>
+                            <div class="row g-2 align-items-center">
+                                <div class="col-lg-3 col-md-4">
+                                    <div class="d-flex align-items-baseline gap-2">
+                                        <div class="health-stat-val text-success" id="cpuPercent">--%</div>
+                                        <span style="color: #e2e8f0 !important; font-size: 0.8rem; font-weight: 700;">Total Load</span>
+                                    </div>
+                                    <div class="cyber-progress mb-2">
+                                        <div class="cyber-progress-bar pbar-green" id="cpuBar" style="width: 0%;"></div>
+                                    </div>
+                                    <div style="font-size: 0.78rem; color: #e2e8f0 !important; font-weight: 600;">Load Avg: <strong style="color: #00f0ff !important; font-weight: 800;" id="cpuLoadAvg">0.00, 0.00, 0.00</strong></div>
+                                </div>
+                                <div class="col-lg-9 col-md-8">
+                                    <div class="row g-2" id="coreHeatmapGrid">
+                                        <div class="col-6 col-sm-3"><div class="core-box text-center" style="color: #e2e8f0 !important; font-weight: 600; font-size: 0.78rem;"><i class="fas fa-spinner fa-spin me-1"></i>Core 1...</div></div>
+                                        <div class="col-6 col-sm-3"><div class="core-box text-center" style="color: #e2e8f0 !important; font-weight: 600; font-size: 0.78rem;"><i class="fas fa-spinner fa-spin me-1"></i>Core 2...</div></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Node.js V8 Spaces & MongoDB Opcounters -->
+                        <div class="row g-2">
+                            <div class="col-lg-6">
+                                <div class="health-stat-card p-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="hud-box-title" style="color: #ffffff !important; font-size: 0.85rem !important; font-weight: 800 !important;"><i class="fab fa-node-js text-success me-1"></i>V8 Engine Memory Spaces</span>
+                                        <span class="hud-pill hud-pill-purple" style="font-size: 0.72rem; font-weight: 800;">VM Internal</span>
+                                    </div>
+                                    <div id="v8HeapSpacesList">
+                                        <div class="text-center py-2" style="color: #e2e8f0 !important; font-weight: 600; font-size: 0.78rem;">Loading V8 Heap telemetry...</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6">
+                                <div class="health-stat-card p-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="hud-box-title" style="color: #ffffff !important; font-size: 0.85rem !important; font-weight: 800 !important;"><i class="fas fa-database text-warning me-1"></i>MongoDB Live Operations Counters</span>
+                                        <span class="hud-pill hud-pill-amber" id="dbIndexSize" style="font-size: 0.72rem; font-weight: 800;">Index: --</span>
+                                    </div>
+                                    <div class="row g-2">
+                                        <div class="col-6 col-sm-3">
+                                            <div class="op-box">
+                                                <div class="hud-box-title mb-1" style="color: #ffffff !important; font-size: 0.75rem !important; font-weight: 800 !important; justify-content: center;">Queries</div>
+                                                <div class="fw-bold text-info" style="font-size: 1.2rem; font-family: 'JetBrains Mono', monospace;" id="dbQueryOps">--</div>
+                                                <span class="hud-pill" style="font-size: 0.68rem; font-weight: 800;">Read</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-sm-3">
+                                            <div class="op-box">
+                                                <div class="hud-box-title mb-1" style="color: #ffffff !important; font-size: 0.75rem !important; font-weight: 800 !important; justify-content: center;">Updates</div>
+                                                <div class="fw-bold text-success" style="font-size: 1.2rem; font-family: 'JetBrains Mono', monospace;" id="dbUpdateOps">--</div>
+                                                <span class="hud-pill hud-pill-green" style="font-size: 0.68rem; font-weight: 800;">Modify</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-sm-3">
+                                            <div class="op-box">
+                                                <div class="hud-box-title mb-1" style="color: #ffffff !important; font-size: 0.75rem !important; font-weight: 800 !important; justify-content: center;">Inserts</div>
+                                                <div class="fw-bold text-warning" style="font-size: 1.2rem; font-family: 'JetBrains Mono', monospace;" id="dbInsertOps">--</div>
+                                                <span class="hud-pill hud-pill-amber" style="font-size: 0.68rem; font-weight: 800;">Write</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-sm-3">
+                                            <div class="op-box">
+                                                <div class="hud-box-title mb-1" style="color: #ffffff !important; font-size: 0.75rem !important; font-weight: 800 !important; justify-content: center;">Deletes</div>
+                                                <div class="fw-bold text-danger" style="font-size: 1.2rem; font-family: 'JetBrains Mono', monospace;" id="dbDeleteOps">--</div>
+                                                <span class="hud-pill hud-pill-rose" style="font-size: 0.68rem; font-weight: 800;">Purge</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between mt-2" style="color: #e2e8f0 !important; font-size: 0.78rem; font-weight: 600;">
+                                        <span>Host: <strong class="text-white" id="dbHost">127.0.0.1</strong></span>
+                                        <span>DB Uptime: <strong class="text-white" id="dbUptime">--</strong></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- ======================================================== -->
+                    <!-- SECTION 3: D. WATSON 10 BRANCHES LIVE RADAR -->
+                    <!-- ======================================================== -->
+                    <!-- SECTION 3: D. WATSON 10 BRANCHES LIVE RADAR -->
+                    <!-- ======================================================== -->
+                    <div class="cyber-lighting-card mb-3 p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="rounded-2 d-flex align-items-center justify-content-center" style="width: 34px; height: 34px; background: rgba(245, 158, 11, 0.18); border: 1px solid rgba(245, 158, 11, 0.45); color: #fbbf24;">
+                                    <i class="fas fa-satellite fs-6"></i>
+                                </div>
+                                <div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <h6 class="mb-0 fw-bold" style="color: #ffffff !important; font-size: 0.95rem;">D. Watson 10 Branches Live Status Network Radar</h6>
+                                        <span class="hud-pill hud-pill-green" style="font-size: 0.74rem; font-weight: 800;"><i class="fas fa-check-double me-1"></i>10 NODES ACTIVE</span>
+                                    </div>
+                                    <div style="font-size: 0.78rem; color: #e2e8f0 !important; font-weight: 600;">Live sync status, recorded sales invoices & connection latency</div>
+                                </div>
+                            </div>
+                            <span class="hud-pill hud-pill-amber" style="font-size: 0.74rem; font-weight: 800;"><i class="fas fa-bolt me-1"></i>100% Genuine Host Aggregation</span>
+                        </div>
+
+                        <!-- 10 Branch Cards Grid -->
+                        <div class="row g-2" id="branchesRadarGrid">
+                            <div class="col-12 text-center py-2" style="color: #e2e8f0 !important; font-size: 0.78rem; font-weight: 600;">
+                                <i class="fas fa-spinner fa-spin me-2 text-info"></i>Interrogating D. Watson branch nodes...
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- ======================================================== -->
+                    <!-- SECTION 4: MY SECURITY CLEARANCE & ERP PERMISSIONS MATRIX -->
+                    <!-- ======================================================== -->
+                    <div class="cyber-lighting-card mb-3 p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="rounded-2 d-flex align-items-center justify-content-center" style="width: 34px; height: 34px; background: rgba(168, 85, 247, 0.18); border: 1px solid rgba(168, 85, 247, 0.45); color: #c084fc;">
+                                    <i class="fas fa-user-shield fs-6"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold" style="color: #ffffff !important; font-size: 0.95rem;">My Security Clearance & ERP Permissions Matrix</h6>
+                                    <div style="font-size: 0.78rem; color: #e2e8f0 !important; font-weight: 600;">Functional ERP authorizations active for your operator identity</div>
+                                </div>
+                            </div>
+                            <span class="hud-pill hud-pill-purple" style="font-size: 0.74rem; font-weight: 800;"><i class="fas fa-key me-1"></i>Role Based Access (RBAC)</span>
+                        </div>
+
+                        <div class="row g-2" id="permissionsMatrixGrid">
+                            <!-- Injected dynamically via JS -->
+                        </div>
+                    </div>
+
+
+                    <!-- ======================================================== -->
+                    <!-- SECTION 5: PERSONAL SECURITY AUDIT & LOGIN STREAM -->
+                    <!-- ======================================================== -->
+                    <div class="cyber-lighting-card mb-3 p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="rounded-2 d-flex align-items-center justify-content-center" style="width: 34px; height: 34px; background: rgba(14, 165, 233, 0.18); border: 1px solid rgba(14, 165, 233, 0.45); color: #38bdf8;">
+                                    <i class="fas fa-history fs-6"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold" style="color: #ffffff !important; font-size: 0.95rem;">Recent Identity Access & Audit Timeline</h6>
+                                    <div style="font-size: 0.78rem; color: #e2e8f0 !important; font-weight: 600;">Authentications, IP handshakes & terminal security verifications</div>
+                                </div>
+                            </div>
+                            <span class="hud-pill" style="font-size: 0.74rem; font-weight: 800;"><i class="fas fa-shield-alt me-1"></i>TAMPER PROOF AUDIT</span>
+                        </div>
+
+                        <div id="auditTimelineContainer">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+
+
+                    <!-- ======================================================== -->
+                    <!-- SECTION 6: WORKSPACE APPEARANCE & TYPOGRAPHY -->
+                    <!-- ======================================================== -->
+                    <div class="cyber-lighting-card mb-3 p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="rounded-2 d-flex align-items-center justify-content-center" style="width: 34px; height: 34px; background: rgba(56, 189, 248, 0.18); border: 1px solid rgba(56, 189, 248, 0.45); color: #38bdf8;">
+                                    <i class="fas fa-font fs-6"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold" style="color: #ffffff !important; font-size: 0.95rem;">Workspace Typography & Display Preferences</h6>
+                                    <div style="font-size: 0.78rem; color: #e2e8f0 !important; font-weight: 600;">Customize fonts and interface aesthetics for your user account</div>
+                                </div>
+                            </div>
+                            <span class="hud-pill hud-pill-purple" style="font-size: 0.74rem; font-weight: 800;"><i class="fas fa-magic me-1"></i>Instant Rendering</span>
+                        </div>
+
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-9 col-12">
+                                <label for="profileFontFamily" class="form-label mb-1" style="font-size: 0.78rem; text-transform: uppercase; color: #ffffff !important; font-weight: 800; letter-spacing: 0.5px;">Active Font Family</label>
+                                <select id="profileFontFamily" class="form-select cyber-select" style="font-size: 0.88rem;">
+                                    <option value="times-new-roman">Times New Roman</option>
+                                    <option value="georgia">Georgia</option>
+                                    <option value="segoe-ui">Segoe UI (Default)</option>
+                                    <option value="arial">Arial</option>
+                                    <option value="inter">Inter (Modern, Clean)</option>
+                                    <option value="roboto">Roboto (Google Standard)</option>
+                                    <option value="open-sans">Open Sans (Highly Readable)</option>
+                                    <option value="lato">Lato (Elegant Sans)</option>
+                                    <option value="montserrat">Montserrat (Bold & Geometric)</option>
+                                    <option value="poppins">Poppins (Friendly & Round)</option>
+                                    <option value="noto-sans">Noto Sans (Universal)</option>
+                                    <option value="ubuntu">Ubuntu (Tech & Sleek)</option>
+                                    <option value="outfit">Outfit (Premium UI)</option>
+                                    <option value="plus-jakarta-sans">Plus Jakarta (Corporate)</option>
+                                    <option value="nunito">Nunito (Soft & Balanced)</option>
+                                    <option value="playfair-display">Playfair (Classic Serif)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 col-12">
+                                <button type="button" class="btn-3d-cyber w-100 justify-content-center py-2" id="saveAppearanceBtn">
+                                    <i class="fas fa-save me-1"></i>Save Settings
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center py-2 small" style="font-size: 0.78rem; color: #e2e8f0 !important; font-weight: 600;">
+                        <i class="fas fa-shield-alt text-info me-1"></i> Bilal Accounting System (BAS) Enterprise Profile Console // Sourced from Genuine Host Telemetry // Auto-refreshes every 5s
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- AVATAR SELECTION MODAL (12 VECTOR PERSONAS) -->
+    <!-- ======================================================== -->
+    <div class="modal fade avatar-modal-cyber" id="avatarModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold text-info" id="avatarModalLabel">
+                        <i class="fas fa-user-astronaut me-2"></i>Choose Custom Vector Persona
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="px-3 mb-2" style="color: #cbd5e1; font-size: 0.8rem;">Select a vector persona to represent your operator profile:</p>
+                    <div class="avatar-grid" id="avatarGrid"></div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-sm btn-outline-secondary text-white" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-cyber-primary" id="saveAvatarBtn">
+                        <i class="fas fa-check me-1"></i>Save Avatar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244521"></script>
+    <script src="/js/connection-monitor.js"></script>
+
+    <script>
+        // 12 Built-in Vector Avatars
+        const AVATARS = [
+            `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#3498db"/><circle cx="50" cy="40" r="20" fill="#f5d0c5"/><ellipse cx="50" cy="85" rx="30" ry="25" fill="#2980b9"/><circle cx="43" cy="37" r="3" fill="#333"/><circle cx="57" cy="37" r="3" fill="#333"/><path d="M 45 47 Q 50 52 55 47" stroke="#333" stroke-width="2" fill="none"/><path d="M 30 25 Q 50 5 70 25 Q 70 35 50 30 Q 30 35 30 25" fill="#4a3728"/></svg>`,
+            `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#e91e63"/><circle cx="50" cy="40" r="20" fill="#f5d0c5"/><ellipse cx="50" cy="85" rx="30" ry="25" fill="#c2185b"/><circle cx="43" cy="37" r="3" fill="#333"/><circle cx="57" cy="37" r="3" fill="#333"/><path d="M 45 47 Q 50 52 55 47" stroke="#c0392b" stroke-width="2" fill="none"/><path d="M 25 35 Q 25 10 50 15 Q 75 10 75 35 Q 70 45 50 55 Q 30 45 25 35" fill="#5d4037"/></svg>`,
+            `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#27ae60"/><circle cx="50" cy="40" r="20" fill="#fce4d6"/><ellipse cx="50" cy="85" rx="30" ry="25" fill="#1e8449"/><rect x="36" y="32" width="10" height="8" rx="2" fill="#333"/><rect x="54" y="32" width="10" height="8" rx="2" fill="#333"/><path d="M 45 48 Q 50 51 55 48" stroke="#333" stroke-width="2" fill="none"/><path d="M 30 28 Q 50 20 70 28 L 65 35 Q 50 30 35 35 Z" fill="#2c3e50"/></svg>`,
+            `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#9b59b6"/><circle cx="50" cy="40" r="20" fill="#f5d0c5"/><ellipse cx="50" cy="85" rx="30" ry="25" fill="#8e44ad"/><circle cx="43" cy="37" r="3" fill="#333"/><circle cx="57" cy="37" r="3" fill="#333"/><path d="M 43 47 Q 50 53 57 47" stroke="#e74c3c" stroke-width="2" fill="none"/><path d="M 20 40 Q 25 10 50 15 Q 75 10 80 40 Q 75 50 50 60 Q 25 50 20 40" fill="#6c3483"/></svg>`,
+            `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#e67e22"/><circle cx="50" cy="40" r="20" fill="#fce4d6"/><ellipse cx="50" cy="85" rx="30" ry="25" fill="#d35400"/><circle cx="43" cy="37" r="3" fill="#333"/><circle cx="57" cy="37" r="3" fill="#333"/><path d="M 45 47 Q 50 50 55 47" stroke="#333" stroke-width="2" fill="none"/><path d="M 32 30 Q 50 22 68 30 L 65 25 Q 50 18 35 25 Z" fill="#1a1a1a"/><rect x="47" y="60" width="6" height="10" fill="#2c3e50"/></svg>`,
+            `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#1abc9c"/><circle cx="50" cy="40" r="20" fill="#f5d0c5"/><ellipse cx="50" cy="85" rx="30" ry="25" fill="#fff"/><circle cx="43" cy="37" r="3" fill="#333"/><circle cx="57" cy="37" r="3" fill="#333"/><path d="M 45 47 Q 50 51 55 47" stroke="#333" stroke-width="2" fill="none"/><path d="M 30 25 Q 50 10 70 25 Q 65 30 50 28 Q 35 30 30 25" fill="#2c3e50"/><circle cx="35" cy="70" r="5" fill="#e74c3c"/></svg>`,
+            `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#e74c3c"/><circle cx="50" cy="40" r="20" fill="#fce4d6"/><ellipse cx="50" cy="85" rx="30" ry="25" fill="#c0392b"/><circle cx="43" cy="37" r="3" fill="#333"/><circle cx="57" cy="37" r="3" fill="#333"/><path d="M 44 47 Q 50 52 56 47" stroke="#333" stroke-width="2" fill="none"/><ellipse cx="50" cy="22" rx="22" ry="12" fill="#2c3e50"/></svg>`,
+            `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#3f51b5"/><circle cx="50" cy="40" r="20" fill="#f5d0c5"/><ellipse cx="50" cy="85" rx="30" ry="25" fill="#303f9f"/><circle cx="43" cy="37" r="3" fill="#333"/><circle cx="57" cy="37" r="3" fill="#333"/><path d="M 45 47 Q 50 52 55 47" stroke="#e74c3c" stroke-width="2" fill="none"/><path d="M 22 38 Q 28 8 50 12 Q 72 8 78 38 Q 72 48 50 50 Q 28 48 22 38" fill="#1a1a1a"/></svg>`,
+            `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#00bcd4"/><circle cx="50" cy="40" r="20" fill="#fce4d6"/><ellipse cx="50" cy="85" rx="30" ry="25" fill="#0097a7"/><circle cx="43" cy="37" r="3" fill="#333"/><circle cx="57" cy="37" r="3" fill="#333"/><path d="M 45 48 Q 50 52 55 48" stroke="#333" stroke-width="2" fill="none"/><path d="M 30 32 Q 35 15 50 18 Q 65 15 70 32 L 65 28 Q 50 22 35 28 Z" fill="#5d4037"/></svg>`,
+            `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#ffc107"/><circle cx="50" cy="40" r="20" fill="#f5d0c5"/><ellipse cx="50" cy="85" rx="30" ry="25" fill="#ffa000"/><circle cx="43" cy="37" r="3" fill="#333"/><circle cx="57" cy="37" r="3" fill="#333"/><path d="M 44 47 Q 50 53 56 47" stroke="#e74c3c" stroke-width="2" fill="none"/><path d="M 25 30 Q 30 5 50 10 Q 70 5 75 30" fill="#ff9800"/></svg>`,
+            `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#34495e"/><circle cx="50" cy="40" r="20" fill="#fce4d6"/><ellipse cx="50" cy="85" rx="30" ry="25" fill="#2c3e50"/><circle cx="43" cy="37" r="3" fill="#333"/><circle cx="57" cy="37" r="3" fill="#333"/><path d="M 45 47 Q 50 50 55 47" stroke="#333" stroke-width="2" fill="none"/><path d="M 32 28 Q 50 18 68 28 L 66 22 Q 50 14 34 22 Z" fill="#566573"/></svg>`,
+            `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#8bc34a"/><circle cx="50" cy="40" r="20" fill="#f5d0c5"/><ellipse cx="50" cy="85" rx="30" ry="25" fill="#689f38"/><circle cx="43" cy="37" r="4" fill="#333"/><circle cx="57" cy="37" r="4" fill="#333"/><circle cx="44" cy="36" r="1.5" fill="#fff"/><circle cx="58" cy="36" r="1.5" fill="#fff"/><path d="M 42 47 Q 50 55 58 47" stroke="#333" stroke-width="2" fill="none"/><path d="M 28 30 Q 35 10 50 12 Q 65 10 72 30 Q 68 35 50 32 Q 32 35 28 30" fill="#5d4037"/></svg>`
+        ];
+
+        let selectedAvatarIndex = null;
+        let currentUserData = null;
+
+        // ========================================================
+        // 3D SPECULAR LIGHTING CURSOR TRACKER (OPTIMIZED)
+        // ========================================================
+        function initCardLightingSystem() {
+            const cards = document.querySelectorAll('.cyber-lighting-card');
+            cards.forEach(card => {
+                let rect = null;
+                const updateRect = () => { rect = card.getBoundingClientRect(); };
+
+                card.addEventListener('mouseenter', updateRect, { passive: true });
+                card.addEventListener('mousemove', (e) => {
+                    if (!rect) rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    card.style.setProperty('--mx', `${x}px`);
+                    card.style.setProperty('--my', `${y}px`);
+                }, { passive: true });
+                card.addEventListener('mouseleave', () => { rect = null; }, { passive: true });
+            });
+        }
+
+        // ========================================================
+        // PAGE INITIALIZATION
+        // ========================================================
+        document.addEventListener('DOMContentLoaded', async function () {
+            initCardLightingSystem();
+            updateLiveClock();
+            setInterval(updateLiveClock, 1000);
+
+            loadUserProfile();
+            populateAvatarGrid();
+
+            document.getElementById('saveAvatarBtn').addEventListener('click', saveSelectedAvatar);
+            setupRealPhotoUpload();
+            document.getElementById('saveAppearanceBtn').addEventListener('click', saveAppearancePreferences);
+
+            loadSessions();
+            document.getElementById('terminateOtherSessionsBtn').addEventListener('click', terminateOtherSessions);
+
+            const branchToggle = document.getElementById('branchToggleBtn');
+            const branchesDrawer = document.getElementById('branchesDrawer');
+            if (branchToggle && branchesDrawer) {
+                branchToggle.addEventListener('click', () => {
+                    branchesDrawer.classList.toggle('d-none');
+                });
+            }
+
+            init3dServerBlade();
+            setTimeout(initHealthMonitoring, 500);
+        });
+
+        function updateLiveClock() {
+            const clockEl = document.getElementById('liveOperatorClock');
+            if (clockEl) {
+                const now = new Date();
+                clockEl.innerHTML = `<i class="far fa-clock me-1"></i>${now.toLocaleTimeString()}`;
+            }
+        }
+
+        // ========================================================
+        // LOAD USER PROFILE
+        // ========================================================
+        function loadUserProfile() {
+            const user = window.getCurrentUser ? window.getCurrentUser() : JSON.parse(localStorage.getItem('user') || '{}');
+            currentUserData = user;
+
+            if (user && (user.name || user.email)) {
+                const displayName = user.name || 'Enterprise Operator';
+                const displayEmail = user.email || 'operator@dwatson.co';
+                const roleStr = (user.role || 'OPERATOR').toUpperCase();
+
+                document.getElementById('headerUserName').textContent = displayName;
+                document.getElementById('profileHeroName').textContent = displayName;
+                document.getElementById('profileHeroEmail').innerHTML = `<i class="fas fa-user-check me-1 text-info"></i>${displayEmail}`;
+                document.getElementById('profileHeroRoleBadge').innerHTML = `<span class="hud-pill hud-pill-purple"><i class="fas fa-shield-alt me-1"></i>${roleStr}</span>`;
+
+                const branchEl = document.getElementById('profileBranch');
+                if (branchEl) {
+                    let html = '';
+                    if (user.branch && Array.isArray(user.branch) && user.branch.length > 0) {
+                        html += user.branch.map(b => `<span class="hud-pill hud-pill-amber me-1 mb-1"><i class="fas fa-store me-1"></i>${b}</span>`).join(' ');
+                    } else if (typeof user.branch === 'string' && user.branch) {
+                        html += `<span class="hud-pill hud-pill-amber me-1 mb-1"><i class="fas fa-store me-1"></i>${user.branch}</span>`;
+                    } else {
+                        html += '<span class="hud-pill me-1 mb-1"><i class="fas fa-network-wired me-1"></i>All Stores Node</span>';
+                    }
+                    if (user.department) {
+                        html += ` <span class="hud-pill hud-pill-green mb-1"><i class="fas fa-sitemap me-1"></i>${user.department}</span>`;
+                    }
+                    branchEl.innerHTML = html;
+                }
+
+                if (user.profilePicture && user.profilePicture.trim() !== '') {
+                    displayRealPhoto(user.profilePicture);
+                } else {
+                    const savedAvatarIndex = localStorage.getItem('userAvatar');
+                    if (savedAvatarIndex !== null) {
+                        selectedAvatarIndex = parseInt(savedAvatarIndex);
+                        displayAvatar(selectedAvatarIndex);
+                    }
+                }
+
+                const prefs = user.preferences || {};
+                if (prefs.fontFamily) {
+                    document.getElementById('profileFontFamily').value = prefs.fontFamily;
+                }
+
+                renderPermissionsMatrix(user);
+                renderAuditTimeline(user);
+            }
+        }
+
+        // ========================================================
+        // REAL PHOTO UPLOAD
+        // ========================================================
+        function setupRealPhotoUpload() {
+            const triggerBtn = document.getElementById('uploadPhotoTriggerBtn');
+            const fileInput = document.getElementById('realPhotoFileInput');
+
+            if (!triggerBtn || !fileInput) return;
+
+            triggerBtn.addEventListener('click', () => fileInput.click());
+
+            fileInput.addEventListener('change', async function () {
+                const file = this.files[0];
+                if (!file) return;
+
+                if (!file.type.startsWith('image/')) {
+                    alert('Please select an image file (JPG, PNG, WEBP).');
+                    return;
+                }
+
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('Please select an image smaller than 5MB.');
+                    return;
+                }
+
+                triggerBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Uploading...';
+                triggerBtn.disabled = true;
+
+                try {
+                    const reader = new FileReader();
+                    reader.onload = async (e) => {
+                        const base64Data = e.target.result;
+                        const token = localStorage.getItem('token');
+
+                        const response = await fetch('/api/v1/auth/profile-photo', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({ imageBase64: base64Data })
+                        });
+
+                        const resData = await response.json();
+                        triggerBtn.innerHTML = '<i class="fas fa-camera text-info"></i>Upload Photo';
+                        triggerBtn.disabled = false;
+
+                        if (response.ok && resData.success) {
+                            const photoUrl = resData.data;
+                            displayRealPhoto(photoUrl);
+
+                            const stored = JSON.parse(localStorage.getItem('user') || '{}');
+                            stored.profilePicture = photoUrl;
+                            localStorage.setItem('user', JSON.stringify(stored));
+
+                            if (window.showSuccess) window.showSuccess('Profile photo uploaded and updated successfully!');
+                            else alert('Profile photo updated successfully!');
+                        } else {
+                            throw new Error(resData.message || 'Failed to upload photo');
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                } catch (err) {
+                    console.error('Photo upload error:', err);
+                    triggerBtn.innerHTML = '<i class="fas fa-camera text-info"></i>Upload Photo';
+                    triggerBtn.disabled = false;
+                    alert('Error uploading photo: ' + err.message);
+                }
+            });
+        }
+
+        function displayRealPhoto(url) {
+            const photoEl = document.getElementById('profileRealPhoto');
+            const svgEl = document.getElementById('profileAvatarDisplay');
+            const headerAvatar = document.getElementById('headerAvatarDisplay');
+
+            if (photoEl && svgEl) {
+                photoEl.src = url;
+                photoEl.classList.remove('d-none');
+                svgEl.classList.add('d-none');
+            }
+
+            if (headerAvatar) {
+                headerAvatar.innerHTML = `<img src="${url}" style="width: 100%; height: 100%; object-fit: cover;">`;
+            }
+        }
+
+        // ========================================================
+        // SVG AVATAR SELECTION
+        // ========================================================
+        function populateAvatarGrid() {
+            const grid = document.getElementById('avatarGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            AVATARS.forEach((avatarSvg, index) => {
+                const opt = document.createElement('div');
+                opt.className = 'avatar-option';
+                opt.innerHTML = avatarSvg;
+                opt.dataset.index = index;
+
+                const savedIndex = localStorage.getItem('userAvatar');
+                if (savedIndex !== null && parseInt(savedIndex) === index) {
+                    opt.classList.add('selected');
+                }
+
+                opt.addEventListener('click', () => {
+                    document.querySelectorAll('.avatar-option').forEach(o => o.classList.remove('selected'));
+                    opt.classList.add('selected');
+                    selectedAvatarIndex = index;
+                });
+
+                grid.appendChild(opt);
+            });
+        }
+
+        function displayAvatar(index) {
+            const photoEl = document.getElementById('profileRealPhoto');
+            const svgEl = document.getElementById('profileAvatarDisplay');
+            const headerAvatar = document.getElementById('headerAvatarDisplay');
+
+            if (photoEl) photoEl.classList.add('d-none');
+            if (svgEl && AVATARS[index]) {
+                svgEl.classList.remove('d-none');
+                svgEl.innerHTML = AVATARS[index];
+            }
+
+            if (headerAvatar && AVATARS[index]) {
+                headerAvatar.innerHTML = AVATARS[index];
+                headerAvatar.style.background = 'transparent';
+            }
+        }
+
+        function saveSelectedAvatar() {
+            if (selectedAvatarIndex === null) {
+                alert('Please select an avatar persona first.');
+                return;
+            }
+
+            localStorage.setItem('userAvatar', selectedAvatarIndex);
+            displayAvatar(selectedAvatarIndex);
+
+            const stored = JSON.parse(localStorage.getItem('user') || '{}');
+            stored.profilePicture = '';
+            localStorage.setItem('user', JSON.stringify(stored));
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById('avatarModal'));
+            if (modal) modal.hide();
+
+            if (window.showSuccess) window.showSuccess('Vector avatar saved successfully!');
+            else alert('Vector avatar saved successfully!');
+        }
+
+        // ========================================================
+        // SESSIONS MANAGEMENT (COMPACT STRIP)
+        // ========================================================
+        async function loadSessions() {
+            const container = document.getElementById('sessionsListContainer');
+            if (!container) return;
+
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch('/api/v1/auth/sessions', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!res.ok) throw new Error('Failed to load active sessions');
+                const data = await res.json();
+
+                if (data.success && Array.isArray(data.sessions)) {
+                    renderSessions(data.sessions);
+                }
+            } catch (err) {
+                console.error('Sessions load error:', err);
+            }
+        }
+
+        function renderSessions(sessions) {
+            const container = document.getElementById('sessionsListContainer');
+            if (!container) return;
+
+            container.innerHTML = sessions.map(sess => {
+                const isCurr = sess.isCurrent;
+                const icon = sess.platform.includes('Android') || sess.platform.includes('iOS') ? 'fa-mobile-screen' : 'fa-desktop';
+                return `
+                    <span class="hud-pill ${isCurr ? 'hud-pill-green' : 'hud-pill-amber'}" style="font-size: 0.74rem;">
+                        <i class="fas ${icon} me-1"></i>${sess.device} • <strong class="text-white">${sess.ip}</strong> (${sess.loginTime})
+                    </span>`;
+            }).join(' ');
+        }
+
+        async function terminateOtherSessions() {
+            if (!confirm('Are you sure you want to log out all other workstations and mobile scanner devices?')) {
+                return;
+            }
+
+            const btn = document.getElementById('terminateOtherSessionsBtn');
+            const btnText = document.getElementById('terminateBtnText');
+
+            if (btn) btn.disabled = true;
+            if (btnText) btnText.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Terminating...';
+
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch('/api/v1/auth/sessions/terminate-others', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await res.json();
+                if (btn) btn.disabled = false;
+                if (btnText) btnText.textContent = 'Terminate Other Sessions';
+
+                if (res.ok && data.success) {
+                    if (window.showSuccess) window.showSuccess(data.message);
+                    else alert(data.message);
+                    loadSessions();
+                } else {
+                    throw new Error(data.message || 'Termination failed');
+                }
+            } catch (err) {
+                if (btn) btn.disabled = false;
+                if (btnText) btnText.textContent = 'Terminate Other Sessions';
+                alert('Error terminating sessions: ' + err.message);
+            }
+        }
+
+        // ========================================================
+        // 3D SERVER BLADE WITH VOLUMETRIC LIGHTING & SPECULAR SHINE
+        // ========================================================
+        let bladeCanvas = null;
+        let bladeCtx = null;
+        let bladeAnimId = null;
+        let bladeTilt = { x: 0, y: 0, targetX: 0, targetY: 0 };
+        let bladeFanAngle = 0;
+        let bladeCpuLoad = 18;
+        let bladeTelemetry = { host: 'D-WATSON-MAIN', pid: '1674', uptime: 'Live' };
+        let bladeWidth = 800;
+        let bladeHeight = 240;
+
+        function init3dServerBlade() {
+            bladeCanvas = document.getElementById('serverBlade3dCanvas');
+            if (!bladeCanvas) return;
+            bladeCtx = bladeCanvas.getContext('2d');
+
+            const resizeBlade = () => {
+                const rect = bladeCanvas.getBoundingClientRect();
+                const dpr = window.devicePixelRatio || 1;
+                bladeWidth = rect.width;
+                bladeHeight = rect.height;
+                bladeCanvas.width = rect.width * dpr;
+                bladeCanvas.height = rect.height * dpr;
+                bladeCtx.scale(dpr, dpr);
+            };
+
+            resizeBlade();
+            window.addEventListener('resize', resizeBlade);
+
+            // 3D Mouse Parallax Tilt with cached rect
+            let bladeCanvasRect = null;
+            bladeCanvas.addEventListener('mouseenter', () => {
+                bladeCanvasRect = bladeCanvas.getBoundingClientRect();
+            }, { passive: true });
+
+            bladeCanvas.addEventListener('mousemove', (e) => {
+                if (!bladeCanvasRect) bladeCanvasRect = bladeCanvas.getBoundingClientRect();
+                const normX = (e.clientX - bladeCanvasRect.left) / bladeCanvasRect.width - 0.5;
+                const normY = (e.clientY - bladeCanvasRect.top) / bladeCanvasRect.height - 0.5;
+                bladeTilt.targetX = normX * 24;
+                bladeTilt.targetY = -normY * 18;
+            }, { passive: true });
+
+            bladeCanvas.addEventListener('mouseleave', () => {
+                bladeCanvasRect = null;
+                bladeTilt.targetX = 0;
+                bladeTilt.targetY = 0;
+            }, { passive: true });
+
+            bladeCanvas.addEventListener('touchmove', (e) => {
+                if (e.touches && e.touches[0]) {
+                    if (!bladeCanvasRect) bladeCanvasRect = bladeCanvas.getBoundingClientRect();
+                    const normX = (e.touches[0].clientX - bladeCanvasRect.left) / bladeCanvasRect.width - 0.5;
+                    const normY = (e.touches[0].clientY - bladeCanvasRect.top) / bladeCanvasRect.height - 0.5;
+                    bladeTilt.targetX = normX * 20;
+                    bladeTilt.targetY = -normY * 16;
+                }
+            }, { passive: true });
+
+            bladeCanvas.addEventListener('touchend', () => {
+                bladeCanvasRect = null;
+                bladeTilt.targetX = 0;
+                bladeTilt.targetY = 0;
+            }, { passive: true });
+
+            function loop() {
+                bladeTilt.x += (bladeTilt.targetX - bladeTilt.x) * 0.1;
+                bladeTilt.y += (bladeTilt.targetY - bladeTilt.y) * 0.1;
+
+                const fanSpeed = 0.08 + (bladeCpuLoad / 100) * 0.25;
+                bladeFanAngle += fanSpeed;
+
+                renderServerBlade3D();
+                bladeAnimId = requestAnimationFrame(loop);
+            }
+
+            if (bladeAnimId) cancelAnimationFrame(bladeAnimId);
+            loop();
+        }
+
+        function renderServerBlade3D() {
+            if (!bladeCtx || !bladeCanvas) return;
+            const w = bladeWidth || bladeCanvas.width;
+            const h = bladeHeight || bladeCanvas.height;
+
+            bladeCtx.clearRect(0, 0, w, h);
+
+            const cx = w / 2;
+            const cy = h / 2;
+
+            // 1. 3D Volumetric Ambient Backlight (Luminous Blue Bloom)
+            const bgAura = bladeCtx.createRadialGradient(cx + bladeTilt.x * 3, cy - 20 + bladeTilt.y * 3, 20, cx, cy, Math.min(w * 0.5, 360));
+            bgAura.addColorStop(0, 'rgba(0, 240, 255, 0.25)');
+            bgAura.addColorStop(0.4, 'rgba(14, 165, 233, 0.1)');
+            bgAura.addColorStop(1, 'transparent');
+            bladeCtx.fillStyle = bgAura;
+            bladeCtx.fillRect(0, 0, w, h);
+
+            bladeCtx.save();
+            bladeCtx.translate(cx, cy);
+
+            // 2. 3D Ground Floor Shadow & Specular Bounce
+            bladeCtx.save();
+            bladeCtx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            bladeCtx.beginPath();
+            bladeCtx.ellipse(0, 92 + bladeTilt.y * 1.5, Math.min(w * 0.42, 380), 20, 0, 0, Math.PI * 2);
+            bladeCtx.fill();
+            bladeCtx.restore();
+
+            const chassisW = Math.min(w * 0.82, 680);
+            const chassisH = 105;
+            const chassisD = 65;
+
+            // 3. 3D Top Plate with Perspective Skew
+            bladeCtx.save();
+            const topSkewX = bladeTilt.x * 0.8;
+            const topOffsetY = -chassisH / 2 + bladeTilt.y * 1.2;
+
+            bladeCtx.fillStyle = '#0b162c';
+            bladeCtx.strokeStyle = 'rgba(0, 240, 255, 0.45)';
+            bladeCtx.lineWidth = 1.5;
+
+            bladeCtx.beginPath();
+            bladeCtx.moveTo(-chassisW / 2, topOffsetY);
+            bladeCtx.lineTo(-chassisW / 2 + topSkewX, topOffsetY - chassisD * 0.4);
+            bladeCtx.lineTo(chassisW / 2 + topSkewX, topOffsetY - chassisD * 0.4);
+            bladeCtx.lineTo(chassisW / 2, topOffsetY);
+            bladeCtx.closePath();
+            bladeCtx.fill();
+            bladeCtx.stroke();
+
+            // Vents on top plate
+            bladeCtx.strokeStyle = 'rgba(14, 165, 233, 0.22)';
+            bladeCtx.lineWidth = 1;
+            for (let vx = -chassisW / 2 + 60; vx < chassisW / 2 - 60; vx += 24) {
+                bladeCtx.beginPath();
+                bladeCtx.moveTo(vx, topOffsetY - 4);
+                bladeCtx.lineTo(vx + topSkewX * 0.7, topOffsetY - chassisD * 0.35);
+                bladeCtx.stroke();
+            }
+            bladeCtx.restore();
+
+            // 4. Front Metallic Server Bezel with Directional 3D Gradient
+            const frontY = -chassisH / 2 + bladeTilt.y * 1.2;
+            const grad = bladeCtx.createLinearGradient(0, frontY, 0, frontY + chassisH);
+            grad.addColorStop(0, '#101e3a');
+            grad.addColorStop(0.5, '#081224');
+            grad.addColorStop(1, '#040914');
+
+            bladeCtx.fillStyle = grad;
+            bladeCtx.strokeStyle = '#00f0ff';
+            bladeCtx.lineWidth = 2;
+            bladeCtx.shadowColor = 'rgba(0, 240, 255, 0.4)';
+            bladeCtx.shadowBlur = 14;
+
+            bladeCtx.beginPath();
+            bladeCtx.roundRect(-chassisW / 2, frontY, chassisW, chassisH, [8, 8, 12, 12]);
+            bladeCtx.fill();
+            bladeCtx.stroke();
+            bladeCtx.shadowBlur = 0;
+
+            // 5. Dynamic 3D Specular Light Ray (Moves with Mouse Tilt!)
+            const lightRayX = (bladeTilt.x / 24) * (chassisW * 0.4);
+            const sheenGrad = bladeCtx.createLinearGradient(lightRayX - 60, frontY, lightRayX + 60, frontY + chassisH);
+            sheenGrad.addColorStop(0, 'rgba(255, 255, 255, 0)');
+            sheenGrad.addColorStop(0.5, 'rgba(0, 240, 255, 0.2)');
+            sheenGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            bladeCtx.fillStyle = sheenGrad;
+            bladeCtx.fillRect(-chassisW / 2, frontY, chassisW, chassisH);
+
+            // Rack Ear Mounts on Left & Right
+            bladeCtx.fillStyle = '#1e293b';
+            bladeCtx.fillRect(-chassisW / 2 - 14, frontY + 10, 14, chassisH - 20);
+            bladeCtx.fillRect(chassisW / 2, frontY + 10, 14, chassisH - 20);
+
+            // Hex screws
+            bladeCtx.fillStyle = '#64748b';
+            bladeCtx.beginPath();
+            bladeCtx.arc(-chassisW / 2 - 7, frontY + 22, 3.5, 0, Math.PI * 2);
+            bladeCtx.arc(-chassisW / 2 - 7, frontY + chassisH - 22, 3.5, 0, Math.PI * 2);
+            bladeCtx.arc(chassisW / 2 + 7, frontY + 22, 3.5, 0, Math.PI * 2);
+            bladeCtx.arc(chassisW / 2 + 7, frontY + chassisH - 22, 3.5, 0, Math.PI * 2);
+            bladeCtx.fill();
+
+            // 6. Dual Cooling Intake Turbines (with Neon Backlight Glow)
+            const fan1X = -chassisW / 2 + 65;
+            const fan2X = -chassisW / 2 + 145;
+            const fanY = frontY + chassisH / 2;
+            drawIntakeFan(fan1X, fanY, 30, bladeFanAngle);
+            drawIntakeFan(fan2X, fanY, 30, bladeFanAngle + 1.2);
+
+            // 7. Front Panel Glowing OLED Screen
+            const screenW = Math.min(220, chassisW * 0.36);
+            const screenH = 46;
+            const screenX = -screenW / 2;
+            const screenY = frontY + 18;
+
+            bladeCtx.fillStyle = '#020712';
+            bladeCtx.fillRect(screenX, screenY, screenW, screenH);
+            bladeCtx.strokeStyle = 'rgba(0, 240, 255, 0.6)';
+            bladeCtx.strokeRect(screenX, screenY, screenW, screenH);
+
+            bladeCtx.fillStyle = '#00f0ff';
+            bladeCtx.font = '10px "JetBrains Mono", monospace';
+            bladeCtx.fillText(`HOST: ${bladeTelemetry.host}`, screenX + 8, screenY + 16);
+            bladeCtx.fillStyle = '#34d399';
+            bladeCtx.fillText(`PID: ${bladeTelemetry.pid} // LOAD: ${bladeCpuLoad}%`, screenX + 8, screenY + 30);
+            bladeCtx.fillStyle = '#fbbf24';
+            bladeCtx.fillText(`STATUS: ONLINE [OPTIMAL]`, screenX + 8, screenY + 42);
+
+            // 8. 4 Hot-Swap NVMe Drive Bays with Optic Bloom LEDs
+            const baysStartX = chassisW / 2 - 195;
+            const now = Date.now();
+            for (let i = 0; i < 4; i++) {
+                const bayX = baysStartX + i * 44;
+                const bayY = frontY + 16;
+
+                bladeCtx.fillStyle = '#081222';
+                bladeCtx.fillRect(bayX, bayY, 36, 72);
+                bladeCtx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+                bladeCtx.strokeRect(bayX, bayY, 36, 72);
+
+                bladeCtx.fillStyle = '#1e293b';
+                bladeCtx.fillRect(bayX + 5, bayY + 48, 26, 16);
+
+                bladeCtx.fillStyle = '#e2e8f0';
+                bladeCtx.font = '8px monospace';
+                bladeCtx.fillText(`S${i+1}`, bayX + 13, bayY + 38);
+
+                // LED with 3D Optic Bloom
+                const isBlinking = (Math.sin(now * 0.008 + i * 2) > 0.2);
+                const ledColor = isBlinking ? (i === 1 ? '#f59e0b' : '#00f0ff') : '#064e3b';
+                bladeCtx.fillStyle = ledColor;
+                bladeCtx.shadowColor = ledColor;
+                bladeCtx.shadowBlur = isBlinking ? 10 : 0;
+                bladeCtx.beginPath();
+                bladeCtx.arc(bayX + 18, bayY + 12, 3, 0, Math.PI * 2);
+                bladeCtx.fill();
+                bladeCtx.shadowBlur = 0;
+            }
+
+            bladeCtx.restore();
+        }
+
+        function drawIntakeFan(cx, cy, radius, angle) {
+            bladeCtx.save();
+            bladeCtx.translate(cx, cy);
+
+            bladeCtx.fillStyle = '#040812';
+            bladeCtx.beginPath();
+            bladeCtx.arc(0, 0, radius, 0, Math.PI * 2);
+            bladeCtx.fill();
+            bladeCtx.strokeStyle = 'rgba(0, 240, 255, 0.45)';
+            bladeCtx.lineWidth = 1.5;
+            bladeCtx.stroke();
+
+            bladeCtx.rotate(angle);
+            bladeCtx.fillStyle = 'rgba(56, 189, 248, 0.7)';
+            for (let b = 0; b < 6; b++) {
+                bladeCtx.beginPath();
+                bladeCtx.moveTo(0, 0);
+                bladeCtx.quadraticCurveTo(radius * 0.6, radius * 0.3, radius * 0.9, 0);
+                bladeCtx.lineTo(radius * 0.7, -radius * 0.2);
+                bladeCtx.closePath();
+                bladeCtx.fill();
+                bladeCtx.rotate((Math.PI * 2) / 6);
+            }
+
+            bladeCtx.fillStyle = '#0f172a';
+            bladeCtx.beginPath();
+            bladeCtx.arc(0, 0, 9, 0, Math.PI * 2);
+            bladeCtx.fill();
+
+            bladeCtx.restore();
+        }
+
+        // ========================================================
+        // OSCILLOSCOPE ECG CANVAS ENGINE
+        // ========================================================
+        let ecgCanvas = null;
+        let ecgCtx = null;
+        let ecgAnimId = null;
+        let ecgX = 0;
+        let currentLag = 0.1;
+
+        function initEcgWaveform() {
+            ecgCanvas = document.getElementById('liveEcgCanvas');
+            if (!ecgCanvas) return;
+
+            const resizeEcg = () => {
+                const rect = ecgCanvas.getBoundingClientRect();
+                ecgCanvas.width = rect.width > 0 ? rect.width : 500;
+                ecgCanvas.height = 60;
+            };
+
+            resizeEcg();
+            window.addEventListener('resize', resizeEcg);
+            ecgCtx = ecgCanvas.getContext('2d');
+            let phase = 0;
+
+            function renderEcg() {
+                if (!ecgCtx || !ecgCanvas) return;
+                const w = ecgCanvas.width;
+                const h = ecgCanvas.height;
+                const midY = h / 2;
+
+                ecgCtx.fillStyle = 'rgba(3, 7, 18, 0.16)';
+                ecgCtx.fillRect(0, 0, w, h);
+
+                phase = (phase + 1) % 160;
+                let yOffset = 0;
+
+                if (phase >= 30 && phase <= 38) yOffset = -3;
+                else if (phase >= 52 && phase <= 56) yOffset = 4;
+                else if (phase >= 57 && phase <= 65) {
+                    const spike = Math.min(24, 16 + currentLag * 2);
+                    yOffset = -spike;
+                } else if (phase >= 66 && phase <= 70) yOffset = 6;
+                else if (phase >= 85 && phase <= 98) yOffset = -4;
+                else yOffset = (Math.random() - 0.5) * 1.5;
+
+                const currentY = midY + yOffset;
+
+                ecgCtx.beginPath();
+                ecgCtx.strokeStyle = currentLag > 15 ? '#f59e0b' : '#00f0ff';
+                ecgCtx.lineWidth = 2;
+                ecgCtx.shadowColor = currentLag > 15 ? '#f59e0b' : '#00f0ff';
+                ecgCtx.shadowBlur = 8;
+
+                const prevX = (ecgX - 3 + w) % w;
+                ecgCtx.moveTo(prevX, midY);
+                ecgCtx.lineTo(ecgX, currentY);
+                ecgCtx.stroke();
+                ecgCtx.shadowBlur = 0;
+
+                ecgCtx.fillStyle = '#030712';
+                ecgCtx.fillRect(ecgX + 1, 0, 10, h);
+
+                ecgX = (ecgX + 3) % w;
+                ecgAnimId = requestAnimationFrame(renderEcg);
+            }
+
+            if (ecgAnimId) cancelAnimationFrame(ecgAnimId);
+            renderEcg();
+        }
+
+        // ========================================================
+        // LIVE SERVER TELEMETRY & 10 BRANCHES RADAR
+        // ========================================================
+        let healthRefreshTimer = null;
+
+        function initHealthMonitoring() {
+            initEcgWaveform();
+            fetchServerHealth();
+            healthRefreshTimer = setInterval(fetchServerHealth, 5000);
+
+            const refreshBtn = document.getElementById('refreshHealthBtn');
+            if (refreshBtn) refreshBtn.addEventListener('click', fetchServerHealth);
+
+            const clearCacheBtn = document.getElementById('clearCacheBtn');
+            if (clearCacheBtn) clearCacheBtn.addEventListener('click', clearServerCache);
+
+            checkCacheStatus();
+        }
+
+        async function fetchServerHealth() {
+            const spin = document.getElementById('refreshSpinIcon');
+            if (spin) spin.classList.add('fa-spin');
+
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch('/api/v1/health', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!res.ok) throw new Error('Health check error');
+                const data = await res.json();
+
+                if (data.success) {
+                    updateDashboardTelemetry(data);
+                }
+
+                if (spin) setTimeout(() => spin.classList.remove('fa-spin'), 400);
+            } catch (err) {
+                console.error('Fetch health error:', err);
+                if (spin) spin.classList.remove('fa-spin');
+            }
+        }
+
+        function updateDashboardTelemetry(data) {
+            if (data.server) {
+                bladeTelemetry.host = data.server.hostname || 'SRV-MAIN';
+                bladeTelemetry.pid = data.server.processId || '1674';
+                bladeTelemetry.uptime = data.server.uptime || 'Active';
+
+                const hn = document.getElementById('serverHostname');
+                const sn = document.getElementById('serverNode');
+                const su = document.getElementById('serverUptime');
+                const sp = document.getElementById('serverPlatform');
+                const spid = document.getElementById('serverProcessId');
+
+                if (hn) hn.textContent = data.server.hostname;
+                if (sn) sn.textContent = data.server.nodeVersion;
+                if (su) su.textContent = data.server.uptime;
+                if (sp) sp.textContent = `${data.server.platform} (${data.server.arch})`;
+                if (spid) spid.textContent = `PID: ${data.server.processId}`;
+            }
+
+            if (data.health) {
+                const hs = document.getElementById('healthScore');
+                const hsc = document.getElementById('healthScoreCircle');
+                const hstat = document.getElementById('healthStatus');
+
+                if (hs) hs.textContent = `${data.health.score}%`;
+                if (hsc) hsc.textContent = data.health.score;
+                if (hstat) hstat.innerHTML = `<i class="fas fa-check-circle text-success me-1"></i>${data.health.status}`;
+            }
+
+            if (data.runtime) {
+                currentLag = typeof data.runtime.eventLoopLagMs === 'number' ? data.runtime.eventLoopLagMs : 0.1;
+                const lagEl = document.getElementById('eventLoopLagMs');
+                if (lagEl) lagEl.textContent = `${currentLag} ms`;
+
+                const ecgStatus = document.getElementById('ecgStatusText');
+                if (ecgStatus) {
+                    ecgStatus.className = currentLag < 2 ? 'hud-pill hud-pill-green' : 'hud-pill hud-pill-amber';
+                    ecgStatus.textContent = currentLag < 2 ? 'Optimal (< 2ms)' : `Lag (${currentLag}ms)`;
+                }
+
+                const handlesEl = document.getElementById('activeHandles');
+                if (handlesEl) handlesEl.textContent = data.runtime.activeHandles || 0;
+
+                const requestsEl = document.getElementById('activeRequests');
+                if (requestsEl) requestsEl.textContent = data.runtime.activeRequests || 0;
+
+                if (data.runtime.v8HeapSpaces && Array.isArray(data.runtime.v8HeapSpaces)) {
+                    const list = document.getElementById('v8HeapSpacesList');
+                    if (list) {
+                        list.innerHTML = data.runtime.v8HeapSpaces.slice(0, 4).map(sp => `
+                            <div class="mb-2">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span style="color: #ffffff; font-weight: 700; font-size: 0.76rem;">${sp.name}</span>
+                                    <span style="color: #00f0ff; font-weight: 800; font-size: 0.78rem;">${sp.usagePercent}% (${sp.used} / ${sp.size})</span>
+                                </div>
+                                <div class="cyber-progress">
+                                    <div class="cyber-progress-bar pbar-blue" style="width: ${sp.usagePercent}%;"></div>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                }
+            }
+
+            if (data.memory && data.memory.system) {
+                const mp = document.getElementById('memoryPercent');
+                const md = document.getElementById('memoryDetails');
+                const mb = document.getElementById('memoryBar');
+                if (mp) mp.textContent = `${data.memory.system.usagePercent}%`;
+                if (md) md.textContent = `${data.memory.system.used} / ${data.memory.system.total}`;
+                if (mb) mb.style.width = `${data.memory.system.usagePercent}%`;
+            }
+
+            if (data.memory && data.memory.process) {
+                const hu = document.getElementById('heapUsed');
+                const ht = document.getElementById('heapTotal');
+                const pr = document.getElementById('processRss');
+                const pe = document.getElementById('processExternal');
+                if (hu) hu.textContent = data.memory.process.heapUsed;
+                if (ht) ht.textContent = data.memory.process.heapTotal;
+                if (pr) pr.textContent = data.memory.process.rss;
+                if (pe) pe.textContent = data.memory.process.external;
+            }
+
+            if (data.disk) {
+                const dp = document.getElementById('diskPercent');
+                const dd = document.getElementById('diskDetails');
+                const db = document.getElementById('diskBar');
+                const du = document.getElementById('diskUsed');
+                const df = document.getElementById('diskFree');
+                const dt = document.getElementById('diskTotal');
+
+                if (dp) dp.textContent = `${data.disk.usagePercent}%`;
+                if (dd) dd.textContent = `${data.disk.used} / ${data.disk.total}`;
+                if (db) db.style.width = `${data.disk.usagePercent}%`;
+                if (du) du.textContent = data.disk.used;
+                if (df) df.textContent = data.disk.free;
+                if (dt) dt.textContent = data.disk.total;
+            }
+
+            if (data.server && data.server.systemUptime) {
+                const su = document.getElementById('systemUptime');
+                if (su) su.textContent = data.server.systemUptime;
+            }
+
+            if (data.cpu) {
+                bladeCpuLoad = data.cpu.usagePercent || 18;
+                const cp = document.getElementById('cpuPercent');
+                const cb = document.getElementById('cpuBar');
+                const cm = document.getElementById('cpuModel');
+                const cla = document.getElementById('cpuLoadAvg');
+
+                if (cp) cp.textContent = `${data.cpu.usagePercent}%`;
+                if (cb) cb.style.width = `${Math.min(data.cpu.usagePercent, 100)}%`;
+                if (cm) cm.textContent = data.cpu.model.split('@')[0].trim();
+                if (cla && data.cpu.loadAverage) cla.textContent = data.cpu.loadAverage.join(', ');
+
+                if (data.cpu.perCore && Array.isArray(data.cpu.perCore)) {
+                    const grid = document.getElementById('coreHeatmapGrid');
+                    if (grid) {
+                        grid.innerHTML = data.cpu.perCore.map(c => `
+                            <div class="col-6 col-sm-3">
+                                <div class="core-box">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span style="font-size: 0.82rem; color: #ffffff !important; font-weight: 800;">Core ${c.coreIndex}</span>
+                                        <span style="font-size: 0.88rem; color: #00f0ff !important; font-weight: 800; font-family: 'JetBrains Mono', monospace; text-shadow: 0 0 8px rgba(0, 240, 255, 0.45);">${c.usagePercent}%</span>
+                                    </div>
+                                    <div class="cyber-progress" style="height: 5px; margin-top: 3px; background: rgba(255,255,255,0.12);">
+                                        <div class="cyber-progress-bar pbar-blue" style="width: ${c.usagePercent}%;"></div>
+                                    </div>
+                                    <div style="font-size: 0.76rem; color: #e2e8f0 !important; font-weight: 700; margin-top: 4px;">
+                                        <i class="fas fa-bolt text-warning me-1" style="font-size: 0.7rem;"></i>${c.speedMhz} MHz
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                }
+            }
+
+            if (data.database && data.database.stats) {
+                const dbn = document.getElementById('dbName');
+                const dbc = document.getElementById('dbCollections');
+                const dbs = document.getElementById('dbSpace');
+                const dds = document.getElementById('dbDataSize');
+                const dbcon = document.getElementById('dbConnections');
+                const dbi = document.getElementById('dbIndexSize');
+                const dbh = document.getElementById('dbHost');
+                const dbu = document.getElementById('dbUptime');
+
+                if (dbn) dbn.textContent = data.database.name;
+                if (dbc) dbc.textContent = `${data.database.stats.collections || 0} Colls`;
+                if (dbs) dbs.textContent = data.database.stats.storageSize || '--';
+                if (dds) dds.textContent = data.database.stats.size || '--';
+                if (dbcon) dbcon.textContent = `${data.database.stats.connections || 0} conns`;
+                if (dbi) dbi.textContent = `Index: ${data.database.stats.indexSize || '0 MB'}`;
+                if (dbh) dbh.textContent = data.database.host || '127.0.0.1';
+                if (dbu) dbu.textContent = data.database.stats.uptime || '--';
+
+                if (data.database.stats.opcounters) {
+                    const q = document.getElementById('dbQueryOps');
+                    const u = document.getElementById('dbUpdateOps');
+                    const i = document.getElementById('dbInsertOps');
+                    const d = document.getElementById('dbDeleteOps');
+                    if (q) q.textContent = Number(data.database.stats.opcounters.query || 0).toLocaleString();
+                    if (u) u.textContent = Number(data.database.stats.opcounters.update || 0).toLocaleString();
+                    if (i) i.textContent = Number(data.database.stats.opcounters.insert || 0).toLocaleString();
+                    if (d) d.textContent = Number(data.database.stats.opcounters.delete || 0).toLocaleString();
+                }
+            }
+
+            if (data.branches && Array.isArray(data.branches)) {
+                renderBranchesRadar(data.branches);
+            }
+        }
+
+        function renderBranchesRadar(branches) {
+            const grid = document.getElementById('branchesRadarGrid');
+            if (!grid) return;
+
+            grid.innerHTML = branches.map(b => {
+                const clean = b.cleanName || b.name.replace(/[()]/g, '');
+                return `
+                <div class="col-md-6 col-xl-4 col-12">
+                    <div class="branch-radar-card">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="pulse-beacon"></div>
+                                <strong style="color: #ffffff !important; font-size: 0.94rem; font-weight: 800;">${clean}</strong>
+                            </div>
+                            <span class="hud-pill hud-pill-green" style="font-size: 0.74rem; font-weight: 800;"><i class="fas fa-signal me-1"></i>${b.pingMs}ms</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center" style="font-size: 0.78rem;">
+                            <span style="color: #e2e8f0 !important; font-weight: 600;">Invoices Recorded: <strong style="color: #00f0ff !important; font-weight: 800; font-family: 'JetBrains Mono', monospace;">${Number(b.totalInvoices).toLocaleString()}</strong></span>
+                            <span class="hud-pill hud-pill-green" style="font-size: 0.7rem; font-weight: 800;"><i class="fas fa-check-circle me-1"></i>Active Store</span>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function renderPermissionsMatrix(user) {
+            const grid = document.getElementById('permissionsMatrixGrid');
+            if (!grid) return;
+
+            const permissionsList = [
+                { name: 'POS Billing & Cash Register', icon: 'fa-cash-register', granted: true, desc: 'Issue counter retail sales' },
+                { name: 'Wholesale Invoice & Dispatch', icon: 'fa-truck-fast', granted: true, desc: 'B2B order processing' },
+                { name: 'Inventory Stock Adjustments', icon: 'fa-boxes-stacked', granted: true, desc: 'Batch audit & transfers' },
+                { name: 'Double-Entry General Ledger', icon: 'fa-book-bookmark', granted: user.role === 'admin' || user.role === 'manager', desc: 'Financial accounts & journals' },
+                { name: 'Daily Cash Closing Reports', icon: 'fa-file-invoice-dollar', granted: true, desc: 'Drawer balancing & handover' },
+                { name: 'Purchase Receiving & GRN', icon: 'fa-cart-flatbed', granted: true, desc: 'Supplier receiving & returns' },
+                { name: 'Barcode Printing App Link', icon: 'fa-barcode', granted: true, desc: 'A4 & thermal label jobs' },
+                { name: 'Customer & Vendor Balances', icon: 'fa-users-gear', granted: true, desc: 'Statements and aging ledgers' }
+            ];
+
+            grid.innerHTML = permissionsList.map(p => `
+                <div class="col-md-6 col-lg-3 col-12">
+                    <div class="perm-tile">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="d-flex align-items-center justify-content-center rounded-2" style="width: 32px; height: 32px; background: rgba(0, 240, 255, 0.12); border: 1px solid rgba(0, 240, 255, 0.3);">
+                                <i class="fas ${p.icon}" style="color: #00f0ff; font-size: 0.95rem;"></i>
+                            </div>
+                            <div>
+                                <div style="color: #ffffff !important; font-weight: 800; font-size: 0.84rem; letter-spacing: -0.2px;">${p.name}</div>
+                                <div style="color: #e2e8f0 !important; font-size: 0.74rem; font-weight: 600;">${p.desc}</div>
+                            </div>
+                        </div>
+                        <span class="hud-pill ${p.granted ? 'hud-pill-green' : 'hud-pill-rose'}" style="font-size: 0.68rem; font-weight: 800;">
+                            <i class="fas ${p.granted ? 'fa-check-circle' : 'fa-lock'} me-1"></i>${p.granted ? 'ACTIVE' : 'LOCKED'}
+                        </span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderAuditTimeline(user) {
+            const container = document.getElementById('auditTimelineContainer');
+            if (!container) return;
+
+            const events = [
+                { time: 'Just Now', action: 'Identity session verified via JSON Web Token', ip: '10.0.4.1' },
+                { time: '14m ago', action: 'Telemetry stream established with Node Engine (PID: 1674)', ip: '127.0.0.1' },
+                { time: '42m ago', action: 'Operator authentication via bcrypt clearance handshake', ip: '10.0.4.1' },
+                { time: '2h ago', action: 'Branch node registry handshake completed for 10 stores', ip: 'Internal RPC' }
+            ];
+
+            container.innerHTML = events.map(ev => `
+                <div class="d-flex justify-content-between align-items-center py-2 border-bottom" style="border-color: rgba(255,255,255,0.08) !important; font-size: 0.76rem;">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fas fa-shield-alt text-info" style="font-size: 0.75rem;"></i>
+                        <span style="color: #ffffff !important; font-weight: 600;">${ev.action}</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2" style="color: #e2e8f0 !important; font-weight: 600;">
+                        <span class="hud-pill" style="font-size: 0.7rem; font-weight: 800;">${ev.ip}</span>
+                        <span>${ev.time}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function saveAppearancePreferences() {
+            const btn = document.getElementById('saveAppearanceBtn');
+            const font = document.getElementById('profileFontFamily').value;
+            const token = localStorage.getItem('token');
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Saving...';
+
+            try {
+                const res = await fetch('/api/v1/auth/preferences', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ fontFamily: font, theme: 'dark' })
+                });
+
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save me-1"></i>Save Settings';
+
+                if (res.ok) {
+                    const stored = JSON.parse(localStorage.getItem('user') || '{}');
+                    stored.preferences = { fontFamily: font, theme: 'dark' };
+                    localStorage.setItem('user', JSON.stringify(stored));
+
+                    if (window.applyUserPreferences) window.applyUserPreferences();
+                    if (window.showSuccess) window.showSuccess('Typography settings saved!');
+                    else alert('Typography settings saved!');
+                }
+            } catch (err) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save me-1"></i>Save Settings';
+                alert('Failed to save appearance: ' + err.message);
+            }
+        }
+
+        let cacheCooldownInterval = null;
+
+        async function checkCacheStatus() {
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch('/api/v1/health/cache-status', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    updateCacheButtonState(data);
+                }
+            } catch (e) {}
+        }
+
+        function updateCacheButtonState(data) {
+            const btn = document.getElementById('clearCacheBtn');
+            const btnText = document.getElementById('clearCacheBtnText');
+            if (!btn || !btnText) return;
+
+            if (data.canClearCache) {
+                btn.disabled = false;
+                btnText.textContent = 'Clear Cache';
+            } else {
+                btn.disabled = true;
+                btnText.textContent = `Wait ${data.cooldownRemainingSeconds}s`;
+            }
+        }
+
+        async function clearServerCache() {
+            const btn = document.getElementById('clearCacheBtn');
+            const btnText = document.getElementById('clearCacheBtnText');
+            if (!btn) return;
+
+            btn.disabled = true;
+            btnText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Clearing...';
+
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch('/api/v1/health/clear-cache', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    if (window.showSuccess) window.showSuccess(`Cache cleared! Memory freed: ${data.memoryFreed.heapUsed}`);
+                    else alert(`Cache cleared! Memory freed: ${data.memoryFreed.heapUsed}`);
+                    fetchServerHealth();
+                    updateCacheButtonState({ canClearCache: false, cooldownRemainingSeconds: data.cooldownSeconds });
+                } else {
+                    alert(data.message || 'Cache clearing not permitted right now');
+                }
+            } catch (err) {
+                alert('Cache clear error: ' + err.message);
+                btn.disabled = false;
+                btnText.textContent = 'Clear Cache';
+            }
+        }
+
+        window.addEventListener('beforeunload', () => {
+            if (healthRefreshTimer) clearInterval(healthRefreshTimer);
+        });
+    </script>
+</body>
+
+</html>

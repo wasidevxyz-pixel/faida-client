@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accounting Voucher - Bilal Accounting System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <style>
+        .voucher-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 15px;
+            height: calc(100vh - 60px);
+        }
+
+        .header-form {
+            background: #fff;
+            padding: 15px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .grid-section {
+            flex: 1;
+            background: #fff;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .entry-row {
+            background: #f8f9fa;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .totals-bar {
+            background: #e9ecef;
+            padding: 10px;
+            font-weight: bold;
+            display: flex;
+            justify-content: flex-end;
+            gap: 20px;
+        }
+
+        .total-box {
+            padding: 5px 15px;
+            border-radius: 4px;
+            min-width: 150px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .total-box.debit {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .total-box.credit {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Professional Mobile Enhancements */
+        @media (max-width: 768px) {
+            .page-header {
+                padding: 0.5rem 1rem !important;
+                background-color: #0d6efd !important;
+            }
+
+            .container-fluid {
+                padding: 10px !important;
+                padding-bottom: 80px !important;
+            }
+
+            .card {
+                border-radius: 12px !important;
+                border: none !important;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
+                margin-bottom: 12px !important;
+            }
+
+            .card-header {
+                font-size: 0.9rem !important;
+                border-top-left-radius: 12px !important;
+                border-top-right-radius: 12px !important;
+            }
+
+            .row.g-2.mb-2.align-items-center>div {
+                margin-bottom: 8px;
+            }
+
+            .d-flex.align-items.center.gap-2 label {
+                width: 70px !important;
+                font-size: 0.75rem !important;
+            }
+
+            .form-control,
+            .form-select {
+                height: 36px !important;
+                font-size: 0.85rem !important;
+                border-radius: 8px !important;
+            }
+
+            .bg-light.p-3.border.rounded.mb-3 {
+                padding: 10px !important;
+                border-radius: 10px !important;
+            }
+
+            .table-responsive {
+                max-height: 350px !important;
+            }
+
+            /* Bottom Action Bar */
+            .action-bar-mobile {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: white;
+                display: flex !important;
+                justify-content: space-around;
+                padding: 8px 5px;
+                box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.1);
+                z-index: 1050;
+                border-top: 1px solid #e2e8f0;
+                height: 65px;
+            }
+
+            .action-btn-mobile {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                background: none;
+                border: none;
+                color: #64748b;
+                font-size: 0.65rem;
+                font-weight: 600;
+                flex: 1;
+                transition: all 0.2s;
+            }
+
+            .action-btn-mobile i {
+                font-size: 1.25rem;
+                margin-bottom: 3px;
+            }
+
+            .action-btn-mobile:active {
+                color: #0d6efd;
+            }
+
+            .action-btn-mobile.btn-save i {
+                color: #10b981;
+            }
+
+            .action-btn-mobile.btn-clear i {
+                color: #f59e0b;
+            }
+
+            .action-btn-mobile.btn-list i {
+                color: #3b82f6;
+            }
+
+            .d-flex.gap-2.mt-4 {
+                display: none !important;
+                /* Hide desktop buttons */
+            }
+        }
+
+        .voucher-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 15px;
+            height: calc(100vh - 60px);
+        }
+
+        .header-form {
+            background: #fff;
+            padding: 15px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .grid-section {
+            flex: 1;
+            background: #fff;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .entry-row {
+            background: #f8f9fa;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .totals-bar {
+            background: #e9ecef;
+            padding: 10px;
+            font-weight: bold;
+            display: flex;
+            justify-content: flex-end;
+            gap: 20px;
+        }
+
+        .total-box {
+            padding: 5px 15px;
+            border-radius: 4px;
+            min-width: 150px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .total-box.debit {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .total-box.credit {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-header px-3">
+        <div style="flex: 1; display: flex; align-items: center;">
+            <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+            <i class="fas fa-book me-2"></i> Voucher Entry
+        </div>
+        <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
+            <div class="dropdown">
+                <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown" style="cursor: pointer;">
+                    <i class="fas fa-user-circle me-2" style="font-size: 1.2rem;"></i>
+                    <span id="userName" class="me-2">User</span>
+                    <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                    <li><a class="dropdown-item logout-btn" href="#"><i
+                                class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid p-3">
+        <!-- Voucher Entry Form -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white py-1">
+                <i class="fas fa-edit me-2"></i> New Voucher Entry
+            </div>
+            <div class="card-body">
+                <!-- Row 1: Sr, Date, Branch, Detail -->
+                <div class="row g-2 mb-2 align-items-center">
+                    <div class="col-md-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <label class="small fw-bold text-nowrap" style="width: 80px;">Voucher Sr</label>
+                            <input type="text" id="voucherSr" class="form-control form-control-sm" readonly
+                                placeholder="Auto">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <label class="small fw-bold text-nowrap" style="width: 50px;">Date</label>
+                            <input type="date" id="voucherDate" class="form-control form-control-sm">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <label class="small fw-bold text-nowrap" style="width: 60px;">Branch</label>
+                            <select id="branch" class="form-select form-select-sm">
+                                <option value="Shop">Shop</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center gap-2">
+                            <label class="small fw-bold text-nowrap" style="width: 50px;">Detail</label>
+                            <input type="text" id="narration" class="form-control form-control-sm"
+                                placeholder="Main Narration">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 2: Type, Cash, Voucher No -->
+                <div class="row g-2 mb-3 align-items-center">
+                    <div class="col-md-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <label class="small fw-bold text-nowrap" style="width: 80px;">Type</label>
+                            <select id="voucherType" class="form-select form-select-sm">
+                                <option value="JV">JV</option>
+                                <option value="CRV">CRV</option>
+                                <option value="CPV">CPV</option>
+                                <option value="BPV">BPV</option>
+                                <option value="BRV">BRV</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="d-flex align-items-center gap-2">
+                            <label class="small fw-bold text-nowrap" style="width: 50px;">Cash</label>
+                            <select id="cashAccount" class="form-select form-select-sm">
+                                <option value="">Select Account</option>
+                                <option value="Cash in Hand">Cash in Hand</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center gap-2">
+                            <label class="small fw-bold text-nowrap" style="width: 80px;">Voucher No</label>
+                            <input type="text" id="voucherNo" class="form-control form-control-sm" readonly
+                                placeholder="Auto">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Entry Row (Quick Add) -->
+                <div class="bg-light p-3 border rounded mb-3">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-2">
+                            <label class="small fw-bold">Filter Type</label>
+                            <select id="accFilterSelect" class="form-select form-select-sm"
+                                onchange="filterAccountDropdown(this.value)">
+                                <option value="all">All</option>
+                                <option value="customer">Customers</option>
+                                <option value="supplier">Suppliers</option>
+                                <option value="ledger">Accounts</option>
+                                <option value="cust_cat">Customer Category</option>
+                                <option value="supp_cat">Supplier Category</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="small fw-bold">Account</label>
+                            <select id="accountSelect" class="form-select form-select-sm"></select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="small fw-bold">Detail</label>
+                            <input type="text" id="lineDetail" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-md-1">
+                            <label class="small fw-bold">Debit</label>
+                            <input type="number" id="lineDebit" class="form-control form-control-sm" value="0">
+                        </div>
+                        <div class="col-md-1">
+                            <label class="small fw-bold">Credit</label>
+                            <input type="number" id="lineCredit" class="form-control form-control-sm" value="0">
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-primary btn-sm w-100" onclick="addEntry()"><i
+                                    class="fas fa-plus"></i> Add Line</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grid -->
+                <div class="table-responsive" style="max-height: 400px;">
+                    <table class="table table-bordered table-sm mb-0">
+                        <thead class="table-info sticky-top">
+                            <tr>
+                                <th>Account</th>
+                                <th>Detail</th>
+                                <th class="text-end" width="120">Debit</th>
+                                <th class="text-end" width="120">Credit</th>
+                                <th width="50" class="text-center">Act</th>
+                            </tr>
+                        </thead>
+                        <tbody id="voucherEntriesBody"></tbody>
+                        <tfoot class="table-light fw-bold">
+                            <tr>
+                                <td colspan="2" class="text-end">Total</td>
+                                <td class="text-end text-success" id="totalDebit">0.00</td>
+                                <td class="text-end text-danger" id="totalCredit">0.00</td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+                    <button class="btn btn-success" onclick="saveVoucher()"><i class="fas fa-save me-1"></i> Save
+                        Voucher</button>
+                    <button class="btn btn-warning" onclick="clearForm()"><i class="fas fa-redo me-1"></i>
+                        Clear</button>
+                    <button class="btn btn-primary" onclick="showList()"><i class="fas fa-list me-1"></i> List</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Voucher List Modal (Daily Cash Style) -->
+    <div class="modal fade" id="listModal" tabindex="-1">
+        <div class="modal-dialog modal-fullscreen modal-dialog-scrollable" style="height: 50vh !important;">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white py-2">
+                    <h5 class="modal-title fs-6">Voucher List</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body bg-light">
+                    <!-- Filters -->
+                    <div class="row g-2 align-items-center mb-3 p-2 bg-white rounded shadow-sm mx-0">
+                        <div class="col-auto"><label class="fw-bold small">From</label></div>
+                        <div class="col-auto"><input type="date" id="listFromDate" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-auto"><label class="fw-bold small">To</label></div>
+                        <div class="col-auto"><input type="date" id="listToDate" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-auto"><label class="fw-bold small">Type</label></div>
+                        <div class="col-auto">
+                            <select id="listType" class="form-select form-select-sm">
+                                <option value="">All Types</option>
+                                <option value="JV">JV</option>
+                                <option value="CRV">CRV</option>
+                                <option value="CPV">CPV</option>
+                                <option value="BPV">BPV</option>
+                                <option value="BRV">BRV</option>
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-success btn-sm" onclick="fetchVoucherList()"><i
+                                    class="fas fa-search"></i> Search</button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm table-striped table-hover small text-center mb-0">
+                            <thead>
+                                <tr style="background-color: #0d6efd !important;">
+                                    <th
+                                        style="background-color: #0d6efd !important; color: white !important; font-weight: bold; padding: 8px; border: 1px solid #dee2e6; text-align: center;">
+                                        Action</th>
+                                    <th
+                                        style="background-color: #0d6efd !important; color: white !important; font-weight: bold; padding: 8px; border: 1px solid #dee2e6; text-align: center;">
+                                        Date</th>
+                                    <th
+                                        style="background-color: #0d6efd !important; color: white !important; font-weight: bold; padding: 8px; border: 1px solid #dee2e6; text-align: center;">
+                                        Voucher No</th>
+                                    <th
+                                        style="background-color: #0d6efd !important; color: white !important; font-weight: bold; padding: 8px; border: 1px solid #dee2e6; text-align: center;">
+                                        Type</th>
+                                    <th
+                                        style="background-color: #0d6efd !important; color: white !important; font-weight: bold; padding: 8px; border: 1px solid #dee2e6; text-align: center;">
+                                        Branch</th>
+                                    <th
+                                        style="background-color: #0d6efd !important; color: white !important; font-weight: bold; padding: 8px; border: 1px solid #dee2e6; text-align: center;">
+                                        Account Info</th>
+                                    <th
+                                        style="background-color: #198754 !important; color: white !important; font-weight: bold; padding: 8px; border: 1px solid #dee2e6; text-align: right;">
+                                        Total Debit</th>
+                                    <th
+                                        style="background-color: #dc3545 !important; color: white !important; font-weight: bold; padding: 8px; border: 1px solid #dee2e6; text-align: right;">
+                                        Total Credit</th>
+                                </tr>
+                            </thead>
+                            <tbody id="voucherListBody" class="bg-white"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Action Bar -->
+    <div class="action-bar-mobile d-none">
+        <button type="button" class="action-btn-mobile btn-save" onclick="saveVoucher()">
+            <i class="fas fa-save"></i>
+            <span>Save</span>
+        </button>
+        <button type="button" class="action-btn-mobile btn-clear" onclick="clearForm()">
+            <i class="fas fa-redo"></i>
+            <span>Clear</span>
+        </button>
+        <button type="button" class="action-btn-mobile btn-list" onclick="showList()">
+            <i class="fas fa-list"></i>
+            <span>List</span>
+        </button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244548"></script>
+    <script src="/js/desktop-ui.js?v=custom"></script>
+    <script src="/js/voucher.js"></script>
+</body>
+
+</html>
+

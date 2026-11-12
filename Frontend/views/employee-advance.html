@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Advance</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #0d6efd;
+            --dark-blue: #0056b3;
+            --custom-blue: #007bff;
+            /* Adjust towards image blue */
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 480px 1fr;
+            /* Slightly wider form panel */
+            gap: 15px;
+            height: calc(100vh - 80px);
+        }
+
+        .form-panel {
+            background: #fff;
+            padding: 20px;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .list-panel {
+            background: #fff;
+            border: 1px solid #dee2e6;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .form-row-compact {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            /* Increased spacing */
+        }
+
+        .form-label-compact {
+            flex: 0 0 140px;
+            /* Fixed label width */
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 0;
+            color: #333;
+        }
+
+        .form-input-compact {
+            flex: 1;
+        }
+
+        /* Custom Colors from Image */
+        .bg-custom-blue {
+            background-color: #007bff !important;
+            color: white !important;
+            border: 1px solid #0056b3;
+        }
+
+        .bg-custom-header {
+            background-color: #1a5c9a !important;
+            /* Matched Dark Blue */
+        }
+
+        /* Compact Table & List Styling */
+        .table-custom-header th {
+            background-color: #007bff;
+            /* Header Blue */
+            color: white;
+            font-weight: normal;
+            border: 1px solid #fff;
+            /* White borders */
+            padding: 4px 8px;
+            font-size: 0.85rem;
+        }
+
+        .table-striped>tbody>tr:nth-of-type(odd)>* {
+            background-color: #dbeafe;
+            /* Light blue stripe */
+            color: #000;
+        }
+
+        .table-striped>tbody>tr:nth-of-type(even)>* {
+            background-color: #bfdbfe;
+            /* Slightly darker blue stripe */
+            color: #000;
+        }
+
+        .table-bordered> :not(caption)>*>* {
+            border-width: 0 1px 1px 0;
+            border-color: #fff;
+            /* White borders */
+        }
+
+        .table-sm td {
+            padding: 4px 8px;
+            font-size: 0.85rem;
+            vertical-align: middle;
+        }
+
+        /* Action Buttons */
+        .btn-action-sm {
+            padding: 2px 6px;
+            font-size: 0.75rem;
+            border-radius: 2px;
+            margin-right: 2px;
+            color: white;
+            border: none;
+        }
+
+        .btn-action-edit {
+            background-color: #28a745;
+        }
+
+        .btn-action-delete {
+            background-color: #dc3545;
+        }
+
+        .btn-action-view {
+            background-color: #17a2b8;
+        }
+
+        /* Button Group at bottom */
+        .btn-toolbar-custom {
+            display: flex;
+            gap: 10px;
+            margin-top: auto;
+            /* Push to bottom */
+            justify-content: space-between;
+        }
+
+        /* Custom Search Styling (same as WH Purchase) */
+        .list-group-item-action:hover,
+        .list-group-item-action.active {
+            background-color: #0d6efd !important;
+            color: white !important;
+        }
+
+        .list-group-item-action:hover .text-muted,
+        .list-group-item-action.active .text-muted {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        /* Professional Mobile Enhancements */
+        @media (max-width: 768px) {
+            .page-header {
+                padding: 0.5rem 1rem !important;
+                background-color: #0d47a1 !important;
+            }
+
+            .page-header .fs-5 {
+                font-size: 1rem !important;
+            }
+
+            .page-header #userName,
+            .page-header .fa-chevron-down {
+                display: none;
+            }
+
+            .grid-container {
+                display: block !important;
+                height: auto !important;
+            }
+
+            .form-panel {
+                padding: 15px !important;
+                border: none !important;
+                border-radius: 0 !important;
+            }
+
+            .list-panel {
+                display: none;
+                /* Hidden by default on mobile, toggled with JS */
+                height: calc(100vh - 145px) !important;
+                border: none !important;
+            }
+
+            .form-row-compact {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                margin-bottom: 12px !important;
+            }
+
+            .form-label-compact {
+                flex: 0 0 auto !important;
+                width: 100% !important;
+                margin-bottom: 4px !important;
+                font-size: 0.8rem !important;
+                color: #64748b !important;
+            }
+
+            .container-fluid {
+                padding: 0 !important;
+                padding-bottom: 80px !important;
+            }
+
+            /* Bottom Action Bar */
+            .action-bar-mobile {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: white;
+                display: flex !important;
+                justify-content: space-around;
+                padding: 8px 5px;
+                box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.1);
+                z-index: 1050;
+                border-top: 1px solid #e2e8f0;
+                height: 65px;
+            }
+
+            .action-btn-mobile {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                background: none;
+                border: none;
+                color: #64748b;
+                font-size: 0.65rem;
+                font-weight: 600;
+                flex: 1;
+                transition: all 0.2s;
+            }
+
+            .action-btn-mobile i {
+                font-size: 1.25rem;
+                margin-bottom: 3px;
+            }
+
+            .action-btn-mobile.active,
+            .action-btn-mobile:active {
+                color: #0d47a1;
+            }
+
+            .action-btn-mobile.btn-save i {
+                color: #10b981;
+            }
+
+            .action-btn-mobile.btn-clear i {
+                color: #ef4444;
+            }
+
+            .action-btn-mobile.btn-list i {
+                color: #f59e0b;
+            }
+
+            .action-btn-mobile.btn-inst i {
+                color: #3b82f6;
+            }
+
+            .btn-toolbar-custom {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-header px-3 bg-custom-header" style="background-color: #0d47a1 !important;">
+        <div style="flex: 1; display: flex; align-items: center;">
+            <i class="fas fa-bars me-3 text-white" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+            <span class="text-white fw-bold fs-5">Employee Advance</span>
+        </div>
+        <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
+            <div class="dropdown">
+                <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown" style="cursor: pointer;">
+                    <i class="fas fa-user-circle me-2" style="font-size: 1.2rem;"></i>
+                    <span id="userName" class="me-2">User</span>
+                    <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                    <li><a class="dropdown-item logout-btn" href="#"><i
+                                class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid p-2"> <!-- Reduced padding -->
+        <div class="grid-container">
+            <!-- Left Form -->
+            <div class="form-panel shadow-sm">
+                <input type="hidden" id="advanceId">
+
+                <!-- Search/Department equivalent? Keeping it simple or mimicking image? -->
+                <!-- Image has 'Select Department' then 'Pay' then Date -->
+
+                <div class="mb-2">
+                    <select id="department" class="form-select form-select-sm">
+                        <option value="">Select Department</option>
+                    </select>
+                </div>
+
+                <div class="mb-2">
+                    <select id="transactionType" class="form-select form-select-sm">
+                        <option value="Pay">Pay</option>
+                        <option value="Received">Received</option>
+                    </select>
+                </div>
+
+                <div class="form-row-compact">
+                    <label class="form-label-compact">Date</label>
+                    <div class="form-input-compact">
+                        <input type="date" id="date" class="form-control form-control-sm" required>
+                    </div>
+                </div>
+
+                <div class="form-row-compact">
+                    <label class="form-label-compact">Branch</label>
+                    <div class="form-input-compact">
+                        <select id="branch" class="form-select form-select-sm" onchange="filterEmployees()">
+                            <option value="">Select Branch</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row-compact">
+                    <label class="form-label-compact">Code</label>
+                    <div class="form-input-compact">
+                        <input type="text" id="code" name="emp_code_field" class="form-control form-control-sm"
+                            autocomplete="nope">
+                    </div>
+                </div>
+
+                <div class="form-row-compact">
+                    <label class="form-label-compact">Employee *</label>
+                    <div class="form-input-compact position-relative">
+                        <input type="text" id="employeeInput" name="employee_search_field"
+                            class="form-control form-control-sm" placeholder="Type Name or Code to Search..."
+                            autocomplete="off">
+                        <div id="employeeSearchResults" class="list-group position-absolute"
+                            style="display:none; z-index:9999; width:100%; max-height:300px; overflow-y:auto; top:100%; left:0;">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row-compact">
+                    <label class="form-label-compact">Pre Month Bal</label>
+                    <div class="form-input-compact">
+                        <input type="number" id="preMonthBal" class="form-control form-control-sm bg-custom-blue"
+                            value="0" readonly>
+                    </div>
+                </div>
+
+                <div class="form-row-compact">
+                    <label class="form-label-compact">Current Month Bal</label>
+                    <div class="form-input-compact">
+                        <input type="number" id="currentMonthBal" class="form-control form-control-sm bg-custom-blue"
+                            value="0" readonly>
+                    </div>
+                </div>
+
+                <div class="form-row-compact">
+                    <label class="form-label-compact">Total</label>
+                    <div class="form-input-compact">
+                        <input type="number" id="total" class="form-control form-control-sm bg-custom-blue" value="0"
+                            readonly>
+                    </div>
+                </div>
+
+                <div class="form-row-compact">
+                    <label class="form-label-compact">Salary</label>
+                    <div class="form-input-compact">
+                        <input type="number" id="salary" class="form-control form-control-sm bg-custom-blue" value="0"
+                            readonly>
+                    </div>
+                </div>
+
+                <div class="form-row-compact">
+                    <label class="form-label-compact">Paid</label>
+                    <div class="form-input-compact">
+                        <input type="number" id="paid" class="form-control form-control-sm" value="0"
+                            oninput="calculateTotals()">
+                    </div>
+                </div>
+
+                <div class="form-row-compact">
+                    <label class="form-label-compact">Balance</label>
+                    <div class="form-input-compact">
+                        <input type="number" id="balance" class="form-control form-control-sm bg-custom-blue" value="0"
+                            readonly>
+                    </div>
+                </div>
+
+                <div class="form-row-compact">
+                    <label class="form-label-compact">Pay Mode</label>
+                    <div class="form-input-compact">
+                        <select id="docMode" class="form-select form-select-sm">
+                            <option value="Cash">Cash</option>
+                            <option value="Bank">Bank</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row-compact">
+                    <label class="form-label-compact">Remarks</label>
+                    <div class="form-input-compact">
+                        <input type="text" id="remarks" class="form-control form-control-sm">
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <!-- Buttons -->
+                <div class="mt-auto pt-3 border-top">
+                    <div class="d-flex align-items-center gap-2">
+                        <button class="btn btn-success btn-sm px-4" onclick="saveAdvance()">Save</button>
+                        <button class="btn btn-danger btn-sm px-4" onclick="clearForm()">Clear</button>
+                        <div class="ms-auto">
+                            <button class="btn btn-primary btn-sm" onclick="openInstallmentModal()">Add Monthly
+                                Installment</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right List -->
+            <div class="list-panel shadow-sm">
+                <!-- Advanced Search Filter Bar -->
+                <div class="p-2 border-bottom bg-light">
+                    <div class="row g-2 align-items-center">
+                        <div class="col-auto"><span class="fw-bold fs-6">From</span></div>
+                        <div class="col-auto">
+                            <input type="date" id="searchFromDate" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-auto"><span class="fw-bold fs-6">To</span></div>
+                        <div class="col-auto">
+                            <input type="date" id="searchToDate" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-primary btn-sm" onclick="loadAdvances()">Search</button>
+                        </div>
+                        <div class="col-auto">
+                            <select id="typeFilter" class="form-select form-select-sm" onchange="loadAdvances()">
+                                <option value="all">All Advances</option>
+                                <option value="manual" selected>Current Advances (Manual)</option>
+                                <option value="payroll">Payroll Deductions</option>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <input type="text" id="searchInput" class="form-control form-control-sm"
+                                placeholder="Search...">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive flex-grow-1">
+                    <table class="table table-striped table-hover table-sm mb-0 table-bordered">
+                        <thead class="table-custom-header sticky-top">
+                            <tr>
+                                <th>Dated</th>
+                                <th>Inv Time</th>
+                                <th>Employee</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Payment Mode</th>
+                                <th>Bank Name</th>
+                                <th>User Name</th>
+                                <th>Modified By</th>
+                                <th>Modified At</th>
+                                <th>Remarks</th>
+                                <th>Action</th> <!-- Added Action for Edit/Delete -->
+                            </tr>
+                        </thead>
+                        <tbody id="advanceBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Installment Modal -->
+    <div class="modal fade" id="installmentModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Employee Monthly Adv Installment</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body bg-light">
+                    <div class="text-center mb-3">
+                        <h4 id="modalEmpName" class="fw-bold">EMPLOYEE NAME</h4>
+                    </div>
+                    <div class="mb-3">
+                        <input type="text" id="modalEmpCode" class="form-control" readonly>
+                    </div>
+
+                    <div class="row g-3">
+                        <!-- Pre Month Balance Section -->
+                        <div class="col-md-6">
+                            <div class="card shadow-sm border-0">
+                                <div class="card-header bg-primary text-white fw-bold">
+                                    Pre Month Balance
+                                </div>
+                                <div class="card-body p-3">
+                                    <div class="mb-2 row align-items-center">
+                                        <label class="col-sm-4 col-form-label fw-bold">Pre Bal</label>
+                                        <div class="col-sm-8">
+                                            <input type="number" id="modalPreBal1"
+                                                class="form-control bg-primary text-white" readonly value="0">
+                                        </div>
+                                    </div>
+                                    <div class="mb-2 row align-items-center">
+                                        <label class="col-sm-4 col-form-label fw-bold">Installment</label>
+                                        <div class="col-sm-8">
+                                            <input type="number" id="modalInstallment1" class="form-control" value="0"
+                                                oninput="calculateModalTotals()">
+                                        </div>
+                                    </div>
+                                    <div class="mb-0 row align-items-center">
+                                        <label class="col-sm-4 col-form-label fw-bold">Balance</label>
+                                        <div class="col-sm-8">
+                                            <input type="number" id="modalBalance1"
+                                                class="form-control bg-primary text-white" readonly value="0">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Current Month Balance Section -->
+                        <div class="col-md-6">
+                            <div class="card shadow-sm border-0">
+                                <div class="card-header bg-primary text-white fw-bold">
+                                    Current Month Balance
+                                </div>
+                                <div class="card-body p-3">
+                                    <div class="mb-2 row align-items-center">
+                                        <label class="col-sm-4 col-form-label fw-bold">Pre Bal</label>
+                                        <div class="col-sm-8">
+                                            <input type="number" id="modalPreBal2"
+                                                class="form-control bg-primary text-white" value="0"
+                                                oninput="calculateModalTotals()">
+                                        </div>
+                                    </div>
+                                    <div class="mb-2 row align-items-center">
+                                        <label class="col-sm-4 col-form-label fw-bold">Installment</label>
+                                        <div class="col-sm-8">
+                                            <input type="number" id="modalInstallment2" class="form-control" value="0"
+                                                oninput="calculateModalTotals()">
+                                        </div>
+                                    </div>
+                                    <div class="mb-0 row align-items-center">
+                                        <label class="col-sm-4 col-form-label fw-bold">Balance</label>
+                                        <div class="col-sm-8">
+                                            <input type="number" id="modalBalance2"
+                                                class="form-control bg-primary text-white" readonly value="0">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <button class="btn btn-success" onclick="saveInstallment()">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <!-- Authorization Modal (Password verification for Edit/Delete) -->
+    <div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content shadow-lg border-0">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title fw-bold" id="authModalLabel"><i class="fas fa-lock me-2"></i>Security
+                        Verification</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-muted mb-4 text-center">Please enter your password to authorize this modification.
+                    </p>
+                    <div class="mb-3">
+                        <label for="authUsername" class="form-label fw-bold">Username</label>
+                        <input type="text" class="form-control form-control-lg bg-light" id="authUsername" readonly>
+                    </div>
+                    <div class="mb-4">
+                        <label for="authPassword" class="form-label fw-bold">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-white border-end-0"><i
+                                    class="fas fa-key text-muted"></i></span>
+                            <input type="password" class="form-control form-control-lg border-start-0" id="authPassword"
+                                placeholder="Enter password" autofocus>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-danger btn-lg w-100 fw-bold shadow-sm"
+                        onclick="confirmModification()">
+                        <i class="fas fa-check-circle me-2"></i>Confirm Modification
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Action Bar -->
+    <div class="action-bar-mobile d-none">
+        <button type="button" class="action-btn-mobile btn-list" id="mobileToggleBtn" onclick="toggleMobileView()">
+            <i class="fas fa-list-alt"></i>
+            <span id="toggleText">View List</span>
+        </button>
+        <button type="button" class="action-btn-mobile btn-save" onclick="saveAdvance()">
+            <i class="fas fa-save"></i>
+            <span>Save</span>
+        </button>
+        <button type="button" class="action-btn-mobile btn-clear" onclick="clearForm()">
+            <i class="fas fa-undo"></i>
+            <span>Clear</span>
+        </button>
+        <button type="button" class="action-btn-mobile btn-inst" onclick="openInstallmentModal()">
+            <i class="fas fa-layer-group"></i>
+            <span>Installments</span>
+        </button>
+    </div>
+
+    <script>
+        function toggleMobileView() {
+            const formPanel = document.querySelector('.form-panel');
+            const listPanel = document.querySelector('.list-panel');
+            const toggleText = document.getElementById('toggleText');
+            const toggleIcon = document.querySelector('#mobileToggleBtn i');
+
+            if (formPanel.style.display !== 'none') {
+                formPanel.style.setProperty('display', 'none', 'important');
+                listPanel.style.setProperty('display', 'flex', 'important');
+                toggleText.innerText = 'View Entry';
+                toggleIcon.className = 'fas fa-edit';
+                loadAdvances(); // Refresh list when switching
+            } else {
+                formPanel.style.setProperty('display', 'flex', 'important');
+                listPanel.style.setProperty('display', 'none', 'important');
+                toggleText.innerText = 'View List';
+                toggleIcon.className = 'fas fa-list-alt';
+            }
+        }
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244469"></script>
+    <script src="/js/employee-advance.js?v=5.9"></script>
+</body>
+
+</html>

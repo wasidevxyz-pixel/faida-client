@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Ledger Report - BAS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #1e4c8c 0%, #2c5ba9 100%);
+            --accent-color: #00a65a;
+        }
+
+        body {
+            background-color: #f8fafc;
+        }
+
+        .report-container {
+            padding: 15px;
+            height: calc(100vh - 60px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-panel {
+            background: var(--primary-gradient);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            color: white;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-panel label {
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 6px;
+            display: block;
+            opacity: 0.9;
+        }
+
+        .filter-panel .form-control,
+        .filter-panel .form-select {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: white !important;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .filter-panel .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .filter-panel .form-control:focus,
+        .filter-panel .form-select:focus {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+            border-color: white;
+        }
+
+        .filter-panel .form-select option {
+            color: #333;
+        }
+
+        .data-panel {
+            flex: 1;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #edf2f7;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            padding: 20px;
+            background: #f8fafc;
+            border-bottom: 1px solid #edf2f7;
+        }
+
+        .summary-card {
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(0, 0, 0, 0.03);
+            transition: transform 0.2s;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .summary-card.opening {
+            background: #eff6ff;
+            color: #1e40af;
+        }
+
+        /* Blue */
+        .summary-card.debit {
+            background: #fff1f2;
+            color: #9f1239;
+        }
+
+        /* Red */
+        .summary-card.credit {
+            background: #f0fdf4;
+            color: #166534;
+        }
+
+        /* Green */
+        .summary-card.closing {
+            background: #1e3a8a;
+            color: white;
+        }
+
+        /* Dark Blue */
+
+        .summary-card .label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-bottom: 4px;
+            opacity: 0.8;
+            display: block;
+        }
+
+        .summary-card .value {
+            font-size: 1.1rem;
+            font-weight: 800;
+        }
+
+        .table-container {
+            flex: 1;
+            overflow: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            min-width: 600px;
+        }
+
+        .data-table thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .data-table th {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 12px 15px;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .data-table td {
+            padding: 10px 15px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.8rem;
+        }
+
+        .type-badge {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .type-advance {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .type-payroll {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .type-adjustment {
+            background: #fef9c3;
+            color: #854d0e;
+        }
+
+        .debit-amount {
+            color: #dc2626;
+            font-weight: 600;
+        }
+
+        .credit-amount {
+            color: #16a34a;
+            font-weight: 600;
+        }
+
+        .print-header {
+            display: none;
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 3px double #333;
+            padding-bottom: 10px;
+        }
+
+        #suggestionsBox {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            z-index: 1050;
+            background: white;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            max-height: 250px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            display: none;
+        }
+
+        .suggestion-item {
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #333;
+            font-size: 0.85rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .suggestion-item:hover,
+        .suggestion-item.active {
+            background-color: #1e4c8c;
+            color: white;
+        }
+
+        @media (max-width: 992px) {
+            .summary-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .report-container {
+                padding: 5px;
+                height: auto;
+            }
+
+            .summary-cards {
+                grid-template-columns: 1fr;
+                gap: 10px;
+                padding: 10px;
+            }
+
+            .filter-panel {
+                padding: 15px;
+                border-radius: 0;
+            }
+
+            .data-panel {
+                border-radius: 0;
+                border: none;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 8px;
+                font-size: 0.75rem;
+            }
+
+            .value {
+                font-size: 1rem;
+            }
+        }
+
+        @media print {
+
+            .page-header,
+            .filter-panel,
+            #sidebarToggle,
+            .sidebar {
+                display: none !important;
+            }
+
+            .main-content {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .report-container {
+                padding: 0;
+                height: auto;
+                display: block;
+            }
+
+            .print-header {
+                display: block;
+            }
+
+            .summary-cards {
+                grid-template-columns: repeat(4, 1fr);
+                background: white;
+                border: 1px solid #ddd;
+            }
+
+            .summary-card {
+                border: 1px solid #ccc;
+                color: black !important;
+                background: white !important;
+            }
+
+            .summary-card.closing {
+                font-weight: bold;
+                background: #eee !important;
+            }
+
+            .data-table th {
+                background: #eee !important;
+                color: black;
+                border-bottom: 1px solid black;
+            }
+
+            .data-table td {
+                border-bottom: 1px solid #eee;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main-content">
+        <div class="page-header px-3">
+            <div class="d-flex align-items-center">
+
+                <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer;"></i>
+                <h6 class="mb-0 fw-bold"><i class="fas fa-id-card-alt me-2"></i>EMPLOYEE LEDGER REPORT</h6>
+            </div>
+        </div>
+
+        <div class="report-container">
+            <!-- Print Header -->
+            <div class="print-header">
+                <h2 class="fw-bold mb-1">BILAL ACCOUNTING SYSTEM</h2>
+                <h4 class="text-uppercase mb-2">Employee Ledger Report</h4>
+                <div class="d-flex justify-content-between px-4 mt-3">
+                    <span id="printEmpName">Employee: ________________</span>
+                    <span>Period: <span id="printPeriod">__/__/____ to __/__/____</span></span>
+                </div>
+            </div>
+
+            <div class="filter-panel shadow-sm">
+                <div class="row g-2 align-items-end">
+                    <div class="col-lg-2 col-md-4">
+                        <label>Branch</label>
+                        <select class="form-select" id="branchFilter">
+                            <option value="">All Branches</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-2 col-md-4">
+                        <label>Department</label>
+                        <select class="form-select" id="deptFilter">
+                            <option value="">All Departments</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-3 col-md-4 position-relative">
+                        <label>Select Employee</label>
+                        <input type="text" class="form-control" id="empSearch" placeholder="Search by name or code..."
+                            autocomplete="off">
+                        <input type="hidden" id="selectedEmpId">
+                        <div id="suggestionsBox"></div>
+                    </div>
+                    <div class="col-lg-2 col-md-3 col-6">
+                        <label>From Date</label>
+                        <input type="date" id="dateFrom" class="form-control">
+                    </div>
+                    <div class="col-lg-2 col-md-3 col-6">
+                        <label>To Date</label>
+                        <input type="date" id="dateTo" class="form-control">
+                    </div>
+                    <div class="col-lg-2 col-md-4">
+                        <label>Filter Mode</label>
+                        <select class="form-select" id="filterMode">
+                            <option value="all">With Payroll (All)</option>
+                            <option value="advance">Without Payroll (Advance Only)</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-5 col-md-12 mt-lg-0 mt-3">
+                        <div class="d-flex gap-1">
+                            <button class="btn btn-light flex-fill fw-bold shadow-sm" onclick="generateReport()">
+                                <i class="fas fa-sync-alt me-1"></i>GENERATE
+                            </button>
+                            <button class="btn btn-info text-white flex-fill fw-bold shadow-sm" onclick="syncLedger()">
+                                <i class="fas fa-database me-1"></i>SYNC
+                            </button>
+                            <button class="btn btn-warning text-white fw-bold shadow-sm" style="min-width: 100px;"
+                                onclick="handlePrint()">
+                                <i class="fas fa-print me-1"></i>PRINT
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="data-panel">
+                <div class="summary-cards">
+                    <div class="summary-card opening">
+                        <span class="label">Opening Balance</span>
+                        <div class="value" id="valOpening">0.00</div>
+                    </div>
+                    <div class="summary-card debit">
+                        <span class="label">Total Debit (+)</span>
+                        <div class="value" id="valDebit">0.00</div>
+                    </div>
+                    <div class="summary-card credit">
+                        <span class="label">Total Credit (-)</span>
+                        <div class="value" id="valCredit">0.00</div>
+                    </div>
+                    <div class="summary-card closing">
+                        <span class="label">Closing Balance</span>
+                        <div class="value" id="valClosing">0.00</div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 100px">Date</th>
+                                <th style="width: 80px">Type</th>
+                                <th>Description</th>
+                                <th style="width: 110px" class="text-end">Debit</th>
+                                <th style="width: 110px" class="text-end">Credit</th>
+                                <th style="width: 120px" class="text-end">Balance</th>
+                                <th style="width: 60px" class="no-print"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="ledgerBody">
+                            <tr>
+                                <td colspan="6" class="text-center py-5 text-muted">
+                                    <i class="fas fa-search me-2"></i>Search and select an employee to view ledger
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244473"></script>
+    <script>
+        const token = localStorage.getItem('token');
+        let employees = [];
+        let currentIndex = -1;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Set default dates to current date
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('dateFrom').value = today;
+            document.getElementById('dateTo').value = today;
+
+            await loadEmployees();
+
+            // Handle URL params if coming from another page
+            const params = new URLSearchParams(window.location.search);
+            const empId = params.get('employeeId');
+            if (empId) {
+                const emp = employees.find(e => e._id === empId);
+                if (emp) {
+                    selectEmployee(emp);
+                    generateReport();
+                }
+            }
+        });
+
+        async function loadEmployees() {
+            try {
+                // 1. Fetch Employees
+                const resEmp = await fetch('/api/v1/employees', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const dataEmp = await resEmp.json();
+                if (dataEmp.success) employees = dataEmp.data;
+
+                // 2. Fetch Branches (Standardized with dashboard fallback)
+                let resBranches = await fetch('/api/v1/stores', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!resBranches.ok) {
+                    resBranches = await fetch('/api/v1/sub-branches', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                }
+
+                const dataBranches = await resBranches.json();
+                if (dataBranches.success && dataBranches.data) {
+                    const bSelect = document.getElementById('branchFilter');
+                    const rawNames = dataBranches.data.map(item => (item.name || item.branchName || '').trim());
+                    const uniqueBranches = [...new Set(rawNames)].filter(n => n !== '').sort();
+
+                    if (uniqueBranches.length === 1) {
+                        bSelect.innerHTML = '';
+                    } else {
+                        bSelect.innerHTML = '<option value="">All Branches</option>';
+                    }
+
+                    uniqueBranches.forEach(name => {
+                        const opt = document.createElement('option');
+                        opt.value = name;
+                        opt.textContent = name;
+                        bSelect.appendChild(opt);
+                    });
+
+                    if (uniqueBranches.length === 1) {
+                        bSelect.value = uniqueBranches[0];
+                    }
+                }
+
+                // 3. Fetch Departments
+                const resDepts = await fetch('/api/v1/employee-departments', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const dataDepts = await resDepts.json();
+                if (dataDepts.success) {
+                    const dSelect = document.getElementById('deptFilter');
+                    dataDepts.data.sort((a, b) => a.name.localeCompare(b.name)).forEach(dept => {
+                        const opt = document.createElement('option');
+                        opt.value = dept.name; // Use name for matching
+                        opt.textContent = dept.name;
+                        dSelect.appendChild(opt);
+                    });
+                }
+            } catch (err) { console.error('Load Error:', err); }
+        }
+
+        const empSearch = document.getElementById('empSearch');
+        const suggestionsBox = document.getElementById('suggestionsBox');
+
+        empSearch.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const branch = document.getElementById('branchFilter').value;
+            const dept = document.getElementById('deptFilter').value;
+
+            currentIndex = -1; // Reset index on input
+            if (!term) {
+                suggestionsBox.style.display = 'none';
+                return;
+            }
+
+            const filtered = employees.filter(emp => {
+                // Match Branch (String)
+                const matchesBranch = !branch || emp.branch === branch;
+
+                // Match Dept (Can be ID or Object with name)
+                let matchesDept = !dept;
+                if (dept) {
+                    if (typeof emp.department === 'object' && emp.department !== null) {
+                        matchesDept = emp.department.name === dept;
+                    } else {
+                        // If it's just an ID, we might need to find the dept name or just skip
+                        // But usually the API returns populated department for search
+                        matchesDept = emp.department === dept;
+                    }
+                }
+
+                const matchesSearch = emp.name.toLowerCase().includes(term) ||
+                    (emp.code && emp.code.toLowerCase().includes(term));
+
+                return matchesBranch && matchesDept && matchesSearch;
+            }).slice(0, 10);
+
+            if (filtered.length > 0) {
+                suggestionsBox.innerHTML = filtered.map((emp, idx) => `
+                    <div class="suggestion-item" onclick='selectEmployee(${JSON.stringify(emp).replace(/'/g, "&apos;")})'>
+                        <strong>${emp.name}</strong> <small class="text-muted">(${emp.code || 'N/A'})</small>
+                    </div>
+                `).join('');
+                suggestionsBox.style.display = 'block';
+            } else {
+                suggestionsBox.style.display = 'none';
+            }
+        });
+
+        empSearch.addEventListener('keydown', (e) => {
+            const items = suggestionsBox.querySelectorAll('.suggestion-item');
+            if (!items.length) return;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                currentIndex = (currentIndex + 1) % items.length;
+                updateFocus(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                currentIndex = (currentIndex - 1 + items.length) % items.length;
+                updateFocus(items);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (currentIndex > -1) {
+                    items[currentIndex].click();
+                } else if (items.length > 0) {
+                    items[0].click();
+                }
+            } else if (e.key === 'Escape') {
+                suggestionsBox.style.display = 'none';
+            }
+        });
+
+        function updateFocus(items) {
+            items.forEach((item, idx) => {
+                if (idx === currentIndex) {
+                    item.classList.add('active');
+                    item.scrollIntoView({ block: 'nearest' });
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        function selectEmployee(emp) {
+            empSearch.value = `${emp.name} (${emp.code || 'N/A'})`;
+            document.getElementById('selectedEmpId').value = emp._id;
+            suggestionsBox.style.display = 'none';
+            document.getElementById('printEmpName').textContent = 'Employee: ' + emp.name + ' (' + (emp.code || 'N/A') + ')';
+        }
+
+        async function syncLedger() {
+            const empId = document.getElementById('selectedEmpId').value;
+            if (!empId) return alert('Please select an employee first');
+
+            const btn = event.target.closest('button');
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> SYNCING...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/v1/employee-ledger/rebuild', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ employeeId: empId })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Ledger re-calculated successfully!');
+                    generateReport();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (err) {
+                alert('Sync failed: ' + err.message);
+            } finally {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+            }
+        }
+
+        async function generateReport() {
+            const empId = document.getElementById('selectedEmpId').value;
+            const from = document.getElementById('dateFrom').value;
+            const to = document.getElementById('dateTo').value;
+            const mode = document.getElementById('filterMode').value;
+
+            if (!empId) {
+                alert('Please select an employee first');
+                return;
+            }
+
+            const body = document.getElementById('ledgerBody');
+            body.innerHTML = '<tr><td colspan="6" class="text-center py-5"><div class="spinner-border text-primary"></div></td></tr>';
+
+            try {
+                const res = await fetch(`/api/v1/employee-ledger/${empId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (!data.success) throw new Error(data.message);
+
+                let ledger = data.data;
+
+                // 1. First, we need to handle the "Without Payroll" filter
+                if (mode === 'advance') {
+                    ledger = ledger.filter(item => item.referenceModel !== 'Payroll');
+                }
+
+                // 2. Handle Date Filtering and Opening Balance
+                // We need to calculate opening balance as of 'from' date
+                let openingBalance = 0;
+                const filteredLedger = [];
+
+                // Sort by date and then by creation to ensure proper balance tracking
+                ledger.sort((a, b) => new Date(a.date) - new Date(b.date) || new Date(a.createdAt) - new Date(b.createdAt));
+
+                let runningBal = 0;
+                let totalDebit = 0;
+                let totalCredit = 0;
+
+                ledger.forEach(item => {
+                    const itemDate = item.date.split('T')[0];
+                    if (itemDate < from) {
+                        openingBalance += (item.debit || 0) - (item.credit || 0);
+                    } else if (itemDate <= to) {
+                        filteredLedger.push(item);
+                    }
+                });
+
+                runningBal = openingBalance;
+                let html = `
+                    <tr class="table-light">
+                        <td colspan="3" class="text-end fw-bold">Opening Balance</td>
+                        <td class="text-end">-</td>
+                        <td class="text-end">-</td>
+                        <td class="text-end fw-bold">${openingBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                    </tr>
+                `;
+
+                filteredLedger.forEach(item => {
+                    runningBal += (item.debit || 0) - (item.credit || 0);
+                    totalDebit += (item.debit || 0);
+                    totalCredit += (item.credit || 0);
+
+                    const typeClass = item.type.toLowerCase();
+                    const badgeClass = typeClass === 'advance' ? 'type-advance' :
+                        (typeClass === 'payroll' ? 'type-payroll' : 'type-adjustment');
+
+                    const canDelete = item.referenceModel === 'EmployeeAdvance' && item.referenceId;
+                    const deleteBtn = canDelete
+                        ? `<button onclick="deleteEntry('${item.referenceId}')" style="background:#dc3545;color:white;border:none;border-radius:4px;padding:2px 7px;font-size:11px;cursor:pointer;" title="Delete this advance entry"><i class="fas fa-trash"></i></button>`
+                        : '';
+
+                    html += `
+                        <tr>
+                            <td>${new Date(item.date).toLocaleDateString('en-GB')}</td>
+                            <td><span class="type-badge ${badgeClass}">${item.type}</span></td>
+                            <td>${item.description}</td>
+                            <td class="text-end debit-amount">${item.debit > 0 ? item.debit.toLocaleString(undefined, { minimumFractionDigits: 2 }) : ''}</td>
+                            <td class="text-end credit-amount">${item.credit > 0 ? item.credit.toLocaleString(undefined, { minimumFractionDigits: 2 }) : ''}</td>
+                            <td class="text-end fw-bold">${runningBal.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                            <td class="text-center no-print">${deleteBtn}</td>
+                        </tr>
+                    `;
+                });
+
+                // Add Total row
+                if (filteredLedger.length > 0) {
+                    html += `
+                        <tr class="table-light">
+                            <td colspan="3" class="text-end fw-bold">TOTAL PERIOD SUMMARY</td>
+                            <td class="text-end fw-bold debit-amount">${totalDebit.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                            <td class="text-end fw-bold credit-amount">${totalCredit.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                            <td class="text-end fw-bold">${runningBal.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                            <td class="no-print"></td>
+                        </tr>
+                    `;
+                }
+
+                document.getElementById('valOpening').textContent = openingBalance.toLocaleString(undefined, { minimumFractionDigits: 2 });
+                document.getElementById('valDebit').textContent = totalDebit.toLocaleString(undefined, { minimumFractionDigits: 2 });
+                document.getElementById('valCredit').textContent = totalCredit.toLocaleString(undefined, { minimumFractionDigits: 2 });
+                document.getElementById('valClosing').textContent = runningBal.toLocaleString(undefined, { minimumFractionDigits: 2 });
+
+                body.innerHTML = html || '<tr><td colspan="6" class="text-center py-5">No transactions found for this period</td></tr>';
+                document.getElementById('printPeriod').textContent = `${from} to ${to}`;
+
+            } catch (err) {
+                body.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-danger">${err.message}</td></tr>`;
+            }
+        }
+
+        async function deleteEntry(advanceId) {
+            if (!confirm('Delete this advance entry? This will permanently remove it and rebuild the ledger.')) return;
+            try {
+                const res = await fetch(`/api/v1/employee-advances/${advanceId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    // Rebuild ledger for this employee
+                    const empId = document.getElementById('selectedEmpId').value;
+                    if (empId) {
+                        await fetch('/api/v1/employee-ledger/rebuild', {
+                            method: 'POST',
+                            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ employeeId: empId })
+                        });
+                    }
+                    generateReport();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (err) {
+                alert('Delete failed: ' + err.message);
+            }
+        }
+
+        function handlePrint() {
+            window.print();
+        }
+
+        // Close search list on outside click
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.position-relative')) {
+                suggestionsBox.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+
+</html>
+

@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supplier WH Tax Report - Bilal Accounting System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <style>
+        .report-container {
+            padding: 15px;
+            height: calc(100vh - 60px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-panel {
+            background: linear-gradient(135deg, #1a5f7a 0%, #0288d1 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            color: white;
+        }
+
+        .filter-panel label {
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .filter-panel .form-control,
+        .filter-panel .form-select {
+            border: none;
+            border-radius: 5px;
+        }
+
+        .data-panel {
+            flex: 1;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .data-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .data-header h5 {
+            margin: 0;
+            color: #1a5f7a;
+        }
+
+        .table-container {
+            flex: 1;
+            overflow: auto;
+            padding: 20px;
+        }
+
+        /* Report Specific Styles */
+        .category-header {
+            border: 1px solid black;
+            border-bottom: none;
+        }
+
+        table.table-bordered {
+            border: 1px solid black !important;
+        }
+
+        table.table-bordered th,
+        table.table-bordered td {
+            border: 1px solid black !important;
+            vertical-align: middle;
+            font-size: 0.85rem;
+            padding: 4px 8px;
+        }
+
+        /* Force Row Colors (Screen & Print) */
+        tr.total-row td,
+        .total-row td {
+            background-color: #2980b9 !important;
+            color: white !important;
+        }
+
+        tr.bg-light td {
+            background-color: #f0f0f0 !important;
+        }
+
+        tfoot tr td {
+            background-color: black !important;
+            color: white !important;
+            border-right: 1px solid white !important;
+        }
+
+        /* Print Styles */
+        @media print {
+            @page {
+                size: A4;
+                margin: 8mm;
+                /* Increased from 5mm */
+            }
+
+            body,
+            html {
+                height: auto !important;
+                width: 100% !important;
+                overflow: visible !important;
+                font-size: 9.5px !important;
+            }
+
+            .filter-panel,
+            .page-header,
+            .sidebar,
+            .data-header,
+            .no-print {
+                display: none !important;
+            }
+
+            .report-container {
+                position: relative;
+                width: 100%;
+                height: auto !important;
+                padding: 0;
+                margin: 0;
+                overflow: visible !important;
+                display: block !important;
+            }
+
+            .table-container {
+                overflow: visible !important;
+                height: auto !important;
+                max-height: none !important;
+                padding: 0;
+                display: block !important;
+            }
+
+            .print-header {
+                display: block !important;
+            }
+
+            h2,
+            h4,
+            h5,
+            p {
+                margin: 4px 0 !important;
+            }
+
+            /* Enforce background colors */
+            .category-header {
+                background-color: #2980b9 !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                padding: 5px !important;
+                font-size: 1.2rem !important;
+            }
+
+            table.table-bordered {
+                border: 1px solid black !important;
+                width: 100% !important;
+                margin-bottom: 0 !important;
+            }
+
+            table.table-bordered th,
+            table.table-bordered td {
+                border: 1px solid black !important;
+                font-size: 9.5px !important;
+                padding: 2px 2px !important;
+                line-height: 1.1;
+                vertical-align: middle;
+            }
+
+            /* Balanced columns - Let browser auto-layout but allow wrapping for text fields */
+            table.table-bordered th,
+            table.table-bordered td {
+                white-space: normal !important;
+            }
+
+            /* Specific shrink for small columns */
+            table.table-bordered th:nth-child(1),
+            /* Sr */
+            table.table-bordered th:nth-child(9)
+
+            /* Tax% */
+                {
+                width: 1% !important;
+                white-space: nowrap !important;
+            }
+
+            thead th {
+                background-color: #2c3e50 !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                white-space: nowrap !important;
+            }
+
+            tr.bg-light td {
+                background-color: #f0f0f0 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            tr.total-row td {
+                background-color: #2980b9 !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            tfoot tr td {
+                background-color: black !important;
+                color: white !important;
+                border: 1px solid black;
+                border-right: 1px solid white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="print-header" style="display:none; text-align:center; margin-bottom:20px;">
+        <h2 id="printReportTitle"
+            style="margin:0; text-transform:uppercase; letter-spacing:1px; text-decoration: underline;">Supplier WH Tax
+            Report</h2>
+        <h4 id="printBranchName" style="margin:5px 0 0; color:#000; font-weight: bold;"></h4>
+        <h5 id="printSubtitle" style="margin:5px 0; text-transform: uppercase;">With Holding Tax Detail</h5>
+        <p id="printDateRange" style="margin:5px 0 0; font-weight: bold; font-size:14px; color:#000;"></p>
+    </div>
+
+    <div class="page-header px-3">
+        <div style="flex: 1; display: flex; align-items: center;">
+            <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+            <i class="fas fa-file-invoice-dollar me-2"></i> Supplier WH Tax Report
+        </div>
+        <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
+            <div class="dropdown">
+                <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown" style="cursor: pointer;">
+                    <i class="fas fa-user-circle me-2" style="font-size: 1.2rem;"></i>
+                    <span id="userName" class="me-2">User</span>
+                    <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                    <li><a class="dropdown-item logout-btn" href="#"><i
+                                class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="report-container">
+        <!-- Filter Panel -->
+        <!-- Filter Panel -->
+        <div class="filter-panel">
+            <div class="row g-2 align-items-end">
+                <div class="col">
+                    <label class="d-block text-truncate">Sheet From</label>
+                    <input type="date" id="filterFromDate" class="form-control form-control-sm">
+                </div>
+                <div class="col">
+                    <label class="d-block text-truncate">Sheet To</label>
+                    <input type="date" id="filterToDate" class="form-control form-control-sm">
+                </div>
+                <div class="col">
+                    <label class="d-block text-truncate">Inv From</label>
+                    <input type="date" id="filterInvFromDate" class="form-control form-control-sm">
+                </div>
+                <div class="col">
+                    <label class="d-block text-truncate">Inv To</label>
+                    <input type="date" id="filterInvToDate" class="form-control form-control-sm">
+                </div>
+                <div class="col">
+                    <label class="d-block text-truncate">Branch</label>
+                    <select id="filterBranch" class="form-select form-select-sm">
+                        <option value="">All Branches</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <label class="d-block text-truncate">Category</label>
+                    <select id="filterCategory" class="form-select form-select-sm">
+                        <option value="">All Categories</option>
+                    </select>
+                </div>
+                <div class="col" style="min-width: 200px; flex-grow: 2;">
+                    <label class="d-block text-truncate">Supplier</label>
+                    <div class="position-relative">
+                        <div class="input-group input-group-sm">
+                            <input type="text" id="supplierSearchInput" class="form-control"
+                                placeholder="Type to search..." autocomplete="off">
+                            <button class="btn btn-outline-secondary" type="button" onclick="clearSupplierSearch()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <input type="hidden" id="filterSupplier">
+                        <div id="supplierSuggestions" class="list-group position-absolute w-100 shadow"
+                            style="z-index: 1000; max-height: 300px; overflow-y: auto; display: none;"></div>
+                    </div>
+                </div>
+                <div class="col">
+                    <label class="d-block text-truncate">Type</label>
+                    <select id="reportType" class="form-select form-select-sm">
+                        <option value="detailed">Detailed</option>
+                        <option value="summary">Summary</option>
+                    </select>
+                </div>
+                <div class="col-auto d-flex gap-1" style="padding-bottom: 2px;">
+                    <button class="btn btn-light px-3" onclick="loadReport()" title="Search">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <button class="btn btn-success px-3" onclick="exportToExcel()" title="Excel Export">
+                        <i class="fas fa-file-excel"></i>
+                    </button>
+                    <button class="btn btn-warning px-3" onclick="window.print()" title="Print">
+                        <i class="fas fa-print"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Panel -->
+        <div class="data-panel">
+            <div class="data-header">
+                <h5><i class="fas fa-list me-2"></i>Tax Details</h5>
+            </div>
+
+            <div class="table-container" id="reportContainer">
+                <div class="no-data p-5 text-center">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">Select filters and click "Search"</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244541"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+    <script>
+        // Inline JS for Report Logic
+        let companyInfo = {};
+
+        function getExcelHeaderTitle(companyName, branchText, fromDate, toDate) {
+            let datePart = '';
+            if (fromDate && toDate) {
+                const fdParts = fromDate.split('-');
+                const tdParts = toDate.split('-');
+                if (fdParts.length === 3 && tdParts.length === 3) {
+                    const fDay = parseInt(fdParts[2], 10);
+                    const fMonth = parseInt(fdParts[1], 10);
+                    const fYear = parseInt(fdParts[0], 10);
+                    const tDay = parseInt(tdParts[2], 10);
+                    const tMonth = parseInt(tdParts[1], 10);
+                    const tYear = parseInt(tdParts[0], 10);
+                    
+                    const lastDayOfFMonth = new Date(fYear, fMonth, 0).getDate();
+                    
+                    if (fDay === 1 && tDay === lastDayOfFMonth && fMonth === tMonth && fYear === tYear) {
+                        const dateObj = new Date(fYear, fMonth - 1, 1);
+                        const monthName = dateObj.toLocaleString('en-US', { month: 'long' }).toUpperCase();
+                        datePart = `${monthName} ${fYear}`;
+                    } else {
+                        datePart = `FROM ${formatDate(fromDate).toUpperCase()} TO ${formatDate(toDate).toUpperCase()}`;
+                    }
+                }
+            } else if (fromDate) {
+                datePart = `FROM ${formatDate(fromDate).toUpperCase()}`;
+            } else if (toDate) {
+                datePart = `TO ${formatDate(toDate).toUpperCase()}`;
+            }
+
+            let cleanBranch = '';
+            if (branchText && branchText !== 'All Branches') {
+                cleanBranch = branchText.replace(/^\(|\)$/g, '').trim().toUpperCase();
+            }
+
+            const cleanCompany = (companyName || 'D.WATSON PHARMACY').trim().toUpperCase();
+            
+            if (cleanBranch) {
+                return `${cleanCompany} ${cleanBranch} SUPPLIER WHT DETAILS ${datePart}`.trim();
+            } else {
+                return `${cleanCompany} (ALL BRANCHES) SUPPLIER WHT DETAILS ${datePart}`.trim();
+            }
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-PK', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount || 0);
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const d = new Date(dateStr);
+            return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' });
+        }
+
+        function escapeCsvValue(value) {
+            const text = value === null || value === undefined ? '' : String(value);
+            return `"${text.replace(/"/g, '""').replace(/\r?\n/g, ' ').trim()}"`;
+        }
+
+        function getVisibleTableRows(table) {
+            const rows = [];
+
+            const headerCells = Array.from(table.querySelectorAll('thead th:not(.no-print), thead td:not(.no-print)'));
+            if (headerCells.length > 0) {
+                rows.push(headerCells.map(cell => cell.textContent.trim()));
+            }
+
+            table.querySelectorAll('tbody tr, tfoot tr').forEach(tr => {
+                const cells = Array.from(tr.querySelectorAll('th:not(.no-print), td:not(.no-print)'));
+                if (cells.length === 0) return;
+                rows.push(cells.map(cell => cell.textContent.replace(/\s+/g, ' ').trim()));
+            });
+
+            return rows;
+        }
+
+        function buildReportCsv() {
+            const container = document.getElementById('reportContainer');
+            const sections = container ? Array.from(container.querySelectorAll('.category-section')) : [];
+
+            if (sections.length === 0) {
+                return null;
+            }
+
+            const lines = [];
+            const reportTitle = document.getElementById('printReportTitle')?.innerText?.trim() || 'Supplier WH Tax Report';
+            const branchName = document.getElementById('printBranchName')?.innerText?.trim() || '';
+            const dateRange = document.getElementById('printDateRange')?.innerText?.trim() || '';
+
+            lines.push(escapeCsvValue(reportTitle));
+            if (branchName) lines.push(escapeCsvValue(branchName));
+            if (dateRange) lines.push(escapeCsvValue(dateRange));
+            lines.push('');
+
+            sections.forEach(section => {
+                const categoryTitle = section.querySelector('.category-header')?.textContent?.trim() || 'Category';
+                lines.push(escapeCsvValue(`Category: ${categoryTitle}`));
+
+                const table = section.querySelector('table');
+                if (!table) {
+                    lines.push('');
+                    return;
+                }
+
+                getVisibleTableRows(table).forEach(row => {
+                    lines.push(row.map(escapeCsvValue).join(','));
+                });
+
+                lines.push('');
+            });
+
+            return `\uFEFF${lines.join('\n')}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            const token = localStorage.getItem('token');
+            if (!token) { window.location.href = 'login'; return; }
+
+            const d = new Date();
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+
+            const todayStr = `${year}-${month}-${day}`;
+            const firstDayStr = `${year}-${month}-01`;
+
+            document.getElementById('filterFromDate').value = firstDayStr;
+            document.getElementById('filterToDate').value = todayStr;
+
+            try {
+                const res = await fetch('/api/v1/settings/company-info', { headers: { 'Authorization': `Bearer ${token}` } });
+                const cmpData = await res.json();
+                if (cmpData.success) {
+                    companyInfo = cmpData.data || {};
+                }
+            } catch (e) {
+                console.error('Error fetching company info:', e);
+            }
+
+            await loadBranches();
+            await loadSuppliers();
+            await loadCategories();
+        });
+
+        async function loadBranches() {
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch('/api/v1/stores', { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await res.json();
+                if (data.success) {
+                    const sel = document.getElementById('filterBranch');
+                    const rawNames = data.data.map(item => (item.name || item.branchName || '').trim());
+                    const uniqueBranches = [...new Set(rawNames)].filter(n => n !== '').sort();
+
+                    if (uniqueBranches.length === 1) {
+                        sel.innerHTML = '';
+                    } else {
+                        sel.innerHTML = '<option value="">All Branches</option>';
+                    }
+
+                    uniqueBranches.forEach(name => {
+                        const branchId = data.data.find(b => (b.name || b.branchName) === name)._id;
+                        sel.innerHTML += `<option value="${branchId}">${name}</option>`;
+                    });
+
+                    if (uniqueBranches.length === 1) {
+                        const firstBranch = data.data.find(b => (b.name || b.branchName) === uniqueBranches[0]);
+                        sel.value = firstBranch._id;
+                    }
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        let allSuppliers = [];
+
+        async function loadSuppliers() {
+            try {
+                const token = localStorage.getItem('token');
+                // Fetch all categories to ensure map is full (addressing Uncategorized issue)
+                await loadCategories();
+
+                const res = await fetch('/api/v1/suppliers?limit=5000&isActive=true', { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await res.json();
+                if (data.success) {
+                    allSuppliers = data.data || [];
+                    allSuppliers.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        // Supplier Search Logic
+        const supplierInput = document.getElementById('supplierSearchInput');
+        const supplierSuggestions = document.getElementById('supplierSuggestions');
+
+        if (supplierInput) {
+            supplierInput.addEventListener('input', function () {
+                const query = this.value.toLowerCase();
+                if (query.length < 1) {
+                    supplierSuggestions.style.display = 'none';
+                    return;
+                }
+
+                const selectedBranch = document.getElementById('filterBranch').value;
+                const matches = allSuppliers.filter(s => {
+                    // Branch filter: if a branch is selected, only show its suppliers
+                    if (selectedBranch) {
+                        const sBranchId = s.branch?._id || s.branch;
+                        if (String(sBranchId) !== String(selectedBranch)) return false;
+                    }
+                    const name = (s.name || '').toLowerCase();
+                    const sub = (s.subCategory || '').toLowerCase();
+                    return name.includes(query) || sub.includes(query);
+                }).slice(0, 20); // Limit to 20 suggestions
+
+                if (matches.length > 0) {
+                    supplierSuggestions.innerHTML = matches.map((s, index) => {
+                        let label = s.name;
+                        if (s.subCategory) label += ` <small class='text-muted'>(${s.subCategory})</small>`;
+                        // Escape quotes for the onclick handler
+                        const safeName = (s.name || '').replace(/'/g, "\\'");
+                        return `<a href="#" class="list-group-item list-group-item-action p-2 suggestion-item" data-index="${index}" onclick="selectSupplier('${s._id}', '${safeName}')">${label}</a>`;
+                    }).join('');
+                    supplierSuggestions.style.display = 'block';
+                } else {
+                    supplierSuggestions.innerHTML = `<div class="p-2 text-muted">No match found</div>`;
+                    supplierSuggestions.style.display = 'block';
+                }
+            });
+
+            // Keyboard Navigation
+            let currentFocus = -1;
+            supplierInput.addEventListener('keydown', function (e) {
+                const items = supplierSuggestions.getElementsByTagName('a');
+                if (e.key === 'ArrowDown') {
+                    currentFocus++;
+                    addActive(items);
+                    if (currentFocus >= 0 && items[currentFocus]) {
+                        items[currentFocus].scrollIntoView({ block: "nearest" });
+                    }
+                } else if (e.key === 'ArrowUp') {
+                    currentFocus--;
+                    addActive(items);
+                    if (currentFocus >= 0 && items[currentFocus]) {
+                        items[currentFocus].scrollIntoView({ block: "nearest" });
+                    }
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (currentFocus > -1) {
+                        if (items[currentFocus]) items[currentFocus].click();
+                    } else if (items && items.length > 0) {
+                        // Select first if none selected but available
+                        items[0].click();
+                    }
+                }
+            });
+
+            function addActive(items) {
+                if (!items) return false;
+                removeActive(items);
+                if (currentFocus >= items.length) currentFocus = 0;
+                if (currentFocus < 0) currentFocus = (items.length - 1);
+                items[currentFocus].classList.add('active');
+            }
+
+            function removeActive(items) {
+                for (let i = 0; i < items.length; i++) {
+                    items[i].classList.remove('active');
+                }
+            }
+        }
+
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', function (e) {
+            if (supplierInput && supplierSuggestions && !supplierInput.contains(e.target) && !supplierSuggestions.contains(e.target)) {
+                supplierSuggestions.style.display = 'none';
+            }
+        });
+
+        function selectSupplier(id, name) {
+            document.getElementById('filterSupplier').value = id;
+            document.getElementById('supplierSearchInput').value = name;
+            document.getElementById('supplierSuggestions').style.display = 'none';
+        }
+
+        function clearSupplierSearch() {
+            document.getElementById('filterSupplier').value = '';
+            document.getElementById('supplierSearchInput').value = '';
+            document.getElementById('supplierSuggestions').style.display = 'none';
+        }
+
+        // Clear supplier selection when branch changes
+        document.getElementById('filterBranch').addEventListener('change', function () {
+            clearSupplierSearch();
+        });
+
+        async function loadReport() {
+            const token = localStorage.getItem('token');
+            const container = document.getElementById('reportContainer');
+            const startDate = document.getElementById('filterFromDate').value;
+            const endDate = document.getElementById('filterToDate').value;
+            const branch = document.getElementById('filterBranch').value;
+            const category = document.getElementById('filterCategory').value;
+            const supplier = document.getElementById('filterSupplier').value;
+            const type = document.getElementById('reportType').value;
+
+            const invStartDate = document.getElementById('filterInvFromDate').value;
+            const invEndDate = document.getElementById('filterInvToDate').value;
+
+            // Print Header
+            const branchName = branch ? document.querySelector(`#filterBranch option[value="${branch}"]`).text : 'All Branches';
+            document.getElementById('printBranchName').textContent = branchName.includes('(') ? branchName : `(${branchName})`;
+
+            const titleEl = document.getElementById('printReportTitle');
+            const subTitleEl = document.getElementById('printSubtitle');
+
+            if (type === 'summary') {
+                titleEl.textContent = 'Supplier WH Tax Summary Report';
+                if (subTitleEl) subTitleEl.textContent = 'With Holding Tax Summary';
+            } else {
+                titleEl.textContent = 'Supplier WH Tax Report';
+                if (subTitleEl) subTitleEl.textContent = 'With Holding Tax Detail';
+            }
+
+            let dateStr = `From: ${formatDate(startDate)}   To: ${formatDate(endDate)}`;
+            if (invStartDate || invEndDate) {
+                dateStr += `    |    Inv Date: ${invStartDate ? formatDate(invStartDate) : '...'} To ${invEndDate ? formatDate(invEndDate) : '...'}`;
+            }
+            if (type === 'summary') dateStr += '   (SUMMARY REPORT)';
+            document.getElementById('printDateRange').textContent = dateStr;
+
+            container.innerHTML = `<div class="d-flex justify-content-center p-5"><div class="spinner-border text-primary"></div></div>`;
+
+            try {
+                let url = `/api/v1/supplier-taxes?startDate=${startDate}&endDate=${endDate}&limit=5000`;
+                if (branch) url += `&branch=${branch}`;
+                if (supplier) url += `&supplier=${supplier}`;
+
+                const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+                const result = await response.json();
+
+                if (!result.success || !result.data || result.data.length === 0) {
+                    container.innerHTML = `<div class="no-data p-5 text-center"><p class="text-muted">No data found.</p></div>`;
+                    return;
+                }
+
+                if (type === 'summary') {
+                    renderSummaryReport(result.data, supplier, invStartDate, invEndDate, category);
+                } else {
+                    renderReport(result.data, supplier, invStartDate, invEndDate, category);
+                }
+
+            } catch (e) {
+                console.error(e);
+                container.innerHTML = `<div class="text-danger p-5 text-center">Error: ${e.message}</div>`;
+            }
+        }
+
+        function renderReport(records, selectedSupplierId, invStart, invEnd, selectedCategoryId) {
+            const container = document.getElementById('reportContainer');
+            container.innerHTML = '';
+
+            // Constants for styling
+            const HEADER_BG = '#2980b9'; // Professional Blue
+            const TABLE_HEAD_BG = '#2c3e50'; // Dark Blue
+            const TOTAL_BG = '#2980b9'; // Bright Blue (Matches Header)
+            const GRAND_BG = '#2c3e50'; // Dark Blue
+
+            // 1. Flatten
+            let allEntries = [];
+            records.forEach(rec => {
+                if (rec.entries) {
+                    rec.entries.forEach(ent => {
+                        let s = ent.supplier || {};
+                        let sId = s._id || s;
+                        // Check Supplier ID match if selected
+                        if (selectedSupplierId && sId !== selectedSupplierId) return;
+
+                        // Category Filter
+                        if (selectedCategoryId) {
+                            const cObj = s.category;
+                            const cId = (cObj && cObj._id) ? cObj._id : ((typeof cObj === 'string') ? cObj : null);
+                            if (cId !== selectedCategoryId) return;
+                        }
+
+                        // Inv Date Filter
+                        if (invStart && ent.invoiceDate) {
+                            const iDate = new Date(ent.invoiceDate).toISOString().split('T')[0];
+                            if (iDate < invStart) return;
+                        }
+                        if (invEnd && ent.invoiceDate) {
+                            const iDate = new Date(ent.invoiceDate).toISOString().split('T')[0];
+                            if (iDate > invEnd) return;
+                        }
+
+                        // Determine Category Name
+                        let catName = 'Uncategorized';
+                        let catObj = s.category;
+                        if (catObj && catObj.name) catName = catObj.name;
+                        else if (catObj && typeof catObj === 'string' && categoriesMap[catObj]) catName = categoriesMap[catObj];
+
+                        // WHT Type
+                        let whtType = s.whtType || 'Monthly';
+                        if (whtType === 'null' || !whtType) whtType = 'Monthly';
+
+                        allEntries.push({
+                            ...ent,
+                            branchId: rec.branch?._id || rec.branch,
+                            sheetId: rec._id, // Add Sheet ID
+                            entryId: ent._id, // Add Entry ID
+                            sheetDate: rec.date,
+                            entryDate: rec.createdAt,
+                            categoryName: catName,
+                            whtType: whtType,
+                            supplierName: ent.supplierName || s.name || 'Unknown',
+                            sId: sId,
+                            subCat: ent.subCategory || ''
+                        });
+                    });
+                }
+            });
+
+            if (allEntries.length === 0) {
+                container.innerHTML = `<div class="no-data p-5 text-center"><p class="text-muted">No matching entries found.</p></div>`;
+                window.currentSupplierTaxReportData = null;
+                return;
+            }
+
+            window.currentSupplierTaxReportData = {
+                type: 'detailed',
+                entries: allEntries
+            };
+
+            // Group by Category
+            let grouped = {};
+            allEntries.forEach(e => {
+                if (!grouped[e.categoryName]) grouped[e.categoryName] = [];
+                grouped[e.categoryName].push(e);
+            });
+
+            let html = '';
+            let srNo = 1;
+
+            // Sorted Categories
+            Object.keys(grouped).sort().forEach(catName => {
+                const entries = grouped[catName];
+
+                entries.sort((a, b) => {
+                    if (a.whtType !== b.whtType) return a.whtType.localeCompare(b.whtType);
+                    if (a.supplierName !== b.supplierName) return a.supplierName.localeCompare(b.supplierName);
+                    // Sub Category Sort
+                    let subA = a.subCat || '';
+                    let subB = b.subCat || '';
+                    if (subA !== subB) return subA.localeCompare(subB);
+
+                    // Chronological series: Sheet Date -> Invoice Date -> Entry Time
+                    const sA = new Date(a.sheetDate), sB = new Date(b.sheetDate);
+                    if (sA - sB !== 0) return sA - sB;
+
+                    const iA = new Date(a.invoiceDate), iB = new Date(b.invoiceDate);
+                    if (iA - iB !== 0) return iA - iB;
+
+                    return new Date(a.entryDate) - new Date(b.entryDate);
+                });
+
+                // Start Category Section
+                html += `
+                     <div class="category-section mb-4">
+                         <div class="category-header text-center fw-bold text-uppercase p-2 mb-0"
+                              style="background-color: ${HEADER_BG}; border: 1px solid black; font-size: 1.2rem; color: white !important;">
+                             ${catName}
+                         </div>
+                         <table class="table table-bordered mb-0" style="width:100%;">
+                             <thead class="text-white" style="background-color: ${TABLE_HEAD_BG};">
+                                 <tr>
+                                     <th style="width: 50px;">Sr. No.</th>
+                                     <th>Supplier Name</th>
+                                     <th class="text-center">Sub Category</th>
+                                     <th class="text-center">NTN</th>
+                                     <th class="text-center">Entry Date</th>
+                                     <th class="text-center">Date</th>
+                                     <th class="text-center">Inv No.</th>
+                                     <th class="text-end">Inv Amount</th>
+                                     <th class="text-end" style="width: 50px;">Tax%</th>
+                                     <th class="text-end">Tax Ded.</th>
+                                     <th class="text-end">Adv Tax</th>
+                                     <th class="text-center no-print" style="width: 50px;">Action</th>
+                                 </tr>
+                             </thead>
+                             <tbody>
+                 `;
+
+                let currentWhtType = null;
+                let currentSupplier = null;
+                let currentSubCat = null;
+
+                let grpAmt = 0, grpTax = 0, grpAi = 0; // Totals for the current group (distinct Supplier + SubCat)
+
+                let catAmt = 0, catTax = 0, catAi = 0;
+
+                entries.forEach((item, index) => {
+                    // 1. Check WHT Type Change
+                    if (item.whtType !== currentWhtType) {
+                        // Close previous group if any
+                        if (currentWhtType !== null) {
+                            html += `
+                                <tr class="total-row" style="background-color: ${TOTAL_BG}; color: white; font-weight: bold;">
+                                    <td colspan="7" class="text-center">Total</td>
+                                    <td class="text-end">${formatCurrency(grpAmt)}</td>
+                                    <td></td>
+                                    <td class="text-end">${formatCurrency(grpTax)}</td>
+                                    <td class="text-end">${formatCurrency(grpAi)}</td>
+                                    <td class="no-print"></td>
+                                </tr>
+                             `;
+                            grpAmt = 0; grpTax = 0; grpAi = 0;
+                        }
+
+                        currentWhtType = item.whtType;
+                        currentSupplier = null; // force reset
+                        currentSubCat = null;
+
+                        html += `
+                            <tr class="bg-light fw-bold">
+                                <td colspan="12" class="text-center text-uppercase" style="background-color: #f0f0f0;">${currentWhtType} W.H Tax</td>
+                            </tr>
+                         `;
+                    }
+
+                    // 2. Check Supplier OR SubCategory Change
+                    let itemSubCat = item.subCat || '';
+                    if (item.supplierName !== currentSupplier || itemSubCat !== currentSubCat) {
+                        if (currentSupplier !== null) {
+                            html += `
+                                <tr class="total-row" style="background-color: ${TOTAL_BG}; color: white; font-weight: bold;">
+                                    <td colspan="7" class="text-center">Total</td>
+                                    <td class="text-end">${formatCurrency(grpAmt)}</td>
+                                    <td></td>
+                                    <td class="text-end">${formatCurrency(grpTax)}</td>
+                                    <td class="text-end">${formatCurrency(grpAi)}</td>
+                                    <td class="no-print"></td>
+                                </tr>
+                             `;
+                            grpAmt = 0; grpTax = 0; grpAi = 0;
+                        }
+                        currentSupplier = item.supplierName;
+                        currentSubCat = itemSubCat;
+                    }
+
+                    // Accumulate
+                    grpAmt += (item.invoiceAmount || 0);
+                    grpTax += (item.taxDeducted || 0);
+                    grpAi += (item.aiTaxAmount || 0);
+
+                    catAmt += (item.invoiceAmount || 0);
+                    catTax += (item.taxDeducted || 0);
+                    catAi += (item.aiTaxAmount || 0);
+
+                    // Print Row
+                    html += `
+                        <tr>
+                            <td class="text-center">${srNo++}</td>
+                            <td>${item.supplierName}</td>
+                            <td class="text-center">${item.subCat || '-'}</td>
+                            <td class="text-center">${item.ntn || '-'}</td>
+                            <td class="text-center">${formatDate(item.entryDate)}</td>
+                            <td class="text-center">${formatDate(item.invoiceDate)}</td>
+                            <td class="text-center">${item.invoiceNumber || '-'}</td>
+                            <td class="text-end">${formatCurrency(item.invoiceAmount)}</td>
+                            <td class="text-end">${item.taxPct}%</td>
+                            <td class="text-end">${formatCurrency(item.taxDeducted)}</td>
+                            <td class="text-end">${formatCurrency(item.aiTaxAmount)}</td>
+                            <td class="text-center no-print">
+                                <button class="btn btn-sm btn-primary me-1" onclick="editSupplier('${item.sId}', '${item.branchId}', '${item.sheetDate}', '${item.sheetId}', '${item.entryId}')" title="Edit Entry"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteEntryFromReport('${item.sheetId}', '${item.entryId}')" title="Delete this entry"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                     `;
+                });
+
+                // Close last group
+                if (currentSupplier !== null) {
+                    html += `
+                        <tr class="total-row" style="background-color: ${TOTAL_BG}; color: white; font-weight: bold;">
+                            <td colspan="7" class="text-center">Total</td>
+                            <td class="text-end">${formatCurrency(grpAmt)}</td>
+                            <td></td>
+                            <td class="text-end">${formatCurrency(grpTax)}</td>
+                            <td class="text-end">${formatCurrency(grpAi)}</td>
+                            <td class="no-print"></td>
+                        </tr>
+                     `;
+                }
+
+                // Close Category Table (Grand Total for Category)
+                html += `
+                             </tbody>
+                             <tfoot>
+                                <tr style="font-weight: bold;">
+                                    <td colspan="7" class="text-center" style="background-color: black !important; color: white !important; border-right: 1px solid white !important;">Total for ${catName}</td>
+                                    <td class="text-end" style="background-color: black !important; color: white !important; border-right: 1px solid white !important;">${formatCurrency(catAmt)}</td>
+                                    <td style="background-color: black !important; color: white !important; border-right: 1px solid white !important;"></td>
+                                    <td class="text-end" style="background-color: black !important; color: white !important; border-right: 1px solid white !important;">${formatCurrency(catTax)}</td>
+                                    <td class="text-end" style="background-color: black !important; color: white !important;">${formatCurrency(catAi)}</td>
+                                    <td class="no-print" style="background-color: black !important; color: white !important;"></td>
+                                </tr>
+                             </tfoot>
+                         </table>
+                     </div>
+                 `;
+            });
+
+            container.innerHTML = html;
+
+            renderCategorySummary(container, allEntries);
+        }
+
+        function editSupplier(supplierId, branchId, date, sheetId, entryId) {
+            // Navigate to Supplier WH Tax Entry (supplier-wh-tax.html) with branch and date and IDs
+            if (branchId && date) {
+                let d = date;
+                if (date.includes('T')) d = date.split('T')[0];
+
+                let url = `supplier-wh-tax?branch=${branchId}&date=${d}`;
+                if (sheetId) url += `&sheetId=${sheetId}`;
+                if (entryId) url += `&entryId=${entryId}`;
+
+                window.location.href = url;
+            } else {
+                window.location.href = `supplier-wh-tax`;
+            }
+        }
+
+        async function deleteEntryFromReport(sheetId, entryId) {
+            if (!sheetId || !entryId) {
+                alert('Error: Cannot identify entry to delete.');
+                return;
+            }
+            if (!confirm('Are you sure you want to delete this single entry from the database?')) return;
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch(`/api/v1/supplier-taxes/${sheetId}/entries/${entryId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('Entry deleted successfully!');
+                    loadReport(); // Refresh the report automatically
+                } else {
+                    alert('Error: ' + (data.message || 'Unknown error'));
+                }
+            } catch (e) {
+                alert('Network Error: ' + e.message);
+                console.error(e);
+            }
+        }
+
+        let categoriesMap = {};
+        async function loadCategories() {
+            try {
+                const token = localStorage.getItem('token');
+                // Fetch categories specifically for wht_supplier to match registration screen
+                const res = await fetch('/api/v1/supplier-categories?type=wht_supplier', { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await res.json();
+                if (data.success) {
+                    const sel = document.getElementById('filterCategory');
+                    let opts = '<option value="">All Categories</option>';
+
+                    // Populate Map and Dropdown
+                    // Sort by name
+                    const sorted = (data.data || []).sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+
+                    const seenNames = new Set();
+
+                    sorted.forEach(c => {
+                        // Skip if duplicate name (logic from wht-supplier.js)
+                        if (seenNames.has((c.name || '').trim())) return;
+                        seenNames.add((c.name || '').trim());
+
+                        categoriesMap[c._id] = c.name;
+                        opts += `<option value="${c._id}">${c.name}</option>`;
+                    });
+
+                    if (sel) sel.innerHTML = opts;
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function renderCategorySummary(container, entries) {
+            let summary = {};
+            let grandAmt = 0;
+            let grandTax = 0;
+            let grandAi = 0;
+
+            entries.forEach(entry => {
+                let catName = entry.categoryName || 'Uncategorized';
+
+                if (!summary[catName]) summary[catName] = { amt: 0, tax: 0, ai: 0 };
+
+                const a = entry.invoiceAmount || 0;
+                const t = entry.taxDeducted || 0;
+                const ai = entry.aiTaxAmount || 0;
+
+                summary[catName].amt += a;
+                summary[catName].tax += t;
+                summary[catName].ai += ai;
+
+                grandAmt += a;
+                grandTax += t;
+                grandAi += ai;
+            });
+
+            const sortedCats = Object.keys(summary).sort();
+
+            const sumDiv = document.createElement('div');
+            sumDiv.className = 'mt-5 text-center page-break-inside-avoid';
+
+            let rowsHtml = '';
+            sortedCats.forEach(cat => {
+                const s = summary[cat];
+                rowsHtml += `
+                    <tr style="border-bottom: 1px solid #000;">
+                        <td style="border: 1px solid #000; text-align: left;">${cat}</td>
+                        <td class="text-end" style="border: 1px solid #000;">${Math.round(s.amt).toLocaleString()}</td>
+                        <td class="text-end" style="border: 1px solid #000;">${Math.round(s.tax).toLocaleString()}</td>
+                        <td class="text-end" style="border: 1px solid #000;">${Math.round(s.ai).toLocaleString()}</td>
+                    </tr>
+                `;
+            });
+
+            sumDiv.innerHTML = `
+                <h4 class="fw-bold mb-3">Summary</h4>
+                <div class="table-responsive d-inline-block">
+                    <table class="table table-bordered mb-0" style="border-color: #000; min-width: 600px;">
+                        <thead>
+                            <tr style="background-color: #008080; color: white;">
+                                <th style="background-color: #008080; color: white; border: 1px solid #000;">Supplier Category</th>
+                                <th class="text-end" style="background-color: #008080; color: white; border: 1px solid #000;">Invoice_Amount</th>
+                                <th class="text-end" style="background-color: #008080; color: white; border: 1px solid #000;">Tax_Deducted</th>
+                                <th class="text-end" style="background-color: #008080; color: white; border: 1px solid #000;">Adv_Tax_Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody style="border-color: #000;">
+                            ${rowsHtml}
+                        </tbody>
+                        <tfoot style="border-color: #000;">
+                            <tr style="background-color: #cccccc; border: 1px solid #000; font-weight: bold; font-size: 1.1em;">
+                                <td style="border: 1px solid #000; text-align: left;">TOTAL</td>
+                                <td class="text-end" style="border: 1px solid #000;">${Math.round(grandAmt).toLocaleString()}</td>
+                                <td class="text-end" style="border: 1px solid #000;">${Math.round(grandTax).toLocaleString()}</td>
+                                <td class="text-end" style="border: 1px solid #000;">${Math.round(grandAi).toLocaleString()}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            `;
+
+            container.appendChild(sumDiv);
+        }
+
+        function renderSummaryReport(records, selectedSupplierId, invStart, invEnd, selectedCategoryId) {
+            const container = document.getElementById('reportContainer');
+            container.innerHTML = '';
+
+            // Constants
+            const HEADER_BG = '#2980b9';
+            const TABLE_HEAD_BG = '#2c3e50';
+
+            // Flatten & Filter
+            let allEntries = [];
+            records.forEach(rec => {
+                if (rec.entries) {
+                    rec.entries.forEach(ent => {
+                        let s = ent.supplier || {};
+                        let sId = s._id || s;
+                        if (selectedSupplierId && sId !== selectedSupplierId) return;
+
+                        // Category Filter
+                        if (selectedCategoryId) {
+                            const cObj = s.category;
+                            const cId = (cObj && cObj._id) ? cObj._id : ((typeof cObj === 'string') ? cObj : null);
+                            if (cId !== selectedCategoryId) return;
+                        }
+
+                        if (invStart && ent.invoiceDate) {
+                            if (new Date(ent.invoiceDate).toISOString().split('T')[0] < invStart) return;
+                        }
+                        if (invEnd && ent.invoiceDate) {
+                            if (new Date(ent.invoiceDate).toISOString().split('T')[0] > invEnd) return;
+                        }
+
+                        let catName = 'Uncategorized';
+                        let catObj = s.category;
+                        if (catObj && catObj.name) catName = catObj.name;
+                        else if (catObj && typeof catObj === 'string' && categoriesMap[catObj]) catName = categoriesMap[catObj];
+
+                        allEntries.push({
+                            invoiceAmount: ent.invoiceAmount || 0,
+                            taxDeducted: ent.taxDeducted || 0,
+                            aiTaxAmount: ent.aiTaxAmount || 0,
+                            categoryName: catName,
+                            supplierName: ent.supplierName || s.name || 'Unknown',
+                            subCat: ent.subCategory || '',
+                            ntn: ent.ntn || s.ntn || '',
+                            taxPct: ent.taxPct || 0
+                        });
+                    });
+                }
+            });
+
+            if (allEntries.length === 0) {
+                container.innerHTML = `<div class="no-data p-5 text-center"><p class="text-muted">No matching entries found.</p></div>`;
+                window.currentSupplierTaxReportData = null;
+                return;
+            }
+
+            window.currentSupplierTaxReportData = {
+                type: 'summary',
+                entries: allEntries
+            };
+
+            // Aggregate Format: { Category: { SupplierKey: { name, sub, amt, tax, ai } } }
+            let grouped = {};
+
+            allEntries.forEach(e => {
+                if (!grouped[e.categoryName]) grouped[e.categoryName] = {};
+
+                // Key is Supplier + SubCat to ensure uniqueness
+                const key = `${e.supplierName}||${e.subCat}`;
+
+                if (!grouped[e.categoryName][key]) {
+                    grouped[e.categoryName][key] = {
+                        supplierName: e.supplierName,
+                        subCat: e.subCat,
+                        ntn: e.ntn,
+                        taxPct: e.taxPct,
+                        amt: 0, tax: 0, ai: 0
+                    };
+                }
+
+                grouped[e.categoryName][key].amt += e.invoiceAmount;
+                grouped[e.categoryName][key].tax += e.taxDeducted;
+                grouped[e.categoryName][key].ai += e.aiTaxAmount;
+            });
+
+            let html = '';
+            const catKeys = Object.keys(grouped).sort();
+
+            catKeys.forEach(catName => {
+                const suppKeys = Object.keys(grouped[catName]).sort();
+
+                let catAmt = 0, catTax = 0, catAi = 0;
+                let srNo = 1;
+
+                html += `
+                     <div class="category-section mb-4">
+                         <div class="category-header text-center fw-bold text-uppercase p-2 mb-0" 
+                              style="background-color: ${HEADER_BG}; border: 1px solid black; font-size: 1.2rem; color: white !important;">
+                             ${catName}
+                         </div>
+                         <table class="table table-bordered mb-0" style="width:100%;">
+                             <thead class="text-white" style="background-color: #3498db;">
+                                 <tr>
+                                     <th style="width: 50px; background-color: #3498db !important; color: white !important;">Sr. No.</th>
+                                     <th style="background-color: #3498db !important; color: white !important;">Supplier Name</th>
+                                     <th class="text-center" style="background-color: #3498db !important; color: white !important;">Sub Category</th>
+                                     <th class="text-center" style="background-color: #3498db !important; color: white !important;">NTN</th>
+                                     <th class="text-end" style="background-color: #3498db !important; color: white !important;">Total Amount</th>
+                                     <th class="text-end" style="width: 60px; background-color: #3498db !important; color: white !important;">Tax%</th>
+                                     <th class="text-end" style="background-color: #3498db !important; color: white !important;">Total Tax Ded.</th>
+                                     <th class="text-end" style="background-color: #3498db !important; color: white !important;">Total Adv Tax</th>
+                                 </tr>
+                             </thead>
+                             <tbody>
+                 `;
+
+                suppKeys.forEach(k => {
+                    const item = grouped[catName][k];
+                    catAmt += item.amt;
+                    catTax += item.tax;
+                    catAi += item.ai;
+
+                    html += `
+                        <tr>
+                            <td class="text-center">${srNo++}</td>
+                            <td>${item.supplierName}</td>
+                            <td class="text-center">${item.subCat || '-'}</td>
+                            <td class="text-center">${item.ntn || '-'}</td>
+                            <td class="text-end fw-bold">${formatCurrency(item.amt)}</td>
+                            <td class="text-end fw-bold">${item.taxPct}%</td>
+                            <td class="text-end fw-bold">${formatCurrency(item.tax)}</td>
+                            <td class="text-end fw-bold">${formatCurrency(item.ai)}</td>
+                        </tr>
+                     `;
+                });
+
+                // Category Total
+                html += `
+                             </tbody>
+                             <tfoot>
+                                <tr style="font-weight: bold;">
+                                    <td colspan="4" class="text-center" style="background-color: black !important; color: white !important; border-right: 1px solid white !important;">Total for ${catName}</td>
+                                    <td class="text-end" style="background-color: black !important; color: white !important; border-right: 1px solid white !important;">${formatCurrency(catAmt)}</td>
+                                    <td style="background-color: black !important; color: white !important; border-right: 1px solid white !important;"></td>
+                                    <td class="text-end" style="background-color: black !important; color: white !important; border-right: 1px solid white !important;">${formatCurrency(catTax)}</td>
+                                    <td class="text-end" style="background-color: black !important; color: white !important;">${formatCurrency(catAi)}</td>
+                                </tr>
+                             </tfoot>
+                         </table>
+                     </div>
+                 `;
+            });
+            container.innerHTML = html;
+            renderCategorySummary(container, allEntries); // Reuse summary at bottom
+        }
+
+        function exportToExcel() {
+            const data = window.currentSupplierTaxReportData;
+            if (!data || !data.entries || data.entries.length === 0) {
+                alert('Please generate the report first.');
+                return;
+            }
+
+            const branchSelect = document.getElementById('filterBranch');
+            const selectedBranchText = branchSelect.options[branchSelect.selectedIndex]?.text || 'All Branches';
+            const fromDateVal = document.getElementById('filterFromDate').value;
+            const toDateVal = document.getElementById('filterToDate').value;
+
+            const excelHeaderString = getExcelHeaderTitle(companyInfo.companyName, selectedBranchText, fromDateVal, toDateVal);
+
+            const allEntries = data.entries;
+            const isDetailed = data.type === 'detailed';
+
+            // Constants for colors matching screen styling
+            const HEADER_BG = '#2980b9';
+            const TABLE_HEAD_BG = '#2c3e50';
+            const TABLE_HEAD_BG_SUMMARY = '#3498db';
+            const TOTAL_BG = '#2980b9';
+            const GROUP_BG = '#f0f0f0';
+
+            let tableHtml = '<table border="1" style="border-collapse:collapse; font-family:Calibri,sans-serif; font-size:11pt;">';
+
+            if (isDetailed) {
+                const totalCols = 11;
+                tableHtml += `<tr><td colspan="${totalCols}" style="font-size:14pt;font-weight:bold;text-align:center;height:40px;vertical-align:middle;">${excelHeaderString}</td></tr>`;
+                tableHtml += `<tr><td colspan="${totalCols}"></td></tr>`;
+
+                const grouped = {};
+                allEntries.forEach(e => {
+                    if (!grouped[e.categoryName]) grouped[e.categoryName] = [];
+                    grouped[e.categoryName].push(e);
+                });
+
+                let srNo = 1;
+                Object.keys(grouped).sort().forEach(catName => {
+                    const entries = grouped[catName];
+                    entries.sort((a, b) => {
+                        if (a.whtType !== b.whtType) return (a.whtType||'').localeCompare(b.whtType||'');
+                        if (a.supplierName !== b.supplierName) return (a.supplierName||'').localeCompare(b.supplierName||'');
+                        const sa = a.subCat||'', sb = b.subCat||'';
+                        if (sa !== sb) return sa.localeCompare(sb);
+                        return new Date(a.sheetDate) - new Date(b.sheetDate);
+                    });
+
+                    // Category header (blue)
+                    tableHtml += `<tr><td colspan="${totalCols}" style="background-color:${HEADER_BG};background:${HEADER_BG};color:#FFFFFF;font-weight:bold;text-align:center;font-size:12pt;height:30px;vertical-align:middle;">${catName}</td></tr>`;
+
+                    // Column headers (dark)
+                    const thStyle = `background-color:${TABLE_HEAD_BG};background:${TABLE_HEAD_BG};color:#FFFFFF;font-weight:bold;text-align:center;height:25px;vertical-align:middle;`;
+                    tableHtml += `<tr>` +
+                        `<td style="${thStyle}">Sr. No.</td>` +
+                        `<td style="${thStyle}">Supplier Name</td>` +
+                        `<td style="${thStyle}">Sub Category</td>` +
+                        `<td style="${thStyle}">NTN</td>` +
+                        `<td style="${thStyle}">Entry Date</td>` +
+                        `<td style="${thStyle}">Date</td>` +
+                        `<td style="${thStyle}">Inv No.</td>` +
+                        `<td style="${thStyle}">Inv Amount</td>` +
+                        `<td style="${thStyle}">Tax%</td>` +
+                        `<td style="${thStyle}">Tax Ded.</td>` +
+                        `<td style="${thStyle}">Adv Tax</td>` +
+                    '</tr>';
+
+                    let curWht = null, curSupp = null, curSub = null;
+                    let grpAmt = 0, grpTax = 0, grpAi = 0;
+                    let catAmt = 0, catTax = 0, catAi = 0;
+
+                    entries.forEach(item => {
+                        const itemSub = item.subCat || '';
+
+                        // WHT type separator
+                        if (item.whtType !== curWht) {
+                            if (curWht !== null) {
+                                // close supplier group total
+                                const grpTotalTdStyle = `background-color:${TOTAL_BG};background:${TOTAL_BG};color:#FFFFFF;font-weight:bold;text-align:center;height:22px;vertical-align:middle;`;
+                                const grpTotalTdRightStyle = `background-color:${TOTAL_BG};background:${TOTAL_BG};color:#FFFFFF;font-weight:bold;text-align:right;height:22px;vertical-align:middle;`;
+                                tableHtml += `<tr>` +
+                                    `<td colspan="7" style="${grpTotalTdStyle}">Total</td>` +
+                                    `<td style="${grpTotalTdRightStyle}">${Math.round(grpAmt).toLocaleString()}</td>` +
+                                    `<td style="${grpTotalTdStyle}">&nbsp;</td>` +
+                                    `<td style="${grpTotalTdRightStyle}">${Math.round(grpTax).toLocaleString()}</td>` +
+                                    `<td style="${grpTotalTdRightStyle}">${Math.round(grpAi).toLocaleString()}</td>` +
+                                    `</tr>`;
+                                grpAmt = 0; grpTax = 0; grpAi = 0;
+                            }
+                            curWht = item.whtType;
+                            curSupp = null; curSub = null;
+                            tableHtml += `<tr><td colspan="${totalCols}" style="background-color:${GROUP_BG};background:${GROUP_BG};font-weight:bold;text-align:center;height:22px;vertical-align:middle;">${curWht} W.H Tax</td></tr>`;
+                        }
+
+                        // Supplier/sub-cat group
+                        if (item.supplierName !== curSupp || itemSub !== curSub) {
+                            if (curSupp !== null) {
+                                const grpTotalTdStyle = `background-color:${TOTAL_BG};background:${TOTAL_BG};color:#FFFFFF;font-weight:bold;text-align:center;height:22px;vertical-align:middle;`;
+                                const grpTotalTdRightStyle = `background-color:${TOTAL_BG};background:${TOTAL_BG};color:#FFFFFF;font-weight:bold;text-align:right;height:22px;vertical-align:middle;`;
+                                tableHtml += `<tr>` +
+                                    `<td colspan="7" style="${grpTotalTdStyle}">Total</td>` +
+                                    `<td style="${grpTotalTdRightStyle}">${Math.round(grpAmt).toLocaleString()}</td>` +
+                                    `<td style="${grpTotalTdStyle}">&nbsp;</td>` +
+                                    `<td style="${grpTotalTdRightStyle}">${Math.round(grpTax).toLocaleString()}</td>` +
+                                    `<td style="${grpTotalTdRightStyle}">${Math.round(grpAi).toLocaleString()}</td>` +
+                                    `</tr>`;
+                                grpAmt = 0; grpTax = 0; grpAi = 0;
+                            }
+                            curSupp = item.supplierName;
+                            curSub  = itemSub;
+                        }
+
+                        grpAmt += (item.invoiceAmount || 0); grpTax += (item.taxDeducted || 0); grpAi += (item.aiTaxAmount || 0);
+                        catAmt += (item.invoiceAmount || 0); catTax += (item.taxDeducted || 0); catAi += (item.aiTaxAmount || 0);
+
+                        tableHtml += `<tr style="height:20px;vertical-align:middle;">` +
+                            `<td style="text-align:center;">${srNo++}</td>` +
+                            `<td>${item.supplierName || ''}</td>` +
+                            `<td style="text-align:center;">${item.subCat || '-'}</td>` +
+                            `<td style="text-align:center;">${item.ntn || '-'}</td>` +
+                            `<td style="text-align:center;">${formatDate(item.entryDate)}</td>` +
+                            `<td style="text-align:center;">${formatDate(item.invoiceDate)}</td>` +
+                            `<td style="text-align:center;">${item.invoiceNumber || '-'}</td>` +
+                            `<td style="text-align:right;">${Math.round(item.invoiceAmount||0).toLocaleString()}</td>` +
+                            `<td style="text-align:right;">${item.taxPct||0}%</td>` +
+                            `<td style="text-align:right;">${Math.round(item.taxDeducted||0).toLocaleString()}</td>` +
+                            `<td style="text-align:right;">${Math.round(item.aiTaxAmount||0).toLocaleString()}</td>` +
+                            `</tr>`;
+                    });
+
+                    // Close last supplier group
+                    if (curSupp !== null) {
+                        const grpTotalTdStyle = `background-color:${TOTAL_BG};background:${TOTAL_BG};color:#FFFFFF;font-weight:bold;text-align:center;height:22px;vertical-align:middle;`;
+                        const grpTotalTdRightStyle = `background-color:${TOTAL_BG};background:${TOTAL_BG};color:#FFFFFF;font-weight:bold;text-align:right;height:22px;vertical-align:middle;`;
+                        tableHtml += `<tr>` +
+                            `<td colspan="7" style="${grpTotalTdStyle}">Total</td>` +
+                            `<td style="${grpTotalTdRightStyle}">${Math.round(grpAmt).toLocaleString()}</td>` +
+                            `<td style="${grpTotalTdStyle}">&nbsp;</td>` +
+                            `<td style="${grpTotalTdRightStyle}">${Math.round(grpTax).toLocaleString()}</td>` +
+                            `<td style="${grpTotalTdRightStyle}">${Math.round(grpAi).toLocaleString()}</td>` +
+                            `</tr>`;
+                    }
+
+                    // Category grand total (black)
+                    const catTotalTdStyle = `background-color:#000000;background:#000000;color:#FFFFFF;font-weight:bold;text-align:center;height:25px;vertical-align:middle;`;
+                    const catTotalTdRightStyle = `background-color:#000000;background:#000000;color:#FFFFFF;font-weight:bold;text-align:right;height:25px;vertical-align:middle;`;
+                    tableHtml += `<tr>` +
+                                                        `<td colspan="7" style="${catTotalTdStyle}">Total for ${catName}</td>` +
+                                                        `<td style="${catTotalTdRightStyle}">${Math.round(catAmt).toLocaleString()}</td>` +
+                                                        `<td style="${catTotalTdStyle}">&nbsp;</td>` +
+                                                        `<td style="${catTotalTdRightStyle}">${Math.round(catTax).toLocaleString()}</td>` +
+                                                        `<td style="${catTotalTdRightStyle}">${Math.round(catAi).toLocaleString()}</td>` +
+                                                        `</tr>`;
+
+                    tableHtml += `<tr><td colspan="${totalCols}"></td></tr>`;
+                });
+
+                // Category Summary table at the bottom
+                const catSummary = {};
+                let grandAmt = 0, grandTax = 0, grandAi = 0;
+                allEntries.forEach(e => {
+                    const k = e.categoryName || 'Uncategorized';
+                    if (!catSummary[k]) catSummary[k] = { amt:0, tax:0, ai:0 };
+                    catSummary[k].amt += (e.invoiceAmount||0);
+                    catSummary[k].tax += (e.taxDeducted||0);
+                    catSummary[k].ai += (e.aiTaxAmount||0);
+                });
+
+                tableHtml += `<tr><td colspan="${totalCols}"></td></tr>`;
+                tableHtml += `<tr><td></td><td colspan="4" style="background-color:${TABLE_HEAD_BG};background:${TABLE_HEAD_BG};color:#FFFFFF;font-weight:bold;text-align:center;height:25px;vertical-align:middle;">CATEGORY SUMMARY</td></tr>`;
+                
+                const sumHeaderTdStyle = `background-color:#008080;background:#008080;color:#FFFFFF;font-weight:bold;height:22px;vertical-align:middle;`;
+                const sumHeaderTdRightStyle = `background-color:#008080;background:#008080;color:#FFFFFF;font-weight:bold;text-align:right;height:22px;vertical-align:middle;`;
+                tableHtml += `<tr>` +
+                    `<td></td>` +
+                    `<td style="${sumHeaderTdStyle}">Supplier Category</td>` +
+                    `<td style="${sumHeaderTdRightStyle}">Invoice_Amount</td>` +
+                    `<td style="${sumHeaderTdRightStyle}">Tax_Deducted</td>` +
+                    `<td style="${sumHeaderTdRightStyle}">Adv_Tax_Amount</td>` +
+                    `</tr>`;
+                
+                Object.keys(catSummary).sort().forEach(k => {
+                    const s = catSummary[k];
+                    grandAmt += s.amt; grandTax += s.tax; grandAi += s.ai;
+                    tableHtml += `<tr style="height:20px;vertical-align:middle;">` +
+                        `<td></td>` +
+                        `<td>${k}</td>` +
+                        `<td style="text-align:right;">${Math.round(s.amt).toLocaleString()}</td>` +
+                        `<td style="text-align:right;">${Math.round(s.tax).toLocaleString()}</td>` +
+                        `<td style="text-align:right;">${Math.round(s.ai).toLocaleString()}</td>` +
+                        `</tr>`;
+                });
+                
+                const sumTotalTdStyle = `background-color:#CCCCCC;background:#CCCCCC;font-weight:bold;height:22px;vertical-align:middle;`;
+                const sumTotalTdRightStyle = `background-color:#CCCCCC;background:#CCCCCC;font-weight:bold;text-align:right;height:22px;vertical-align:middle;`;
+                tableHtml += `<tr>` +
+                    `<td></td>` +
+                    `<td style="${sumTotalTdStyle}">TOTAL</td>` +
+                    `<td style="${sumTotalTdRightStyle}">${Math.round(grandAmt).toLocaleString()}</td>` +
+                    `<td style="${sumTotalTdRightStyle}">${Math.round(grandTax).toLocaleString()}</td>` +
+                    `<td style="${sumTotalTdRightStyle}">${Math.round(grandAi).toLocaleString()}</td>` +
+                    `</tr>`;
+
+            } else {
+                // Summary report
+                const totalCols = 8;
+                tableHtml += `<tr><td colspan="${totalCols}" style="font-size:14pt;font-weight:bold;text-align:center;height:40px;vertical-align:middle;">${excelHeaderString}</td></tr>`;
+                tableHtml += `<tr><td colspan="${totalCols}"></td></tr>`;
+
+                const grouped = {};
+                allEntries.forEach(e => {
+                    if (!grouped[e.categoryName]) grouped[e.categoryName] = {};
+                    const key = `${e.supplierName}||${e.subCat}`;
+                    if (!grouped[e.categoryName][key]) {
+                        grouped[e.categoryName][key] = { supplierName:e.supplierName, subCat:e.subCat, ntn:e.ntn, taxPct:e.taxPct, amt:0, tax:0, ai:0 };
+                    }
+                    grouped[e.categoryName][key].amt += e.invoiceAmount;
+                    grouped[e.categoryName][key].tax += e.taxDeducted;
+                    grouped[e.categoryName][key].ai += e.aiTaxAmount;
+                });
+
+                Object.keys(grouped).sort().forEach(catName => {
+                    tableHtml += `<tr><td colspan="${totalCols}" style="background-color:${HEADER_BG};background:${HEADER_BG};color:#FFFFFF;font-weight:bold;text-align:center;font-size:12pt;height:30px;vertical-align:middle;">${catName}</td></tr>`;
+                    
+                    const thStyleSummary = `background-color:${TABLE_HEAD_BG_SUMMARY};background:${TABLE_HEAD_BG_SUMMARY};color:#FFFFFF;font-weight:bold;text-align:center;height:25px;vertical-align:middle;`;
+                    tableHtml += `<tr>` +
+                        `<td style="${thStyleSummary}">Sr. No.</td>` +
+                        `<td style="${thStyleSummary}">Supplier Name</td>` +
+                        `<td style="${thStyleSummary}">Sub Category</td>` +
+                        `<td style="${thStyleSummary}">NTN</td>` +
+                        `<td style="${thStyleSummary}">Total Amount</td>` +
+                        `<td style="${thStyleSummary}">Tax%</td>` +
+                        `<td style="${thStyleSummary}">Total Tax Ded.</td>` +
+                        `<td style="${thStyleSummary}">Total Adv Tax</td>` +
+                    '</tr>';
+
+                    let catAmt = 0, catTax = 0, catAi = 0, srNo = 1;
+                    Object.keys(grouped[catName]).sort().forEach(k => {
+                        const item = grouped[catName][k];
+                        catAmt += item.amt; catTax += item.tax; catAi += item.ai;
+                        tableHtml += `<tr style="height:20px;vertical-align:middle;">` +
+                            `<td style="text-align:center;">${srNo++}</td>` +
+                            `<td>${item.supplierName||''}</td>` +
+                            `<td style="text-align:center;">${item.subCat||'-'}</td>` +
+                            `<td style="text-align:center;">${item.ntn||'-'}</td>` +
+                            `<td style="text-align:right;font-weight:bold;">${Math.round(item.amt).toLocaleString()}</td>` +
+                            `<td style="text-align:right;">${item.taxPct||0}%</td>` +
+                            `<td style="text-align:right;font-weight:bold;">${Math.round(item.tax).toLocaleString()}</td>` +
+                            `<td style="text-align:right;font-weight:bold;">${Math.round(item.ai).toLocaleString()}</td>` +
+                            `</tr>`;
+                    });
+
+                    const catTotalTdStyleSummary = `background-color:#000000;background:#000000;color:#FFFFFF;font-weight:bold;text-align:center;height:25px;vertical-align:middle;`;
+                    const catTotalTdRightStyleSummary = `background-color:#000000;background:#000000;color:#FFFFFF;font-weight:bold;text-align:right;height:25px;vertical-align:middle;`;
+                    tableHtml += `<tr>` +
+                        `<td colspan="4" style="${catTotalTdStyleSummary}">Total for ${catName}</td>` +
+                        `<td style="${catTotalTdRightStyleSummary}">${Math.round(catAmt).toLocaleString()}</td>` +
+                        `<td style="${catTotalTdStyleSummary}">&nbsp;</td>` +
+                        `<td style="${catTotalTdRightStyleSummary}">${Math.round(catTax).toLocaleString()}</td>` +
+                        `<td style="${catTotalTdRightStyleSummary}">${Math.round(catAi).toLocaleString()}</td>` +
+                        `</tr>`;
+                    tableHtml += `<tr><td colspan="${totalCols}"></td></tr>`;
+                });
+
+                // Summary Category Summary at the bottom
+                const catSummary = {};
+                let grandAmt = 0, grandTax = 0, grandAi = 0;
+                allEntries.forEach(e => {
+                    const k = e.categoryName || 'Uncategorized';
+                    if (!catSummary[k]) catSummary[k] = { amt:0, tax:0, ai:0 };
+                    catSummary[k].amt += (e.invoiceAmount||0);
+                    catSummary[k].tax += (e.taxDeducted||0);
+                    catSummary[k].ai += (e.aiTaxAmount||0);
+                });
+
+                tableHtml += `<tr><td colspan="${totalCols}"></td></tr>`;
+                tableHtml += `<tr><td></td><td colspan="4" style="background-color:${TABLE_HEAD_BG_SUMMARY};background:${TABLE_HEAD_BG_SUMMARY};color:#FFFFFF;font-weight:bold;text-align:center;height:25px;vertical-align:middle;">CATEGORY SUMMARY</td></tr>`;
+                
+                const sumHeaderTdStyle = `background-color:#008080;background:#008080;color:#FFFFFF;font-weight:bold;height:22px;vertical-align:middle;`;
+                const sumHeaderTdRightStyle = `background-color:#008080;background:#008080;color:#FFFFFF;font-weight:bold;text-align:right;height:22px;vertical-align:middle;`;
+                tableHtml += `<tr>` +
+                    `<td></td>` +
+                    `<td style="${sumHeaderTdStyle}">Supplier Category</td>` +
+                    `<td style="${sumHeaderTdRightStyle}">Invoice_Amount</td>` +
+                    `<td style="${sumHeaderTdRightStyle}">Tax_Deducted</td>` +
+                    `<td style="${sumHeaderTdRightStyle}">Adv_Tax_Amount</td>` +
+                    `</tr>`;
+                
+                Object.keys(catSummary).sort().forEach(k => {
+                    const s = catSummary[k];
+                    grandAmt += s.amt; grandTax += s.tax; grandAi += s.ai;
+                    tableHtml += `<tr style="height:20px;vertical-align:middle;">` +
+                        `<td></td>` +
+                        `<td>${k}</td>` +
+                        `<td style="text-align:right;">${Math.round(s.amt).toLocaleString()}</td>` +
+                        `<td style="text-align:right;">${Math.round(s.tax).toLocaleString()}</td>` +
+                        `<td style="text-align:right;">${Math.round(s.ai).toLocaleString()}</td>` +
+                        `</tr>`;
+                });
+                
+                const sumTotalTdStyle = `background-color:#CCCCCC;background:#CCCCCC;font-weight:bold;height:22px;vertical-align:middle;`;
+                const sumTotalTdRightStyle = `background-color:#CCCCCC;background:#CCCCCC;font-weight:bold;text-align:right;height:22px;vertical-align:middle;`;
+                tableHtml += `<tr>` +
+                    `<td></td>` +
+                    `<td style="${sumTotalTdStyle}">TOTAL</td>` +
+                    `<td style="${sumTotalTdRightStyle}">${Math.round(grandAmt).toLocaleString()}</td>` +
+                    `<td style="${sumTotalTdRightStyle}">${Math.round(grandTax).toLocaleString()}</td>` +
+                    `<td style="${sumTotalTdRightStyle}">${Math.round(grandAi).toLocaleString()}</td>` +
+                    `</tr>`;
+            }
+
+            tableHtml += '</table>';
+
+            // Create temporary element to parse table and apply styles
+            const tempDiv = document.createElement('div');
+            tempDiv.style.display = 'none';
+            tempDiv.innerHTML = tableHtml;
+            document.body.appendChild(tempDiv);
+
+            const table = tempDiv.querySelector('table');
+            const ws = XLSX.utils.table_to_sheet(table, { raw: false });
+
+            // Copy and map CSS styles directly to SheetJS cells
+            styleSheetFromHtml(ws, table, isDetailed);
+
+            // Set column widths
+            if (isDetailed) {
+                ws['!cols'] = [
+                    { wch: 8 },   // Sr. No.
+                    { wch: 45 },  // Supplier Name (increased to 45)
+                    { wch: 18 },  // Sub Category (increased to 18)
+                    { wch: 18 },  // NTN (increased to 18)
+                    { wch: 20 },  // Entry Date (increased to 20)
+                    { wch: 15 },  // Date
+                    { wch: 12 },  // Inv No.
+                    { wch: 15 },  // Inv Amount
+                    { wch: 8 },   // Tax%
+                    { wch: 12 },  // Tax Ded.
+                    { wch: 12 }   // Adv Tax
+                ];
+            } else {
+                ws['!cols'] = [
+                    { wch: 8 },   // Sr. No.
+                    { wch: 45 },  // Supplier Name (increased to 45)
+                    { wch: 18 },  // Sub Category (increased to 18)
+                    { wch: 18 },  // NTN (increased to 18)
+                    { wch: 20 },  // Total Amount (increased to 20)
+                    { wch: 10 },  // Tax%
+                    { wch: 18 },  // Total Tax Ded.
+                    { wch: 18 }   // Total Adv Tax
+                ];
+            }
+
+            // Set row heights to 20pt, but expand for long wrapped Supplier Names or Title
+            const range = XLSX.utils.decode_range(ws['!ref']);
+            const rows = [];
+            for (let r = 0; r <= range.e.r; r++) {
+                let h = 20; // default 20pt
+                if (r === 0) {
+                    h = 35; // Title row taller
+                } else {
+                    const cellRef = XLSX.utils.encode_cell({ r: r, c: 1 });
+                    const cell = ws[cellRef];
+                    if (cell && cell.v) {
+                        const valStr = String(cell.v);
+                        if (valStr.length > 45) {
+                            h = 32; // Double row height if name exceeds 45 chars
+                        }
+                    }
+                }
+                rows.push({ hpt: h });
+            }
+            ws['!rows'] = rows;
+
+            document.body.removeChild(tempDiv);
+
+            // Generate workbook and save as true .xlsx
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Tax Report');
+            XLSX.writeFile(wb, `${excelHeaderString}.xlsx`);
+        }
+
+        function parseColorToHex(color) {
+            if (!color) return null;
+            color = color.trim();
+            if (color.startsWith('#')) {
+                return color.substring(1).toUpperCase();
+            }
+            // rgb(r, g, b)
+            const rgbMatch = color.match(/^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i);
+            if (rgbMatch) {
+                const r = parseInt(rgbMatch[1], 10).toString(16).padStart(2, '0');
+                const g = parseInt(rgbMatch[2], 10).toString(16).padStart(2, '0');
+                const b = parseInt(rgbMatch[3], 10).toString(16).padStart(2, '0');
+                return (r + g + b).toUpperCase();
+            }
+            const namedColors = {
+                'black': '000000',
+                'white': 'FFFFFF',
+                'red': 'FF0000',
+                'green': '008000',
+                'blue': '0000FF',
+                'teal': '008080'
+            };
+            return namedColors[color.toLowerCase()] || null;
+        }
+
+        function styleSheetFromHtml(ws, table, isDetailed) {
+            const occupied = {};
+            let sheetR = 0;
+            
+            for (let r = 0; r < table.rows.length; r++) {
+                const row = table.rows[r];
+                let sheetC = 0;
+                
+                for (let c = 0; c < row.cells.length; c++) {
+                    const cell = row.cells[c];
+                    
+                    while (occupied[`${sheetR},${sheetC}`]) {
+                        sheetC++;
+                    }
+                    
+                    const cellRef = XLSX.utils.encode_cell({ r: sheetR, c: sheetC });
+                    
+                    const colspan = parseInt(cell.getAttribute('colspan') || '1', 10);
+                    const rowspan = parseInt(cell.getAttribute('rowspan') || '1', 10);
+                    
+                    for (let rs = 0; rs < rowspan; rs++) {
+                        for (let cs = 0; cs < colspan; cs++) {
+                            occupied[`${sheetR + rs},${sheetC + cs}`] = true;
+                        }
+                    }
+                    
+                    if (ws[cellRef]) {
+                        // Force long numbers (like Inv No.) and NTNs to be parsed as string
+                        // Detailed report: Column index 6 is Inv No., Column index 3 is NTN
+                        // Summary report: Column index 3 is NTN
+                        if (isDetailed && (sheetC === 6 || sheetC === 3)) {
+                            ws[cellRef].t = 's';
+                            if (cell.textContent) {
+                                ws[cellRef].v = cell.textContent.trim();
+                            }
+                        } else if (!isDetailed && sheetC === 3) {
+                            ws[cellRef].t = 's';
+                            if (cell.textContent) {
+                                ws[cellRef].v = cell.textContent.trim();
+                            }
+                        }
+
+                        const s = {};
+                        
+                        const bg = cell.style.backgroundColor || cell.getAttribute('data-bg');
+                        const fg = cell.style.color || cell.getAttribute('data-color');
+                        const isBold = cell.style.fontWeight === 'bold' || cell.classList.contains('fw-bold') || cell.tagName === 'TH';
+                        const align = cell.style.textAlign || cell.getAttribute('data-align') || (cell.tagName === 'TH' ? 'center' : 'left');
+                        
+                        if (bg) {
+                            const hexBg = parseColorToHex(bg);
+                            if (hexBg) {
+                                s.fill = {
+                                    patternType: 'solid',
+                                    fgColor: { rgb: hexBg }
+                                };
+                            }
+                        }
+                        
+                        s.font = {
+                            name: 'Calibri',
+                            sz: 11
+                        };
+                        if (fg) {
+                            const hexFg = parseColorToHex(fg);
+                            if (hexFg) {
+                                s.font.color = { rgb: hexFg };
+                            }
+                        }
+                        if (isBold) {
+                            s.font.bold = true;
+                        }
+                        
+                        s.alignment = {
+                            vertical: 'center',
+                            horizontal: align === 'right' ? 'right' : (align === 'center' ? 'center' : 'left'),
+                            wrapText: true
+                        };
+                        
+                        s.border = {
+                            top: { style: 'thin', color: { rgb: '000000' } },
+                            bottom: { style: 'thin', color: { rgb: '000000' } },
+                            left: { style: 'thin', color: { rgb: '000000' } },
+                            right: { style: 'thin', color: { rgb: '000000' } }
+                        };
+                        
+                        ws[cellRef].s = s;
+                    }
+                    
+                    sheetC += colspan;
+                }
+                sheetR++;
+            }
+        }
+
+
+    </script>
+</body>
+
+</html>

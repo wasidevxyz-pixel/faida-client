@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Entry - Bilal Accounting System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <style>
+        .split-layout {
+            display: flex;
+            gap: 15px;
+            height: calc(100vh - 120px);
+            padding: 10px;
+        }
+
+        .form-panel {
+            width: 350px;
+            background: #fff;
+            padding: 15px;
+            border: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: auto;
+        }
+
+        .grid-panel {
+            flex: 1;
+            background: #fff;
+            border: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group {
+            margin-bottom: 8px;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .form-control-sm {
+            font-size: 13px;
+        }
+
+        .cash-display {
+            background: black;
+            color: lime;
+            font-family: monospace;
+            font-size: 24px;
+            font-weight: bold;
+            padding: 5px;
+            text-align: center;
+            border-radius: 4px;
+        }
+
+        .grid-controls {
+            padding: 10px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .action-bar-bottom {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #fff;
+            padding: 10px;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 10px;
+            justify-content: flex-start;
+            border-top: 1px solid #ddd;
+            flex-wrap: wrap;
+            z-index: 900;
+            transition: left 0.3s;
+        }
+
+        body.sidebar-full .action-bar-bottom {
+            left: 250px;
+        }
+
+        body.sidebar-mini .action-bar-bottom {
+            left: 60px;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .split-layout {
+                flex-direction: column;
+                height: auto;
+                padding-bottom: 70px;
+                /* Space for bottom action bar */
+            }
+
+            .form-panel {
+                width: 100%;
+                height: auto;
+                margin-bottom: 15px;
+            }
+
+            .grid-panel {
+                width: 100%;
+                height: 500px;
+                /* Fixed height for scrolling table on mobile */
+            }
+
+            .grid-controls {
+                flex-wrap: wrap;
+                justify-content: space-between;
+                gap: 5px;
+            }
+
+            .grid-controls input[type="date"] {
+                width: 45% !important;
+            }
+
+            .grid-controls label {
+                display: none;
+                /* Hide From/To labels to save space */
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .page-header>div {
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            /* Reset action bar position on mobile */
+            body.sidebar-full .action-bar-bottom,
+            body.sidebar-mini .action-bar-bottom {
+                left: 0;
+            }
+
+            .action-bar-bottom {
+                justify-content: space-around;
+            }
+
+            .action-bar-bottom .btn {
+                flex: 1;
+                font-size: 12px;
+                padding: 8px 4px;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+
+            /* Default: Hide everything */
+            body * {
+                visibility: hidden;
+            }
+
+            /* VOUCHER MODE */
+            body.print-mode-voucher #print-area,
+            body.print-mode-voucher #print-area * {
+                visibility: visible;
+            }
+
+            body.print-mode-voucher #print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                display: block !important;
+                background: white;
+                padding: 40px;
+                max-width: 800px;
+                margin: 0 auto;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            body.print-mode-voucher .page-header,
+            body.print-mode-voucher .split-layout,
+            body.print-mode-voucher .action-bar-bottom {
+                display: none !important;
+            }
+
+            /* LIST MODE */
+            body.print-mode-list .grid-panel,
+            body.print-mode-list .grid-panel * {
+                visibility: visible;
+            }
+
+            body.print-mode-list .grid-panel {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                border: none;
+            }
+
+            body.print-mode-list .grid-controls,
+            body.print-mode-list .form-panel,
+            body.print-mode-list .page-header,
+            body.print-mode-list .action-bar-bottom {
+                display: none !important;
+            }
+
+            /* Shared Invoice Table Styles (only applied if visible) */
+            .invoice-table {
+                width: 100%;
+                border-collapse: collapse;
+                border: 1px solid black;
+                margin-top: 20px;
+                font-family: "Times New Roman", Times, serif;
+            }
+
+            .invoice-table td,
+            .invoice-table th {
+                border: 1px solid black;
+                padding: 12px 15px;
+                /* More padding as per screenshot */
+                font-size: 16px;
+                /* Slightly larger text */
+                vertical-align: middle;
+                color: black;
+            }
+
+            .invoice-header {
+                text-align: center;
+                font-weight: bold;
+                font-size: 28px;
+                font-family: "Times New Roman", Times, serif;
+                margin-bottom: 5px !important;
+                color: black;
+            }
+
+            .office-copy {
+                text-align: center;
+                font-weight: bold;
+                padding: 10px;
+                font-size: 18px;
+                background: white;
+                /* Ensure no shading */
+            }
+
+            .amount-black {
+                background-color: black !important;
+                color: white !important;
+                font-weight: bold;
+                font-size: 24px;
+                /* Larger amount text */
+                text-align: center;
+                -webkit-print-color-adjust: exact;
+                /* Force background color */
+                print-color-adjust: exact;
+                width: 40%;
+            }
+
+            .label-cell {
+                font-weight: bold;
+                width: 15%;
+                white-space: nowrap;
+            }
+
+            .value-cell {
+                width: 20%;
+                font-weight: bold;
+                /* Values are bold in screenshot */
+                text-align: center;
+            }
+
+            /* Specific width adjustments for 4-column layout */
+            tr td:nth-child(1) {
+                width: 15%;
+            }
+
+            tr td:nth-child(2) {
+                width: 30%;
+            }
+
+            tr td:nth-child(3) {
+                width: 10%;
+            }
+
+            tr td:nth-child(4) {
+                width: 45%;
+            }
+
+            .signature-section {
+                margin-top: 100px;
+                display: flex;
+                justify-content: space-between;
+                font-family: "Times New Roman", Times, serif;
+                padding: 0 10px;
+            }
+
+            .signature-block {
+                text-align: center;
+                width: 250px;
+                position: relative;
+            }
+
+            .signature-line {
+                border-top: 2px solid black;
+                /* Thicker line */
+                width: 100%;
+                padding-top: 8px;
+                font-weight: bold;
+                font-size: 16px;
+            }
+
+            /* Add signature image placeholder positioning */
+            .signature-img-placeholder {
+                position: absolute;
+                bottom: 30px;
+                left: 50%;
+                transform: translateX(-50%);
+                height: 60px;
+                width: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-header px-3">
+        <div style="flex: 1; display: flex; align-items: center;">
+            <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+            <i class="fas fa-money-bill-alt me-2"></i> Expense Entry
+        </div>
+        <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
+            <div class="dropdown">
+                <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown" style="cursor: pointer;">
+                    <i class="fas fa-user-circle me-2" style="font-size: 1.2rem;"></i>
+                    <span id="userName" class="me-2">User</span>
+                    <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                    <li><a class="dropdown-item logout-btn" href="#"><i
+                                class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="split-layout">
+        <!-- Form Panel -->
+        <div class="form-panel">
+            <input type="hidden" id="expenseId" value="">
+            <div class="form-group">
+                <label>Pay</label>
+                <select id="payType" class="form-select form-select-sm">
+                    <option value="expense" selected>Pay (Expense)</option>
+                    <option value="receipt">Received (Receipt)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Date</label>
+                <input type="date" id="expenseDate" class="form-control form-control-sm">
+            </div>
+            <div class="form-group">
+                <label>Branch</label>
+                <select id="branch" class="form-select form-select-sm">
+                    <option value="Shop">Shop</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Head</label>
+                <div class="input-group input-group-sm">
+                    <select id="head" class="form-select"></select>
+                    <button class="btn btn-primary" onclick="addHead()"><i class="fas fa-plus"></i></button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Sub Head</label>
+                <div class="input-group input-group-sm">
+                    <select id="subHead" class="form-select"></select>
+                    <button class="btn btn-success" onclick="addSubHead()"><i class="fas fa-plus"></i></button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Amount</label>
+                <input type="number" id="amount" class="form-control form-control-sm">
+            </div>
+            <div class="form-group">
+                <label>Pay Mode</label>
+                <select id="payMode" class="form-select form-select-sm">
+                    <option value="cash">Cash</option>
+                    <option value="bank">Bank</option>
+                    <option value="cheque">Cheque</option>
+                    <option value="online">Online</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Cash</label>
+                <select id="cashAccount" class="form-select form-select-sm">
+                    <option value="Cash in Hand (Shop)">Cash in Hand (Shop)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Cash In Hand</label>
+                <div id="cashInHandDisplay" class="cash-display">0</div>
+            </div>
+            <div class="form-group">
+                <label>Remarks</label>
+                <input type="text" id="remarks" class="form-control form-control-sm">
+            </div>
+        </div>
+
+        <!-- Grid Panel -->
+        <div class="grid-panel">
+            <div class="grid-controls">
+                <label>From</label>
+                <input type="date" id="filterFromDate" class="form-control form-control-sm" style="width: 130px;">
+                <label>To</label>
+                <input type="date" id="filterToDate" class="form-control form-control-sm" style="width: 130px;">
+                <select class="form-select form-select-sm" style="width: 80px;">
+                    <option>A-3</option>
+                </select>
+                <button class="btn btn-primary btn-sm" onclick="loadExpenses()">Search</button>
+                <button class="btn btn-info btn-sm" onclick="printList()">Print</button>
+            </div>
+            <div class="table-responsive flex-1">
+                <table class="table table-bordered table-striped data-table mb-0">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>Dated</th>
+                            <th>Type</th>
+                            <th>Head</th>
+                            <th>Sub Head</th>
+                            <th>Amount</th>
+                            <th>Remarks</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="expensesTableBody">
+                    </tbody>
+                    <tfoot class="table-group-divider">
+                        <tr>
+                            <td colspan="4" class="text-end fw-bold">Total</td>
+                            <td id="totalAmount" class="fw-bold text-end">0</td>
+                            <td colspan="2"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="action-bar-bottom">
+        <button class="btn btn-success" onclick="saveExpense()" data-action="save"><i class="fas fa-save"></i>
+            Save</button>
+        <button class="btn btn-primary" onclick="printExpense()"><i class="fas fa-print"></i> Print</button>
+        <button class="btn btn-danger" onclick="clearForm()"><i class="fas fa-times"></i> Clear</button>
+        <button class="btn btn-info" onclick="openHeadsModal()"><i class="fas fa-list"></i> Manage Heads</button>
+        <button class="btn btn-warning" onclick="openReportModal()"><i class="fas fa-chart-bar"></i> Report</button>
+    </div>
+
+    <!-- Heads Management Modal -->
+    <div class="modal fade" id="headsModal" tabindex="-1" aria-labelledby="headsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="headsModalLabel"><i class="fas fa-list"></i> Manage Expense Heads</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Top Row: Add Head and Load Defaults -->
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-header bg-success text-white py-2">
+                                    <i class="fas fa-plus"></i> Add New Head
+                                </div>
+                                <div class="card-body py-2">
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" id="newHeadName" class="form-control"
+                                            placeholder="Head name...">
+                                        <button class="btn btn-success" onclick="quickAddHead()"><i
+                                                class="fas fa-plus"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="card bg-light">
+                                <div class="card-header bg-info text-white py-2">
+                                    <i class="fas fa-plus-circle"></i> Add Sub-Head (Select Parent First)
+                                </div>
+                                <div class="card-body py-2">
+                                    <div class="input-group input-group-sm">
+                                        <select id="parentHeadSelect" class="form-select" style="max-width: 150px;">
+                                            <option value="">-- Select Head --</option>
+                                        </select>
+                                        <input type="text" id="newSubHeadName" class="form-control"
+                                            placeholder="Sub-head name...">
+                                        <button class="btn btn-info" onclick="quickAddSubHead()"><i
+                                                class="fas fa-plus"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-center justify-content-end">
+
+                        </div>
+                    </div>
+
+                    <!-- Heads Table -->
+                    <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
+                        <table class="table table-bordered table-striped table-hover table-sm">
+                            <thead class="table-dark sticky-top">
+                                <tr>
+                                    <th>Head Name</th>
+                                    <th>Type</th>
+                                    <th>Sub Heads</th>
+                                    <th width="100">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="headsTableBody">
+                                <tr>
+                                    <td colspan="4" class="text-center">Loading...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Expense Report Modal -->
+    <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title" id="reportModalLabel"><i class="fas fa-chart-bar me-2"></i>Expense Report
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <!-- Date Range -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">From Date</label>
+                            <input type="date" id="reportFromDate" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">To Date</label>
+                            <input type="date" id="reportToDate" class="form-control">
+                        </div>
+
+                        <!-- Branch Filter -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Branch</label>
+                            <select id="reportBranch" class="form-select">
+                                <option value="">All Branches</option>
+                            </select>
+                        </div>
+
+                        <!-- Type Filter -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Type</label>
+                            <select id="reportType" class="form-select">
+                                <option value="">All (Expenses & Receipts)</option>
+                                <option value="expense">Expenses Only</option>
+                                <option value="receipt">Receipts Only</option>
+                            </select>
+                        </div>
+
+                        <!-- Head Filter -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Head</label>
+                            <select id="reportHead" class="form-select">
+                                <option value="">All Heads</option>
+                            </select>
+                        </div>
+
+                        <!-- Sub Head Filter -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Sub Head</label>
+                            <select id="reportSubHead" class="form-select">
+                                <option value="">All Sub Heads</option>
+                            </select>
+                        </div>
+
+                        <!-- Group By -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Group By</label>
+                            <select id="reportGroupBy" class="form-select">
+                                <option value="none">No Grouping</option>
+                                <option value="head">Head Wise</option>
+                                <option value="subHead">Sub Head Wise</option>
+                                <option value="branch">Branch Wise</option>
+                                <option value="date">Date Wise</option>
+                            </select>
+                        </div>
+
+                        <!-- Global Search -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Global Search</label>
+                            <input type="text" id="reportSearch" class="form-control"
+                                placeholder="Search in remarks, description...">
+                        </div>
+                    </div>
+
+                    <!-- Quick Date Filters -->
+                    <div class="mt-3 border-top pt-3">
+                        <label class="form-label fw-bold">Quick Date Filters:</label>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button type="button" class="btn btn-outline-primary"
+                                onclick="setReportDateRange('today')">Today</button>
+                            <button type="button" class="btn btn-outline-primary"
+                                onclick="setReportDateRange('week')">This Week</button>
+                            <button type="button" class="btn btn-outline-primary"
+                                onclick="setReportDateRange('month')">This Month</button>
+                            <button type="button" class="btn btn-outline-primary"
+                                onclick="setReportDateRange('lastMonth')">Last Month</button>
+                            <button type="button" class="btn btn-outline-primary"
+                                onclick="setReportDateRange('year')">This Year</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-info" onclick="previewReport()">
+                        <i class="fas fa-eye me-1"></i> Preview
+                    </button>
+                    <button type="button" class="btn btn-warning" onclick="generateReport()">
+                        <i class="fas fa-print me-1"></i> Generate Report
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Head Modal -->
+    <div class="modal fade" id="headFormModal" tabindex="-1" aria-labelledby="headFormModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="headFormModalLabel"><i class="fas fa-plus"></i> Add Head</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="editHeadId" value="">
+                    <input type="hidden" id="editParentId" value="">
+                    <div class="mb-3">
+                        <label for="headNameInput" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="headNameInput" placeholder="Enter head name"
+                            required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="headTypeSelect" class="form-label">Type</label>
+                        <select class="form-select" id="headTypeSelect">
+                            <option value="both">Both (Expense & Receipt)</option>
+                            <option value="expense">Expense Only</option>
+                            <option value="receipt">Receipt Only</option>
+                        </select>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="headActiveCheck" checked>
+                        <label class="form-check-label" for="headActiveCheck">Active</label>
+                    </div>
+                    <div class="mb-3" id="parentHeadGroup" style="display: none;">
+                        <label class="form-label">Parent Head</label>
+                        <input type="text" class="form-control" id="parentHeadName" readonly>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="saveHead()"><i class="fas fa-save"></i>
+                        Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Print Area -->
+    <div id="print-area" style="display: none;">
+        <div class="invoice-header mb-3">Expense Voucher</div>
+
+        <table class="invoice-table">
+            <tr>
+                <td colspan="4" class="office-copy">Office Copy</td>
+            </tr>
+            <tr>
+                <td class="label-cell">Voucher #</td>
+                <td class="value-cell" id="printVoucherNo"></td>
+                <td class="label-cell">Date</td>
+                <td class="value-cell" id="printDate"></td>
+            </tr>
+            <tr>
+                <td class="label-cell">Head</td>
+                <td class="value-cell" id="printHead"></td>
+                <td class="label-cell">Sub Head</td>
+                <td class="value-cell" id="printSubHead"></td>
+            </tr>
+            <tr>
+                <td class="label-cell">Payment Mode</td>
+                <td class="value-cell" id="printMode"></td>
+                <td class="label-cell">Amount</td>
+                <td class="amount-black" id="printAmount"></td>
+            </tr>
+            <tr>
+                <td class="label-cell">Description</td>
+                <td colspan="3" id="printDesc"></td>
+            </tr>
+        </table>
+
+        <div class="signature-section">
+            <div class="signature-block">
+                <!-- Placeholder for Image Signature if needed -->
+                <!-- <img src="/path/to/signature.png" height="50"> -->
+                <div class="signature-line">Prepared By Signature</div>
+            </div>
+            <div class="signature-block">
+                <div class="signature-line">Received By Signature</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244485"></script>
+    <script src="/js/desktop-ui.js?v=12"></script>
+    <script src="/js/expenses-new.js?v=101"></script>
+</body>
+
+</html>
+

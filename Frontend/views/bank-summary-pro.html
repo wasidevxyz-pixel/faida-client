@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank Summary (Pro)</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .kpi-card {
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .bg-kpi-green {
+            background: linear-gradient(45deg, #28a745, #218838);
+        }
+
+        .bg-kpi-red {
+            background: linear-gradient(45deg, #dc3545, #c82333);
+        }
+
+        .bg-kpi-blue {
+            background: linear-gradient(45deg, #0d6efd, #0b5ed7);
+        }
+
+        .bg-kpi-dark {
+            background: linear-gradient(45deg, #343a40, #212529);
+            color: #0f0;
+        }
+
+        /* Table Styles */
+        .table-custom th {
+            background-color: #0056b3;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .row-deposit {
+            background-color: #d4edda;
+        }
+
+        /* Light Green */
+        .row-withdrawal {
+            background-color: #f8d7da;
+        }
+
+        /* Light Red */
+        .row-transfer {
+            background-color: #fff3cd;
+        }
+
+        /* Light Yellow */
+
+        .filter-bar {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            margin-bottom: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: end;
+        }
+
+        /* Print Styles */
+        @media print {
+
+            .no-print,
+            .sidebar-container,
+            .sidebar-backdrop,
+            .btn,
+            .filter-bar {
+                display: none !important;
+            }
+
+            .content-wrapper {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .card {
+                box-shadow: none !important;
+                border: none !important;
+            }
+
+            .table th {
+                background-color: #eee !important;
+                color: #000 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .bg-kpi-green,
+            .bg-kpi-red,
+            .bg-kpi-blue,
+            .bg-kpi-dark {
+                background: none !important;
+                color: #000 !important;
+                border: 1px solid #000;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+
+<body class="sidebar-mini">
+    <!-- Sidebar injected by JS -->
+
+    <div class="content-wrapper p-3">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="m-0"><i class="fas fa-university me-2"></i>Bank Summary (Professional)</h4>
+            <div class="user-profile d-flex align-items-center gap-2">
+                <span id="userNameHeader" class="fw-bold">User</span>
+                <div class="header-avatar" id="headerAvatarDisplay">
+                    <i class="fas fa-user-circle fa-2x"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <div class="filter-group">
+                <label class="form-label small fw-bold">From Date</label>
+                <input type="date" id="pro-from-date" class="form-control form-control-sm">
+            </div>
+            <div class="filter-group">
+                <label class="form-label small fw-bold">To Date</label>
+                <input type="date" id="pro-to-date" class="form-control form-control-sm">
+            </div>
+            <div class="filter-group">
+                <label class="form-label small fw-bold">Branch</label>
+                <select id="pro-branch" class="form-select form-select-sm" style="width: 150px;" onchange="loadBanks()">
+                    <option value="">All Branches</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label small fw-bold">Bank</label>
+                <div class="dropdown" style="width: 150px;">
+                    <button class="btn btn-light border btn-sm dropdown-toggle w-100 text-start text-truncate"
+                        type="button" id="bankDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                        All Banks
+                    </button>
+                    <div class="dropdown-menu p-2 shadow-sm" aria-labelledby="bankDropdownBtn"
+                        style="width: 250px; max-height: 300px; overflow-y: auto;">
+                        <div class="form-check border-bottom pb-2 mb-2">
+                            <input class="form-check-input" type="checkbox" id="checkAllBanks"
+                                onchange="toggleAllBanks(this)">
+                            <label class="form-check-label fw-bold" for="checkAllBanks">Select All</label>
+                        </div>
+                        <div id="pro-bank-list">
+                            <!-- Checkboxes injected here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="filter-group">
+                <label class="form-label small fw-bold">Department</label>
+                <select id="pro-dept" class="form-select form-select-sm" style="width: 150px;">
+                    <option value="">All Departments</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="form-label small fw-bold">Transaction Type</label>
+                <select id="pro-type" class="form-select form-select-sm" style="width: 150px;">
+                    <option value="All Types">All Types</option>
+                    <option value="Batch Transfer">Batch Transfer (Daily Cash)</option>
+                    <option value="Deposit">Deposit</option>
+                    <option value="Withdrawal">Withdrawal</option>
+                    <option value="Bank Transfer">Bank Transfer</option>
+                </select>
+            </div>
+            <div class="filter-group flex-grow-1">
+                <label class="form-label small fw-bold">Global Search</label>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input type="text" id="pro-search" class="form-control" placeholder="Search any text..."
+                        onkeyup="filterProTable()">
+                </div>
+            </div>
+            <div class="filter-group">
+                <button class="btn btn-primary btn-sm mb-1" onclick="fetchProReport()"><i
+                        class="fas fa-sync-alt me-1"></i> Generate</button>
+                <button class="btn btn-secondary btn-sm mb-1" onclick="window.print()"><i class="fas fa-print me-1"></i>
+                    Print</button>
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="row g-3 mb-3">
+            <div class="col-md-3">
+                <div class="kpi-card bg-kpi-green">
+                    <span>Opening Balance</span>
+                    <span id="kpi-opening">0</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="kpi-card bg-kpi-blue">
+                    <span>Total Deposits (+)</span>
+                    <span id="kpi-deposit">0</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="kpi-card bg-kpi-red">
+                    <span>Total Withdrawals (-)</span>
+                    <span id="kpi-withdrawal">0</span>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="kpi-card bg-kpi-dark">
+                    <span>Closing Balance</span>
+                    <span id="kpi-closing">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Table -->
+        <div class="card shadow-sm">
+            <div class="card-body p-0 table-responsive" style="height: calc(100vh - 280px);">
+                <table class="table table-bordered table-sm table-hover table-custom m-0" id="proTable">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Effective Date</th>
+                            <th>Bank</th>
+                            <th>Type</th>
+                            <th>Ref / Batch No</th>
+                            <th>Description</th>
+                            <th class="text-end">Debit (Received)</th>
+                            <th class="text-end">Credit (Paid)</th>
+                            <th class="text-end">Balance</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="proTableBody">
+                        <!-- Data injected here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/sidebar.js?v=1789486244446"></script>
+    <script src="/js/bank-summary-pro.js"></script>
+</body>
+
+</html>
+

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Advance Activity</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #1e4c8c 0%, #2c5ba9 100%);
+        }
+
+        body {
+            background-color: #f8fafc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .main-content {
+            padding: 0 !important;
+        }
+
+        .page-header {
+            background-color: #1e4c8c;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .report-container {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-panel {
+            background: var(--primary-gradient);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            color: white;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-panel label {
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 6px;
+            display: block;
+            opacity: 0.9;
+        }
+
+        .filter-panel .form-control,
+        .filter-panel .form-select,
+        .select2-container--default .select2-selection--single {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: white !important;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            height: 38px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: white !important;
+            line-height: 36px;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 36px;
+        }
+
+        .filter-panel .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .filter-panel .form-control:focus,
+        .filter-panel .form-select:focus {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+            border-color: white;
+        }
+
+        .filter-panel .form-select option {
+            color: #333;
+        }
+
+        .btn-view-report {
+            background-color: #fff;
+            color: #1e4c8c;
+            border: none;
+            padding: 8px 20px;
+            font-size: 0.9rem;
+            border-radius: 6px;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .btn-view-report:hover {
+            background-color: #f1f5f9;
+            transform: translateY(-1px);
+        }
+
+        /* Custom Select2 Dark Theme adjustment for Filter Panel */
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #1e4c8c;
+        }
+
+        /* Unified Table Styling */
+        .table-custom {
+            border: 1px solid #dee2e6;
+        }
+
+        .table-custom thead th {
+            background-color: #1e4c8c !important;
+            color: white !important;
+            border-bottom: 2px solid #143b75;
+            vertical-align: middle;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .table-custom tbody td {
+            vertical-align: middle;
+            border: 1px solid #dee2e6;
+            font-size: 0.9rem;
+        }
+
+        .table-custom tfoot td {
+            background-color: #1e4c8c !important;
+            font-weight: bold;
+            border-top: 2px solid #143b75;
+            color: white !important;
+            font-size: 0.95rem;
+            border: 1px solid #dee2e6;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar-container"></div>
+
+    <div class="main-content">
+        <!-- Header -->
+        <!-- Header managed by sidebar.js -->
+        <div class="page-header px-4">
+            <h5 class="mb-0 fw-bold text-uppercase text-center w-100">Employee Advance Activity</h5>
+        </div>
+
+        <div class="report-container">
+            <!-- Full Width Filter Panel -->
+            <div class="filter-panel shadow-sm">
+                <div class="row g-3 align-items-end">
+                    <div class="col-lg-2 col-md-3 col-6">
+                        <label>From Date</label>
+                        <input type="date" id="filterFrom" class="form-control">
+                    </div>
+                    <div class="col-lg-2 col-md-3 col-6">
+                        <label>To Date</label>
+                        <input type="date" id="filterTo" class="form-control">
+                    </div>
+                    <div class="col-lg-2 col-md-3">
+                        <label>Branch</label>
+                        <select id="filterBranch" class="form-select">
+                            <option value="">All Branches</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-2 col-md-3">
+                        <label>Employee</label>
+                        <select id="filterEmployee" class="form-select w-100">
+                            <option value="">Select Employee</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-2 col-md-3">
+                        <label>Code</label>
+                        <input type="text" id="filterCode" class="form-control" placeholder="Optional">
+                    </div>
+                    <div class="col-lg-2 col-md-12 d-flex gap-2">
+                        <button class="btn btn-view-report shadow-sm flex-grow-1" onclick="generateReport()">
+                            <i class="fas fa-search me-1"></i> View
+                        </button>
+                        <button class="btn btn-view-report shadow-sm flex-grow-1" onclick="printReport()">
+                            <i class="fas fa-print me-1"></i> Print
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Filters Display -->
+            <div id="activeFilters" class="text-center mb-3"></div>
+
+            <!-- Report Data Table -->
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped table-hover mb-0 table-custom"
+                            id="reportTable">
+                            <thead>
+                                <tr>
+                                    <th class="text-center" style="width: 5%;">Sr #</th>
+                                    <th class="text-center" style="width: 10%;">Code</th>
+                                    <th style="width: 25%;">Employee Name</th>
+                                    <th class="text-end" style="width: 10%;">Bsc Sal</th>
+                                    <th class="text-end" style="width: 10%;">Opening Bal</th>
+                                    <th class="text-end" style="width: 10%;">Current Adv</th>
+                                    <th class="text-end" style="width: 10%;">Total Adv</th>
+                                    <th class="text-end" style="width: 10%;">Ded. Salary</th>
+                                    <th class="text-end" style="width: 10%;">Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reportTableBody">
+                                <tr>
+                                    <td colspan="9" class="text-center py-5 text-muted">
+                                        <i class="fas fa-search me-2"></i>Select filters and click View to generate
+                                        report
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" class="text-end">Total:</td>
+                                    <td class="text-end" id="tBasic">0</td>
+                                    <td class="text-end" id="tOpen">0</td>
+                                    <td class="text-end" id="tCurr">0</td>
+                                    <td class="text-end" id="tTotal">0</td>
+                                    <td class="text-end" id="tDed">0</td>
+                                    <td class="text-end" id="tBal">0</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="/js/sidebar.js?v=1789486244469"></script>
+    <script src="/js/employee-advance-activity.js"></script>
+</body>
+
+</html>
+

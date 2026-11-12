@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script>
+        (function() {
+            var params = new URLSearchParams(window.location.search);
+            var tab = params.get('tab');
+            var target = (tab === 'category') ? '/category-voucher-list' : '/supplier-voucher-list';
+            window.location.replace(target);
+        })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Voucher List - Bilal Accounting System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #3a86ff;
+            --success-green: #06d6a0;
+            --card-header-bg: #4b91ad;
+        }
+
+        body {
+            background-color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .main-content {
+            padding: 20px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        /* Improved Tabs Styling */
+        .nav-tabs-custom {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 25px;
+            gap: 5px;
+            background: #ffffff;
+            padding: 8px 15px 0 15px;
+            border-radius: 10px 10px 0 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            overflow-x: auto;
+            overflow-y: hidden !important;
+        }
+
+        .nav-tabs-custom .nav-link {
+            border: 2px solid transparent !important;
+            color: #475569 !important;
+            font-weight: 700 !important;
+            padding: 12px 25px !important;
+            border-radius: 8px 8px 0 0 !important;
+            transition: all 0.2s ease-in-out;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: transparent;
+        }
+
+        .nav-tabs-custom .nav-link.active {
+            color: white !important;
+            background-color: var(--primary-blue) !important;
+            border: 2px solid var(--primary-blue) !important;
+        }
+
+        .filter-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .data-table {
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .table thead th {
+            background-color: #f1f5f9;
+            color: #475569;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            padding: 12px 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .badge-category {
+            background-color: var(--success-green);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .action-btns .btn {
+            border-radius: 8px;
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Created By User Badge */
+        .badge-created-by {
+            background-color: #f1f5f9;
+            color: #1e3a8a;
+            border: 1px solid #cbd5e1;
+            padding: 4px 8px;
+            border-radius: 2px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        /* 1-Column System & IP Cell */
+        .system-meta-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            line-height: 1.2;
+        }
+
+        .system-meta-cell .comp-name {
+            font-weight: 700;
+            font-size: 0.82rem;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        .system-meta-cell .comp-name i {
+            color: #2563eb;
+        }
+
+        .system-meta-cell .comp-ip {
+            font-size: 0.75rem;
+            color: #64748b;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        .system-meta-cell .comp-ip i {
+            color: #10b981;
+        }
+
+        /* Top Nav */
+        .top-nav {
+            background: white;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Top Nav -->
+    <!-- Standardized Page Header -->
+    <div class="page-header px-3">
+        <div style="flex: 1; display: flex; align-items: center;">
+            <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+            <h4 class="mb-0">Payment Voucher List</h4>
+        </div>
+        <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
+            <div class="dropdown">
+                <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown" style="cursor: pointer;">
+                    <div class="avatar-circle me-2 bg-primary text-white d-flex align-items-center justify-content-center"
+                        style="width: 35px; height: 35px; border-radius: 50%; font-weight: bold;">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <span id="userName" class="me-2">User</span>
+                    <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                    <li><a class="dropdown-item logout-btn" href="#"><i
+                                class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="row align-items-center mb-4">
+            <div class="col-md-3"></div>
+            <div class="col-md-6 text-center">
+                <h1 class="page-title">Payment Voucher List</h1>
+                <p class="text-muted small mb-0">View and manage all payment vouchers</p>
+            </div>
+            <div class="col-md-3 text-end d-flex justify-content-end gap-2">
+                <a href="/payment-vouchers" class="btn btn-outline-secondary"><i
+                        class="fas fa-arrow-left me-2"></i> Back to Entry</a>
+                <a href="/payment-vouchers" class="btn btn-primary"><i class="fas fa-plus me-2"></i> Create New
+                    Voucher</a>
+            </div>
+        </div>
+
+        <!-- Horizontal Tabs for List -->
+        <ul class="nav nav-tabs nav-tabs-custom" id="listTabs" role="tablist">
+            <li class="nav-item" id="list-tab-li-supplier">
+                <button class="nav-link active" id="list-supplier-tab" data-bs-toggle="tab"
+                    data-bs-target="#list-supplier-content" type="button" role="tab"><i class="fas fa-truck"></i>
+                    Supplier Vouchers</button>
+            </li>
+            <li class="nav-item" id="list-tab-li-category">
+                <button class="nav-link" id="list-category-tab" data-bs-toggle="tab"
+                    data-bs-target="#list-category-content" type="button" role="tab"><i class="fas fa-tags"></i>
+                    Category Vouchers</button>
+            </li>
+        </ul>
+
+        <!-- Hidden Tab Content for Bootstrap State Management -->
+        <div class="tab-content d-none">
+            <div class="tab-pane fade show active" id="list-supplier-content" role="tabpanel"></div>
+            <div class="tab-pane fade" id="list-category-content" role="tabpanel"></div>
+        </div>
+
+        <div class="filter-section shadow-sm border">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-2">
+                    <label class="form-label fw-bold small">Search</label>
+                    <input type="text" id="listSearch" class="form-control" placeholder="Voucher # or Party">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-bold small">From Date</label>
+                    <input type="date" id="listFromDate" class="form-control">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-bold small">To Date</label>
+                    <input type="date" id="listToDate" class="form-control">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-bold small">Branch Filter</label>
+                    <select id="listBranchFilter" class="form-select">
+                        <option value="">All Branches</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-bold small">Supplier Filter</label>
+                    <select id="listSupplierFilter" class="form-select">
+                        <option value="">All Suppliers</option>
+                    </select>
+                </div>
+                <div class="col-md-2" style="display: none;">
+                    <label class="form-label fw-bold small">Category Filter</label>
+                    <select id="listCategoryFilter" class="form-select">
+                        <option value="">All Categories</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-primary w-100" onclick="applyFilters()"><i class="fas fa-search me-2"></i>
+                        Search</button>
+                </div>
+            </div>
+
+            <div class="mt-4 d-flex gap-2">
+                <button class="btn btn-info text-white" onclick="printFullList()"><i class="fas fa-print me-2"></i>
+                    Print Full List</button>
+                <button class="btn btn-secondary" onclick="printSelected()"><i class="fas fa-check-double me-2"></i>
+                    Print Selected</button>
+            </div>
+        </div>
+
+        <div class="data-table border shadow-sm">
+            <table class="table table-hover table-striped mb-0">
+                <thead>
+                    <tr>
+                        <th width="40"><input type="checkbox" id="selectAllVouchers" onclick="toggleSelectAll()"></th>
+                        <th>Voucher #</th>
+                        <th>Date</th>
+                        <th>Party Name</th>
+                        <th>Branch</th>
+                        <th>Amount</th>
+                        <th>PM</th>
+                        <th>Created By</th>
+                        <th>System / IP</th>
+                        <th>Remarks</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="voucherListBody">
+                    <!-- Data loaded via JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244512"></script>
+    <script src="/js/payment-vouchers.js?v=203"></script>
+</body>
+
+</html>
+

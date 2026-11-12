@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WHT Supplier - Bilal Accounting System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <style>
+        .form-container {
+            background: #fff;
+            padding: 5px 15px 10px 15px;
+            /* Reduced top padding to minimize space */
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            margin-bottom: 15px;
+        }
+
+        #supplierForm {
+            margin: 0;
+            padding: 0;
+        }
+
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 0;
+            margin-bottom: 5px;
+            align-items: flex-start;
+        }
+
+        .form-col {
+            flex: 1;
+            min-width: 300px;
+            margin: 0;
+            padding: 0;
+        }
+
+        .form-col:first-child {
+            padding-top: 0 !important;
+            margin-top: 0 !important;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .form-group:first-child {
+            margin-top: 0;
+        }
+
+        .form-group label {
+            width: 120px;
+            /* Slightly reduced from 140px for better fit */
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group .form-control,
+        .form-group .form-select {
+            flex: 1;
+            height: 30px;
+            padding: 2px 8px;
+            font-size: 13px;
+        }
+
+        .btn-sm-custom {
+            height: 30px;
+            padding: 2px 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Branch Display Field Styling */
+        #branchDisplay {
+            background-color: #e9ecef;
+            cursor: not-allowed;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        #branchContainer {
+            flex: 1;
+        }
+
+        /* Professional Mobile Enhancements */
+        @media (max-width: 768px) {
+            .page-header {
+                padding: 0.5rem 1rem !important;
+                background-color: var(--bs-blue, #2c5ba9) !important;
+                color: white !important;
+            }
+
+            .container-fluid {
+                padding: 10px !important;
+                padding-bottom: 80px !important;
+            }
+
+            .form-container,
+            .list-container {
+                width: 100% !important;
+                margin-bottom: 15px !important;
+                border-radius: 12px !important;
+                border: none !important;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
+                padding: 15px !important;
+            }
+
+            .form-row {
+                display: block !important;
+            }
+
+            .form-col {
+                width: 100% !important;
+                min-width: 100% !important;
+            }
+
+            .form-group {
+                display: block !important;
+                margin-bottom: 12px !important;
+            }
+
+            .form-group label {
+                width: 100% !important;
+                font-size: 0.75rem !important;
+                color: #64748b !important;
+                margin-bottom: 4px !important;
+            }
+
+            .form-group .form-control,
+            .form-group .form-select {
+                height: 38px !important;
+                font-size: 0.85rem !important;
+                border-radius: 8px !important;
+            }
+
+            .action-btns {
+                display: none !important;
+                /* Hide desktop action buttons */
+            }
+
+            .search-box {
+                width: 100% !important;
+                margin-top: 10px !important;
+            }
+
+            .table-responsive {
+                height: calc(100vh - 250px) !important;
+            }
+
+            /* Bottom Action Bar */
+            .action-bar-mobile {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: white;
+                display: flex !important;
+                justify-content: space-around;
+                padding: 8px 5px;
+                box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.1);
+                z-index: 1050;
+                border-top: 1px solid #e2e8f0;
+                height: 65px;
+            }
+
+            .action-btn-mobile {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                background: none;
+                border: none;
+                color: #64748b;
+                font-size: 0.65rem;
+                font-weight: 600;
+                flex: 1;
+                transition: all 0.2s;
+            }
+
+            .action-btn-mobile i {
+                font-size: 1.25rem;
+                margin-bottom: 3px;
+            }
+
+            .action-btn-mobile:active {
+                color: #2c5ba9;
+            }
+
+            .btn-save-mobile i {
+                color: #10b981;
+            }
+
+            .btn-toggle-mobile i {
+                color: #3b82f6;
+            }
+
+            .btn-clear-mobile i {
+                color: #f59e0b;
+            }
+
+            #listPanelWrapper {
+                display: none !important;
+                /* Hide list by default on mobile */
+            }
+        }
+
+        /* Existing styles continue... */
+        .list-container {
+            background: #fff;
+            padding: 15px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .data-table th {
+            background-color: #0d6efd !important;
+            color: white;
+            font-size: 12px;
+            white-space: nowrap;
+            padding: 8px;
+            border-left: 1px solid rgba(255, 255, 255, 0.3) !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.3) !important;
+        }
+
+        .data-table td {
+            font-size: 12px;
+            vertical-align: middle;
+            padding: 5px;
+        }
+
+        .text-end {
+            text-align: right !important;
+        }
+
+        .text-center {
+            text-align: center !important;
+        }
+
+        .text-start {
+            text-align: left !important;
+        }
+
+        .data-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .data-table tr.active-row {
+            background-color: #d1e7dd !important;
+            /* light green for active */
+        }
+
+        .search-box {
+            width: 300px;
+            margin-bottom: 10px;
+        }
+
+        .action-btns {
+            text-align: right;
+            margin-top: 10px;
+        }
+
+        .btn-edit {
+            background-color: #ffc107;
+            color: #000;
+            border: none;
+            padding: 2px 10px;
+            border-radius: 3px;
+            font-size: 11px;
+        }
+
+        .btn-xs {
+            padding: 2px 6px;
+            font-size: 10px;
+            line-height: 1;
+            border-radius: 2px;
+        }
+
+        /* Profile Dropdown Styling */
+        .dropdown-menu {
+            border-radius: 8px;
+            padding: 8px 0;
+            margin-top: 10px !important;
+        }
+
+        .dropdown-item {
+            padding: 8px 20px;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+            transform: translateX(5px);
+        }
+
+        .dropdown-item.text-danger:hover {
+            background-color: #fff5f5;
+            color: #dc3545 !important;
+        }
+
+        .dropdown-divider {
+            margin: 5px 0;
+            opacity: 0.1;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Main Content Wrapper -->
+    <div class="main-content">
+        <div class="page-header px-3">
+            <div style="flex: 1; display: flex; align-items: center;">
+                <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+                <h4 class="mb-0">WHT Supplier Registration</h4>
+            </div>
+            <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
+                <div class="dropdown">
+                    <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown"
+                        style="cursor: pointer;">
+                        <i class="fas fa-user-circle me-2" style="font-size: 1.2rem;"></i>
+                        <span id="userName" class="me-2">User</span>
+                        <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                        <li><a class="dropdown-item logout-btn" href="#"><i
+                                    class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid mt-1">
+            <!-- Form Area -->
+            <div class="form-container shadow-sm" id="formPanelWrapper">
+                <form id="supplierForm">
+                    <input type="hidden" id="supplierId">
+                    <div class="form-row">
+                        <!-- Column 1 -->
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label>Branch</label>
+                                <div id="branchContainer" style="flex: 1;">
+                                    <select id="branch" class="form-select" required></select>
+                                    <input type="text" id="branchDisplay" class="form-control" readonly
+                                        style="display: none;">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Name</label>
+                                <input type="text" id="name" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>STRN</label>
+                                <input type="text" id="strn" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label>WHT_Type</label>
+                                <select id="whtType" class="form-select">
+                                    <option value="Daily">Daily</option>
+                                    <option value="Weekly">Weekly</option>
+                                    <option value="Bi-Monthly">Bi-Monthly</option>
+                                    <option value="Monthly" selected>Monthly</option>
+                                    <option value="Quarterly">Quarterly</option>
+                                    <option value="Semi-Annually">Semi-Annually</option>
+                                    <option value="Annually">Annually</option>
+                                    <option value="null">null</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>ADV_Tax_Per</label>
+                                <input type="number" id="advTaxPer" class="form-control" step="0.01" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Sub Category</label>
+                                <input type="text" id="subCategory" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label>Address</label>
+                                <input type="text" id="address" class="form-control">
+                            </div>
+                        </div>
+
+                        <!-- Column 2 -->
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label>City</label>
+                                <select id="city" class="form-select">
+                                    <option value="RWP" selected>RWP</option>
+                                    <option value="ISB">ISB</option>
+                                    <option value="LHR">LHR</option>
+                                    <option value="KHI">KHI</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" id="email" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label>MobileNo</label>
+                                <input type="text" id="mobileNo" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label>NTN</label>
+                                <input type="text" id="ntn" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label>Supplier Category</label>
+                                <div class="input-group">
+                                    <select id="category" class="form-select"></select>
+                                    <button type="button" class="btn btn-primary btn-sm-custom"
+                                        onclick="openCategoryModal()">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>WHT_Per</label>
+                                <input type="number" id="whtPer" class="form-control" step="0.01" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Opening</label>
+                                <input type="number" id="opening" class="form-control" step="0.01" value="0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="action-btns text-center">
+                        <button type="submit" class="btn btn-success px-4" id="saveBtn">Save</button>
+                        <button type="button" class="btn btn-danger px-4" onclick="clearForm()">Clear</button>
+                        <button type="button" class="btn btn-danger px-4" onclick="deleteSupplier()" id="deleteBtn"
+                            style="display: none;">Delete</button>
+                        <div class="form-check d-inline-block ms-3" style="vertical-align: middle;">
+                            <input class="form-check-input" type="checkbox" id="isActive" checked>
+                            <label class="form-check-label fw-bold" for="isActive">Active</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- List Area -->
+            <div class="list-container shadow-sm" id="listPanelWrapper">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="m-0 fw-bold">Supplier List</h6>
+                    <div class="search-box">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" id="searchInput" class="form-control"
+                                placeholder="Search by name, NTN...">
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered data-table" id="supplierTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;" class="text-center">Sr. No.</th>
+                                <th style="width: 250px;" class="text-start">Supplier Name</th>
+                                <th class="text-center">Category</th>
+                                <th class="text-center">Sub Category</th>
+                                <th class="text-center">Phone No</th>
+                                <th class="text-center">Mobile No</th>
+                                <th class="text-center">NTN</th>
+                                <th class="text-center">STRN</th>
+                                <th style="width: 80px;" class="text-center">WHT Type</th>
+                                <th class="text-end">WHT Per</th>
+                                <th class="text-end">ADV Tax Per</th>
+                                <th class="text-center">Active</th>
+                                <th class="text-center">City Name</th>
+                                <th class="text-center">Branch Name</th>
+                                <th class="text-center">Finished</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="supplierTableBody">
+                            <!-- Populated via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Modal -->
+    <div class="modal fade" id="categoryModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Manage Supplier Categories</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3 mb-4 align-items-end">
+                        <input type="hidden" id="editCategoryId">
+                        <div class="col-8">
+                            <label class="form-label fw-bold">Category Name</label>
+                            <input type="text" id="newCategoryName" class="form-control"
+                                placeholder="Enter category name...">
+                        </div>
+                        <div class="col-4">
+                            <button type="button" class="btn btn-primary w-100" id="saveCatBtn"
+                                onclick="saveCategory()">Save Category</button>
+                            <button type="button" class="btn btn-secondary w-100 mt-2" id="cancelCatEditBtn"
+                                style="display:none;" onclick="cancelCategoryEdit()">Cancel</button>
+                        </div>
+                    </div>
+
+                    <h6 class="border-bottom pb-2 mb-3 fw-bold text-primary">Existing Categories</h6>
+                    <div class="table-responsive" style="max-height: 300px;">
+                        <table class="table table-sm table-bordered">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Sr.</th>
+                                    <th>Category Name</th>
+                                    <th style="width: 120px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="categoryListBody">
+                                <!-- Populated via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Action Bar -->
+    <div class="action-bar-mobile d-none">
+        <button type="button" class="action-btn-mobile btn-toggle-mobile" id="mobileToggleBtn"
+            onclick="toggleMobileWhtView()">
+            <i class="fas fa-list"></i>
+            <span id="toggleText">View List</span>
+        </button>
+        <button type="button" class="action-btn-mobile btn-save-mobile"
+            onclick="document.getElementById('supplierForm').dispatchEvent(new Event('submit'))">
+            <i class="fas fa-save"></i>
+            <span>Save</span>
+        </button>
+        <button type="button" class="action-btn-mobile btn-clear-mobile" onclick="clearForm()">
+            <i class="fas fa-redo"></i>
+            <span>Clear</span>
+        </button>
+    </div>
+
+    <script>
+        function toggleMobileWhtView() {
+            const formPanel = document.getElementById('formPanelWrapper');
+            const listPanel = document.getElementById('listPanelWrapper');
+            const toggleText = document.getElementById('toggleText');
+            const toggleIcon = document.querySelector('#mobileToggleBtn i');
+
+            if (formPanel.style.display !== 'none') {
+                formPanel.style.setProperty('display', 'none', 'important');
+                listPanel.style.setProperty('display', 'block', 'important');
+                toggleText.innerText = 'View Form';
+                toggleIcon.className = 'fas fa-edit';
+            } else {
+                formPanel.style.setProperty('display', 'block', 'important');
+                listPanel.style.setProperty('display', 'none', 'important');
+                toggleText.innerText = 'View List';
+                toggleIcon.className = 'fas fa-list';
+            }
+        }
+    </script>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244567"></script>
+    <script src="/js/wht-supplier.js"></script>
+</body>
+
+</html>
+

@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OverTime & Short Time Report - Bilal Accounting System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #1e4c8c 0%, #173868 100%);
+            --ot-color: #10b981;
+            --st-color: #ef4444;
+            --border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        body {
+            background-color: #f1f5f9;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-size: 0.85rem;
+            color: #1e293b;
+        }
+
+        .filter-panel {
+            background: var(--primary-gradient);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 25px -5px rgba(30, 76, 140, 0.25);
+            color: white;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+
+        .filter-row:last-child {
+            margin-bottom: 0;
+            align-items: flex-end;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .filter-group.small {
+            flex: 0.5;
+            min-width: 110px;
+        }
+
+        .filter-panel label {
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 6px;
+            display: block;
+            opacity: 0.95;
+            color: #e2e8f0;
+        }
+
+        .filter-panel .form-select,
+        .filter-panel .form-control {
+            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.12);
+            color: white !important;
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            border-radius: 8px;
+            height: 38px;
+            transition: all 0.2s;
+        }
+
+        .filter-panel .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .filter-panel .form-select option {
+            background: #1e4c8c;
+            color: white;
+        }
+
+        .filter-panel .form-select:focus,
+        .filter-panel .form-control:focus {
+            background: rgba(255, 255, 255, 0.22);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15);
+            border-color: white;
+            outline: none;
+        }
+
+        /* Select2 styling for dark theme */
+        .select2-container--bootstrap-5 .select2-selection {
+            background-color: rgba(255, 255, 255, 0.12) !important;
+            border: 1px solid var(--border-color) !important;
+            color: white !important;
+            height: 38px !important;
+            border-radius: 8px !important;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+            color: white !important;
+            line-height: 36px !important;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection--single .select2-selection__arrow b {
+            border-color: white transparent transparent transparent !important;
+        }
+
+        /* Segmented buttons */
+        .segmented-btn-group {
+            display: inline-flex;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 3px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .segmented-btn {
+            border: none;
+            background: transparent;
+            color: #cbd5e1;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .segmented-btn.active {
+            background: #ffffff;
+            color: #1e4c8c;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-action {
+            color: white;
+            border: 1.5px solid transparent;
+            padding: 0 16px;
+            height: 38px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+            letter-spacing: 0.4px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-overtime {
+            background: #10b981;
+            border-color: #059669;
+        }
+
+        .btn-overtime:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+
+        .btn-shorttime {
+            background: #ef4444;
+            border-color: #dc2626;
+        }
+
+        .btn-shorttime:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        .btn-both {
+            background: #6366f1;
+            border-color: #4f46e5;
+        }
+
+        .btn-both:hover {
+            background: #4f46e5;
+            transform: translateY(-1px);
+        }
+
+        .btn-reset {
+            background: rgba(255, 255, 255, 0.12);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-reset:hover {
+            background: rgba(255, 255, 255, 0.25);
+            color: white;
+        }
+
+        /* KPI Metric Cards */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: transform 0.2s;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .kpi-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .kpi-val {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1.2;
+        }
+
+        .kpi-sub {
+            font-size: 0.75rem;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Table Styling */
+        .data-panel {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.82rem;
+        }
+
+        .data-table thead th {
+            background: #0f172a !important;
+            color: #ffffff !important;
+            font-weight: 700;
+            text-transform: uppercase;
+            text-align: center;
+            padding: 10px 8px;
+            border: 1px solid #334155 !important;
+            font-size: 0.78rem;
+            letter-spacing: 0.4px;
+            white-space: nowrap;
+        }
+
+        .data-table tbody td {
+            border: 1px solid #cbd5e1;
+            padding: 8px 8px;
+            text-align: center;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: #1e293b;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .data-table tfoot tr {
+            background-color: #e2e8f0 !important;
+            font-weight: 800;
+            font-size: 0.88rem;
+        }
+
+        .data-table tfoot td {
+            background-color: #e2e8f0 !important;
+            border: 1px solid #94a3b8 !important;
+            padding: 10px 8px;
+            text-align: center !important;
+            vertical-align: middle;
+            color: #0f172a;
+        }
+
+        .text-ot {
+            color: #059669 !important;
+            font-weight: 700;
+        }
+
+        .text-st {
+            color: #dc2626 !important;
+            font-weight: 700;
+        }
+
+        .badge-ot {
+            background-color: #ecfdf5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+
+        .badge-st {
+            background-color: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+
+        .search-box-wrap {
+            position: relative;
+        }
+
+        .search-box-wrap i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+
+        .search-box-wrap input {
+            padding-left: 36px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            height: 36px;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="sidebar-container"></div>
+
+    <div class="main-content">
+        <div class="page-header px-3 d-flex align-items-center justify-content-between"
+            style="height: 52px; background: white; border-bottom: 1px solid #e2e8f0;">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem; color: #1e4c8c;"></i>
+                <h5 class="mb-0 fw-bold" style="color: #1e4c8c;">
+                    <i class="fas fa-clock-rotate-left me-2"></i>OverTime & Short Time Report
+                </h5>
+            </div>
+            <div class="dropdown">
+                <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                    style="border:none; color: #1e4c8c; font-weight: 600;">
+                    <i class="fas fa-user-circle me-1"></i> <span id="userName">User</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                    <li><a class="dropdown-item logout-btn" href="#"><i
+                                class="fas fa-sign-out-alt me-2 text-danger"></i>Logout</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="container-fluid p-4">
+            <!-- Filter Panel -->
+            <div class="filter-panel shadow-sm">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label><i class="far fa-calendar-alt me-1"></i> From Date</label>
+                        <input type="date" id="filterFrom" class="form-control">
+                    </div>
+                    <div class="filter-group">
+                        <label><i class="far fa-calendar-alt me-1"></i> To Date</label>
+                        <input type="date" id="filterTo" class="form-control">
+                    </div>
+                    <div class="filter-group">
+                        <label><i class="fas fa-store me-1"></i> Branch</label>
+                        <select id="filterBranch" class="form-select">
+                            <option value="">All Branches</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label><i class="fas fa-sitemap me-1"></i> Department</label>
+                        <select id="filterDept" class="form-select">
+                            <option value="">All Departments</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="filter-row">
+                    <div class="filter-group small">
+                        <label><i class="fas fa-umbrella-beach me-1"></i> Holidays</label>
+                        <input type="number" id="filterHolidays" class="form-control" value="4" min="0" max="31"
+                            title="Official holidays (e.g. Sundays) subtracted from total days to determine working days">
+                    </div>
+                    <div class="filter-group" style="flex: 2; min-width: 250px;">
+                        <label><i class="fas fa-user me-1"></i> Employee Search / Select</label>
+                        <select id="filterEmployee" class="form-select">
+                            <option value="">All Employees</option>
+                        </select>
+                    </div>
+
+                    <!-- View Mode Selector -->
+                    <div class="filter-group" style="flex: 1.2; min-width: 200px;">
+                        <label><i class="fas fa-table-columns me-1"></i> Report Format</label>
+                        <div class="segmented-btn-group w-100">
+                            <button type="button" class="segmented-btn flex-fill active" id="btnModeSummary" onclick="setViewMode('summary')">
+                                <i class="fas fa-list-check me-1"></i> Summary
+                            </button>
+                            <button type="button" class="segmented-btn flex-fill" id="btnModeDetail" onclick="setViewMode('detail')">
+                                <i class="fas fa-calendar-day me-1"></i> Detail (Daily)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex gap-2 align-items-end" style="flex: 0 0 auto;">
+                        <button class="btn btn-action btn-overtime" id="btnFilterOT" onclick="applyCriteria('OverTime')">
+                            <i class="fas fa-plus-circle"></i> Overtime
+                        </button>
+                        <button class="btn btn-action btn-shorttime" id="btnFilterST" onclick="applyCriteria('ShortTime')">
+                            <i class="fas fa-minus-circle"></i> Short Time
+                        </button>
+                        <button class="btn btn-action btn-both" id="btnFilterBoth" onclick="applyCriteria('Both')">
+                            <i class="fas fa-scale-balanced"></i> Both (OT & ST)
+                        </button>
+                        <button class="btn btn-reset" title="Reset Filters" onclick="resetFilters()">
+                            <i class="fas fa-redo"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KPI Metric Cards (Visible when report loaded) -->
+            <div id="kpiContainer" class="kpi-row" style="display: none;">
+                <div class="kpi-card">
+                    <div class="kpi-icon" style="background: #e0f2fe; color: #0284c7;">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div>
+                        <div class="kpi-val" id="kpiEmployees">0</div>
+                        <div class="kpi-sub">Total Employees</div>
+                    </div>
+                </div>
+
+                <div class="kpi-card">
+                    <div class="kpi-icon" style="background: #f3e8ff; color: #7e22ce;">
+                        <i class="fas fa-business-time"></i>
+                    </div>
+                    <div>
+                        <div class="kpi-val" id="kpiWorkedHrs">0:00</div>
+                        <div class="kpi-sub">Total Worked Hours</div>
+                    </div>
+                </div>
+
+                <div class="kpi-card" id="kpiCardOT">
+                    <div class="kpi-icon" style="background: #ecfdf5; color: #059669;">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div>
+                        <div class="kpi-val text-success" id="kpiOTHrs">0:00</div>
+                        <div class="kpi-sub">Total Overtime (Rs. <span id="kpiOTAmt">0.00</span>)</div>
+                    </div>
+                </div>
+
+                <div class="kpi-card" id="kpiCardST">
+                    <div class="kpi-icon" style="background: #fef2f2; color: #dc2626;">
+                        <i class="fas fa-hourglass-half"></i>
+                    </div>
+                    <div>
+                        <div class="kpi-val text-danger" id="kpiSTHrs">0:00</div>
+                        <div class="kpi-sub">Total Short Time (Rs. <span id="kpiSTAmt">0.00</span>)</div>
+                    </div>
+                </div>
+
+                <div class="kpi-card" id="kpiCardNet">
+                    <div class="kpi-icon" style="background: #eef2ff; color: #4f46e5;">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div>
+                        <div class="kpi-val" id="kpiNetAmt" style="color: #4f46e5;">Rs. 0.00</div>
+                        <div class="kpi-sub">Net Payable / Deductible</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Results Section -->
+            <div id="reportResult" class="data-panel shadow-sm" style="display: none;">
+                <div class="p-3 bg-light border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div class="d-flex align-items-center flex-wrap gap-3">
+                        <div>
+                            <h6 class="mb-1 fw-bold" style="color: #1e4c8c;" id="reportTitle">Report Details</h6>
+                            <div id="reportInfoBar" class="d-flex flex-wrap gap-1"></div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2">
+                        <!-- Fast client-side row filter -->
+                        <div class="search-box-wrap">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="tableSearchInput" placeholder="Quick search..." onkeyup="filterTableRows()">
+                        </div>
+
+                        <button class="btn btn-sm btn-primary fw-bold px-3 py-2" onclick="printCurrentReport()">
+                            <i class="fas fa-print me-1"></i> Print Report (A4)
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="data-table" id="mainDataTable">
+                        <thead id="tableHead"></thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Initial Placeholder -->
+            <div id="noDataPlaceholder" class="card shadow-sm border-0 mt-4" style="border-radius: 12px; background: white;">
+                <div class="card-body text-center py-5 text-muted">
+                    <i class="fas fa-clock-rotate-left fa-3x mb-3 text-primary opacity-25"></i>
+                    <h5 class="fw-bold text-dark mb-1">OverTime & Short Time Reporting Center</h5>
+                    <p class="text-secondary mb-0">Select your date range, branch, or employee above and click <strong>Overtime</strong>, <strong>Short Time</strong>, or <strong>Both</strong> to generate the report.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="/js/sidebar.js?v=1789486244509"></script>
+    <script src="/js/overtime-shorttime-report.js?v=20260829-1"></script>
+</body>
+
+</html>

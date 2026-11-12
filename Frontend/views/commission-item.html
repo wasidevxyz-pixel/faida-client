@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Commission Item Registration - BAS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        .form-label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .form-control,
+        .form-select {
+            font-size: 0.9rem;
+            padding: 0.4rem 0.75rem;
+        }
+
+        .btn-add-modal {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        /* Name search suggestions styling */
+        #nameSuggestions .list-group-item {
+            border: none;
+            border-bottom: 1px solid #f1f3f5;
+            transition: all 0.2s;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        #nameSuggestions .list-group-item:hover,
+        #nameSuggestions .list-group-item.active {
+            background-color: #0d6efd !important;
+            color: white !important;
+        }
+
+        #nameSuggestions .list-group-item:hover .text-muted,
+        #nameSuggestions .list-group-item.active .text-muted {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        #nameSuggestions::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #nameSuggestions::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 3px;
+        }
+
+        /* Professional Mobile Enhancements */
+        @media (max-width: 768px) {
+            .page-header {
+                padding: 0.5rem 1rem !important;
+                background-color: var(--bs-blue, #2c5ba9) !important;
+                color: white !important;
+            }
+
+            .container-fluid {
+                padding: 10px !important;
+                padding-bottom: 80px !important;
+            }
+
+            .row.g-3 {
+                display: block !important;
+            }
+
+            .col-lg-9,
+            .col-lg-3 {
+                width: 100% !important;
+                padding: 0 !important;
+                margin-bottom: 15px !important;
+            }
+
+            .card {
+                border-radius: 12px !important;
+                border: none !important;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
+                padding: 15px !important;
+            }
+
+            .form-label {
+                font-size: 0.75rem !important;
+                color: #64748b !important;
+            }
+
+            .form-control,
+            .form-select {
+                height: 38px !important;
+                font-size: 0.85rem !important;
+                border-radius: 8px !important;
+            }
+
+            /* Bottom Action Bar */
+            .action-bar-mobile {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: white;
+                display: flex !important;
+                justify-content: space-around;
+                padding: 8px 5px;
+                box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.1);
+                z-index: 1050;
+                border-top: 1px solid #e2e8f0;
+                height: 65px;
+            }
+
+            .action-btn-mobile {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                background: none;
+                border: none;
+                color: #64748b;
+                font-size: 0.65rem;
+                font-weight: 600;
+                flex: 1;
+                transition: all 0.2s;
+            }
+
+            .action-btn-mobile i {
+                font-size: 1.25rem;
+                margin-bottom: 3px;
+            }
+
+            .action-btn-mobile:active {
+                color: #2c5ba9;
+            }
+
+            .btn-save-mobile i {
+                color: #10b981;
+            }
+
+            .btn-list-mobile i {
+                color: #3b82f6;
+            }
+
+            .btn-clear-mobile i {
+                color: #f59e0b;
+            }
+
+            .d-flex.gap-2.mt-4.mb-3 {
+                display: none !important;
+                /* Hide desktop buttons */
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Item List Modal -->
+    <div class="modal" id="itemListModal" tabindex="-1" aria-hidden="true" style="z-index: 2000;">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white py-2">
+                    <h5 class="modal-title fs-6">Commission Item List</h5>
+                    <div class="ms-auto d-flex align-items-center gap-3">
+                        <span class="small fw-bold">SEARCH : ctrl</span>
+                        <span class="small fw-bold">SELECT ITEM : alt+b</span>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                </div>
+                <div class="modal-body p-0 d-flex flex-column" style="height: 100vh;">
+                    <!-- Search Bar -->
+                    <div class="p-2 border-bottom bg-light">
+                        <input type="text" class="form-control" id="itemListSearch"
+                            placeholder="Type to search by name or barcode..." autofocus>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="table-responsive flex-grow-1">
+                        <table class="table table-bordered table-sm mb-0 text-center align-middle"
+                            style="font-size: 13px; min-width: 1200px;">
+                            <thead>
+                                <tr>
+                                    <th style="width: 80px;">Action</th>
+                                    <th>Barcode</th>
+                                    <th>ItemName</th>
+                                    <th>Cost</th>
+                                    <th>Retail</th>
+                                    <th>Incentive</th>
+                                    <th>Category</th>
+                                    <th>Supplier</th>
+                                </tr>
+                            </thead>
+                            <tbody id="itemListTableBody">
+                                <!-- Data will be injected here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="page-header px-3">
+            <div style="flex: 1; display: flex; align-items: center;">
+                <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+                <h4 class="mb-0">Commission Item Registration</h4>
+            </div>
+        </div>
+
+        <!-- Main Form -->
+        <div class="container-fluid p-3">
+            <form id="itemForm">
+                <input type="hidden" id="itemId">
+
+                <div class="row g-3">
+                    <!-- Left Column (Main Data) -->
+                    <div class="col-lg-9">
+                        <div class="card shadow-sm p-3 h-100">
+                            <!-- Row 1: ID, Barcode, Search Name -->
+                            <div class="row g-2 mb-3">
+                                <div class="col-md-2">
+                                    <label for="seqId" class="form-label">ID</label>
+                                    <input type="text" class="form-control bg-dark text-white fw-bold" id="seqId"
+                                        readonly style="font-size: 1.1rem;">
+                                </div>
+                                <div class="col-md-5">
+                                    <label class="form-label text-danger fw-bold">Search By Barcode</label>
+                                    <input type="text" class="form-control" id="searchBarcode">
+                                </div>
+                                <div class="col-md-5">
+                                    <label class="form-label text-danger fw-bold">Search By Name</label>
+                                    <div class="position-relative">
+                                        <input type="text" class="form-control" id="searchName"
+                                            placeholder="Select Item..." oninput="filterItemsByName(this.value)"
+                                            onkeydown="handleNameSearchKeydown(event)" autocomplete="off">
+                                        <div id="nameSuggestions" class="list-group position-absolute w-100"
+                                            style="z-index: 1050; display:none; max-height: 300px; overflow-y: auto; top: 100%; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 1px solid #ced4da; border-radius: 4px;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Row 2: Item Name -->
+                            <div class="mb-3">
+                                <label for="itemName" class="form-label fw-bold">Item Name <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="itemName" required>
+                            </div>
+
+                            <!-- Row 3: Code and Gross -->
+                            <div class="row g-2 mb-3">
+                                <div class="col-md-6">
+                                    <label for="itemCode" class="form-label fw-bold">Item Code</label>
+                                    <input type="text" class="form-control bg-dark text-white fw-bold" id="itemCode"
+                                        readonly style="font-size: 1.1rem;">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Given Pcs Bar Code</label>
+                                    <input type="text" class="form-control" id="grossPerBarCode">
+                                </div>
+                            </div>
+
+                            <!-- Row 4: Pricing -->
+                            <div class="row g-2 mb-3">
+                                <div class="col-md-6">
+                                    <label for="costPrice" class="form-label fw-bold">Cost Price <span
+                                            class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="costPrice" value="0" step="0.01">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="retailPrice" class="form-label fw-bold">Sale Price <span
+                                            class="text-danger">*</span></label>
+                                    <input type="number" class="form-control" id="retailPrice" value="0" step="0.01">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="incentive" class="form-label fw-bold">Incentive</label>
+                                    <input type="number" class="form-control" id="incentive" value="0" step="0.01">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column (Meta Data & Actions) -->
+                    <div class="col-lg-3">
+                        <div class="card shadow-sm p-3 h-100">
+                            <!-- Category -->
+                            <div class="mb-3">
+                                <label for="category" class="form-label">Category (Alt+c) <span
+                                        class="text-danger">*</span></label>
+                                <div class="input-group input-group-sm">
+                                    <select class="form-select" id="category">
+                                        <option value="">Select Category</option>
+                                    </select>
+                                    <button class="btn btn-primary" type="button" onclick="showCategoryModal()">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Supplier -->
+                            <div class="mb-3">
+                                <label for="supplier" class="form-label">Supplier (Alt+h) <span
+                                        class="text-danger">*</span></label>
+                                <div class="input-group input-group-sm">
+                                    <select class="form-select" id="supplier">
+                                        <option value="">Select Supplier</option>
+                                    </select>
+                                    <button class="btn btn-primary" type="button" onclick="showSupplierModal()">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="d-flex gap-2 mt-4 mb-3 flex-wrap">
+                                <button type="button" class="btn btn-success flex-grow-1" onclick="saveItem()">
+                                    <i class="fas fa-save me-1"></i> Save
+                                </button>
+                                <button type="button" class="btn btn-danger flex-grow-1" onclick="clearForm()">
+                                    <i class="fas fa-times me-1"></i> Clear
+                                </button>
+                                <button type="button" class="btn btn-primary flex-grow-1" onclick="showList()">
+                                    <i class="fas fa-list me-1"></i> List
+                                </button>
+                            </div>
+
+                            <!-- Active Checkbox -->
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="isActive" checked>
+                                <label class="form-check-label fw-bold" for="isActive">Active</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Category Modal -->
+    <div class="modal" id="categoryModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white py-2">
+                    <h5 class="modal-title fs-6">Manage Categories</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="card p-3 mb-3 bg-light border-0">
+                        <div class="row g-2 align-items-end">
+                            <input type="hidden" id="categoryId">
+                            <div class="col-md-6">
+                                <label class="form-label">Category Name</label>
+                                <input type="text" class="form-control" id="modalCategoryName">
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-check mb-2">
+                                    <input type="checkbox" class="form-check-input" id="modalCategoryActive" checked>
+                                    <label class="form-check-label">Active</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <button type="button" class="btn btn-success btn-sm"
+                                    onclick="saveCategory()">Save</button>
+                                <button type="button" class="btn btn-secondary btn-sm"
+                                    onclick="resetCategoryForm()">Clear</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive" style="max-height: 350px;">
+                        <table class="table table-bordered table-sm text-center">
+                            <thead class="table-light sticky-top">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="categoryTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supplier Modal -->
+    <div class="modal" id="supplierModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white py-2">
+                    <h5 class="modal-title fs-6">Manage Suppliers</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="card p-3 mb-3 bg-light border-0">
+                        <div class="row g-2 align-items-end">
+                            <input type="hidden" id="supplierId">
+                            <div class="col-md-6">
+                                <label class="form-label">Supplier Name</label>
+                                <input type="text" class="form-control" id="modalSupplierName">
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-check mb-2">
+                                    <input type="checkbox" class="form-check-input" id="modalSupplierActive" checked>
+                                    <label class="form-check-label">Active</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <button type="button" class="btn btn-success btn-sm"
+                                    onclick="saveSupplier()">Save</button>
+                                <button type="button" class="btn btn-secondary btn-sm"
+                                    onclick="resetSupplierForm()">Clear</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive" style="max-height: 350px;">
+                        <table class="table table-bordered table-sm text-center">
+                            <thead class="table-light sticky-top">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="supplierTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Action Bar -->
+    <div class="action-bar-mobile d-none">
+        <button type="button" class="action-btn-mobile btn-list-mobile" onclick="showList()">
+            <i class="fas fa-list"></i>
+            <span>List</span>
+        </button>
+        <button type="button" class="action-btn-mobile btn-save-mobile" onclick="saveItem()">
+            <i class="fas fa-save"></i>
+            <span>Save</span>
+        </button>
+        <button type="button" class="action-btn-mobile btn-clear-mobile" onclick="clearForm()">
+            <i class="fas fa-redo"></i>
+            <span>Clear</span>
+        </button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/sidebar.js?v=1789486244459"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/commission-item.js"></script>
+</body>
+
+</html>
+

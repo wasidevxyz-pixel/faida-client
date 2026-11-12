@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Dashboard - Bilal Accounting System</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- CSS Dependencies -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/apexcharts@3.41.0/dist/apexcharts.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <!-- Custom CSS -->
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <style>
+        :root {
+            --hr-primary: #07132b;
+            --hr-primary-dark: #102a5c;
+            --hr-accent: #00d4ff;
+            --hr-bg: #f8fafc;
+            --hr-card-bg: #ffffff;
+            --hr-text-main: #2c3e50;
+            --hr-text-muted: #64748b;
+            --hr-border: #e2e8f0;
+            --hr-success: #10b981;
+            --hr-warning: #f59e0b;
+            --hr-danger: #ef4444;
+            --hr-indigo: #6366f1;
+            --hr-teal: #14b8a6;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--hr-bg);
+            color: var(--hr-text-main);
+            font-size: 0.875rem;
+            overflow-x: hidden;
+        }
+
+        .main-content {
+            padding: 0;
+            min-height: 100vh;
+            background-color: var(--hr-bg);
+        }
+
+        /* Modern Page Header */
+        .page-header {
+            background: linear-gradient(135deg, #07132b 0%, #0d2149 50%, #102a5c 100%) !important;
+            color: white !important;
+            padding: 12px 24px !important;
+            box-shadow: var(--shadow-md);
+            height: auto !important;
+            border-bottom: 1.5px solid rgba(0, 212, 255, 0.25) !important;
+        }
+
+        .page-header h4 {
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin: 0;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+        }
+
+        .btn-glass-light {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            backdrop-filter: blur(4px);
+            transition: all 0.3s ease;
+        }
+
+        .btn-glass-light:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.4);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        /* Premium Controls Section */
+        .controls-section {
+            background: white;
+            padding: 20px 24px;
+            margin: 0;
+            border-bottom: 1px solid var(--hr-border);
+        }
+
+        .form-label-custom {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--hr-text-muted);
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        .form-select-modern,
+        .form-control-modern {
+            border: 1px solid var(--hr-border);
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+            background-color: #fcfcfc;
+        }
+
+        .form-select-modern:focus,
+        .form-control-modern:focus {
+            border-color: #0284c7;
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+            background-color: white;
+        }
+
+        /* Modern Tabs Navigation */
+        .hr-tabs {
+            padding: 0 24px;
+            background: white;
+            border-bottom: 1px solid var(--hr-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .hr-tabs .nav-tabs {
+            border: none;
+            gap: 6px;
+            padding: 10px 0;
+            overflow-x: auto;
+            flex-wrap: nowrap;
+        }
+
+        .hr-tabs .nav-tabs::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .hr-tabs .nav-tabs::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .hr-tabs .nav-link {
+            border: none !important;
+            border-radius: 10px !important;
+            padding: 9px 18px !important;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #475569 !important;
+            background: transparent !important;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            position: relative;
+        }
+
+        .hr-tabs .nav-link:hover {
+            color: #0284c7 !important;
+            background: rgba(2, 132, 199, 0.08) !important;
+        }
+
+        .hr-tabs .nav-link.active {
+            color: #ffffff !important;
+            background: linear-gradient(135deg, #07132b 0%, #0d2149 50%, #102a5c 100%) !important;
+            box-shadow: 0 4px 14px rgba(7, 19, 43, 0.35) !important;
+            border-bottom: 3px solid #00d4ff !important;
+        }
+
+        /* Premium Floating Cards */
+        .card-premium {
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--hr-border);
+            height: 100%;
+        }
+
+        .card-premium:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--hr-primary);
+        }
+
+        /* Vivid Icon Boxes */
+        .icon-box {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+
+        .bg-indigo-light {
+            background: rgba(99, 102, 241, 0.1);
+            color: #6366f1;
+        }
+
+        .bg-teal-light {
+            background: rgba(20, 184, 166, 0.1);
+            color: #14b8a6;
+        }
+
+        .bg-primary-light {
+            background: rgba(30, 76, 140, 0.1);
+            color: var(--hr-primary);
+        }
+
+        .bg-success-light {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--hr-success);
+        }
+
+        .bg-warning-light {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--hr-warning);
+        }
+
+        .bg-danger-light {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--hr-danger);
+        }
+
+        .bg-info-light {
+            background: rgba(6, 182, 212, 0.1);
+            color: #0891b2;
+        }
+
+        .bg-secondary-light {
+            background: rgba(107, 114, 128, 0.1);
+            color: #4b5563;
+        }
+
+        .card-premium:hover .icon-box {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        /* Secondary Filter Row */
+        .filter-row {
+            padding: 20px 24px;
+            background-color: #f1f5f9;
+            border-bottom: 1px solid var(--hr-border);
+        }
+
+        .date-col {
+            text-align: center !important;
+        }
+
+        .btn-filter-modern {
+            background: linear-gradient(135deg, #07132b 0%, #0d2149 50%, #102a5c 100%);
+            color: white;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 10px;
+            padding: 10px 24px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.8rem;
+            box-shadow: 0 4px 12px rgba(7, 19, 43, 0.25);
+            transition: all 0.3s ease;
+        }
+
+        .btn-filter-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(7, 19, 43, 0.4);
+            border-color: #00d4ff;
+            color: white;
+        }
+
+        /* Enhanced Tables */
+        .tab-content {
+            padding: 24px;
+        }
+
+        .table-custom {
+            width: 100%;
+            border-spacing: 0;
+            border-collapse: separate;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--hr-border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .table-custom thead th {
+            background: linear-gradient(180deg, #132b55, #0b1c3a) !important;
+            color: #ffffff !important;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.74rem;
+            letter-spacing: 0.8px;
+            padding: 12px 14px;
+            border: none;
+            border-right: 1px solid rgba(255, 255, 255, 0.12);
+            border-bottom: 2px solid rgba(0, 212, 255, 0.4) !important;
+        }
+
+        /* STICKY COLUMNS & HORIZONTAL SCROLL NAV */
+        .table-responsive {
+            position: relative;
+            scrollbar-width: thin;
+            border-radius: 12px;
+            overflow-x: auto;
+        }
+
+        .table-responsive::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .table-responsive::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .table-custom thead th {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            white-space: nowrap;
+        }
+
+        .sticky-col {
+            position: sticky !important;
+            background-color: white !important;
+            z-index: 10;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+        }
+
+        .sticky-col-1 { left: 0; z-index: 15 !important; min-width: 45px; }
+        .sticky-col-2 { left: 45px; z-index: 15 !important; min-width: 80px; }
+        .sticky-col-3 { left: 125px; z-index: 15 !important; min-width: 150px; border-right: 2px solid var(--hr-border) !important; }
+
+        tr:hover td.sticky-col {
+            background-color: #f8fafc !important;
+        }
+
+        .table-custom thead th.sticky-col {
+            z-index: 30 !important;
+            background: var(--hr-primary) !important;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+
+        /* Floating Nav Buttons */
+        .scroll-nav-btn {
+            position: fixed;
+            bottom: 40px;
+            width: 45px;
+            height: 45px;
+            background: var(--hr-primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 9999;
+            box-shadow: var(--shadow-lg);
+            opacity: 0.8;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid rgba(255,255,255,0.2);
+            text-decoration: none;
+        }
+
+        .scroll-nav-btn:hover {
+            opacity: 1;
+            transform: scale(1.1);
+            background: var(--hr-primary-dark);
+            color: white;
+        }
+
+        .scroll-nav-left { right: 80px; }
+        .scroll-nav-right { right: 25px; }
+
+        @media (max-width: 768px) {
+            .scroll-nav-btn { bottom: 20px; width: 35px; height: 35px; }
+            .scroll-nav-left { right: 60px; }
+            .scroll-nav-right { right: 15px; }
+        }
+
+        .table-custom tbody td {
+            padding: 14px 12px;
+            background: white;
+            border-bottom: 1px solid #f1f5f9;
+            border-right: 1px solid #f1f5f9;
+            font-weight: 500;
+        }
+
+        .table-custom tbody td:last-child {
+            border-right: none;
+        }
+
+        .table-custom tbody tr:hover td {
+            background-color: rgba(30, 76, 140, 0.02);
+        }
+
+        /* Specialized Badges */
+        .status-badge-modern {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+        }
+
+        /* Dashboard Lists Style */
+        .dashboard-list {
+            background: white;
+            border-radius: 16px;
+            border: 1px solid var(--hr-border);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dashboard-list-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--hr-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dashboard-list-header h6 {
+            margin: 0;
+            font-weight: 700;
+            color: var(--hr-text-main);
+        }
+
+        .list-group-item {
+            padding: 16px 20px !important;
+            border-left: none !important;
+            border-right: none !important;
+            border-color: #f1f5f9 !important;
+            transition: all 0.2s ease;
+        }
+
+        .list-group-item:hover {
+            background-color: #f8fafc !important;
+        }
+
+        .list-group-item:last-child {
+            border-bottom: none !important;
+        }
+
+        /* Sticky Table Footer (Grand Totals) */
+        .table-custom tfoot {
+            position: sticky;
+            bottom: 0;
+            z-index: 10;
+            background-color: white;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-custom tfoot tr td {
+            border-top: 2px solid var(--hr-primary) !important;
+            padding: 12px 12px !important;
+        }
+
+        /* Micro Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tab-pane.active {
+            animation: fadeInUp 0.4s ease-out forwards;
+        }
+
+        /* Pulse Animation for Live Status */
+        @keyframes pulse-live {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            }
+
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+            }
+
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            }
+        }
+
+        .pulse-live {
+            animation: pulse-live 2s infinite;
+        }
+
+        .employee-photo-clickable:hover {
+            transform: scale(1.5);
+            box-shadow: 0 0 10px rgba(30, 76, 140, 0.4);
+            z-index: 1000;
+            border: 2px solid white;
+        }
+    </style>
+    </style>
+</head>
+
+<body>
+    <!-- Main Content Wrapper -->
+    <div class="main-content">
+
+        <!-- Standardized Page Header - Sidebar.js will enhance this -->
+        <div class="page-header">
+            <h4>HR Dashboard</h4>
+        </div>
+
+        <!-- Top Filter Row: Branch & Date -->
+        <div class="controls-section">
+            <div class="row align-items-center g-3">
+                <div class="col-md-3">
+                    <label class="form-label-custom">Branch Location</label>
+                    <select id="branchFilter" class="form-select form-select-modern">
+                        <option value="">Select Branch</option>
+                        <option value="All Branches">All Branches</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label-custom">Select Date</label>
+                    <input type="date" id="dateFilter" class="form-control form-control-modern">
+                </div>
+                <div class="col-md-2" style="margin-top: 25px;">
+                    <button class="btn btn-filter-modern w-100" onclick="applyFilters()">
+                        <i class="fas fa-filter me-2"></i>Apply Filters
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <div class="hr-tabs">
+            <ul class="nav nav-tabs" id="hrTabList" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active" data-bs-toggle="tab"
+                        data-bs-target="#tab-dashboard">Dashboard</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-hours">Hours
+                        Tracking</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-attendance">Attendance</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-employees">Employees</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-advances">Employee
+                        Advance</button>
+                </li>
+                <li class="nav-item" style="display:none;">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-salary-list">Salary
+                        List</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-legacy-archive">Salaries List Record</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-salary-detail">Employee
+                        Salary Detail</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-branch-record">Branch Wise
+                        Salary Record</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-branch-chart">Branch Salary
+                        Chart</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-ot-st">Over & Short
+                        Time</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-increments">Increments</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-performance">Performance</button>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Secondary Filters (Dynamic Visibility) -->
+        <div class="filter-row" style="display: none;">
+            <div class="row align-items-end g-3">
+                <!-- Department Filter (Searchable on most tabs) -->
+                <div class="col-md-2 filter-dept">
+                    <label class="form-label-custom">Department</label>
+                    <select id="deptFilter" class="form-select form-select-modern">
+                        <option value="">Select Department</option>
+                    </select>
+                </div>
+
+                <!-- Designation Filter -->
+                <div class="col-md-2 filter-desig">
+                    <label class="form-label-custom">Designation</label>
+                    <select id="desigFilter" class="form-select form-select-modern">
+                        <option value="">Select Designation</option>
+                    </select>
+                </div>
+
+                <!-- Global Search Filter (Added per request) -->
+                <div class="col-md-2 filter-search">
+                    <label class="form-label-custom">Employee Search</label>
+                    <input type="text" id="globalSearch" class="form-control form-control-modern"
+                        placeholder="Name or code...">
+                </div>
+
+                <!-- Status Filter (Attendance Specific) -->
+                <div class="col-md-2 filter-status">
+                    <label class="form-label-custom">Attendance Status</label>
+                    <select id="statusFilter" class="form-select form-select-modern">
+                        <option value="">All Status</option>
+                        <option value="Present">Present</option>
+                        <option value="Absent">Absent</option>
+                        <option value="Leave">Leave</option>
+                    </select>
+                </div>
+
+                <!-- Month Range Filters (Salary List) -->
+                <div class="col-md-2 filter-month-range" style="display:none;">
+                    <label class="form-label-custom">From Month</label>
+                    <input type="month" id="fromMonth" class="form-control form-control-modern">
+                </div>
+                <div class="col-md-2 filter-month-range" style="display:none;">
+                    <label class="form-label-custom">To Month</label>
+                    <input type="month" id="toMonth" class="form-control form-control-modern">
+                </div>
+
+                <!-- Date Range Filters (Employee Advance) -->
+                <div class="col-md-2 filter-date-range" style="display:none;">
+                    <label class="form-label-custom">From Date</label>
+                    <input type="date" id="fromDate" class="form-control form-control-modern">
+                </div>
+                <div class="col-md-2 filter-date-range" style="display:none;">
+                    <label class="form-label-custom">To Date</label>
+                    <input type="date" id="toDate" class="form-control form-control-modern">
+                </div>
+
+                <!-- Advance Specific Filters -->
+                <div class="col-md-2 filter-advance" style="display:none;">
+                    <label class="form-label-custom">Report Type</label>
+                    <select id="reportTypeFilter" class="form-select form-select-modern">
+                        <option value="Total Advance">Total Advance (All)</option>
+                        <option value="Advance Pay Only">Advance Pay Only</option>
+                        <option value="Advance Received Only">Advance Received Only</option>
+                        <option value="Opening Balance Only">Opening Balance Only</option>
+                    </select>
+                </div>
+
+                <!-- Employee Dropdown Filter (Shared) -->
+                <div class="col-md-2 filter-employee" style="display:none;">
+                    <label class="form-label-custom">Select Employee</label>
+                    <select id="employeeFilter" class="form-select form-select-modern">
+                        <option value="">All Employees</option>
+                    </select>
+                </div>
+
+                <!-- OT/ST Type Filter -->
+                <div class="col-md-2 filter-otst" style="display:none;">
+                    <label class="form-label-custom">Type</label>
+                    <select id="otstTypeFilter" class="form-select form-select-modern">
+                        <option value="">All (OT & ST)</option>
+                        <option value="Over Time">Over Time</option>
+                        <option value="Short Time">Short Time</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2 filter-btn-col">
+                    <button class="btn btn-filter-modern w-100" onclick="applyFilters()">
+                        <i class="fas fa-filter me-2"></i>Apply Filters
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="tab-content table-container" id="hrTabContent">
+
+            <!-- 1. Dashboard Tab -->
+            <div class="tab-pane fade show active" id="tab-dashboard">
+                <!-- Summary Cards -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-2">
+                        <div class="card-premium p-3 border-0 shadow-sm">
+                            <div class="d-flex align-items-center mb-1">
+                                <div class="icon-box bg-primary-light text-primary rounded p-2 me-3"><i
+                                        class="fas fa-users"></i></div>
+                                <div>
+                                    <small class="text-muted d-block">Total Employees</small>
+                                    <h5 class="mb-0 fw-bold" id="dashTotalEmp">0</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card-premium p-3 border-0 shadow-sm">
+                            <div class="d-flex align-items-center mb-1">
+                                <div class="icon-box bg-success-light text-success rounded p-2 me-3"><i
+                                        class="fas fa-user-check"></i></div>
+                                <div>
+                                    <small class="text-muted d-block">Present Today</small>
+                                    <h5 class="mb-0 fw-bold" id="dashPresent">0</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card-premium p-3 border-0 shadow-sm">
+                            <div class="d-flex align-items-center mb-1">
+                                <div class="icon-box bg-warning-light text-warning rounded p-2 me-3"><i
+                                        class="fas fa-clock"></i></div>
+                                <div>
+                                    <small class="text-muted d-block">Late Arrivals</small>
+                                    <h5 class="mb-0 fw-bold" id="dashLate">0</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card-premium p-3 border-0 shadow-sm">
+                            <div class="d-flex align-items-center mb-1">
+                                <div class="icon-box bg-danger-light text-danger rounded p-2 me-3"><i
+                                        class="fas fa-user-times"></i></div>
+                                <div>
+                                    <small class="text-muted d-block">Absent Today</small>
+                                    <h5 class="mb-0 fw-bold" id="dashAbsent">0</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card-premium p-3 border-0 shadow-sm">
+                            <div class="d-flex align-items-center mb-1">
+                                <div class="icon-box bg-indigo-light text-indigo rounded p-2 me-3"><i
+                                        class="fas fa-calendar-times"></i></div>
+                                <div>
+                                    <small class="text-muted d-block">Not Marked</small>
+                                    <h5 class="mb-0 fw-bold" id="dashNotMarked">0</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card-premium p-3 border-0 shadow-sm">
+                            <div class="d-flex align-items-center mb-1">
+                                <div class="icon-box bg-teal-light text-teal rounded p-2 me-3"><i
+                                        class="fas fa-chart-line"></i></div>
+                                <div>
+                                    <small class="text-muted d-block">Avg. Performance</small>
+                                    <h5 class="mb-0 fw-bold" id="dashAvgPerf">0%</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Biometric Sync Status Section -->
+                <div class="row g-3 mb-4">
+                    <div class="col-12">
+                        <div class="dashboard-list shadow-sm">
+                            <div class="dashboard-list-header py-2" style="background: #f8fafc;">
+                                <h6 class="mb-0 fs-7 text-uppercase" style="letter-spacing: 1px;">
+                                    <i class="fas fa-network-wired me-2 text-primary"></i>Biometric Sync Status (Real-Time)
+                                </h6>
+                                <div id="syncLastUpdate" class="text-muted" style="font-size: 0.7rem;">Checking status...</div>
+                            </div>
+                            <div class="card-body p-3">
+                                <div class="row g-3" id="branchStatusContainer">
+                                    <div class="col-md-2 text-center py-4">
+                                        <div class="spinner-border spinner-border-sm text-primary"></div>
+                                        <small class="d-block mt-2">Loading branch status...</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lists Row -->
+
+                <div class="row g-3">
+                    <!-- Present List -->
+                    <div class="col-md-3">
+                        <div class="card shadow-sm h-100">
+                            <div
+                                class="card-header bg-white border-bottom-0 py-3 d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0 text-success"><i class="fas fa-circle me-2"
+                                        style="font-size:8px;"></i>Present Today</h6>
+                                <span class="text-muted fw-bold" style="font-size: 11px;"><i
+                                        class="fas fa-clock me-1"></i>Check In</span>
+                            </div>
+                            <div class="card-body p-0" style="max-height: 400px; overflow-y: auto;">
+                                <ul class="list-group list-group-flush" id="listPresent"></ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Late List -->
+                    <div class="col-md-3">
+                        <div class="card shadow-sm h-100">
+                            <div
+                                class="card-header bg-white border-bottom-0 py-3 d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0 text-warning"><i class="fas fa-circle me-2"
+                                        style="font-size:8px;"></i>Late Arrivals</h6>
+                                <span class="text-muted fw-bold" style="font-size: 11px;"><i
+                                        class="fas fa-clock me-1"></i>Time</span>
+                            </div>
+                            <div class="card-body p-0" style="max-height: 400px; overflow-y: auto;">
+                                <ul class="list-group list-group-flush" id="listLate"></ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Absent List -->
+                    <div class="col-md-3">
+                        <div class="card shadow-sm h-100">
+                            <div
+                                class="card-header bg-white border-bottom-0 py-3 d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0 text-danger"><i class="fas fa-circle me-2"
+                                        style="font-size:8px;"></i>Absent Today</h6>
+                                <span class="text-muted fw-bold" style="font-size: 11px;">Status</span>
+                            </div>
+                            <div class="card-body p-0" style="max-height: 400px; overflow-y: auto;">
+                                <div id="listAbsent"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Not Marked List -->
+                    <div class="col-md-3">
+                        <div class="card shadow-sm h-100">
+                            <div
+                                class="card-header bg-white border-bottom-0 py-3 d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0 text-indigo"><i class="fas fa-circle me-2"
+                                        style="font-size:8px;"></i>Not Marked</h6>
+                                <span class="text-muted fw-bold" style="font-size: 11px;">Status</span>
+                            </div>
+                            <div class="card-body p-0" style="max-height: 400px; overflow-y: auto;">
+                                <ul class="list-group list-group-flush" id="listNotMarked"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Hours Tracking Tab -->
+            <div class="tab-pane fade" id="tab-hours">
+                <div class="table-responsive">
+                    <table class="table-custom text-center" id="hoursTable">
+                        <thead>
+                            <tr>
+                                <th>Sr.No</th>
+                                <th>Employee ID</th>
+                                <th>Name</th>
+                                <th>Department</th>
+                                <th>Designation</th>
+                                <th>Required Hours</th>
+                                <th>Worked Hours</th>
+                                <th>Working Days</th>
+                                <th>Duty Hours</th>
+                                <th>Overtime</th>
+                                <th>Short Hours</th>
+                                <th>Completion %</th>
+                                <th>Status</th>
+                                <th>Progress</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 3. Attendance Tab -->
+            <div class="tab-pane fade" id="tab-attendance">
+                <div class="d-flex justify-content-between align-items-center mb-3 bg-primary text-white p-2 rounded-top"
+                    style="background-color: var(--hr-primary) !important;">
+                    <h5 class="mb-0 fs-6 ms-2 d-flex align-items-center">
+                        Attendance Records
+                        <span class="badge bg-success ms-3 pulse-live" style="font-size: 0.65rem; letter-spacing: 1px;">
+                            <i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i> LIVE
+                        </span>
+                    </h5>
+                    <div class="d-flex gap-2">
+                        <div class="input-group input-group-sm" style="width: 200px;">
+                            <input type="text" class="form-control" placeholder="Search employees..."
+                                id="attendanceSearch">
+                            <button class="btn btn-light"><i class="fas fa-search"></i></button>
+                        </div>
+                        <button class="btn btn-sm btn-light fw-bold">Print</button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table-custom" id="attendanceTable">
+                        <thead>
+                            <tr>
+                                <th>Sr.No</th>
+                                <th>Branch Name</th>
+                                <th>Name</th>
+                                <th>Department</th>
+                                <th>Designation</th>
+                                <th>Date</th>
+                                <th>Day</th>
+                                <th>Duty Hrs</th>
+                                <th>Check In</th>
+                                <th>Check Out</th>
+                                <th>Worked Hours</th>
+                                <th>Break Hours</th>
+                                <th>Adjst Hours</th>
+                                <th>Total Hours</th>
+                                <th>Status</th>
+                                <th>Remarks</th>
+                                <th>Adjst Type</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Dynamic Rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 4. Employees Tab -->
+            <div class="tab-pane fade" id="tab-employees">
+                <div class="card mb-3 border-0 shadow-sm bg-light">
+                    <div class="card-body py-2">
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-2">
+                                <input type="text" id="empSearchCode" class="form-control form-control-sm"
+                                    placeholder="Enter Emp Code">
+                            </div>
+                            <div class="col-md-2">
+                                <input type="text" id="empSearchName" class="form-control form-control-sm"
+                                    placeholder="Enter Emp Name">
+                            </div>
+                            <div class="col-md-2">
+                                <select id="empSearchDept" class="form-select form-select-sm">
+                                    <option value="">All Depts</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <select id="empSearchDesig" class="form-select form-select-sm">
+                                    <option value="">All Designations</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-filter-modern w-100" onclick="applyFilters()">
+                                    <i class="fas fa-search me-2"></i>Search
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table-custom" id="employeesTable">
+                        <thead>
+                            <tr>
+                                <th>SrNo</th>
+                                <th>Code</th>
+                                <th>Branch</th>
+                                <th>Name</th>
+                                <th>Department</th>
+                                <th>Designation</th>
+                                <th>CNIC</th>
+                                <th>Contact</th>
+                                <th>Acc No</th>
+                                <th>Bank</th>
+                                <th>Duty Hours</th>
+                                <th>Last Inc Date</th>
+                                <th>Salary</th>
+                                <th>Other Allow</th>
+                                <th>Fix Allow</th>
+                                <th>ST.L</th>
+                                <th>Net Salary</th>
+                                <th>Active Status</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 5. Employee Advance Tab -->
+            <div class="tab-pane fade" id="tab-advances">
+                <div class="row g-3 mb-3">
+                    <div class="col-md-3">
+                        <div class="card p-3 border-0 shadow-sm"><small class="text-muted">Total Employees</small>
+                            <h4 class="mb-0 fw-bold" id="advTotalEmp">0</h4>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card p-3 border-0 shadow-sm"><small class="text-muted">Total Opening
+                                Advance</small>
+                            <h4 class="mb-0 text-success fw-bold" id="advTotalOpen">PKR 0</h4>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card p-3 border-0 shadow-sm"><small class="text-muted">Total Current
+                                Advance</small>
+                            <h4 class="mb-0 text-info fw-bold" id="advTotalCurr">PKR 0</h4>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card p-3 border-0 shadow-sm"><small class="text-muted">Total Advances</small>
+                            <h4 class="mb-0 text-primary fw-bold" id="advTotalSum">PKR 0</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table-custom" id="advancesTable">
+                        <thead>
+                            <tr>
+                                <th>Sr.No</th>
+                                <th>Code</th>
+                                <th>Name</th>
+                                <th>Branch</th>
+                                <th>Department</th>
+                                <th>Designation</th>
+                                <th>Date</th>
+                                <th>Basic Salary</th>
+                                <th>Opening Balance</th>
+                                <th>Current Advance</th>
+                                <th>Total Advance</th>
+                                <th>Ded From Salary</th>
+                                <th>Balance</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 6. Salary List Tab -->
+            <div class="tab-pane fade" id="tab-salary-list">
+                <div class="table-responsive">
+                    <table class="table-custom" id="salaryListTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">Action</th>
+                                <th style="width: 170px;">Employee</th>
+                                <th style="width: 90px;">Branch</th>
+                                <th style="width: 90px;">Month</th>
+                                <th>Basic</th>
+                                <th>OT & Comm</th>
+                                <th>Allowances</th>
+                                <th class="table-primary">Gross</th>
+                                <th>Time/Mess</th>
+                                <th>Advance (Ded/Bal)</th>
+                                <th>Other Ded</th>
+                                <th class="table-success">Net Total</th>
+                                <th>Paid Via</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 6.1 Legacy Archive Tab -->
+            <div class="tab-pane fade" id="tab-legacy-archive">
+                <div class="card card-premium mb-4 border-0 shadow-sm">
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                            <div>
+                                <h5 class="mb-1 fw-bold text-primary"><i class="fas fa-file-archive me-2"></i>Legacy Salary Archive</h5>
+                                <p class="text-muted small mb-0">Historical payroll records from indexed PDF slips.</p>
+                            </div>
+                        </div>
+
+                        <!-- Dedicated Legacy Filters -->
+                        <div class="row g-3 mb-4 p-3 bg-light rounded shadow-sm border">
+                            <div class="col-md-3">
+                                <label class="form-label-custom">Select Employee</label>
+                                <select id="legacyEmployeeSelect" class="form-select form-control-modern">
+                                    <option value="">All Employees / Choose...</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label-custom">Employee Search (Name or Code)</label>
+                                <input type="text" id="legacySearch" class="form-control form-control-modern" placeholder="Search Name or Code...">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label-custom">From Month</label>
+                                <input type="month" id="legacyFrom" class="form-control form-control-modern">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label-custom">To Month</label>
+                                <input type="month" id="legacyTo" class="form-control form-control-modern">
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button class="btn btn-filter-modern w-100" onclick="hrCommander.applyFilters()">
+                                    <i class="fas fa-filter me-2"></i>Apply Filters
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center justify-content-between text-muted mb-2" style="font-size: 0.75rem;">
+                            <div id="legacyStats">Showing 0 records</div>
+                            <div id="legacyTotalAmt" class="fw-bold text-success"></div>
+                        </div>
+
+                        <!-- Mobile Card View (Visible on Mobile Only) -->
+                        <div id="legacyMobileCards" class="d-md-none">
+                            <div class="text-center py-5 text-muted">
+                                <i class="fas fa-search fa-2x mb-2 d-block opacity-25"></i>
+                                Select filters to view archive records
+                            </div>
+                        </div>
+
+                        <!-- Desktop Table View (Visible on Desktop Only) -->
+                        <div class="table-responsive d-none d-md-block">
+                            <table class="table table-custom mb-0" id="legacyArchiveTable">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 80px;">Action</th>
+                                        <th style="width: 200px;">Employee</th>
+                                        <th style="width: 100px;">Month</th>
+                                        <th class="text-end">Basic</th>
+                                        <th class="text-end">OT/Comm</th>
+                                        <th class="text-end">Allowances</th>
+                                        <th class="text-end">Gross</th>
+                                        <th class="text-end">Deductions</th>
+                                        <th class="text-end bg-success-light text-success">NET Total</th>
+                                        <th>Paid Via</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="legacyRecordsBody">
+                                    <tr><td colspan="10" class="text-center py-5 text-muted">Use search to load records</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="mt-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <div id="legacyPaginationInfo" class="small text-muted"></div>
+                            <nav>
+                                <ul class="pagination pagination-sm mb-0" id="legacyPagination"></ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. Employee Salary Detail Tab -->
+            <div class="tab-pane fade" id="tab-salary-detail">
+                <div id="salaryDetailContainer">
+                    <!-- Dynamic Content Sorted by Branch -->
+                </div>
+            </div>
+
+            <!-- 8. Branch Wise Salary Record Tab -->
+            <div class="tab-pane fade" id="tab-branch-record">
+                <div class="table-responsive">
+                    <table class="table-custom text-center" id="branchRecordTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Branch</th>
+                                <th>Total Employees</th>
+                                <th>Total Basic Salary</th>
+                                <th>Total Allowances</th>
+                                <th>Total Overtime</th>
+                                <th>Total Deductions</th>
+                                <th>Total Net Salary</th>
+                                <th>Per Emp Mon Avg Salary</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 9. Branch Salary Chart Tab -->
+            <div class="tab-pane fade" id="tab-branch-chart">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Branch-wise Monthly Salary Chart</h5>
+                        <div id="branchSalaryChart" style="height: 400px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 10. Over & Short Time Tab -->
+            <div class="tab-pane fade" id="tab-ot-st">
+                <div class="table-responsive">
+                    <table class="table-custom" id="otstTable">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Branch</th>
+                                <th>Code</th>
+                                <th>Name</th>
+                                <th>Department</th>
+                                <th>Designation</th>
+                                <th>Req Hrs</th>
+                                <th>Worked Hrs</th>
+                                <th>Duty Hrs</th>
+                                <th>C/M Days</th>
+                                <th>OT Hrs</th>
+                                <th>OT Rs</th>
+                                <th>ST Hrs</th>
+                                <th>ST Rs</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 11. Increments Tab -->
+            <div class="tab-pane fade" id="tab-increments">
+                <div id="incrementsContainer">
+                    <!-- Dynamic Increment Content -->
+                    <div class="text-center p-5 text-muted">
+                        <i class="fas fa-chart-line fa-3x mb-3 opacity-25"></i>
+                        <p>Select a branch and date, then click Apply Filters to see increments due.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- 12. Performance Tab -->
+            <div class="tab-pane fade" id="tab-performance">
+                <div
+                    class="d-flex justify-content-between align-items-center mb-4 bg-light p-3 rounded shadow-sm border-start border-primary border-4">
+                    <div>
+                        <h5 class="fw-bold mb-0 text-primary"><i class="fas fa-chart-line me-2"></i>Employee Performance
+                            Reviews</h5>
+                        <p class="text-muted small mb-0">Monthly scoring based on <b>attendance</b>, <b>punctuality</b>,
+                            and <b>work hours</b>.</p>
+                    </div>
+                    <div id="performanceMonthDisplay" class="badge bg-primary fs-6 p-2 px-3"></div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table-custom text-center align-middle" id="performanceTable">
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Department</th>
+                                <th>Attendance %</th>
+                                <th>Punctuality %</th>
+                                <th>Completion %</th>
+                                <th>Score (Weighted)</th>
+                                <th>Grade</th>
+                                <th>Summary</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Dynamic Rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- Hours Detail Modal -->
+    <div class="modal fade" id="hoursDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 12px; overflow: hidden;">
+                <div class="modal-header py-3 px-4"
+                    style="background: linear-gradient(135deg, #2c5ba3, #4a90e2); color: #fff;">
+                    <h5 class="modal-title fw-bold" id="hoursDetailTitle">Details - <span id="hd_detail_code"></span>
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 bg-light">
+                    <div id="hoursDetailContent" class="row g-3">
+                        <!-- Dynamic Content in Grid -->
+                    </div>
+                </div>
+                <div class="modal-footer bg-white py-2">
+                    <button type="button" class="btn btn-secondary btn-sm px-4" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .detail-item-card {
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            height: 100%;
+            transition: all 0.2s ease;
+        }
+
+        .detail-item-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Select2 Style Overrides */
+        .select2-container--default .select2-selection--single {
+            border: 1px solid var(--hr-border) !important;
+            border-radius: 10px !important;
+            height: 42px !important;
+            background-color: #fcfcfc !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 40px !important;
+            padding-left: 12px !important;
+            font-size: 0.85rem !important;
+            color: var(--hr-text-main) !important;
+        }
+
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 40px !important;
+        }
+
+        .select2-dropdown {
+            border: 1px solid var(--hr-border) !important;
+            border-radius: 10px !important;
+            box-shadow: var(--shadow-md) !important;
+        }
+    </style>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.41.0/dist/apexcharts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <!-- Core App JS -->
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244503"></script>
+    <script src="/js/connection-monitor.js"></script>
+
+    <!-- HR Dashboard JS -->
+    <script src="/js/hr-dashboard.js?v=20260629-1"></script>
+
+    <script>
+        // --- 🟢 Real-Time Biometric Status Tracker ---
+        async function updateBranchStatus() {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) return;
+
+                const response = await fetch('/api/v1/attendance/branch-status', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const result = await response.json();
+
+                if (result.success && result.data) {
+                    const container = document.getElementById('branchStatusContainer');
+                    const timeEl = document.getElementById('syncLastUpdate');
+                    
+                    timeEl.innerHTML = `<i class="fas fa-sync-alt fa-spin me-1"></i>Last updated: ${new Date().toLocaleTimeString()}`;
+                    
+                    let html = '';
+                    result.data.forEach(item => {
+                        const statusClass = item.isOnline ? 'text-success' : 'text-danger';
+                        const dotClass = item.isOnline ? 'bg-success pulse-live' : 'bg-secondary';
+                        const label = item.isOnline ? 'Online' : 'Offline';
+                        const bgColor = item.isOnline ? 'rgba(16, 185, 129, 0.05)' : 'rgba(100, 116, 139, 0.05)';
+                        const borderColor = item.isOnline ? '#10b981' : '#cbd5e1';
+
+                        html += `
+                            <div class="col-md-2 col-6">
+                                <div class="px-3 py-2 rounded-3 text-center" style="background: ${bgColor}; border: 1px solid ${borderColor}; transition: transform 0.2s;">
+                                    <div class="d-flex justify-content-center align-items-center mb-1">
+                                        <span class="rounded-circle me-2 ${dotClass}" style="width: 8px; height: 8px; display: inline-block;"></span>
+                                        <b style="font-size: 0.75rem; white-space: nowrap;">${item.branch}</b>
+                                    </div>
+                                    <div class="${statusClass} fw-bold" style="font-size: 0.65rem; text-transform: uppercase;">${label}</div>
+                                    <div class="text-muted" style="font-size: 0.6rem;">${item.minutesAgo}</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    container.innerHTML = html || '<div class="col-12 text-center text-muted py-2">No branches found</div>';
+                }
+            } catch (err) {
+                console.error('Error fetching branch status:', err);
+            }
+        }
+
+        // Initialize and Update every 30 seconds
+        document.addEventListener('DOMContentLoaded', () => {
+            updateBranchStatus();
+            setInterval(updateBranchStatus, 30000);
+        });
+    </script>
+
+
+    <!-- Employee Monthly Attendance Modal -->
+    <div class="modal fade" id="empMonthlyModal" tabindex="-1" aria-labelledby="empMonthlyModalTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content shadow-lg">
+                <div class="modal-header" style="background:linear-gradient(135deg,#1e4c8c,#2980b9);color:#fff;">
+                    <h5 class="modal-title fw-bold" id="empMonthlyModalTitle">
+                        <i class="fas fa-calendar-alt me-2"></i>Monthly Attendance
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-3" id="empMonthlyModalBody">
+                </div>
+                <div class="modal-footer py-2">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Advance Ledger Modal -->
+    <div class="modal fade" id="advanceLedgerModal" tabindex="-1" aria-labelledby="advanceLedgerModalTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content shadow-lg">
+                <div class="modal-header" style="background:linear-gradient(135deg,#155724,#28a745);color:#fff;">
+                    <div class="d-flex align-items-center gap-3 w-100">
+                        <h5 class="modal-title fw-bold mb-0" id="advanceLedgerModalTitle">
+                            <i class="fas fa-book me-2"></i>Advance Ledger
+                            <span id="advLedgerEmpName" class="text-warning ms-1">Employee</span>
+                        </h5>
+                        <input type="hidden" id="advLedgerEmpCode">
+                        <div class="ms-auto d-flex align-items-center gap-2">
+                            <label class="text-white-50 small mb-0">From:</label>
+                            <input type="date" id="advLedgerFrom" class="form-control form-control-sm"
+                                style="width:145px;">
+                            <label class="text-white-50 small mb-0">To:</label>
+                            <input type="date" id="advLedgerTo" class="form-control form-control-sm"
+                                style="width:145px;">
+                            <button class="btn btn-warning btn-sm fw-bold px-3" onclick="loadAdvanceLedger()">
+                                <i class="fas fa-search me-1"></i>Load Ledger
+                            </button>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white ms-2" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                </div>
+                <div class="modal-body p-3" id="advLedgerBody">
+                    <div class="text-center py-4 text-muted">Set date range and click <strong>Load Ledger</strong></div>
+                </div>
+                <div class="modal-footer py-2">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Legacy History Modal -->
+    <div class="modal fade" id="legacyHistoryModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-history me-2"></i>Salary History: <span id="legacyHistoryEmpName"></span></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Month</th>
+                                    <th>Branch</th>
+                                    <th class="text-end">Basic</th>
+                                    <th class="text-end">Gross</th>
+                                    <th class="text-end fw-bold text-success">Net Salary</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="legacyHistoryBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Photo Preview Modal -->
+    <div class="modal fade" id="photoPreviewModal" tabindex="-1" aria-hidden="true" style="z-index: 10000;">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content" style="background: transparent; border: none;">
+                <div class="modal-body p-0 position-relative text-center">
+                    <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" 
+                        data-bs-dismiss="modal" aria-label="Close" style="z-index: 10;"></button>
+                    <img id="largePhotoPreview" src="" alt="Employee Photo" 
+                        style="max-width: 90vw; max-height: 80vh; border-radius: 12px; border: 4px solid white; box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
+                </div>
+                <div class="modal-footer justify-content-center border-0 pb-3">
+                    <h5 class="text-white mb-0 fw-bold" id="previewEmployeeName">Employee Name</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- Floating Scroll --><a class='scroll-nav-btn scroll-nav-left' id='btnScrollLeft' title='Scroll Left' style='display:none;'><i class='fas fa-chevron-left'></i></a><a class='scroll-nav-btn scroll-nav-right' id='btnScrollRight' title='Scroll Right' style='display:none;'><i class='fas fa-chevron-right'></i></a><script>(function(){function init(){const l=document.getElementById('btnScrollLeft'),r=document.getElementById('btnScrollRight');if(!l||!r)return;const getT=()=>document.querySelector('.modal.show .table-container')||document.querySelector('.modal.show .table-responsive')||document.querySelector('.tab-pane.active .table-container')||document.querySelector('.tab-pane.active .table-responsive')||document.querySelector('.table-container')||document.querySelector('.table-responsive');l.onclick=()=>{const t=getT();if(t)t.scrollBy({left:-400,behavior:'smooth'})};r.onclick=()=>{const t=getT();if(t)t.scrollBy({left:400,behavior:'smooth'})};const up=()=>{const t=getT();if(t&&t.scrollWidth>t.clientWidth+5){l.style.display='flex';r.style.display='flex'}else{l.style.display='none';r.style.display='none'}};window.addEventListener('resize',up);document.addEventListener('click',()=>setTimeout(up,500));setInterval(up,2000)}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init()})()</script></body>
+
+</html>
+

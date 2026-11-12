@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Print Closing Sheet</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1565c0;
+            --secondary-color: #0288d1;
+            --border-color: #b0bec5;
+            --calc-bg: #e1f5fe;
+        }
+
+        body {
+            background: #f5f5f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .page-container {
+            background: white;
+            margin: 20px auto;
+            padding: 40px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* A4 Format */
+        .format-a4 {
+            width: 210mm;
+            min-height: 297mm;
+        }
+
+        /* A3 Format */
+        .format-a3 {
+            width: 297mm;
+            min-height: 420mm;
+        }
+
+        .report-header {
+            border-bottom: 3px solid var(--primary-color);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .company-logo {
+            max-width: 150px;
+            max-height: 80px;
+            object-fit: contain;
+        }
+
+        .report-title {
+            font-size: 2rem;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .data-table {
+            width: 100%;
+            margin: 20px 0;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            background: var(--secondary-color);
+            color: white;
+            padding: 12px;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            font-weight: 700;
+            border: 1px solid #0277bd;
+        }
+
+        .data-table td {
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .data-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .section-title {
+            background: var(--primary-color);
+            color: white;
+            padding: 10px 15px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin: 30px 0 15px 0;
+            border-radius: 4px;
+        }
+
+        .summary-row {
+            background: var(--calc-bg) !important;
+            font-weight: 700;
+        }
+
+        .total-row {
+            background: var(--primary-color) !important;
+            color: white !important;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .print-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            .page-container {
+                box-shadow: none;
+                margin: 0;
+                padding: 20mm;
+                width: 100% !important;
+            }
+
+            .print-controls {
+                display: none;
+            }
+
+            .format-a4,
+            .format-a3 {
+                width: 100%;
+                min-height: auto;
+            }
+
+            .page-break {
+                page-break-after: always;
+            }
+        }
+
+        .highlight-positive {
+            color: #2e7d32;
+            font-weight: 600;
+        }
+
+        .highlight-negative {
+            color: #d32f2f;
+            font-weight: 600;
+        }
+
+        .field-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .field-value {
+            font-weight: 700;
+            color: #333;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Print Controls -->
+    <div class="print-controls no-print">
+        <div class="btn-group mb-2">
+            <button class="btn btn-primary" onclick="window.print()">
+                <i class="fas fa-print me-1"></i> Print
+            </button>
+            <button class="btn btn-secondary" onclick="window.close()">
+                <i class="fas fa-times me-1"></i> Close
+            </button>
+        </div>
+        <hr class="my-2">
+        <select class="form-select form-select-sm" id="formatSelect" onchange="changeFormat(this.value)">
+            <option value="a4">A4 Format</option>
+            <option value="a3">A3 Format</option>
+        </select>
+    </div>
+
+    <!-- Closing Sheet Container -->
+    <div id="closingSheetContent" class="page-container format-a4">
+        <!-- Content loaded dynamically -->
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3">Generating Closing Sheet...</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const date = urlParams.get('date') || new Date().toISOString().split('T')[0];
+            const format = urlParams.get('format') || 'a4';
+
+            // Set initial format
+            document.getElementById('formatSelect').value = format;
+            changeFormat(format);
+
+            try {
+                const token = localStorage.getItem('token');
+
+                // Load Company Settings
+                const companyResponse = await fetch('/api/v1/settings/company-info', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const companyData = await companyResponse.json();
+                const company = companyData.data || {};
+
+                // Load Closing Sheet Data (you'll need to adjust based on your API)
+                const closingResponse = await fetch(`/api/v1/closing-sheet?date=${date}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!closingResponse.ok) throw new Error('Failed to fetch closing sheet data');
+
+                const closingData = await closingResponse.json();
+                const data = closingData.data || {};
+
+                renderClosingSheet(data, company, date);
+
+            } catch (error) {
+                console.error('Print error:', error);
+                showError(error.message);
+            }
+        });
+
+        function changeFormat(format) {
+            const container = document.getElementById('closingSheetContent');
+            container.classList.remove('format-a4', 'format-a3');
+            container.classList.add(`format-${format}`);
+        }
+
+        function showError(msg) {
+            document.getElementById('closingSheetContent').innerHTML = `
+                <div class="alert alert-danger m-5">
+                    <h4 class="alert-heading">Error</h4>
+                    <p>${msg}</p>
+                </div>
+            `;
+        }
+
+        function renderClosingSheet(data, company, date) {
+            const formattedDate = new Date(date).toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            const html = `
+                <!-- Header -->
+                <div class="report-header">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            ${company.logo ? `<img src="${company.logo}" class="company-logo" alt="Logo">` : ''}
+                            <h3 class="mt-2 mb-0">${company.companyName || 'My Company'}</h3>
+                            <p class="text-muted mb-0">${company.address || ''}</p>
+                        </div>
+                        <div class="text-end">
+                            <div class="report-title">CLOSING SHEET</div>
+                            <div class="text-muted">${formattedDate}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Closing 01 Section -->
+                <div class="section-title">
+                    <i class="fas fa-file-invoice me-2"></i>Closing 01 - Daily Cash Summary
+                </div>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Department</th>
+                            <th class="text-end">Opening Balance</th>
+                            <th class="text-end">Received Cash</th>
+                            <th class="text-end">Total</th>
+                            <th class="text-end">Payments</th>
+                            <th class="text-end">Closing Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${renderDailyCashRows(data.dailyCash || [])}
+                    </tbody>
+                </table>
+
+                <!-- Closing 02 Section -->
+                <div class="section-title page-break">
+                    <i class="fas fa-calculator me-2"></i>Closing 02 - Counter Reconciliation
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="info-box">
+                            <h5 class="mb-3">Counter Details</h5>
+                            <div class="row mb-2">
+                                <div class="col-6 field-label">Department:</div>
+                                <div class="col-6 field-value">${data.closing02?.department || 'N/A'}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-6 field-label">Counter Closing:</div>
+                                <div class="col-6 field-value">${formatCurrency(data.closing02?.counterClosing || 0)}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-6 field-label">Total:</div>
+                                <div class="col-6 field-value highlight-positive">${formatCurrency(data.closing02?.total || 0)}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="info-box">
+                            <h5 class="mb-3">Sales & Reconciliation</h5>
+                            <div class="row mb-2">
+                                <div class="col-6 field-label">Gross Sale:</div>
+                                <div class="col-6 field-value">${formatCurrency(data.closing02?.grossSale || 0)}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-6 field-label">Discount Value:</div>
+                                <div class="col-6 field-value">${formatCurrency(data.closing02?.discountValue || 0)}</div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-6 field-label">Difference:</div>
+                                <div class="col-6 field-value ${(data.closing02?.difference || 0) >= 0 ? 'highlight-positive' : 'highlight-negative'}">
+                                    ${formatCurrency(data.closing02?.difference || 0)}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bank Transactions -->
+                <div class="section-title">
+                    <i class="fas fa-university me-2"></i>Bank Transactions
+                </div>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Bank Name</th>
+                            <th>Account Number</th>
+                            <th class="text-end">Deposits</th>
+                            <th class="text-end">Withdrawals</th>
+                            <th class="text-end">Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${renderBankRows(data.bankTransactions || [])}
+                    </tbody>
+                </table>
+
+                <!-- Income Statement -->
+                <div class="section-title page-break">
+                    <i class="fas fa-chart-line me-2"></i>Income Statement
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="text-success mb-3">Income</h5>
+                        <table class="data-table">
+                            <tbody>
+                                <tr>
+                                    <td>Opening Balance</td>
+                                    <td class="text-end">${formatCurrency(data.income?.opening || 0)}</td>
+                                </tr>
+                                <tr>
+                                    <td>Cash Sale</td>
+                                    <td class="text-end">${formatCurrency(data.income?.cashSale || 0)}</td>
+                                </tr>
+                                <tr>
+                                    <td>Bank Sale</td>
+                                    <td class="text-end">${formatCurrency(data.income?.bankSale || 0)}</td>
+                                </tr>
+                                <tr class="total-row">
+                                    <td>Total Income</td>
+                                    <td class="text-end">${formatCurrency((data.income?.opening || 0) + (data.income?.cashSale || 0) + (data.income?.bankSale || 0))}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h5 class="text-danger mb-3">Expenses</h5>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Head</th>
+                                    <th>Sub Head</th>
+                                    <th class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${renderExpenseRows(data.expenses || [])}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="mt-5 pt-4 border-top">
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="text-center">
+                                <div class="border-top d-inline-block" style="width: 200px; margin-top: 60px;"></div>
+                                <p class="mt-2 mb-0 fw-bold">Prepared By</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-center">
+                                <div class="border-top d-inline-block" style="width: 200px; margin-top: 60px;"></div>
+                                <p class="mt-2 mb-0 fw-bold">Verified By</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4 text-muted small">
+                    <p class="mb-0">Generated on ${new Date().toLocaleString()}</p>
+                    <p class="mb-0">${company.companyName || 'My Company'} - Closing Sheet Report</p>
+                </div>
+            `;
+
+            document.getElementById('closingSheetContent').innerHTML = html;
+        }
+
+        function renderDailyCashRows(dailyCash) {
+            if (!dailyCash || dailyCash.length === 0) {
+                return '<tr><td colspan="6" class="text-center text-muted">No data available</td></tr>';
+            }
+
+            let totalOpening = 0;
+            let totalReceived = 0;
+            let totalAmount = 0;
+            let totalPayments = 0;
+            let totalClosing = 0;
+
+            const rows = dailyCash.map(item => {
+                const opening = item.openingBalance || 0;
+                const received = item.receivedCash || 0;
+                const total = opening + received;
+                const payments = item.payments || 0;
+                const closing = total - payments;
+
+                totalOpening += opening;
+                totalReceived += received;
+                totalAmount += total;
+                totalPayments += payments;
+                totalClosing += closing;
+
+                return `
+                    <tr>
+                        <td>${item.department || 'N/A'}</td>
+                        <td class="text-end">${formatCurrency(opening)}</td>
+                        <td class="text-end">${formatCurrency(received)}</td>
+                        <td class="text-end">${formatCurrency(total)}</td>
+                        <td class="text-end">${formatCurrency(payments)}</td>
+                        <td class="text-end">${formatCurrency(closing)}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            const totalRow = `
+                <tr class="total-row">
+                    <td>TOTAL</td>
+                    <td class="text-end">${formatCurrency(totalOpening)}</td>
+                    <td class="text-end">${formatCurrency(totalReceived)}</td>
+                    <td class="text-end">${formatCurrency(totalAmount)}</td>
+                    <td class="text-end">${formatCurrency(totalPayments)}</td>
+                    <td class="text-end">${formatCurrency(totalClosing)}</td>
+                </tr>
+            `;
+
+            return rows + totalRow;
+        }
+
+        function renderBankRows(banks) {
+            if (!banks || banks.length === 0) {
+                return '<tr><td colspan="5" class="text-center text-muted">No bank transactions</td></tr>';
+            }
+
+            let totalDeposits = 0;
+            let totalWithdrawals = 0;
+            let totalBalance = 0;
+
+            const rows = banks.map(bank => {
+                const deposits = bank.deposits || 0;
+                const withdrawals = bank.withdrawals || 0;
+                const balance = bank.balance || 0;
+
+                totalDeposits += deposits;
+                totalWithdrawals += withdrawals;
+                totalBalance += balance;
+
+                return `
+                    <tr>
+                        <td>${bank.bankName || 'N/A'}</td>
+                        <td>${bank.accountNumber || 'N/A'}</td>
+                        <td class="text-end highlight-positive">${formatCurrency(deposits)}</td>
+                        <td class="text-end highlight-negative">${formatCurrency(withdrawals)}</td>
+                        <td class="text-end">${formatCurrency(balance)}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            const totalRow = `
+                <tr class="total-row">
+                    <td colspan="2">TOTAL</td>
+                    <td class="text-end">${formatCurrency(totalDeposits)}</td>
+                    <td class="text-end">${formatCurrency(totalWithdrawals)}</td>
+                    <td class="text-end">${formatCurrency(totalBalance)}</td>
+                </tr>
+            `;
+
+            return rows + totalRow;
+        }
+
+        function renderExpenseRows(expenses) {
+            if (!expenses || expenses.length === 0) {
+                return '<tr><td colspan="3" class="text-center text-muted">No expenses</td></tr>';
+            }
+
+            let total = 0;
+
+            const rows = expenses.map(expense => {
+                const amount = expense.amount || 0;
+                total += amount;
+
+                return `
+                    <tr>
+                        <td>${expense.head || 'N/A'}</td>
+                        <td>${expense.subHead || '-'}</td>
+                        <td class="text-end">${formatCurrency(amount)}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            const totalRow = `
+                <tr class="total-row">
+                    <td colspan="2">TOTAL EXPENSES</td>
+                    <td class="text-end">${formatCurrency(total)}</td>
+                </tr>
+            `;
+
+            return rows + totalRow;
+        }
+
+        function formatCurrency(amount) {
+            return parseFloat(amount || 0).toFixed(2);
+        }
+    </script>
+</body>
+
+</html>
+

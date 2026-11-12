@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Voucher Print</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap');
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .no-print {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 8px 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            border: none;
+            background: #007bff;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* --- SINGLE VOUCHER STYLE (Image 2) --- */
+        .single-voucher {
+            background-color: white;
+            width: 210mm;
+            margin: 0 auto;
+            border: 2px solid black;
+            padding: 0;
+        }
+
+        .black-header {
+            background-color: black;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            font-size: 1.8rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 1px solid white;
+        }
+
+        .branch-header {
+            background-color: white;
+            color: black;
+            text-align: center;
+            padding: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-bottom: 1px solid black;
+        }
+
+        .supplier-header {
+            background-color: black;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border-top: 1px solid black;
+        }
+
+        .info-cell {
+            padding: 10px;
+            border-right: 1px solid black;
+            border-bottom: 1px solid black;
+        }
+
+        .info-cell:last-child {
+            border-right: none;
+        }
+
+        .label-cell {
+            background-color: black;
+            color: white;
+            font-weight: 700;
+            text-align: center;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            padding: 5px;
+        }
+
+        .value-cell {
+            text-align: center;
+            padding: 15px;
+            font-size: 1.1rem;
+        }
+
+        .paid-amount-row {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            background-color: black;
+            color: white;
+            align-items: center;
+            min-height: 80px;
+        }
+
+        .paid-amount-label {
+            font-size: 1.5rem;
+            font-weight: 900;
+            text-align: center;
+            border-right: 2px solid white;
+        }
+
+        .paid-amount-value {
+            font-size: 3rem;
+            font-weight: 900;
+            text-align: center;
+        }
+
+        .signature-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            padding: 30px;
+            margin-top: 20px;
+            gap: 100px;
+        }
+
+        .sig-box {
+            text-align: center;
+        }
+
+        .sig-line {
+            border-top: 2px solid black;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .sig-label {
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        /* --- LIST VOUCHER STYLE (Image 3) --- */
+        .list-voucher {
+            background-color: white;
+            width: 100%;
+            padding: 0;
+            margin: 0;
+        }
+
+        .list-header {
+            background-color: #004d40;
+            /* Dark Teal-Green from image */
+            color: white;
+            text-align: center;
+            padding: 15px;
+        }
+
+        .list-header h1 {
+            margin: 0;
+            font-size: 1.4rem;
+            letter-spacing: 1px;
+        }
+
+        .list-header h2 {
+            margin: 5px 0 0 0;
+            font-size: 0.9rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+        }
+
+        .list-header small {
+            display: block;
+            margin-top: 5px;
+            font-size: 0.7rem;
+        }
+
+        .list-sub-info {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 15px;
+            border: 1px solid #ddd;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .list-sub-info span {
+            color: #333;
+        }
+
+        .list-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+        }
+
+        .list-table th {
+            background-color: #004d40;
+            color: white;
+            padding: 8px;
+            border: 1px solid #000;
+            text-transform: uppercase;
+        }
+
+        .list-table td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        .list-table .text-right {
+            text-align: right;
+        }
+
+        .subtotal-row {
+            background-color: black;
+            color: white;
+            font-weight: 900;
+        }
+
+        .summary-box {
+            margin: 20px;
+            border: 2px solid black;
+            padding: 0;
+        }
+
+        .summary-title {
+            text-align: center;
+            font-weight: 900;
+            padding: 5px;
+            border-bottom: 1px solid black;
+            text-transform: uppercase;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border-bottom: 1px solid black;
+        }
+
+        .summary-cell {
+            padding: 8px;
+            border-right: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .list-signatures {
+            display: flex;
+            justify-content: space-between;
+            padding: 40px 100px;
+            margin-top: 50px;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .no-print {
+                display: none;
+            }
+
+            .single-voucher,
+            .list-voucher {
+                width: 100%;
+                box-shadow: none;
+                border: 1px solid black;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="no-print">
+        <button class="btn" onclick="window.print()">Print This Page</button>
+        <button class="btn" style="background: #6c757d;" onclick="window.close()">Close</button>
+    </div>
+
+    <div id="printContent">
+        <!-- Content injected via JS -->
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            const ids = params.get('ids');
+            const token = localStorage.getItem('token');
+
+            const container = document.getElementById('printContent');
+
+            if (id) {
+                // Fetch and Render Single Voucher
+                const res = await fetch(`/api/v1/vouchers/${id}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    renderSingle(data.data);
+                }
+            } else if (ids) {
+                // Fetch and Render List
+                const idArray = ids.split(',');
+                const vouchers = [];
+                for (const vid of idArray) {
+                    const r = await fetch(`/api/v1/vouchers/${vid}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const d = await r.json();
+                    if (d.success) vouchers.push(d.data);
+                }
+                renderList(vouchers);
+            }
+        });
+
+        function renderSingle(v) {
+            const mainEntry = v.entries.find(e => !e.detail || !e.detail.includes('Auto-balanced'));
+            const contraEntry = v.entries.find(e => e.detail && e.detail.includes('Auto-balanced'));
+
+            const html = `
+                <div class="single-voucher">
+                    <div class="black-header">Payment Voucher</div>
+                    <div class="branch-header">${v.branch || 'D.WATSON (CH.CK)'}</div>
+                    <div class="supplier-header">${mainEntry ? mainEntry.account : '-'}</div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1.5fr; border-top: 1px solid black;">
+                        <div class="info-cell" style="text-align:center; padding: 10px;">Date:</div>
+                        <div class="info-cell" style="text-align:center; font-weight: 700;">${new Date(v.date).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}</div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid black;">
+                        <div class="label-cell">Method of Payment</div>
+                        <div class="label-cell" style="border-left: 1px solid white;">Remarks</div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr;">
+                        <div class="value-cell" style="border-right: 1px solid black; border-bottom: 1px solid black;">${v.voucherType === 'CPV' ? 'Cash' : 'Bank'}</div>
+                        <div class="value-cell" style="border-bottom: 1px solid black; font-size: 0.9rem;">${v.narration || '-'}</div>
+                    </div>
+
+                    <div class="paid-amount-row">
+                        <div class="paid-amount-label">PAID AMOUNT</div>
+                        <div class="paid-amount-value">${(v.totalDebit || 0).toLocaleString()}</div>
+                    </div>
+
+                    <div class="signature-section">
+                        <div class="sig-box">
+                            <div class="sig-line"></div>
+                            <div class="sig-label">Prepared By</div>
+                        </div>
+                        <div class="sig-box">
+                            <div class="sig-line"></div>
+                            <div class="sig-label">Received By</div>
+                        </div>
+                    </div>
+
+                    <div style="padding: 6px 15px; font-size: 0.72rem; color: #555; border-top: 1px dashed #999; display: flex; justify-content: space-between; background-color: #fafafa;">
+                        <span><b>Created By:</b> ${v.createdByName || (v.createdBy && (v.createdBy.name || v.createdBy.username)) || 'Admin'}</span>
+                        <span><b>System / IP:</b> ${v.computerName || 'Main Server'} (${v.ipAddress || '127.0.0.1'})</span>
+                        <span><b>Print Date:</b> ${new Date().toLocaleString()}</span>
+                    </div>
+                </div>
+            `;
+            document.getElementById('printContent').innerHTML = html;
+        }
+
+        function renderList(list) {
+            // Split into Cash and Bank
+            const cashList = list.filter(v => v.voucherType === 'CPV');
+            const bankList = list.filter(v => v.voucherType !== 'CPV');
+
+            const totalCash = cashList.reduce((sum, v) => sum + (v.totalDebit || 0), 0);
+            const totalBank = bankList.reduce((sum, v) => sum + (v.totalDebit || 0), 0);
+            const grandTotal = totalCash + totalBank;
+
+            // Helper to generate rows
+            const generateRows = (items, startIndex) => {
+                return items.map((v, i) => {
+                    const mainEntry = v.entries.find(e => !e.detail || !e.detail.includes('Auto-balanced'));
+                    return `
+                    <tr>
+                        <td>${startIndex + i + 1}</td>
+                        <td>${v.voucherNo}</td>
+                        <td>${v.branch || '-'}</td>
+                        <td>${new Date(v.date).toLocaleDateString()}</td>
+                        <td>${mainEntry ? mainEntry.account : '-'}</td>
+                        <td>${v.voucherType === 'CPV' ? 'Cash' : 'Bank'}</td>
+                        <td>${v.narration || '-'}</td>
+                        <td class="text-right">${(v.totalDebit || 0).toLocaleString()}</td>
+                    </tr>
+                `;
+                }).join('');
+            };
+
+            let html = `
+                <div class="list-voucher">
+                    <div class="list-header">
+                        <h1>D.Watson Group of Pharmacy</h1>
+                        <h2>Selected Payment Vouchers</h2>
+                        <small>Generated: ${new Date().toLocaleString()}</small>
+                    </div>
+                    <div class="list-sub-info">
+                        <div>Branch: <span>Multiple Branches</span></div>
+                        <div>Supplier: <span>Multiple Suppliers</span></div>
+                    </div>
+            `;
+
+            // 1. CASH TABLE
+            if (cashList.length > 0) {
+                html += `
+                    <div style="margin-top: 20px; text-transform:uppercase; font-weight:bold; padding:5px; background:#ddd;">Cash Vouchers</div>
+                    <table class="list-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>V.No</th>
+                                <th>Branch</th>
+                                <th>Date</th>
+                                <th>Supplier</th>
+                                <th>PM</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${generateRows(cashList, 0)}
+                            <tr class="subtotal-row">
+                                <td colspan="7" class="text-right">SUBTOTAL CASH PAID</td>
+                                <td class="text-right">${totalCash.toLocaleString()}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            // 2. BANK TABLE
+            if (bankList.length > 0) {
+                html += `
+                    <div style="margin-top: 20px; text-transform:uppercase; font-weight:bold; padding:5px; background:#ddd;">Bank / Other Vouchers</div>
+                    <table class="list-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>V.No</th>
+                                <th>Branch</th>
+                                <th>Date</th>
+                                <th>Supplier</th>
+                                <th>PM</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${generateRows(bankList, 0)}
+                            <tr class="subtotal-row">
+                                <td colspan="7" class="text-right">SUBTOTAL BANK PAID</td>
+                                <td class="text-right">${totalBank.toLocaleString()}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            // SUMMARY
+            html += `
+                    <div class="summary-box">
+                        <div class="summary-title">Grand Summary</div>
+                        <div class="summary-grid">
+                            <div class="summary-cell">
+                                <span>Total Vouchers:</span>
+                                <b>${list.length}</b>
+                            </div>
+                            <div class="summary-cell" style="border-right:none">
+                                <span>Grand Total Amount:</span>
+                                <b>${grandTotal.toLocaleString()}</b>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="list-signatures">
+                        <div class="sig-box">
+                            <div class="sig-line" style="width: 250px"></div>
+                            <div class="sig-label">Prepared By</div>
+                            <small>Signature & Date</small>
+                        </div>
+                        <div class="sig-box">
+                            <div class="sig-line" style="width: 250px"></div>
+                            <div class="sig-label">Cash Received By</div>
+                            <small>Signature & Date</small>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('printContent').innerHTML = html;
+        }
+    </script>
+</body>
+
+</html>
+

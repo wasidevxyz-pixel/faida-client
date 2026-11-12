@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee List</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/desktop-style.css?v=101" rel="stylesheet">
+    <link href="/css/sidebar.css?v=101" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f1f5f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 10px !important;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .table {
+            margin-bottom: 0;
+            font-size: 13.5px;
+            white-space: nowrap;
+            width: 100%;
+            table-layout: auto;
+        }
+
+        .table thead th {
+            background-color: #1e4c8c;
+            color: white !important;
+            font-weight: 700;
+            padding: 10px 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            text-align: center;
+            vertical-align: middle;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+            white-space: normal;
+            line-height: 1.2;
+        }
+
+        .table tbody td {
+            padding: 4px 6px;
+            border: 1px solid #e2e8f0;
+            vertical-align: middle;
+            background: inherit;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        .table tbody tr:hover {
+            background-color: #eff6ff !important;
+        }
+
+        .form-control-xs {
+            height: 30px;
+            padding: 2px 8px;
+            font-size: 13px;
+            border-radius: 4px;
+            border: 1px solid transparent;
+            background-color: transparent !important;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .btn-xs {
+            padding: 4px 15px;
+            font-size: 0.8rem;
+            border-radius: 4px;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+
+        /* Column Widths */
+        .col-sr {
+            width: 1%;
+            min-width: 40px;
+        }
+
+        .col-code {
+            width: 1%;
+            min-width: 60px;
+        }
+
+        .col-action {
+            width: 1%;
+            min-width: 100px;
+        }
+
+        .col-branch {
+            width: auto;
+            min-width: 100px;
+        }
+
+        .col-name {
+            width: auto;
+            min-width: 180px;
+            text-align: left !important;
+        }
+
+        .col-cnic {
+            width: 1%;
+            min-width: 155px;
+        }
+
+        .col-marital {
+            display: none !important;
+        }
+
+        .col-desig {
+            width: auto;
+            min-width: 100px;
+        }
+
+        .col-dept {
+            width: auto;
+            min-width: 100px;
+        }
+
+        .col-acNo {
+            display: none !important;
+        }
+
+        .col-bank {
+            display: none !important;
+        }
+
+        .col-duty {
+            width: 1%;
+            min-width: 80px;
+        }
+
+        .col-date {
+            width: 1%;
+            min-width: 110px;
+        }
+
+        .col-salary {
+            width: 1%;
+            min-width: 100px;
+        }
+
+        .col-other-allow {
+            width: 1%;
+            min-width: 90px;
+        }
+
+        .col-fix-allow {
+            width: 1%;
+            min-width: 90px;
+        }
+
+        .col-st {
+            width: 1%;
+            min-width: 60px;
+        }
+
+        .col-photo {
+            width: 1%;
+            min-width: 50px;
+        }
+
+        .col-mobile {
+            display: none;
+        }
+
+        .col-bool {
+            width: 1%;
+            min-width: 40px;
+        }
+
+        .code-link {
+            color: #007bff;
+            text-decoration: underline;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .code-link:hover {
+            color: #0056b3;
+        }
+
+        .header-controls {
+            background-color: #e2e8f0;
+            /* Light blue-gray for contrast */
+            padding: 12px 15px;
+            margin: 0 !important;
+            border-bottom: 2px solid #cbd5e1;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .filter-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            /* Removed scrolling, enabled wrapping */
+        }
+
+
+
+        .filter-row>* {
+            flex-shrink: 0;
+        }
+
+        .header-controls .form-select,
+        .header-controls .form-control {
+            height: 32px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border: 1px solid #cbd5e1;
+            background: white;
+            color: #1e293b !important;
+            border-radius: 4px;
+        }
+
+        .header-controls .form-select option {
+            background: white;
+            color: #1e293b;
+        }
+
+        .header-controls .form-control::placeholder {
+            color: #94a3b8;
+        }
+
+        .filter-label {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 0;
+            white-space: nowrap;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .filter-width-lg {
+            width: 160px;
+        }
+
+        .filter-width-md {
+            width: 130px;
+        }
+
+        .filter-width-sm {
+            width: 120px;
+        }
+
+        /* ... existing styles ... */
+
+        @media print {
+            @page {
+                size: landscape;
+                margin: 0.5cm;
+            }
+
+            body {
+                background: white !important;
+                font-size: 10pt;
+            }
+
+            .sidebar,
+            #sidebarToggle,
+            .page-header,
+            .header-controls,
+            #globalSearch,
+            .btn,
+            .dropdown,
+            #userName,
+            .col-action,
+            .col-branch,
+            .col-marital,
+            .col-bank,
+            .col-photo,
+            .col-mobile,
+            .col-dept,
+            .col-bool,
+            thead {
+                display: none !important;
+            }
+
+            .branch-heading-row-print {
+                display: table-row !important;
+            }
+
+            .branch-heading-row-print td {
+                background-color: #1e4c8c !important;
+                color: white !important;
+                font-size: 9pt !important;
+                text-align: center !important;
+                padding: 4px !important;
+                font-weight: bold !important;
+                text-transform: uppercase !important;
+                border: 1px solid #fff !important;
+            }
+
+            .print-sub-header {
+                display: table-row !important;
+            }
+
+            .print-sub-header th {
+                background-color: #334155 !important;
+                color: white !important;
+                font-size: 8pt !important;
+                padding: 4px !important;
+                text-align: center !important;
+                border: 1px solid #fff !important;
+                /* White border */
+                text-transform: uppercase !important;
+            }
+
+            .row-inactive {
+                display: none !important;
+            }
+
+            .col-acNo {
+                display: table-cell !important;
+            }
+
+            .table-container {
+                border: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: visible !important;
+            }
+
+            table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+                table-layout: auto !important;
+                /* Allow auto-sizing based on content now that min-width is unlocked */
+            }
+
+            th,
+            td {
+                border: 1px solid #000 !important;
+                padding: 4px 2px !important;
+                color: #000 !important;
+                font-size: 8pt !important;
+                text-align: center;
+                vertical-align: middle;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+            }
+
+            .col-sr { width: 30px !important; min-width: 0 !important; }
+            .col-code { width: 50px !important; min-width: 0 !important; }
+            .col-name { width: 210px !important; min-width: 0 !important; text-align: left !important; }
+            .col-cnic { width: 115px !important; min-width: 0 !important; }
+            .col-desig { width: 110px !important; min-width: 0 !important; }
+            .col-acNo { width: 165px !important; min-width: 0 !important; }
+            .col-hours { width: 40px !important; min-width: 0 !important; }
+            .col-date { width: 100px !important; min-width: 0 !important; }
+            .col-salary { width: 80px !important; min-width: 0 !important; }
+            .col-other-allow { width: 65px !important; min-width: 0 !important; }
+            .col-fix-allow { width: 65px !important; min-width: 0 !important; }
+            .col-st { width: 75px !important; min-width: 0 !important; }
+
+            /* Hide date picker icons in print */
+            ::-webkit-calendar-picker-indicator {
+                display: none !important;
+            }
+
+            input[type="date"]::-webkit-inner-spin-button {
+                display: none !important;
+            }
+
+            input[type="date"] {
+                appearance: none !important;
+                -webkit-appearance: none !important;
+            }
+
+            /* Convert inputs/selects to text for printing */
+            input.form-control,
+            select.form-control,
+            .form-select {
+                border: none !important;
+                background: transparent !important;
+                padding: 0 !important;
+                appearance: none !important;
+                -webkit-appearance: none !important;
+                color: #000 !important;
+                box-shadow: none !important;
+                font-size: 8pt !important;
+                height: auto !important;
+                width: 100% !important;
+                text-align: inherit !important;
+            }
+
+            #printHeader {
+                display: block !important;
+                text-align: center;
+                margin-bottom: 10px;
+                background-color: #1e4c8c !important;
+                /* Navy Blue background */
+                color: white !important;
+                /* White text */
+                padding: 6px 10px !important;
+                border-radius: 4px;
+            }
+
+            #printHeader h2 {
+                margin: 0;
+                text-transform: uppercase;
+                font-weight: bold;
+                font-size: 14pt;
+                border-bottom: 1px solid white;
+                /* White border between headings */
+                padding-bottom: 3px;
+                margin-bottom: 3px;
+            }
+
+            #printHeader p {
+                margin: 0;
+                font-size: 10pt;
+                font-weight: bold;
+            }
+
+            .global-search-row {
+                display: none !important;
+            }
+        }
+
+        #printHeader {
+            display: none;
+        }
+
+        .branch-heading-row-print,
+        .print-sub-header {
+            display: none;
+        }
+
+        .employee-photo-clickable:hover {
+            transform: scale(2.0);
+            box-shadow: 0 0 15px rgba(30, 76, 140, 0.4);
+            z-index: 1000;
+            border: 2px solid white;
+            border-radius: 4px;
+        }
+    </style>
+    <style>
+        .scroll-nav-btn {
+            position: fixed;
+            bottom: 40px;
+            width: 45px;
+            height: 45px;
+            background: #1e4c8c;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 9999;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            opacity: 0.8;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            text-decoration: none;
+        }
+
+        .scroll-nav-btn:hover {
+            opacity: 1;
+            transform: scale(1.1);
+            background: #153866;
+            color: white;
+        }
+
+        .scroll-nav-left {
+            right: 80px;
+        }
+
+        .scroll-nav-right {
+            right: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .scroll-nav-btn {
+                bottom: 20px;
+                width: 35px;
+                height: 35px;
+            }
+
+            .scroll-nav-left {
+                right: 60px;
+            }
+
+            .scroll-nav-right {
+                right: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Print Header -->
+    <div id="printHeader">
+        <h2 id="printBranchName">ALL BRANCHES</h2>
+        <p>EMPLOYEE LIST REPORT - <span id="printDate"></span></p>
+    </div>
+
+    <div class="page-header px-3 position-relative">
+        <div class="position-absolute start-0 ms-3" style="z-index: 101;">
+            <i class="fas fa-bars text-white" id="sidebarToggle" style="cursor:pointer; font-size: 1.2rem;"></i>
+        </div>
+        <div class="position-absolute start-50 translate-middle-x fw-bold text-uppercase text-white"
+            style="font-size: 1.2rem; letter-spacing: 2px; white-space: nowrap;">
+            <i class="fas fa-list me-2"></i> EMPLOYEE LIST
+        </div>
+        <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center; z-index: 101;">
+            <div class="dropdown">
+                <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown" style="cursor: pointer;">
+                    <i class="fas fa-user-circle me-2" style="font-size: 1.2rem;"></i>
+                    <span id="userName" class="me-2">User</span>
+                    <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                    <li><a class="dropdown-item logout-btn" href="#"><i
+                                class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid p-0">
+        <div class="header-controls">
+            <!-- Filter & Action Row -->
+            <div class="filter-row">
+                <button class="btn btn-warning px-3 fw-bold" style="height: 34px; font-size: 0.8rem;"
+                    onclick="location.href='employee-registration'">
+                    ADD EMPLOYEE
+                </button>
+                <select id="filterBranch" class="form-select filter-width-lg" onchange="loadEmployees()">
+                    <option value="" disabled selected>SELECT BRANCH</option>
+                    <option value="all">ALL BRANCHES</option>
+                </select>
+                <div class="filter-item">
+                    <label class="filter-label">CODE</label>
+                    <input type="text" id="filterCode" class="form-control" placeholder="30XX" style="width: 70px;">
+                </div>
+                <div class="filter-item">
+                    <label class="filter-label">NAME</label>
+                    <input type="text" id="filterName" class="form-control" placeholder="Search name..."
+                        style="width: 150px;">
+                </div>
+                <select id="filterDept" class="form-select filter-width-lg">
+                    <option value="">ALL DEPARTMENTS</option>
+                </select>
+                <select id="filterDesig" class="form-select filter-width-lg">
+                    <option value="">ALL DESIGNATIONS</option>
+                </select>
+                <select id="filterType" class="form-select filter-width-md">
+                    <option value="">ALL EMP TYPE</option>
+                    <option value="commission">COMMISSION</option>
+                    <option value="bank">BANK</option>
+                    <option value="cash">CASH</option>
+                </select>
+                <select id="filterReligion" class="form-select filter-width-md">
+                    <option value="">ALL RELIGION</option>
+                    <option value="Islam">ISLAM</option>
+                    <option value="Christian">CHRISTIAN</option>
+                    <option value="Hindu">HINDU</option>
+                </select>
+
+                <select id="filterStatus" class="form-select filter-width-md">
+                    <option value="" selected>ALL STATUS</option>
+                    <option value="true">ACTIVE</option>
+                    <option value="false">INACTIVE</option>
+                </select>
+
+                <div class="d-flex gap-2 ms-auto">
+                    <button class="btn btn-success px-3 fw-bold d-flex align-items-center gap-2"
+                        style="height: 34px; font-size: 0.8rem;" onclick="loadEmployees()">
+                        <i class="fas fa-search"></i> SEARCH
+                    </button>
+                    <button class="btn btn-success px-3 fw-bold d-flex align-items-center gap-2"
+                        style="height: 34px; font-size: 0.8rem;" onclick="printEmployeeList()">
+                        <i class="fas fa-print"></i> PRINT
+                    </button>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Global Search Input Row -->
+        <div class="mx-3 mt-2 mb-2 bg-white rounded-3 border shadow-sm global-search-row" style="padding: 5px 15px;">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-search text-muted me-3"></i>
+                <input type="text" id="globalSearch" class="form-control border-0 shadow-none p-0"
+                    placeholder="GLOBAL SEARCH ACROSS ALL DATA..."
+                    style="font-size: 0.95rem; font-weight: 600; text-transform: uppercase;"
+                    onkeyup="handleGlobalSearch(this.value)">
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table class="table table-hover table-bordered">
+                <thead>
+                    <tr>
+                        <th class="col-sr">SrNo</th>
+                        <th class="col-photo">Photo</th>
+                        <th class="col-code">Code</th>
+                        <th class="col-action">Action</th>
+                        <th class="col-branch">Branch</th>
+                        <th class="col-name col-name-head">Name</th>
+                        <th class="col-cnic">CNIC</th>
+                        <th class="col-mobile">Mobile No</th>
+                        <th class="col-marital">Marital</th>
+                        <th class="col-dept">Department</th>
+                        <th class="col-desig">Designation</th>
+                        <th class="col-acNo">Acc No</th>
+                        <th class="col-bank">Bank</th>
+                        <th class="col-duty col-hours">Duty Hrs</th>
+                        <th class="col-date">Incr Date</th>
+                        <th class="col-salary">Salary</th>
+                        <th class="col-other-allow">Other Allow</th>
+                        <th class="col-fix-allow">Fix Allowance</th>
+                        <th class="col-st">ST.L</th>
+                        <th class="col-bool">Act</th>
+                    </tr>
+                </thead>
+                <tbody id="employeeTableBody">
+                    <!-- Data will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Photo Preview Modal -->
+    <div class="modal fade" id="photoPreviewModal" tabindex="-1" aria-hidden="true" style="z-index: 10000;">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content" style="background: transparent; border: none;">
+                <div class="modal-body p-0 position-relative text-center">
+                    <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3"
+                        data-bs-dismiss="modal" aria-label="Close" style="z-index: 10;"></button>
+                    <img id="largePhotoPreview" src="" alt="Employee Photo"
+                        style="max-width: 90vw; max-height: 80vh; border-radius: 12px; border: 4px solid white; box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
+                </div>
+                <div class="modal-footer justify-content-center border-0 pb-3">
+                    <h5 class="text-white mb-0 fw-bold" id="previewEmployeeName">Employee Name</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js?v=4.0"></script>
+    <script src="/js/sidebar.js?v=1789486244474"></script>
+    <script src="/js/employee-list.js?v=4.2"></script>
+    <!-- Floating Scroll --><a class='scroll-nav-btn scroll-nav-left' id='btnScrollLeft' title='Scroll Left'
+        style='display:none;'><i class='fas fa-chevron-left'></i></a><a class='scroll-nav-btn scroll-nav-right'
+        id='btnScrollRight' title='Scroll Right' style='display:none;'><i class='fas fa-chevron-right'></i></a>
+    <script>(function () { function init() { const l = document.getElementById('btnScrollLeft'), r = document.getElementById('btnScrollRight'); if (!l || !r) return; const getT = () => document.querySelector('.modal.show .table-container') || document.querySelector('.modal.show .table-responsive') || document.querySelector('.tab-pane.active .table-container') || document.querySelector('.tab-pane.active .table-responsive') || document.querySelector('.table-container') || document.querySelector('.table-responsive'); l.onclick = () => { const t = getT(); if (t) t.scrollBy({ left: -400, behavior: 'smooth' }) }; r.onclick = () => { const t = getT(); if (t) t.scrollBy({ left: 400, behavior: 'smooth' }) }; const up = () => { const t = getT(); if (t && t.scrollWidth > t.clientWidth + 5) { l.style.display = 'flex'; r.style.display = 'flex' } else { l.style.display = 'none'; r.style.display = 'none' } }; window.addEventListener('resize', up); document.addEventListener('click', () => setTimeout(up, 500)); setInterval(up, 2000) } if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init() })()</script>
+</body>
+
+</html>

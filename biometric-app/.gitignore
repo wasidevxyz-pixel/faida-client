@@ -1,0 +1,81 @@
+# ───────────────────────────────────────────────
+# .NET / MSBuild build output
+# ───────────────────────────────────────────────
+[Oo]bj/
+[Bb]in/
+*.user
+*.suo
+*.sln.docstates
+.vs/
+
+# ───────────────────────────────────────────────
+# Publish / portable output folders
+# ───────────────────────────────────────────────
+publish_out/
+publish_output/
+publish_out_*/
+publish_output*/
+
+# Portable release folders — all versions ignored (compiled EXE only, not source)
+# Source code lives in the repo root, not in these version folders
+Biometric-App-V*/
+Barcode-App-V*/
+portable-app*/
+v1-app/
+
+# ───────────────────────────────────────────────
+# DLL files — ignore everywhere EXCEPT Lib/ folder
+# (Lib/ holds the DigitalPersona SDK DLLs that must be committed)
+# ───────────────────────────────────────────────
+*.dll
+!Lib/*.dll
+!Lib/**/*.dll
+
+# ───────────────────────────────────────────────
+# Native runtime redistributables (large, not source)
+# ───────────────────────────────────────────────
+ucrtbase.dll
+vcruntime140.dll
+apphost.exe
+
+# ───────────────────────────────────────────────
+# Build log / error text files / scratch files
+# ───────────────────────────────────────────────
+build_error.txt
+build_error_*.txt
+build_log.txt
+build_log_*.txt
+build_v*.txt
+publish_error.txt
+publish_error_*.txt
+*output.txt
+scratch_*.py
+
+# ───────────────────────────────────────────────
+# Debug symbol files
+# ───────────────────────────────────────────────
+*.pdb
+
+# ───────────────────────────────────────────────
+# Archive / compressed releases (large binaries)
+# ───────────────────────────────────────────────
+*.rar
+*.zip
+*.7z
+
+# ───────────────────────────────────────────────
+# Screenshots / images accidentally in root
+# ───────────────────────────────────────────────
+*.png
+*.jpg
+*.jpeg
+*.bmp
+
+# ───────────────────────────────────────────────
+# NuGet restore files (auto-generated)
+# ───────────────────────────────────────────────
+*.nuget.dgspec.json
+*.nuget.g.props
+*.nuget.g.targets
+project.assets.json
+project.nuget.cache

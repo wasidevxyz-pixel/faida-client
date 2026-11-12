@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Adjustment</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <style>
+        /* Professional Mobile Enhancements */
+        @media (max-width: 768px) {
+            .page-header {
+                padding: 0.5rem 1rem !important;
+                background-color: #2c5ba9 !important;
+            }
+
+            .page-header #userName,
+            .page-header .fa-chevron-down {
+                display: none;
+            }
+
+            .container-fluid {
+                padding: 10px !important;
+                padding-bottom: 80px !important;
+            }
+
+            .col-md-3,
+            .col-md-9 {
+                width: 100% !important;
+            }
+
+            .col-md-9 {
+                display: none;
+                /* Hidden by default on mobile, toggled with JS */
+            }
+
+            .card {
+                border-radius: 12px !important;
+                border: none !important;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
+                margin-bottom: 15px !important;
+            }
+
+            .card-body {
+                padding: 1.25rem !important;
+            }
+
+            .fw-bold {
+                font-size: 0.75rem !important;
+                color: #64748b !important;
+            }
+
+            .form-control-sm,
+            .form-select-sm {
+                height: 38px !important;
+                font-size: 0.85rem !important;
+                border-radius: 8px !important;
+            }
+
+            /* Bottom Action Bar */
+            .action-bar-mobile {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: white;
+                display: flex !important;
+                justify-content: space-around;
+                padding: 8px 5px;
+                box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.1);
+                z-index: 1050;
+                border-top: 1px solid #e2e8f0;
+                height: 65px;
+            }
+
+            .action-btn-mobile {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                background: none;
+                border: none;
+                color: #64748b;
+                font-size: 0.65rem;
+                font-weight: 600;
+                flex: 1;
+                transition: all 0.2s;
+            }
+
+            .action-btn-mobile i {
+                font-size: 1.25rem;
+                margin-bottom: 3px;
+            }
+
+            .action-btn-mobile.active,
+            .action-btn-mobile:active {
+                color: #2c5ba9;
+            }
+
+            .action-btn-mobile.btn-save i {
+                color: #10b981;
+            }
+
+            .action-btn-mobile.btn-search i {
+                color: #3b82f6;
+            }
+
+            .action-btn-mobile.btn-clear i {
+                color: #ef4444;
+            }
+
+            .action-btn-mobile.btn-list i {
+                color: #f59e0b;
+            }
+
+            .d-flex.gap-2 {
+                display: none !important;
+            }
+        }
+    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="page-header px-3">
+        <div style="flex: 1; display: flex; align-items: center;">
+            <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+            <i class="fas fa-sliders-h me-2"></i> Employee Adjustment
+        </div>
+        <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
+            <div class="dropdown">
+                <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown" style="cursor: pointer;">
+                    <i class="fas fa-user-circle me-2" style="font-size: 1.2rem;"></i>
+                    <span id="userName" class="me-2">User</span>
+                    <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                    <li><a class="dropdown-item logout-btn" href="#"><i
+                                class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid p-3">
+        <div class="row">
+            <!-- Left Column: Form -->
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body bg-light">
+                        <input type="hidden" id="adjustmentId">
+
+                        <div class="mb-2">
+                            <select id="adjType" class="form-select form-select-sm mb-2">
+                                <option value="Pay">Pay</option>
+                                <option value="Received">Received</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="fw-bold">Date</label>
+                            <input type="date" id="date" class="form-control form-control-sm">
+                        </div>
+
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label class="fw-bold">Branch</label>
+                                <button class="btn btn-sm btn-outline-warning"
+                                    style="font-size: 0.7rem; padding: 0px 5px;" onclick="rebuildLedger()">Rebuild
+                                    Ledger</button>
+                            </div>
+                            <select id="branch" class="form-select form-select-sm">
+                                <option value="">Select Branch</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-2 position-relative">
+                            <label class="fw-bold">Employee *</label>
+                            <input type="text" id="employeeInput" class="form-control form-control-sm"
+                                placeholder="Type Name or Code to Search..." required autocomplete="off">
+                            <div id="employeeSearchResults" class="list-group position-absolute w-100"
+                                style="display:none; z-index: 1000; max-height: 250px; overflow-y: auto; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                            </div>
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="fw-bold">Code</label>
+                            <input type="text" id="code" class="form-control form-control-sm" readonly>
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="fw-bold bg-primary text-white w-100 ps-1 rounded">Pre Bal</label>
+                            <input type="number" id="preBal" class="form-control form-control-sm bg-primary text-white"
+                                readonly>
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="fw-bold">Paid</label>
+                            <input type="number" id="paid" class="form-control form-control-sm">
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="fw-bold bg-primary text-white w-100 ps-1 rounded">Balance</label>
+                            <input type="number" id="balance" class="form-control form-control-sm bg-primary text-white"
+                                readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="fw-bold">Remarks</label>
+                            <input type="text" id="remarks" class="form-control form-control-sm">
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-success btn-sm" onclick="saveAdjustment()">Save</button>
+                            <button class="btn btn-danger btn-sm" onclick="clearForm()">Clear</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: List -->
+            <div class="col-md-9">
+                <div class="row mb-2">
+                    <div class="col-auto"><label>From</label></div>
+                    <div class="col-md-3"><input type="date" id="searchFrom" class="form-control form-control-sm"></div>
+                    <div class="col-auto"><label>To</label></div>
+                    <div class="col-md-3"><input type="date" id="searchTo" class="form-control form-control-sm"></div>
+                    <div class="col-auto"><button class="btn btn-primary btn-sm"
+                            onclick="loadAdjustments()">Search</button></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body p-0 table-responsive">
+                        <table class="table table-striped table-hover table-sm mb-0">
+                            <thead class="table-primary text-center">
+                                <tr>
+                                    <th>Dated</th>
+                                    <th>Employee</th>
+                                    <th>Type</th>
+                                    <th>Amount</th>
+                                    <th>Remarks</th>
+                                    <th>Action</th> <!-- Added Action just in case -->
+                                </tr>
+                            </thead>
+                            <tbody id="adjustmentList">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Action Bar -->
+    <div class="action-bar-mobile d-none">
+        <button type="button" class="action-btn-mobile btn-list" id="mobileToggleBtn" onclick="toggleMobileView()">
+            <i class="fas fa-list-alt"></i>
+            <span id="toggleText">View List</span>
+        </button>
+        <button type="button" class="action-btn-mobile btn-save" onclick="saveAdjustment()">
+            <i class="fas fa-save"></i>
+            <span>Save</span>
+        </button>
+        <button type="button" class="action-btn-mobile btn-search" onclick="loadAdjustments()">
+            <i class="fas fa-search"></i>
+            <span>Search</span>
+        </button>
+        <button type="button" class="action-btn-mobile btn-clear" onclick="clearForm()">
+            <i class="fas fa-undo"></i>
+            <span>Clear</span>
+        </button>
+    </div>
+
+    <script>
+        function toggleMobileView() {
+            const formCol = document.querySelector('.col-md-3');
+            const listCol = document.querySelector('.col-md-9');
+            const toggleText = document.getElementById('toggleText');
+            const toggleIcon = document.querySelector('#mobileToggleBtn i');
+
+            if (formCol.style.display !== 'none') {
+                formCol.style.setProperty('display', 'none', 'important');
+                listCol.style.setProperty('display', 'block', 'important');
+                toggleText.innerText = 'View Entry';
+                toggleIcon.className = 'fas fa-edit';
+            } else {
+                formCol.style.setProperty('display', 'block', 'important');
+                listCol.style.setProperty('display', 'none', 'important');
+                toggleText.innerText = 'View List';
+                toggleIcon.className = 'fas fa-list-alt';
+            }
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244468"></script>
+    <script src="/js/employee-adjustment.js"></script>
+</body>
+
+</html>
+

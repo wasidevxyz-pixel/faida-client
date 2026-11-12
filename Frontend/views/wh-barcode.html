@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barcode Printing - Bilal Accounting System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <link href="/css/wh-barcode-print.css" rel="stylesheet" media="print">
+    <style>
+        .page-header {
+            background: #1e4c8c;
+            color: white;
+            padding: 10px 15px;
+        }
+
+        .main-content {
+            padding: 20px;
+            background: #f4f7fa;
+            min-height: 100vh;
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            margin-bottom: 20px;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .settings-panel {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        .barcode-preview-container {
+            display: none;
+            padding: 20px;
+            background: #fff;
+            border: 1px dashed #ccc;
+            margin-top: 20px;
+        }
+
+        @media screen {
+            #printZone {
+                display: none;
+            }
+        }
+
+        .item-search-results {
+            position: absolute;
+            z-index: 1000;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #ddd;
+            display: none;
+        }
+
+        .item-search-results .result-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+
+        .item-search-results .result-item:hover {
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main-content">
+        <div class="container-fluid">
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div
+                            class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Load Items</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Load from Purchase</label>
+                                    <div class="input-group">
+                                        <input type="text" id="purchaseSearch" class="form-control"
+                                            placeholder="Invoice No or Posting No">
+                                        <button class="btn btn-primary" onclick="loadPurchase()">
+                                            <i class="fas fa-download me-1"></i> Load
+                                        </button>
+                                        <button class="btn btn-outline-secondary" onclick="showPurchaseList()">
+                                            <i class="fas fa-list"></i> List
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 position-relative">
+                                    <label class="form-label fw-bold">Add Single Item</label>
+                                    <div class="input-group">
+                                        <input type="text" id="itemSearch" class="form-control"
+                                            placeholder="Search by name, code or barcode..." autocomplete="off">
+                                        <button class="btn btn-outline-secondary" onclick="showItemList()">
+                                            <i class="fas fa-list"></i> List
+                                        </button>
+                                    </div>
+                                    <div id="itemResults" class="item-search-results shadow"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">Items to Print</h6>
+                            <button class="btn btn-sm btn-outline-danger" onclick="clearAll()">
+                                <i class="fas fa-trash me-1"></i> Clear All
+                            </button>
+                        </div>
+                        <div class="table-responsive" style="max-height: 500px;">
+                            <table class="table table-hover table-sm align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width: 150px;">Code / Barcode</th>
+                                        <th>Item Name</th>
+                                        <th style="width: 100px;">Retail Price</th>
+                                        <th style="width: 100px;">Qty</th>
+                                        <th style="width: 50px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="barcodeTableBody">
+                                    <!-- Rows added dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            <h5 class="mb-0"><i class="fas fa-cog me-2"></i>Printing Settings</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="printSettings">
+                                <div class="mb-3">
+                                    <label class="form-label small">Label Width (inches)</label>
+                                    <input type="number" id="labelWidth" class="form-control form-control-sm"
+                                        value="1.5" step="0.1">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small">Label Height (inches)</label>
+                                    <input type="number" id="labelHeight" class="form-control form-control-sm"
+                                        value="1.1" step="0.1">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small">Font Size (px)</label>
+                                    <input type="number" id="fontSize" class="form-control form-control-sm" value="10">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small">Barcode Scale</label>
+                                    <input type="number" id="barcodeScale" class="form-control form-control-sm"
+                                        value="1" step="0.1">
+                                </div>
+                                <div class="row g-2 mb-3">
+                                    <div class="col-6">
+                                        <label class="form-label small">Labels per Row</label>
+                                        <input type="number" id="labelsPerRow" class="form-control form-control-sm"
+                                            value="1" min="1">
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="form-label small">Column Gap (in)</label>
+                                        <input type="number" id="labelGap" class="form-control form-control-sm"
+                                            value="0.1" step="0.05">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small">Vertical Offset (px)</label>
+                                    <input type="number" id="topOffset" class="form-control form-control-sm" value="0">
+                                    <div class="form-text mt-0" style="font-size: 0.7rem;">Nudge print Up (-) or Down
+                                        (+)</div>
+                                </div>
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="showCompany">
+                                    <label class="form-check-label small" for="showCompany">Show Company Name</label>
+                                </div>
+                                <div class="mb-3" id="companyInputField" style="display: none;">
+                                    <input type="text" id="companyName" class="form-control form-control-sm"
+                                        placeholder="Enter Company Name">
+                                </div>
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="showPrice" checked>
+                                    <label class="form-check-label small" for="showPrice">Show Retail Price</label>
+                                </div>
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="showName" checked>
+                                    <label class="form-check-label small" for="showName">Show Item Name</label>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small">Orientation Force</label>
+                                    <select id="printOrientation" class="form-select form-select-sm">
+                                        <option value="landscape" selected>Landscape (Wide)</option>
+                                        <option value="portrait">Portrait (Tall)</option>
+                                    </select>
+                                </div>
+                                <hr>
+                                <button type="button" class="btn btn-success w-100" onclick="printBarcodes()">
+                                    <i class="fas fa-print me-2"></i> Print Barcodes (Alt+P)
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden Print Zone -->
+    <div id="printZone"></div>
+
+    <!-- Item Selection Modal -->
+    <div class="modal fade" id="itemModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">Select WH Item</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <input type="text" id="modalItemSearch" class="form-control"
+                            placeholder="Search Name, Code or Barcode...">
+                    </div>
+                    <div class="table-responsive" style="max-height: 500px;">
+                        <table class="table table-hover table-sm">
+                            <thead class="table-light sticky-top">
+                                <tr>
+                                    <th>Code/Barcode</th>
+                                    <th>Name</th>
+                                    <th>Cost</th>
+                                    <th>Retail</th>
+                                    <th>Stock</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="itemListBody">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Purchase Selection Modal -->
+    <div class="modal fade" id="purchaseModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Select WH Purchase</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <input type="text" id="modalPurchaseSearch" class="form-control"
+                            placeholder="Search Invoice, Supplier, or Date...">
+                    </div>
+                    <div class="table-responsive" style="max-height: 400px;">
+                        <table class="table table-hover table-sm">
+                            <thead class="table-light sticky-top">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Invoice #</th>
+                                    <th>Supplier</th>
+                                    <th>Total Qty</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="purchaseListBody">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="/js/sidebar.js?v=1789486244550"></script>
+    <script src="/js/wh-barcode.js"></script>
+</body>
+
+</html>
+

@@ -1,0 +1,37 @@
+# =============================================================================
+# Barcode Printing Desktop App (.NET / WinForms) - .gitignore
+# =============================================================================
+
+# Build outputs
+[Bb]in/
+[Oo]bj/
+publish_out/
+publish_output/
+publish_out*/
+publish_output*/
+portable-app*/
+Barcode-App-V*/
+v1-app/
+
+# IDE / Visual Studio user settings
+.vs/
+*.user
+*.suo
+*.sln.docstates
+*.userosscache
+
+# Build and Publish logs / error dumps
+*build_error*.txt
+*build_log*.txt
+*publish_error*.txt
+*publish_log*.txt
+*.log
+
+# Binaries & debug symbols
+*.exe
+*.pdb
+*.ilk
+*.aps
+*.rar
+*.zip
+*.7z

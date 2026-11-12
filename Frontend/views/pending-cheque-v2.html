@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pending Cheque Manager Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-hover: #3a53d0;
+            --success: #00b96b;
+            --danger: #ef476f;
+            --warning: #faa916;
+            --dark: #0f172a;
+            --light: #f8fafc;
+            --gray: #94a3b8;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+            color: var(--dark);
+        }
+
+        .main-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .form-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control,
+        .form-select {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+        }
+
+        .amount-input {
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-align: right;
+            letter-spacing: -0.5px;
+        }
+
+        .bg-amount-green {
+            background-color: #ecfdf5;
+            color: var(--success);
+            border-color: #10b981;
+        }
+
+        .bg-amount-red {
+            background-color: #fef2f2;
+            color: var(--danger);
+            border-color: #ef4444;
+        }
+
+        .bg-amount-blue {
+            background-color: #eff6ff;
+            color: var(--primary);
+            border-color: #3b82f6;
+        }
+
+        .btn-modern {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary-modern {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+        }
+
+        .btn-primary-modern:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-success-modern {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-success-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.4);
+        }
+
+        .refresh-btn {
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            color: #64748b;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .refresh-btn:hover {
+            background-color: #f8fafc;
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        /* Loading Overlay */
+        #loadingOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(2px);
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .balance-breakdown {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background: #f8fafc;
+            border-radius: 6px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Nav Placeholder -->
+    <div id="loadingOverlay">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <div class="container-fluid py-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h3 class="fw-bold text-dark mb-1">Pending Cheque Manager</h3>
+                        <p class="text-muted mb-0">Professional Edition</p>
+                    </div>
+                    <button class="btn btn-outline-secondary btn-sm"
+                        onclick="window.location.href='/bank-management'"><i
+                            class="fas fa-arrow-left me-2"></i>Back to Legacy</button>
+                </div>
+
+                <div class="main-card">
+                    <div class="row g-4">
+                        <!-- Controls Section -->
+                        <div class="col-md-12">
+                            <div class="row g-3 align-items-end">
+                                <div class="col-md-4">
+                                    <label class="form-label">Branch</label>
+                                    <select class="form-select" id="new-branch">
+                                        <option value="">Select Branch...</option>
+                                        <option value="PWD-1">PWD-1</option>
+                                        <option value="PWD-2">PWD-2</option>
+                                        <option value="Bahria Town">Bahria Town</option>
+                                        <option value="Soan Garden">Soan Garden</option>
+                                        <option value="Giga Mall">Giga Mall</option>
+                                        <option value="DHA-1">DHA-1</option>
+                                        <option value="DHA-2">DHA-2</option>
+                                        <option value="Gulberg">Gulberg</option>
+                                        <option value="Head Office">Head Office</option>
+                                        <option value="Chandni Chowk">Chandni Chowk</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Bank Filter (Optional)</label>
+                                    <select class="form-select" id="new-bank">
+                                        <option value="">All Banks</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <button class="btn btn-modern btn-primary-modern w-100" id="btn-refresh">
+                                        <i class="fas fa-sync-alt me-2"></i> Refresh Data
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="text-muted opacity-25">
+
+                        <!-- Data Inputs Section -->
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-light p-3 h-100">
+                                <h5 class="fw-bold mb-3 text-primary"><i class="fas fa-calculator me-2"></i>Calculations
+                                </h5>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Bank Date</label>
+                                    <input type="date" class="form-control" id="new-bank-date">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label d-flex justify-content-between">
+                                        Bank Amount (Branch Total)
+                                        <a href="#" onclick="toggleBreakdown()" class="text-decoration-none small">View
+                                            Details</a>
+                                    </label>
+                                    <input type="text" class="form-control amount-input bg-amount-green"
+                                        id="new-bank-amount" readonly value="0.00">
+                                    <div class="balance-breakdown" id="breakdown-panel">
+                                        <div class="d-flex justify-content-between"><span>Daily Cash:</span> <span
+                                                id="val-dc">0</span></div>
+                                        <div class="d-flex justify-content-between"><span>Bank Txns:</span> <span
+                                                id="val-bt">0</span></div>
+                                        <div class="d-flex justify-content-between"><span>Transfers:</span> <span
+                                                id="val-tr">0</span></div>
+                                        <div class="d-flex justify-content-between border-top mt-1 pt-1 fw-bold">
+                                            <span>Total:</span> <span id="val-total">0</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Pending Cheque (Unverified)</label>
+                                    <input type="text" class="form-control amount-input bg-amount-blue"
+                                        id="new-pending-chq" readonly value="0.00">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card border-0 bg-light p-3 h-100">
+                                <h5 class="fw-bold mb-3 text-dark"><i
+                                        class="fas fa-file-invoice-dollar me-2"></i>Statement & Difference</h5>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Statement Date</label>
+                                    <input type="date" class="form-control" id="new-stmt-date">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Statement Amount</label>
+                                    <input type="number" class="form-control amount-input text-dark" id="new-statement"
+                                        value="0">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Difference</label>
+                                    <input type="text" class="form-control amount-input bg-amount-red" id="new-diff"
+                                        readonly value="0.00">
+                                </div>
+
+                                <div class="mt-auto">
+                                    <button class="btn btn-modern btn-success-modern w-100 py-3" id="btn-save">
+                                        <i class="fas fa-save me-2"></i> Save Record
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Grid -->
+                <div class="main-card mt-4 p-0 overflow-hidden">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="bg-light text-secondary">
+                                <tr>
+                                    <th class="py-3 ps-4">Date</th>
+                                    <th class="py-3">Branch</th>
+                                    <th class="py-3 text-end">Bank Amount</th>
+                                    <th class="py-3 text-end">Pending Chq</th>
+                                    <th class="py-3 text-end">Statement</th>
+                                    <th class="py-3 text-end">Diff</th>
+                                    <th class="py-3 text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="grid-body">
+                                <tr>
+                                    <td colspan="7" class="text-center py-4 text-muted">No data available</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pending-cheque-v2.js?v=6"></script>
+</body>
+
+</html>
+

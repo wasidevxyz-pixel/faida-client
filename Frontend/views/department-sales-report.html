@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Department Wise Sales Report - Bilal Accounting System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <style>
+        .report-container {
+            padding: 15px;
+            height: calc(100vh - 60px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-panel {
+            background: linear-gradient(135deg, #1a5f7a 0%, #0288d1 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            color: white;
+        }
+
+        .filter-panel label {
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .filter-panel .form-control,
+        .filter-panel .form-select {
+            border: none;
+            border-radius: 5px;
+        }
+
+        .data-panel {
+            flex: 1;
+            background: white;
+            border-radius: 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #dee2e6;
+        }
+
+        .data-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .data-header h5 {
+            margin: 0;
+            color: #1a5f7a;
+        }
+
+        .table-container {
+            flex: 1;
+            overflow: auto;
+            padding: 0;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 0;
+        }
+
+        .data-table thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .data-table th {
+            background: #1e4c8c !important;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 12px 15px;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            text-align: center;
+        }
+
+        /* ... */
+
+        /* Professional Print Styles Optimized for 1-Page Fit */
+
+
+
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .report-container {
+                padding: 5px;
+                height: auto;
+                display: block;
+            }
+
+            .filter-panel {
+                padding: 15px;
+            }
+
+            .data-panel {
+                box-shadow: none;
+                border: 1px solid #eee;
+            }
+
+            .data-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            #topSummary {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                padding: 10px !important;
+                background-color: #f1f3f4 !important;
+            }
+
+            #topSummary>div {
+                text-align: center;
+                background: white;
+                padding: 8px;
+                border-radius: 6px;
+                border: 1px solid #e0e0e0;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+
+            .data-table {
+                min-width: 800px;
+                /* Force horizontal scroll */
+                table-layout: auto !important;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 6px 8px;
+                font-size: 11px;
+                white-space: normal;
+                /* Allow wrapping if needed */
+            }
+
+            /* Responsive Dept Header */
+            .dept-header-row {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 5px;
+            }
+
+            /* Full width buttons */
+            .filter-panel .d-flex {
+                width: 100%;
+            }
+
+            .filter-panel .btn {
+                flex: 1;
+            }
+        }
+
+        .hide-diff .diff-col {
+            display: none !important;
+        }
+
+        /* Professional Print Styles Optimized for 1-Page Fit */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 5mm !important;
+            }
+
+            html, body {
+                height: auto !important;
+                background: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                font-size: 7.5pt !important;
+                line-height: normal !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            /* Hide Navigation, Filters, and Interactive Elements */
+            .page-header,
+            .filter-panel,
+            .sidebar,
+            #sidebarToggle,
+            .dropdown,
+            .btn,
+            button,
+            .data-header,
+            footer,
+            .no-data {
+                display: none !important;
+            }
+
+            /* Reset Containers */
+            .report-container {
+                padding: 0 !important;
+                margin: 0 !important;
+                height: auto !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                display: block !important;
+                overflow: visible !important;
+            }
+
+            .data-panel {
+                box-shadow: none !important;
+                border: none !important;
+                background: transparent !important;
+                display: block !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                overflow: visible !important;
+            }
+
+            .table-container {
+                overflow: visible !important;
+                display: block !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            /* Show Custom Print Header */
+            .print-header {
+                display: block !important;
+                border-bottom: 2px solid #1e4c8c;
+                padding-bottom: 10px;
+                margin-bottom: 15px !important;
+            }
+
+            .print-header h3 {
+                font-size: 16px !important;
+                margin: 0 !important;
+            }
+
+            .print-header h2 {
+                font-size: 20px !important;
+                margin: 5px 0 !important;
+            }
+
+            .print-header p {
+                font-size: 9pt !important;
+                margin: 2px 0 !important;
+            }
+
+            /* Table Styles for Print */
+            .data-table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+                margin-bottom: 10px !important;
+                table-layout: fixed !important;
+            }
+
+            .data-table th {
+                background: #1e4c8c !important;
+                color: white !important;
+                border: 1px solid #1e4c8c !important;
+                padding: 6px 2px !important;
+                font-size: 7.5pt !important;
+                text-transform: uppercase;
+                white-space: normal !important;
+                word-wrap: break-word !important;
+                text-align: center !important;
+                -webkit-print-color-adjust: exact;
+            }
+
+            .data-table td {
+                border: 1px solid #dee2e6 !important;
+                padding: 4px 2px !important;
+                font-size: 7.5pt !important;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .data-table i {
+                display: none !important;
+            }
+
+            .dept-header-row {
+                padding: 5px 0 !important;
+                margin-bottom: 5px !important;
+                border-bottom: 1px solid #eee;
+                page-break-after: avoid;
+            }
+
+            .dept-header-row h5 {
+                font-size: 11pt !important;
+                margin: 0 !important;
+                font-weight: bold !important;
+                color: #000 !important;
+            }
+
+            .dept-header-row .text-muted {
+                font-size: 8.5pt !important;
+                color: #333 !important;
+            }
+
+            /* Summary Section (FORCE HIDDEN ON PRINT) */
+            #topSummary,
+            #topSummary * {
+                display: none !important;
+            }
+
+            tr {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Print Header (Hidden on screen, visible on print) -->
+    <div class="print-header"
+        style="display: none; position: relative; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 15px;">
+        <img id="companyLogo" src="" alt="Logo"
+            style="position: absolute; left: 10px; top: 0; max-height: 60px; display: none;">
+        <div style="text-align: center; width: 100%;">
+            <h3 id="companyName" style="margin: 0; font-size: 20px; font-weight: 800; color: #014d35;">D.Watson Group Of
+                Pharmacies</h3>
+            <p id="companyAddress" style="margin: 0; font-size: 10px; color: #666;"></p>
+            <h2 style="margin: 5px 0 0; font-size: 24px; font-weight: 800; color: #333; text-transform: uppercase;">
+                DEPARTMENT WISE SALE</h2>
+            <p id="printBranchName" style="margin: 5px 0 0; font-size: 11px; font-weight: 600; color: #333;"></p>
+            <p id="printDateRange" style="margin: 2px 0 0; font-size: 11px; color: #555;"></p>
+        </div>
+        <p id="printGenerated" style="position: absolute; right: 0; top: 0; margin: 0; font-size: 9px; color: #999;">
+        </p>
+    </div>
+
+    <div class="page-header px-3">
+        <div style="flex: 1; display: flex; align-items: center;">
+
+            <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+            <i class="fas fa-chart-line me-2"></i> Department Wise Sales Report
+        </div>
+        <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
+            <div class="dropdown">
+                <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown" style="cursor: pointer;">
+                    <i class="fas fa-user-circle me-2" style="font-size: 1.2rem;"></i>
+                    <span id="userName" class="me-2">User</span>
+                    <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                    <li><a class="dropdown-item logout-btn" href="#"><i
+                                class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="report-container">
+        <!-- Filter Panel -->
+        <div class="filter-panel d-print-none">
+            <div class="row g-3">
+                <div class="col-md-2">
+                    <label>From Date</label>
+                    <input type="date" id="filterFromDate" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-2">
+                    <label>To Date</label>
+                    <input type="date" id="filterToDate" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-2">
+                    <label>Branch</label>
+                    <select id="filterBranch" class="form-select form-select-sm">
+                        <!-- Loaded via JS -->
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label>Department</label>
+                    <select id="filterDept" class="form-select form-select-sm">
+                        <option value="">All Departments</option>
+                        <!-- Loaded via JS -->
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-center mt-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="showDifference" checked
+                            onchange="toggleDifference()">
+                        <label class="form-check-label text-white" for="showDifference"
+                            style="font-size: 12px; cursor: pointer;">Show Difference</label>
+                    </div>
+                </div>
+                <div class="col-md-2 d-flex align-items-end gap-2">
+                    <button class="btn btn-light btn-sm" onclick="loadReport()">
+                        <i class="fas fa-search me-1"></i> Search
+                    </button>
+                    <button class="btn btn-warning btn-sm" onclick="window.print()">
+                        <i class="fas fa-print me-1"></i> Print
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Panel -->
+        <div class="data-panel">
+            <div class="data-header">
+                <h5><i class="fas fa-list me-2"></i>Sales Details</h5>
+                <span id="recordCount" class="badge bg-primary">0 records</span>
+            </div>
+
+            <!-- Total Summary (Top) - Hidden on Print -->
+            <div id="topSummary" class="p-3 border-bottom d-flex justify-content-around fw-bold d-print-none"
+                style="display:none; background-color: #cfd8dc;">
+                <!-- Populated dynamically -->
+            </div>
+
+            <div class="table-container" id="reportContainer">
+                <!-- Tables will be generated here -->
+                <div class="no-data p-5 text-center">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">Select filters and click "Search"</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244464"></script>
+    <script src="/js/desktop-ui.js"></script>
+    <script>
+        let departmentsMap = {};
+
+        // Format currency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-PK', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount || 0);
+        }
+
+        // Format difference (show as (val) if negative)
+        function formatDiff(amount) {
+            if (amount === 0) return '0';
+            const formatted = formatCurrency(Math.abs(amount));
+            return amount < 0 ? `(${formatted})` : formatted;
+        }
+
+        // Format date
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const d = new Date(dateStr);
+            return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+        }
+
+        function toggleDifference() {
+            const isChecked = document.getElementById('showDifference').checked;
+            if (isChecked) {
+                document.body.classList.remove('hide-diff');
+            } else {
+                document.body.classList.add('hide-diff');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = 'login';
+                return;
+            }
+
+            // Set default dates (current month)
+            const today = new Date();
+            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+
+            // Allow for local timezone offset adjustment manually or use simple formatting
+            const formatDateLocal = (date) => {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+
+            document.getElementById('filterFromDate').value = formatDateLocal(firstDay);
+            document.getElementById('filterToDate').value = formatDateLocal(today);
+
+            await loadBranches();
+            await loadDepartments();
+            await loadCompanyInfo();
+
+            document.getElementById('filterBranch').addEventListener('change', loadDepartments);
+            toggleDifference();
+        });
+
+        // Load Company Info for Print Header
+        async function loadCompanyInfo() {
+            const token = localStorage.getItem('token');
+            try {
+                const response = await fetch('/api/v1/settings/company-info', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const company = data.data || {};
+
+                    if (company.companyName) {
+                        document.getElementById('companyName').textContent = company.companyName;
+                    }
+                    if (company.address) {
+                        document.getElementById('companyAddress').textContent = company.address;
+                    }
+                    if (company.logo) {
+                        const logoImg = document.getElementById('companyLogo');
+                        logoImg.src = company.logo;
+                        logoImg.style.display = 'block';
+                    }
+                }
+
+                // Add Generated Date
+                const today = new Date();
+                const genDate = document.getElementById('printGenerated');
+                if (genDate) {
+                    genDate.textContent = `Generated: ${today.toLocaleDateString('en-GB')} ${today.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`;
+                }
+            } catch (error) {
+                console.error('Error loading company info:', error);
+            }
+        }
+
+        async function loadBranches() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/v1/stores', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    const select = document.getElementById('filterBranch');
+                    select.innerHTML = '';
+                    (data.data || []).forEach(store => {
+                        select.innerHTML += `<option value="${store.name}">${store.name}</option>`;
+                    });
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function loadDepartments() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/v1/departments', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    const deptSelect = document.getElementById('filterDept');
+                    const branch = document.getElementById('filterBranch').value;
+
+                    // Clear existing options
+                    deptSelect.innerHTML = '<option value="">All Departments</option>';
+
+                    const sortedDepts = (data.data || []).sort((a, b) => {
+                        const codeA = parseInt(a.code) || 999999;
+                        const codeB = parseInt(b.code) || 999999;
+                        return codeA - codeB || a.name.localeCompare(b.name);
+                    });
+
+                    sortedDepts.forEach(d => {
+                        // Filter by Branch
+                        if (branch && d.branch !== branch) return;
+
+                        // Filter: Hide specialized internal departments
+                        if (d.name === 'PERCENTAGE CASH' || d.name === 'CASH REC FROM COUNTER') return;
+
+                        // Filter: Hide if only 'Closing_2_Comp_Sale' is set (and not explicitly a dropdown dept)
+                        if (d.closing2CompSale && !d.closing2DeptDropDown) return;
+
+                        // Store full object to access target/commission
+                        departmentsMap[d._id] = d;
+                        deptSelect.innerHTML += `<option value="${d._id}">${d.name}</option>`;
+                    });
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function loadReport() {
+            const token = localStorage.getItem('token');
+            const container = document.getElementById('reportContainer');
+            const startDate = document.getElementById('filterFromDate').value;
+            const endDate = document.getElementById('filterToDate').value;
+            const branch = document.getElementById('filterBranch').value;
+            const selectedDeptId = document.getElementById('filterDept').value;
+
+            // Update details for print
+            document.getElementById('printBranchName').textContent = `(${branch})`;
+            const s = new Date(startDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+            const e = new Date(endDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+            document.getElementById('printDateRange').textContent = `From :  ${s}      To :  ${e}`;
+
+            container.innerHTML = `<div class="loading"><div class="spinner-border text-primary"></div></div>`;
+
+            try {
+                const response = await fetch(`/api/v1/closing-sheets/report?startDate=${startDate}&endDate=${endDate}&branch=${branch}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) throw new Error('Failed to fetch data');
+
+                const result = await response.json();
+                const sheets = result.data || [];
+
+                if (sheets.length === 0) {
+                    container.innerHTML = `<div class="no-data p-5 text-center">
+                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">No data found</p>
+                    </div>`;
+                    return;
+                }
+
+                renderReport(sheets, selectedDeptId);
+            } catch (error) {
+                console.error(error);
+                container.innerHTML = `<div class="text-danger p-5 text-center">Error: ${error.message}</div>`;
+            }
+        }
+
+        function renderReport(sheets, selectedDeptId) {
+            const container = document.getElementById('reportContainer');
+            container.innerHTML = '';
+
+            // 1. Group Data by Department
+            const groupedData = {};
+
+            // Sort sheets by date
+            sheets.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            sheets.forEach(sheet => {
+                const closing02 = sheet.closing02?.data || {};
+                const date = sheet.date;
+
+                Object.keys(closing02).forEach(deptId => {
+                    // Filter if specific department selected
+                    if (selectedDeptId && deptId !== selectedDeptId) return;
+
+                    const dept = departmentsMap[deptId];
+                    if (!dept) return; // Should not happen usually
+
+                    const deptName = dept.name;
+                    const data = closing02[deptId];
+
+                    if ((data.totalSaleComputer || 0) !== 0 || (data.counterClosing || 0) !== 0) {
+                        if (!groupedData[deptId]) groupedData[deptId] = {
+                            name: deptName,
+                            config: dept,
+                            records: []
+                        };
+                        groupedData[deptId].records.push({
+                            date: date,
+                            ...data
+                        });
+                    }
+                });
+            });
+
+            // 2. Render Groups
+            let globalTotalBatch = 0;
+            let globalTotalSale = 0;
+            let globalCommission = 0;
+            let globalDiff = 0;
+            let globalTotalDiscVal = 0;
+            let globalTargetMetCount = 0;
+
+            const sortedDeptIds = Object.keys(groupedData).sort((a, b) => groupedData[a].name.localeCompare(groupedData[b].name));
+
+            if (sortedDeptIds.length === 0) {
+                container.innerHTML = `<div class="no-data p-5 text-center"><p class="text-muted">No relevant data found in closing sheets.</p></div>`;
+                return;
+            }
+
+            // Define Standard Column Widths using Colgroup
+            const colGroupHtml = `
+                <colgroup>
+                    <col style="width: 12%">
+                    <col style="width: 14%">
+                    <col style="width: 15%">
+                    <col style="width: 4%">
+                    <col style="width: 13%">
+                    <col class="diff-col" style="width: 13%">
+                    <col style="width: 11%">
+                    <col style="width: 18%">
+                </colgroup>
+            `;
+
+            sortedDeptIds.forEach(deptId => {
+                const group = groupedData[deptId];
+                const deptName = group.name;
+                const deptConfig = group.config;
+                const records = group.records;
+
+                // Create Section
+                const section = document.createElement('div');
+                section.className = 'mb-4';
+
+                const targetSale = deptConfig.targetSale01 || 0;
+                const commissionRate = deptConfig.commission01 || 0;
+
+                // Department Header with Target Info
+                const headerHtml = `
+                    <div class="d-flex justify-content-between align-items-center mb-2 px-3 dept-header-row">
+                         <h5 class="fw-bold m-0" style="color: black; text-transform:uppercase;">${deptName}</h5>
+                         <div class="text-muted small">Target Sale: <span class="fw-bold text-dark">${formatCurrency(targetSale)}</span> | Commission: <span class="fw-bold text-dark">${formatCurrency(commissionRate)}</span></div>
+                    </div>
+                `;
+
+                // Table
+                let tableHtml = `
+                <table class="data-table" style="width: 100%; table-layout: fixed;">
+                    ${colGroupHtml}
+                    <thead>
+                        <tr>
+                            <th>Dated</th>
+                            <th class="text-end">Batch Amount</th>
+                            <th class="text-end">Total_Sale Computer</th>
+                            <th class="text-center">SR</th>
+                            <th class="text-end">Comm. Amount</th>
+                            <th class="text-end diff-col">Difference</th>
+                            <th class="text-end">Disc. %</th>
+                            <th class="text-end">DISC VALUE</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+                let deptBatch = 0;
+                let deptSale = 0;
+                let deptComm = 0;
+                let deptDiff = 0;
+                let deptDiscVal = 0;
+                let targetMetCount = 0;
+
+                records.forEach((r, idx) => {
+                    const batch = parseFloat(r.bankTotal || 0);
+                    const sale = parseFloat(r.totalSaleComputer || r.grossSale || 0);
+                    const diff = parseFloat(r.difference || 0);
+                    const discVal = parseFloat(r.discountValue || 0);
+
+                    // Commission Logic
+                    let comm = 0;
+                    let srDisplay = '';
+
+                    if (targetSale > 0 && sale >= targetSale) {
+                        comm = commissionRate;
+                        targetMetCount++;
+                        srDisplay = targetMetCount;
+                    }
+
+                    let discPct = 0;
+                    if (sale > 0 && discVal > 0) {
+                        discPct = (discVal / sale) * 100;
+                    }
+
+                    // Update totals
+                    deptBatch += batch;
+                    deptSale += sale;
+                    deptComm += comm;
+                    deptDiff += diff;
+                    deptDiscVal += discVal;
+
+                    tableHtml += `
+                        <tr>
+                            <td>${formatDate(r.date)}</td>
+                            <td class="text-end">${formatCurrency(batch)}</td>
+                            <td class="text-end" style="background-color: #f0f0f0;">${formatCurrency(sale)}</td> 
+                            <td class="text-center">${srDisplay}</td> 
+                            <td class="text-end">${formatCurrency(comm)}</td>
+                            <td class="text-end diff-col">${formatDiff(diff)}</td> 
+                            <td class="text-end">${discPct.toFixed(2)}</td>
+                            <td class="text-end">${formatCurrency(discVal)}</td>
+                        </tr>
+                    `;
+                });
+
+                tableHtml += `</tbody></table>`;
+
+                section.innerHTML = headerHtml + tableHtml;
+                container.appendChild(section);
+
+                globalTotalBatch += deptBatch;
+                globalTotalSale += deptSale;
+                globalCommission += deptComm;
+                globalDiff += deptDiff;
+                globalTotalDiscVal += deptDiscVal;
+                globalTargetMetCount += targetMetCount;
+            });
+
+            // Hide record count badge as per request
+            document.getElementById('recordCount').style.display = 'none';
+
+            // Update Top Summary
+            const summaryDiv = document.getElementById('topSummary');
+            summaryDiv.style.display = 'flex';
+            summaryDiv.style.backgroundColor = '#e3f2fd'; // Soft Blue
+            summaryDiv.style.borderBottom = '1px solid #90caf9';
+
+            summaryDiv.innerHTML = `
+                <div class="text-center">
+                    <small class="d-block text-primary fw-bold text-uppercase mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px;">Batch Amount</small>
+                    <div class="fs-5 text-dark fw-bold">${formatCurrency(globalTotalBatch)}</div>
+                </div>
+                <div class="text-center">
+                    <small class="d-block text-primary fw-bold text-uppercase mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px;">Total Sale</small>
+                    <div class="fs-5 text-dark fw-bold">${formatCurrency(globalTotalSale)}</div>
+                </div>
+                <div class="text-center">
+                    <small class="d-block text-primary fw-bold text-uppercase mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px;">Commission</small>
+                    <div class="fs-5 text-dark fw-bold">${formatCurrency(globalCommission)}</div>
+                </div>
+                <div class="text-center diff-col">
+                    <small class="d-block text-primary fw-bold text-uppercase mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px;">Difference</small>
+                    <div class="fs-5 text-dark fw-bold">${formatDiff(globalDiff)}</div>
+                </div> 
+            `;
+
+            // Calculate Average Discount %
+            let globalAvgDiscPct = 0;
+            if (globalTotalSale > 0) {
+                globalAvgDiscPct = (globalTotalDiscVal / globalTotalSale) * 100;
+            }
+
+            // Append Final Totals at the bottom
+            const grandTotalTable = document.createElement('table');
+            grandTotalTable.className = 'data-table mt-3';
+            grandTotalTable.style.width = '100%';
+            grandTotalTable.style.tableLayout = 'fixed';
+
+            // Use "TOTAL" for 1 dept, "GRAND TOTAL" for multiple
+            const totalLabel = sortedDeptIds.length > 1 ? 'GRAND TOTAL' : 'TOTAL';
+
+            grandTotalTable.innerHTML = `
+                ${colGroupHtml}
+                <tbody>
+                    <tr style="background-color: #0f172a; color: white;">
+                        <td style="font-weight: bold; padding: 8px;">${totalLabel}</td>
+                        <td class="text-end" style="font-weight: bold;">${formatCurrency(globalTotalBatch)}</td>
+                        <td class="text-end" style="font-weight: bold;">${formatCurrency(globalTotalSale)}</td>
+                        <td class="text-center" style="font-weight: bold;">${globalTargetMetCount > 0 ? globalTargetMetCount : ''}</td>
+                        <td class="text-end" style="font-weight: bold;">${formatCurrency(globalCommission)}</td>
+                        <td class="text-end diff-col" style="font-weight: bold;">${formatDiff(globalDiff)}</td>
+                        <td class="text-end" style="font-weight: bold;">${globalAvgDiscPct.toFixed(2)}</td>
+                        <td class="text-end" style="font-weight: bold;">${formatCurrency(globalTotalDiscVal)}</td>
+                    </tr>
+                </tbody>
+            `;
+            container.appendChild(grandTotalTable);
+        }
+    </script>
+</body>
+
+</html>

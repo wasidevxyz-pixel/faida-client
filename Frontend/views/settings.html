@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Bilal Accounting System (BAS)</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+
+    <!-- Prevent flash of all tabs by hiding them immediately if ?tab= parameter exists -->
+    <script>
+        (function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const tabParam = urlParams.get('tab');
+            if (tabParam) {
+                // Add style to hide all tabs and content initially
+                const style = document.createElement('style');
+                style.id = 'tab-hide-style';
+                style.innerHTML = `
+                    #settingsTabs .nav-item { display: none !important; }
+                    .tab-pane { display: none !important; }
+                `;
+                document.head.appendChild(style);
+            }
+        })();
+    </script>
+
+    <style>
+        /* Modern Settings Tabs - FORCE Horizontal Layout with Maximum Specificity */
+
+        /* Override sidebar.css and Bootstrap */
+        div.card-body #settingsTabs.nav.nav-pills,
+        div.card-body .nav.nav-pills.nav-fill,
+        div.card-body ul.nav.nav-pills,
+        #settingsTabs.nav.nav-pills,
+        .nav.nav-pills.nav-fill,
+        ul.nav.nav-pills {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            gap: 5px !important;
+            background: #f8f9fa !important;
+            padding: 10px !important;
+            border-radius: 8px !important;
+            list-style: none !important;
+            width: 100% !important;
+            white-space: nowrap !important;
+        }
+
+        /* Custom Scrollbar for Settings Tabs */
+        #settingsTabs::-webkit-scrollbar,
+        .nav-pills::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        #settingsTabs::-webkit-scrollbar-track,
+        .nav-pills::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        #settingsTabs::-webkit-scrollbar-thumb,
+        .nav-pills::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 3px;
+        }
+
+        #settingsTabs::-webkit-scrollbar-thumb:hover,
+        .nav-pills::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        /* Force nav-items to be inline */
+        div.card-body #settingsTabs .nav-item,
+        div.card-body .nav-pills .nav-item,
+        div.card-body ul.nav.nav-pills li,
+        #settingsTabs .nav-item,
+        .nav-pills .nav-item,
+        ul.nav.nav-pills li,
+        li.nav-item[role="presentation"] {
+            flex: 1 1 auto !important;
+            min-width: 100px !important;
+            display: inline-block !important;
+            float: none !important;
+            position: relative !important;
+            width: auto !important;
+        }
+
+        /* Force nav-links to be horizontal */
+        div.card-body #settingsTabs .nav-link,
+        div.card-body .nav-pills .nav-link,
+        div.card-body ul.nav.nav-pills button,
+        #settingsTabs .nav-link,
+        .nav-pills .nav-link,
+        ul.nav.nav-pills button,
+        button.nav-link[data-bs-toggle="tab"] {
+            display: block !important;
+            border-radius: 8px !important;
+            padding: 10px 15px !important;
+            transition: all 0.3s ease !important;
+            color: #6c757d !important;
+            font-weight: 500 !important;
+            text-align: center !important;
+            background: white !important;
+            border: 1px solid #dee2e6 !important;
+            white-space: nowrap !important;
+            width: 100% !important;
+            cursor: pointer !important;
+        }
+
+        div.card-body #settingsTabs .nav-link:hover,
+        #settingsTabs .nav-link:hover,
+        .nav-pills .nav-link:hover {
+            background-color: #e9ecef !important;
+            color: #0d6efd !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        div.card-body #settingsTabs .nav-link.active,
+        #settingsTabs .nav-link.active,
+        .nav-pills .nav-link.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            color: white !important;
+            border-color: #667eea !important;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4) !important;
+        }
+
+        .nav-pills .nav-link i {
+            font-size: 1.1rem;
+        }
+
+        /* Responsive: Show only icons on mobile */
+        @media (max-width: 768px) {
+            .nav-pills .nav-link {
+                padding: 10px !important;
+            }
+        }
+
+        /* Fix Tab Switching: Force hide inactive tabs */
+        .tab-content>.tab-pane {
+            display: none !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+            height: 0 !important;
+            overflow: hidden !important;
+        }
+
+        .tab-content>.tab-pane.active {
+            display: block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            height: auto !important;
+            overflow: visible !important;
+        }
+
+        /* Ensure fade transitions don't break display */
+        .tab-content>.tab-pane.fade.show.active {
+            display: block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            height: auto !important;
+        }
+
+        /* Force only one tab to be visible at a time */
+        #settingsTabContent .tab-pane:not(.active) {
+            display: none !important;
+            position: absolute !important;
+            left: -9999px !important;
+        }
+
+        #settingsTabContent .tab-pane.active {
+            display: block !important;
+            position: relative !important;
+            left: 0 !important;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Main Content Wrapper -->
+    <div class="main-content">
+        <!-- Standardized Page Header -->
+        <div class="page-header px-3">
+            <div style="flex: 1; display: flex; align-items: center;">
+                <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+                <h4 class="mb-0">Settings</h4>
+            </div>
+            <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
+                <div class="dropdown">
+                    <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown"
+                        style="cursor: pointer;">
+                        <i class="fas fa-user-circle me-2" style="font-size: 1.2rem;"></i>
+                        <span id="userName" class="me-2">User</span>
+                        <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                        <li><a class="dropdown-item logout-btn" href="#"><i
+                                    class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="container-fluid mt-4">
+
+            <!-- Settings Tabs -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card shadow-sm mb-3">
+                        <div class="card-body p-2">
+                            <ul class="nav nav-pills nav-fill" id="settingsTabs" role="tablist"
+                                style="display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; overflow-x: auto !important; overflow-y: hidden !important; gap: 5px !important; white-space: nowrap !important;">
+                                <li class="nav-item" role="presentation" data-permission="settings_company">
+                                    <button class="nav-link active" id="company-tab" data-bs-toggle="tab"
+                                        data-bs-target="#company" type="button" role="tab">
+                                        <i class="fas fa-building me-2"></i>
+                                        <span class="d-none d-md-inline">Company</span>
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation" data-permission="settings_invoice">
+                                    <button class="nav-link" id="invoice-tab" data-bs-toggle="tab"
+                                        data-bs-target="#invoice" type="button" role="tab">
+                                        <i class="fas fa-file-invoice me-2"></i>
+                                        <span class="d-none d-md-inline">Invoice</span>
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation" data-permission="settings_tax">
+                                    <button class="nav-link" id="tax-tab" data-bs-toggle="tab" data-bs-target="#tax"
+                                        type="button" role="tab">
+                                        <i class="fas fa-percentage me-2"></i>
+                                        <span class="d-none d-md-inline">Tax</span>
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation" data-permission="settings_backup">
+                                    <button class="nav-link" id="backup-tab" data-bs-toggle="tab"
+                                        data-bs-target="#backup" type="button" role="tab">
+                                        <i class="fas fa-database me-2"></i>
+                                        <span class="d-none d-md-inline">Backup</span>
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation" data-permission="settings_apiKey">
+                                    <button class="nav-link" id="apiKey-tab" data-bs-toggle="tab"
+                                        data-bs-target="#apiKey" type="button" role="tab">
+                                        <i class="fas fa-key me-2"></i>
+                                        <span class="d-none d-md-inline">API Key</span>
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="tab-content" id="settingsTabContent">
+                <!-- Company Settings -->
+                <div class="tab-pane fade show active" id="company" role="tabpanel">
+                    <div class="card shadow mt-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Company Information</h5>
+                            <form id="companyForm">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="companyName" class="form-label">Company Name *</label>
+                                        <input type="text" class="form-control" id="companyName" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="companyEmail" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="companyEmail">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="companyPhone" class="form-label">Phone</label>
+                                        <input type="tel" class="form-control" id="companyPhone">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="companyWebsite" class="form-label">Website</label>
+                                        <input type="url" class="form-control" id="companyWebsite">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label for="companyAddress" class="form-label">Address</label>
+                                        <textarea class="form-control" id="companyAddress" rows="3"></textarea>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="companyCity" class="form-label">City</label>
+                                        <input type="text" class="form-control" id="companyCity">
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="companyState" class="form-label">State</label>
+                                        <input type="text" class="form-control" id="companyState">
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <label for="companyPostalCode" class="form-label">Postal Code</label>
+                                        <input type="text" class="form-control" id="companyPostalCode">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="companyGSTIN" class="form-label">GSTIN</label>
+                                        <input type="text" class="form-control" id="companyGSTIN">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="companyPAN" class="form-label">PAN</label>
+                                        <input type="text" class="form-control" id="companyPAN">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label for="companyLogo" class="form-label">Company Logo</label>
+                                        <input type="file" class="form-control" id="companyLogo" accept="image/*">
+                                        <div class="mt-2">
+                                            <img id="logoPreview" src="" alt="Logo Preview"
+                                                style="max-width: 200px; display: none;">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save me-1"></i> Save Company Settings
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Invoice Settings -->
+                <div class="tab-pane fade" id="invoice" role="tabpanel">
+                    <div class="card shadow mt-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Invoice Settings</h5>
+                            <form id="invoiceForm">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="invoicePrefix" class="form-label">Invoice Prefix</label>
+                                        <input type="text" class="form-control" id="invoicePrefix" placeholder="INV">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="invoiceStartNumber" class="form-label">Starting Number</label>
+                                        <input type="number" class="form-control" id="invoiceStartNumber" value="1">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="billPrefix" class="form-label">Bill Prefix</label>
+                                        <input type="text" class="form-control" id="billPrefix" placeholder="BILL">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="billStartNumber" class="form-label">Bill Starting Number</label>
+                                        <input type="number" class="form-control" id="billStartNumber" value="1">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="quotationPrefix" class="form-label">Quotation Prefix</label>
+                                        <input type="text" class="form-control" id="quotationPrefix" placeholder="QUOT">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="quotationStartNumber" class="form-label">Quotation Starting
+                                            Number</label>
+                                        <input type="number" class="form-control" id="quotationStartNumber" value="1">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <label for="invoiceTerms" class="form-label">Default Terms & Conditions</label>
+                                        <textarea class="form-control" id="invoiceTerms" rows="4"></textarea>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="includeTaxInInvoice">
+                                            <label class="form-check-label" for="includeTaxInInvoice">
+                                                Include Tax Details in Invoice
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="includeLogoInInvoice">
+                                            <label class="form-check-label" for="includeLogoInInvoice">
+                                                Include Company Logo in Invoice
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save me-1"></i> Save Invoice Settings
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tax Settings -->
+                <div class="tab-pane fade" id="tax" role="tabpanel">
+                    <div class="card shadow mt-3">
+                        <div class="card-body">
+                            <h5 class="card-title">Tax Settings</h5>
+                            <form id="taxForm">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="defaultTaxRate" class="form-label">Default Tax Rate (%)</label>
+                                        <input type="number" class="form-control" id="defaultTaxRate" min="0" max="100"
+                                            step="0.1">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="taxCalculationMethod" class="form-label">Tax Calculation
+                                            Method</label>
+                                        <select class="form-select" id="taxCalculationMethod">
+                                            <option value="inclusive">Tax Inclusive</option>
+                                            <option value="exclusive">Tax Exclusive</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="cgstRate" class="form-label">CGST Rate (%)</label>
+                                        <input type="number" class="form-control" id="cgstRate" min="0" max="100"
+                                            step="0.1">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="sgstRate" class="form-label">SGST Rate (%)</label>
+                                        <input type="number" class="form-control" id="sgstRate" min="0" max="100"
+                                            step="0.1">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="igstRate" class="form-label">IGST Rate (%)</label>
+                                        <input type="number" class="form-control" id="igstRate" min="0" max="100"
+                                            step="0.1">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="cessRate" class="form-label">CESS Rate (%)</label>
+                                        <input type="number" class="form-control" id="cessRate" min="0" max="100"
+                                            step="0.1">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="enableReverseCharge">
+                                            <label class="form-check-label" for="enableReverseCharge">
+                                                Enable Reverse Charge Mechanism
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-save me-1"></i> Save Tax Settings
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!-- MongoDB Backup & Restore -->
+                <div class="tab-pane fade" id="backup" role="tabpanel">
+                    <div class="card shadow mt-3">
+                        <div class="card-body">
+                            <h5 class="card-title mb-4">
+                                <i class="fas fa-database me-2 text-primary"></i>MongoDB Backup & Restore
+                            </h5>
+
+                            <!-- Backup Information Card -->
+                            <div class="row mb-4">
+                                <div class="col-md-12">
+                                    <div class="card bg-light border-0">
+                                        <div class="card-body">
+                                            <h6 class="card-subtitle mb-3 text-muted">
+                                                <i class="fas fa-info-circle me-2"></i>Backup Information
+                                            </h6>
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <div class="d-flex align-items-center mb-2">
+                                                        <i class="fas fa-clock text-primary me-2"></i>
+                                                        <strong>Last Backup:</strong>
+                                                    </div>
+                                                    <p class="ms-4 mb-0" id="lastBackupDate">Loading...</p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="d-flex align-items-center mb-2">
+                                                        <i class="fas fa-folder text-warning me-2"></i>
+                                                        <strong>Total Backups:</strong>
+                                                    </div>
+                                                    <p class="ms-4 mb-0" id="backupCount">Loading...</p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="d-flex align-items-center mb-2">
+                                                        <i class="fas fa-hdd text-success me-2"></i>
+                                                        <strong>Total Size:</strong>
+                                                    </div>
+                                                    <p class="ms-4 mb-0" id="totalBackupSize">Loading...</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <div class="card border-primary">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-download fa-3x text-primary mb-3"></i>
+                                            <h6 class="card-title">Create Backup</h6>
+                                            <p class="text-muted small">Create a complete backup of your database</p>
+                                            <button class="btn btn-primary" id="manualBackupBtn"
+                                                onclick="performManualBackup()">
+                                                <i class="fas fa-download me-2"></i>Backup Now
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card border-warning">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-upload fa-3x text-warning mb-3"></i>
+                                            <h6 class="card-title">Restore Backup</h6>
+                                            <p class="text-muted small">Restore database from a previous backup</p>
+                                            <button class="btn btn-warning" onclick="showRestoreModal()">
+                                                <i class="fas fa-upload me-2"></i>Restore
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Available Backups Table -->
+                            <div class="row mb-4">
+                                <div class="col-md-12">
+                                    <h6 class="mb-3">
+                                        <i class="fas fa-list me-2"></i>Available Backups
+                                        <button class="btn btn-sm btn-outline-primary float-end"
+                                            onclick="loadAvailableBackups()">
+                                            <i class="fas fa-sync-alt"></i> Refresh
+                                        </button>
+                                    </h6>
+                                    <div class="table-responsive">
+                                        <table class="table table-hover table-bordered">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th style="width: 40%;">Backup Name</th>
+                                                    <th style="width: 20%;">Date Created</th>
+                                                    <th style="width: 10%;">Type</th>
+                                                    <th style="width: 15%;">Size</th>
+                                                    <th style="width: 15%;" class="text-center">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="backupsTableBody">
+                                                <tr>
+                                                    <td colspan="4" class="text-center text-muted">
+                                                        <i class="fas fa-spinner fa-spin me-2"></i>Loading backups...
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Backup Configuration -->
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <h6 class="mb-3">
+                                        <i class="fas fa-cog me-2"></i>Backup Configuration
+                                    </h6>
+                                    <form id="backupConfigForm">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="backupFolderPath" class="form-label">
+                                                    Backup Folder Path
+                                                    <i class="fas fa-info-circle text-muted"
+                                                        title="Path where backups will be stored"></i>
+                                                </label>
+                                                <input type="text" class="form-control" id="backupFolderPath"
+                                                    placeholder="./backups" value="./backups">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="mongoToolsPath" class="form-label">
+                                                    MongoDB Tools Path (Optional)
+                                                    <i class="fas fa-info-circle text-muted"
+                                                        title="Leave empty to use system PATH"></i>
+                                                </label>
+                                                <input type="text" class="form-control" id="mongoToolsPath"
+                                                    placeholder="Leave empty to use system PATH">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox"
+                                                        id="autoBackupEnabled" checked>
+                                                    <label class="form-check-label" for="autoBackupEnabled">
+                                                        <strong>Enable Automatic Daily Backup</strong>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="autoBackupTime" class="form-label">Daily Backup Time</label>
+                                                <input type="time" class="form-control" id="autoBackupTime"
+                                                    value="02:00">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <button type="submit" class="btn btn-success">
+                                                    <i class="fas fa-save me-2"></i>Save Configuration
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <!-- Mega Cloud Configuration -->
+                            <div class="row mt-5">
+                                <div class="col-md-12">
+                                    <h6 class="mb-3">
+                                        <i class="fas fa-cloud me-2 text-info"></i>Mega Cloud Upload Settings
+                                    </h6>
+                                    <form id="megaConfigForm">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox"
+                                                        id="megaEnabledSettings">
+                                                    <label class="form-check-label" for="megaEnabledSettings">
+                                                        <strong>Enable Mega Cloud Upload</strong>
+                                                    </label>
+                                                </div>
+                                                <small class="text-muted d-block mt-2">Automatically upload compressed ZIP backups to your Mega account</small>
+                                            </div>
+                                        </div>
+
+                                        <!-- Connected Account Banner -->
+                                        <div id="megaConnectedBannerSettings" class="p-3 mb-3 border rounded shadow-sm" style="display: none; background: #f0fdf4; border-color: #86efac !important;">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Connected</span>
+                                                    <strong class="text-success" style="font-size: 0.95rem;">Mega Account Active & Saved</strong>
+                                                </div>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary" id="btnToggleMegaEditSettings">
+                                                    <i class="fas fa-edit me-1"></i>Change Account
+                                                </button>
+                                            </div>
+                                            <div class="text-muted" style="font-size: 0.85rem;">
+                                                <i class="fas fa-envelope text-primary me-1"></i> Account: <strong id="connectedEmailDisplaySettings" class="text-dark">wasitech10@gmail.com</strong>
+                                                <span class="ms-3 text-success"><i class="fas fa-lock me-1"></i>Credentials saved permanently</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Mega Status & Quota Display -->
+                                        <div id="megaStatusContainerSettings" class="mt-2 mb-3" style="display:none;">
+                                            <div class="alert alert-info">
+                                                <h6 class="alert-heading"><i class="fas fa-cloud me-2"></i> Cloud Quota & Sync Status</h6>
+                                                <div id="megaStatusContentSettings" style="font-size: 0.9rem;"></div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Credentials Form (Collapsible when connected) -->
+                                        <div id="megaCredentialsContainerSettings">
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="megaEmailSettings" class="form-label">
+                                                        Mega Account Email
+                                                    </label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                                        <input type="email" class="form-control" id="megaEmailSettings" placeholder="your-email@mega.nz" autocomplete="off">
+                                                    </div>
+                                                    <small class="text-muted d-block mt-1">Use registered Mega account (e.g. wasitech10@gmail.com)</small>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="megaPasswordSettings" class="form-label">
+                                                        Mega Account Password
+                                                    </label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                                        <input type="password" class="form-control" id="megaPasswordSettings" placeholder="Your Mega password" autocomplete="new-password">
+                                                    </div>
+                                                    <small class="text-muted d-block mt-1"><i class="fas fa-shield-alt text-warning me-1"></i>Password is encrypted before storing. Leave unchanged to keep saved password.</small>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="megaBackupFolderSettings" class="form-label">
+                                                        Mega Folder Name
+                                                    </label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text"><i class="fas fa-folder"></i></span>
+                                                        <input type="text" class="form-control" id="megaBackupFolderSettings" placeholder="BAS_Backups" value="BAS_Backups">
+                                                    </div>
+                                                    <small class="text-muted d-block mt-1">Where backups will be stored in Mega (auto-created if missing)</small>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label for="keepLocalBackupDaysSettings" class="form-label">
+                                                        Keep Local Backup Days
+                                                    </label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                                                        <input type="number" class="form-control" id="keepLocalBackupDaysSettings" min="0" value="7">
+                                                    </div>
+                                                    <small class="text-muted d-block mt-1">Days to keep local backups after uploading to Mega (0 = delete immediately)</small>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <div class="btn-group" role="group">
+                                                        <button type="button" class="btn btn-info" id="testMegaConnectionSettings">
+                                                            <i class="fas fa-plug me-2"></i>Test Connection
+                                                        </button>
+                                                        <button type="submit" class="btn btn-primary">
+                                                            <i class="fas fa-save me-2"></i>Save Mega Settings
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <!-- Mega Cloud Backups List -->
+                            <div class="row mt-4" id="megaFilesSectionSettings">
+                                <div class="col-md-12">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-cloud text-primary me-2"></i>Mega Cloud Backups (Drive)
+                                            <span class="badge bg-primary text-white ms-2" id="megaFilesCountBadge">0 archives</span>
+                                        </h6>
+                                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="loadMegaFilesTable()">
+                                            <i class="fas fa-sync-alt me-1"></i> Refresh Cloud Backups
+                                        </button>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-hover table-bordered">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th style="width: 45%;">Backup Archive</th>
+                                                    <th style="width: 25%;">Date Uploaded</th>
+                                                    <th style="width: 15%;">Cloud Size</th>
+                                                    <th style="width: 15%;" class="text-center">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="megaFilesTableBodySettings">
+                                                <tr>
+                                                    <td colspan="4" class="text-center text-muted">
+                                                        <i class="fas fa-spinner fa-spin me-2"></i>Loading cloud backups from Mega...
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Alert Container -->
+                            <div id="backupAlertContainer" class="mt-3"></div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API Key Settings -->
+                <div class="tab-pane fade" id="apiKey" role="tabpanel">
+                    <div class="card shadow mt-3">
+                        <div class="card-body">
+                            <h5 class="card-title mb-4">
+                                <i class="fas fa-key me-2 text-primary"></i>API Key Configuration
+                            </h5>
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                This API Key provides <strong>full access</strong> to the application. Keep it secure!
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">API Key</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control font-monospace" id="displayApiKey" readonly>
+                                    <button class="btn btn-outline-secondary" type="button"
+                                        onclick="copyToClipboard('displayApiKey')">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">API Secret</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control font-monospace" id="displayApiSecret"
+                                        readonly>
+                                    <button class="btn btn-outline-secondary" type="button"
+                                        onclick="toggleSecretVisibility()">
+                                        <i class="fas fa-eye" id="toggleSecretIcon"></i>
+                                    </button>
+                                    <button class="btn btn-outline-secondary" type="button"
+                                        onclick="copyToClipboard('displayApiSecret')">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="border-top pt-3">
+                                <button class="btn btn-danger" onclick="generateApiKey()">
+                                    <i class="fas fa-sync-alt me-2"></i>Generate / Regenerate Keys
+                                </button>
+                                <small class="text-muted d-block mt-2">
+                                    Regenerating keys will invalidate existing ones immediately.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- Restore Backup Modal -->
+        <div class="modal fade" id="restoreModal" tabindex="-1" aria-labelledby="restoreModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-warning text-dark">
+                        <h5 class="modal-title" id="restoreModalLabel">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Restore Database Backup
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-danger" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <strong>Warning:</strong> This will replace all existing data in your database with the
+                            selected backup. This action cannot be undone!
+                        </div>
+                        <div class="mb-3">
+                            <label for="restoreBackupSelect" class="form-label">Select Backup to Restore:</label>
+                            <select class="form-select" id="restoreBackupSelect">
+                                <option value="">Loading backups...</option>
+                            </select>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="confirmRestore">
+                            <label class="form-check-label" for="confirmRestore">
+                                I understand that this will replace all existing data
+                            </label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-warning" id="confirmRestoreBtn" onclick="performRestore()"
+                            disabled>
+                            <i class="fas fa-upload me-2"></i>Restore Backup
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mega Cloud Direct Restore Modal -->
+        <div class="modal fade" id="megaRestoreModal" tabindex="-1" aria-labelledby="megaRestoreModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content border-warning shadow">
+                    <div class="modal-header bg-warning text-dark">
+                        <h5 class="modal-title" id="megaRestoreModalLabel">
+                            <i class="fas fa-cloud-download-alt me-2"></i>Direct Restore from Mega Cloud
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-danger" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Warning:</strong> This will stream the backup directly from Mega Drive and restore it into your active MongoDB. <strong>All current data will be overwritten with this snapshot!</strong>
+                        </div>
+                        <div class="mb-3 p-3 bg-light rounded border">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Backup File:</span>
+                                <strong id="megaRestoreFileName" class="text-primary font-monospace">backup.zip</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Backup Date:</span>
+                                <strong id="megaRestoreFileDate">Date</strong>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-muted">Cloud Size:</span>
+                                <strong id="megaRestoreFileSize">0 MB</strong>
+                            </div>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="confirmMegaRestoreCheckbox">
+                            <label class="form-check-label text-danger fw-bold" for="confirmMegaRestoreCheckbox">
+                                I confirm: Overwrite database with this Mega backup
+                            </label>
+                        </div>
+                        <div id="megaRestoreProgressIndicator" style="display:none;" class="mt-3 p-3 text-center bg-light border rounded">
+                            <div class="spinner-border text-primary spinner-border-sm me-2" role="status"></div>
+                            <span class="text-primary fw-bold" id="megaRestoreProgressText">Streaming from Mega & restoring database... Please wait.</span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="btnCancelMegaRestore">Cancel</button>
+                        <button type="button" class="btn btn-warning" id="btnConfirmMegaRestore" onclick="executeMegaRestore()" disabled>
+                            <i class="fas fa-cloud-download-alt me-2"></i>Restore Database Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scripts -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="/js/pageAccess.js"></script>
+        <script src="/js/sidebar.js?v=1789486244529"></script>
+        <script src="/js/settings.js?v=20260904_9"></script>
+</body>
+
+</html>
+

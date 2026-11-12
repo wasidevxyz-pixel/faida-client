@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pending Cheque Details - Bilal Accounting System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <style>
+        :root {
+            --bas-blue: #1e4c8c;
+            --bas-green: #27ae60;
+            --bas-light-blue: #f4f7fa;
+            --bas-border: #d2d6de;
+        }
+
+        body {
+            background-color: #dce4ec;
+            font-size: 0.85rem;
+        }
+
+        .main-content {
+            margin-left: 0 !important;
+            padding-top: 0 !important;
+        }
+
+        .bas-container {
+            padding: 15px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 2px;
+            font-size: 0.8rem;
+            color: #4a5568;
+        }
+
+        .form-control-sm,
+        .form-select-sm {
+            border-radius: 4px;
+            border-color: var(--bas-border);
+            padding: 0.4rem 0.6rem;
+        }
+
+        .btn-bas-save {
+            background-color: #1e4c8c;
+            color: white;
+            border: none;
+            padding: 6px 20px;
+            border-radius: 4px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-bas-save:hover {
+            background-color: #153866;
+            transform: translateY(-1px);
+        }
+
+        .btn-bas-clear {
+            background-color: #e2e8f0;
+            color: #4a5568;
+            border: 1px solid #cbd5e1;
+            padding: 6px 20px;
+            border-radius: 4px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-bas-clear:hover {
+            background-color: #cbd5e1;
+        }
+
+        .btn-bas-search {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .btn-bas-report {
+            background-color: var(--bas-green);
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .entry-panel {
+            background: white;
+            border: 1px solid var(--bas-border);
+            border-radius: 8px;
+            padding: 20px;
+            height: 100%;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .report-panel {
+            background: white;
+            border: 1px solid var(--bas-border);
+            border-radius: 8px;
+            height: 100%;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .filter-row {
+            background: #f8f9fa;
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--bas-border);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-row label {
+            font-weight: 600;
+            margin-bottom: 0;
+            font-size: 0.8rem;
+            color: #4a5568;
+        }
+
+        .table-container {
+            height: calc(100vh - 270px);
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .table-bas {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-bas thead th {
+            background-color: #1e4c8c;
+            color: white;
+            position: sticky;
+            top: 0;
+            font-weight: 600;
+            padding: 10px 12px;
+            text-align: left;
+            font-size: 0.85rem;
+            border-bottom: 2px solid #cbd5e1;
+            z-index: 5;
+        }
+
+        .table-bas tbody td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.85rem;
+            color: #334155;
+        }
+
+        .table-bas tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .table-bas tbody tr.selected {
+            background-color: #e2e8f0;
+        }
+
+        .report-title-header {
+            margin-top: 10px;
+            margin-bottom: 15px;
+            padding: 10px 20px;
+            border-bottom: 1px dashed #cbd5e1;
+        }
+
+        .report-logo-placeholder {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #1e4c8c;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        /* Professional Mobile Enhancements */
+        @media (max-width: 768px) {
+            .page-header {
+                padding: 0.5rem 1rem !important;
+                background-color: var(--bas-blue) !important;
+            }
+
+            .bas-container {
+                padding: 10px !important;
+                padding-bottom: 85px !important;
+            }
+
+            .row.g-0 {
+                display: block !important;
+            }
+
+            .col-lg-4,
+            .col-lg-8 {
+                width: 100% !important;
+                padding: 0 !important;
+                margin-bottom: 15px !important;
+            }
+
+            .entry-panel,
+            .report-panel {
+                border-radius: 12px !important;
+                border: none !important;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
+            }
+
+            .table-container {
+                height: calc(100vh - 425px) !important;
+            }
+
+            /* Bottom Action Bar */
+            .action-bar-mobile {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: white;
+                display: flex !important;
+                justify-content: space-around;
+                padding: 8px 5px;
+                box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.1);
+                z-index: 1050;
+                border-top: 1px solid #e2e8f0;
+                height: 65px;
+            }
+
+            .action-btn-mobile {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                background: none;
+                border: none;
+                color: #64748b;
+                font-size: 0.65rem;
+                font-weight: 600;
+                flex: 1;
+                transition: all 0.2s;
+            }
+
+            .action-btn-mobile i {
+                font-size: 1.25rem;
+                margin-bottom: 3px;
+            }
+
+            .action-btn-mobile:active {
+                color: var(--bas-blue);
+            }
+
+            .btn-save-mobile i {
+                color: #10b981;
+            }
+
+            .btn-report-mobile i {
+                color: #8b5cf6;
+            }
+
+            .btn-toggle-mobile i {
+                color: #3b82f6;
+            }
+
+            .d-flex.gap-3,
+            .filter-row button {
+                display: none !important;
+            }
+
+            #entryPanelWrapper {
+                display: block;
+            }
+
+            #reportPanelWrapper {
+                display: none;
+            }
+        }
+
+        /* Nav Tabs Styling for High Visibility */
+        #reportTabs .nav-link {
+            color: black !important;
+            background-color: #e2e8f0;
+            margin-right: 5px;
+            border: 1px solid #cbd5e1;
+            transition: all 0.2s;
+            border-radius: 8px 8px 0 0 !important;
+        }
+
+        #reportTabs .nav-link.active {
+            background-color: black !important;
+            color: white !important;
+            border-color: black !important;
+        }
+
+        #reportTabs .nav-link:hover:not(.active) {
+            background-color: #cbd5e1;
+        }
+
+        /* Print Layout Styles */
+        @media print {
+
+            html,
+            body {
+                background-color: white !important;
+                color: black !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                height: auto !important;
+                overflow: visible !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .sidebar,
+            /* just in case the sidebar is present and not hidden by its own css */
+            .page-header,
+            .action-bar-mobile,
+            #entryPanelWrapper,
+            .filter-row,
+            .action-cell,
+            #reportTabs,
+            #printOnlyContainer {
+                display: none !important;
+            }
+
+            .main-content {
+                padding: 0 !important;
+                margin: 0 !important;
+                margin-left: 0 !important;
+                width: 100% !important;
+                height: auto !important;
+                overflow: visible !important;
+                display: block !important;
+            }
+
+            .bas-container {
+                padding: 0 !important;
+                display: block !important;
+            }
+
+            .row.g-0 {
+                display: block !important;
+            }
+
+            .col-lg-8,
+            #reportPanelWrapper {
+                display: block !important;
+                width: 100% !important;
+                flex: none !important;
+                max-width: 100% !important;
+                padding: 0 !important;
+            }
+
+            .report-panel {
+                border: none !important;
+                box-shadow: none !important;
+                height: auto !important;
+                overflow: visible !important;
+                display: block !important;
+            }
+
+            .report-title-header {
+                border-bottom: none !important;
+                margin: 0 !important;
+                padding: 0 0 10px 0 !important;
+                display: block !important;
+            }
+
+            .report-logo-placeholder {
+                background-color: black !important;
+                color: white !important;
+                text-align: center !important;
+                padding: 10px !important;
+                font-size: 16pt !important;
+                font-weight: bold !important;
+                margin-bottom: 10px !important;
+                letter-spacing: normal !important;
+                border: 1px solid black !important;
+                display: block !important;
+            }
+
+            #displayReportDate {
+                text-align: center !important;
+                font-size: 14pt !important;
+                font-weight: bold !important;
+                margin: 15px 0 !important;
+                color: black !important;
+                display: block !important;
+            }
+
+            .table-container {
+                height: auto !important;
+                overflow: visible !important;
+                padding: 0 !important;
+                display: block !important;
+            }
+
+            .table-bas {
+                width: 100% !important;
+                border: 1px solid black !important;
+                border-collapse: collapse !important;
+            }
+
+            .table-bas th,
+            .table-bas td {
+                border: 1px solid black !important;
+                color: black !important;
+                text-align: center !important;
+                padding: 8px !important;
+            }
+
+            .table-bas thead th {
+                background-color: #d9d9d9 !important;
+                color: black !important;
+                font-weight: bold !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main-content">
+        <!-- Standardized Page Header -->
+        <div class="page-header px-3">
+            <div style="flex: 1; display: flex; align-items: center;">
+                <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+                <h4 class="mb-0">Pending Cheque Details</h4>
+            </div>
+            <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
+                <div class="dropdown">
+                    <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown"
+                        style="cursor: pointer;">
+                        <div class="avatar-circle me-2 bg-primary text-white d-flex align-items-center justify-content-center"
+                            style="width: 35px; height: 35px; border-radius: 50%; font-weight: bold;">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <span id="userName" class="me-2 d-none d-md-inline">User</span>
+                        <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                        <li><a class="dropdown-item logout-btn" href="#"><i
+                                    class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="bas-container">
+            <ul class="nav nav-tabs mb-3 border-0" id="reportTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active fw-bold px-4" id="cheque-tab" data-bs-toggle="tab"
+                        data-bs-target="#cheque" type="button" role="tab" aria-controls="cheque" aria-selected="true"
+                        onclick="switchTab('cheque')">Pending Cheques</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link fw-bold px-4" id="cash-tab" data-bs-toggle="tab" data-bs-target="#cash"
+                        type="button" role="tab" aria-controls="cash" aria-selected="false"
+                        onclick="switchTab('cash')">Cash Activity</button>
+                </li>
+            </ul>
+
+            <div class="row g-0">
+                <!-- Left Panel: Data Entry -->
+                <div class="col-lg-4 pe-lg-2 mb-3 mb-lg-0" id="entryPanelWrapper">
+                    <div class="entry-panel shadow-sm">
+                        <h5 class="fw-bold mb-3 text-secondary" id="entryTitle"><i class="fas fa-edit me-2"></i>Cheque
+                            Entry</h5>
+
+                        <div class="mb-3">
+                            <label class="form-label">Date *</label>
+                            <input type="date" id="entryDate" class="form-control form-control-sm" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Branch *</label>
+                            <select id="entryBranch" class="form-select form-select-sm" required>
+                                <option value="">Select Branch...</option>
+                            </select>
+                        </div>
+
+                        <div id="chequeInputs">
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label mb-0">Pending Cheques</label>
+                                    <button type="button" class="btn btn-sm btn-outline-success py-0 px-2"
+                                        onclick="addInputRow('pendingChequesContainer', 'pending-cheque-input', 'e.g. 22 + 2 New Books')"
+                                        title="Add another entry"><i class="fas fa-plus"></i></button>
+                                </div>
+                                <div id="pendingChequesContainer">
+                                    <div class="d-flex mb-2 input-group-row">
+                                        <input type="text" class="form-control form-control-sm pending-cheque-input"
+                                            placeholder="e.g. 22 + 2 New Books">
+                                    </div>
+                                </div>
+                                <small class="text-muted">Enter in text format (letters and numbers allowed EG : WASI
+                                    123)</small>
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label mb-0">Unchecked Cheques</label>
+                                    <button type="button" class="btn btn-sm btn-outline-success py-0 px-2"
+                                        onclick="addInputRow('uncheckedChequesContainer', 'unchecked-cheque-input', 'e.g. 29')"
+                                        title="Add another entry"><i class="fas fa-plus"></i></button>
+                                </div>
+                                <div id="uncheckedChequesContainer">
+                                    <div class="d-flex mb-2 input-group-row">
+                                        <input type="text" class="form-control form-control-sm unchecked-cheque-input"
+                                            placeholder="e.g. 29">
+                                    </div>
+                                </div>
+                                <small class="text-muted">Enter in text format (letters and numbers allowed EG : WASI
+                                    123)</small>
+                            </div>
+                        </div>
+
+                        <div id="cashInputs" style="display: none;">
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label mb-0">Unchecked Cash Activity Days</label>
+                                    <button type="button" class="btn btn-sm btn-outline-success py-0 px-2"
+                                        onclick="addInputRow('cashActivityDaysContainer', 'cash-activity-days-input', 'e.g. 4')"
+                                        title="Add another entry"><i class="fas fa-plus"></i></button>
+                                </div>
+                                <div id="cashActivityDaysContainer">
+                                    <div class="d-flex mb-2 input-group-row">
+                                        <input type="text" class="form-control form-control-sm cash-activity-days-input"
+                                            placeholder="e.g. 4">
+                                    </div>
+                                </div>
+                                <small class="text-muted">Enter days</small>
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label mb-0">Date</label>
+                                    <button type="button" class="btn btn-sm btn-outline-success py-0 px-2"
+                                        onclick="addInputRow('cashActivityDateContainer', 'cash-activity-date-input', 'e.g. 07-JUL-26 TO 10-JUL-26')"
+                                        title="Add another entry"><i class="fas fa-plus"></i></button>
+                                </div>
+                                <div id="cashActivityDateContainer">
+                                    <div class="d-flex mb-2 input-group-row">
+                                        <input type="text" class="form-control form-control-sm cash-activity-date-input"
+                                            placeholder="e.g. 07-JUL-26 TO 10-JUL-26">
+                                    </div>
+                                </div>
+                                <small class="text-muted">Enter date range</small>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-3">
+                            <button class="btn btn-bas-save" id="saveBtn" onclick="saveRecord()">Save Entry</button>
+                            <button class="btn btn-bas-clear" onclick="clearForm()">Clear</button>
+                        </div>
+                        <input type="hidden" id="editingRecordId">
+                    </div>
+                </div>
+
+                <!-- Right Panel: Report Data -->
+                <div class="col-lg-8 ps-lg-2" id="reportPanelWrapper">
+                    <div class="report-panel shadow-sm">
+                        <!-- Filters Header -->
+                        <div class="filter-row">
+                            <div class="d-flex align-items-center gap-2">
+                                <label>Report Date:</label>
+                                <input type="date" id="reportFilterDate" class="form-control form-control-sm"
+                                    style="width: 140px;" onchange="loadRecords()">
+                            </div>
+
+                            <button class="btn btn-bas-search" onclick="loadRecords()"><i
+                                    class="fas fa-sync-alt me-1"></i>Refresh</button>
+                            <button class="btn btn-bas-report" onclick="printReport()"><i
+                                    class="fas fa-print me-1"></i>Print</button>
+                            <button class="btn btn-success btn-sm text-white" onclick="exportToExcel()"><i
+                                    class="fas fa-file-excel me-1"></i>Excel</button>
+                        </div>
+
+                        <!-- Report Card Layout for Printing -->
+                        <div class="report-title-header text-center">
+                            <div class="report-logo-placeholder" id="reportTitlePlaceholder">PENDING CHEQUES</div>
+                            <h4 id="displayReportDate" class="fw-bold text-secondary mb-1">DATE: --</h4>
+                        </div>
+
+                        <!-- Table -->
+                        <div class="table-container">
+                            <table class="table-bas" id="reportTable">
+                                <thead id="reportTableHead">
+                                    <tr>
+                                        <th style="width: 8%">SN</th>
+                                        <th style="width: 25%">SHOP</th>
+                                        <th style="width: 32%">PENDING CHEQUES</th>
+                                        <th style="width: 20%">UNCHECKED CHEQUES</th>
+                                        <th style="width: 15%" class="action-cell">ACTIONS</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="reportTableBody">
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4 text-muted">Select report date or load
+                                            to view cheques.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Action Bar -->
+    <div class="action-bar-mobile d-none">
+        <button type="button" class="action-btn-mobile btn-toggle-mobile" id="mobileToggleBtn"
+            onclick="toggleMobileView()">
+            <i class="fas fa-list"></i>
+            <span id="toggleText">View Report</span>
+        </button>
+        <button type="button" class="action-btn-mobile btn-save-mobile" onclick="saveRecord()">
+            <i class="fas fa-save"></i>
+            <span>Save Entry</span>
+        </button>
+        <button type="button" class="action-btn-mobile btn-report-mobile" onclick="printReport()">
+            <i class="fas fa-print"></i>
+            <span>Print</span>
+        </button>
+        <button type="button" class="action-btn-mobile btn-clear-mobile" onclick="clearForm()">
+            <i class="fas fa-redo"></i>
+            <span>Clear</span>
+        </button>
+    </div>
+
+    <!-- SheetJS for Export to Excel -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244516"></script>
+    <script src="/js/connection-monitor.js"></script>
+    <script src="/js/pending-chq-details.js?v=4"></script>
+    <!-- Print Container (Only visible when printing) -->
+    <div id="printOnlyContainer" class="print-only-container"></div>
+</body>
+
+</html>

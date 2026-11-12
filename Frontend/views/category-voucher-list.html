@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category Voucher List - Bilal Accounting System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <style>
+        :root {
+            --cat-green: #059669;
+            --cat-green-dark: #065f46;
+            --cat-accent: #10b981;
+            --cat-header-grad: linear-gradient(135deg, #065f46 0%, #059669 100%);
+        }
+
+        body {
+            background-color: #f0fdf4;
+            font-family: 'Inter', sans-serif;
+            color: #1e293b;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .main-content {
+            padding: 20px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .page-title {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #065f46;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .page-subtitle {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+
+        /* Distinct Filter Section (Emerald) */
+        .filter-section-category {
+            background-color: #ffffff;
+            padding: 22px;
+            border-radius: 0;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.08);
+            margin-bottom: 25px;
+            border: 2px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .filter-section-category .form-label {
+            color: #065f46;
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-bottom: 6px;
+        }
+
+        .filter-section-category .form-control,
+        .filter-section-category .form-select {
+            border: 1.5px solid #a7f3d0;
+            border-radius: 2px;
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            background-color: #ffffff;
+            color: #0f172a;
+        }
+
+        .filter-section-category .form-control:focus,
+        .filter-section-category .form-select:focus {
+            border-color: #059669;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+        }
+
+        /* Distinct Table Card (Emerald) */
+        .data-table-category {
+            background-color: #ffffff;
+            border-radius: 0;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.08);
+            border: 2px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .table {
+            margin-bottom: 0;
+            color: #1e293b;
+        }
+
+        .table thead th {
+            background: var(--cat-header-grad) !important;
+            color: #ffffff !important;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 14px 15px;
+            border-bottom: 2px solid #065f46 !important;
+            border-color: rgba(255, 255, 255, 0.15);
+            vertical-align: middle;
+        }
+
+        .table thead th * {
+            color: #ffffff !important;
+        }
+
+        .table tbody td {
+            padding: 13px 15px;
+            font-size: 0.92rem;
+            vertical-align: middle;
+            color: #1e293b;
+            border-color: #e2e8f0;
+        }
+
+        .table tbody tr:hover td {
+            background-color: #ecfdf5 !important;
+            color: #064e3b !important;
+        }
+
+        .table-striped tbody tr:nth-of-type(odd) td {
+            background-color: #f8fafc;
+        }
+
+        /* High-contrast Category Badge (Sharp, Not Round) */
+        .badge-category {
+            background: linear-gradient(135deg, #065f46 0%, #059669 100%) !important;
+            color: #ffffff !important;
+            padding: 4px 8px;
+            border-radius: 2px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            box-shadow: 0 2px 4px rgba(5, 150, 105, 0.25);
+        }
+
+        .action-btns .btn {
+            border-radius: 6px;
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+        }
+
+        /* Created By User Badge (Flat, Professional ERP Style) */
+        .badge-created-by {
+            background-color: #ecfdf5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+            padding: 4px 8px;
+            border-radius: 2px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        /* 1-Column System & IP Cell */
+        .system-meta-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            line-height: 1.2;
+        }
+
+        .system-meta-cell .comp-name {
+            font-weight: 700;
+            font-size: 0.82rem;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        .system-meta-cell .comp-name i {
+            color: #059669;
+        }
+
+        .system-meta-cell .comp-ip {
+            font-size: 0.75rem;
+            color: #64748b;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        .system-meta-cell .comp-ip i {
+            color: #2563eb;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           DARK THEME SPECIFIC OVERRIDES (High Contrast, Crystal Clear)
+           ═══════════════════════════════════════════════════════════════ */
+        body.dark-theme,
+        body.theme-dark,
+        body.bas-theme-dark,
+        body.bas-dash-theme-dark,
+        html[data-theme="dark"] body,
+        html[data-bs-theme="dark"] body,
+        body[data-theme="dark"],
+        body[data-bs-theme="dark"] {
+            background-color: #081a14 !important;
+            color: #f8fafc !important;
+        }
+
+        /* Title in Dark Mode */
+        body.dark-theme .page-title,
+        body.theme-dark .page-title,
+        body.bas-theme-dark .page-title,
+        html[data-theme="dark"] .page-title,
+        html[data-bs-theme="dark"] .page-title,
+        body[data-theme="dark"] .page-title,
+        body[data-bs-theme="dark"] .page-title {
+            color: #ffffff !important;
+        }
+
+        body.dark-theme .page-subtitle,
+        body.theme-dark .page-subtitle,
+        html[data-theme="dark"] .page-subtitle,
+        html[data-bs-theme="dark"] .page-subtitle {
+            color: #a7f3d0 !important;
+        }
+
+        /* Filter Section in Dark Mode */
+        body.dark-theme .filter-section-category,
+        body.theme-dark .filter-section-category,
+        body.bas-theme-dark .filter-section-category,
+        html[data-theme="dark"] .filter-section-category,
+        html[data-bs-theme="dark"] .filter-section-category,
+        body[data-theme="dark"] .filter-section-category,
+        body[data-bs-theme="dark"] .filter-section-category {
+            background-color: #0f2d22 !important;
+            border-color: #10b981 !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
+        }
+
+        body.dark-theme .filter-section-category .form-label,
+        body.theme-dark .filter-section-category .form-label,
+        body.bas-theme-dark .filter-section-category .form-label,
+        html[data-theme="dark"] .filter-section-category .form-label,
+        html[data-bs-theme="dark"] .filter-section-category .form-label {
+            color: #6ee7b7 !important; /* Bright soft emerald for crystal clarity */
+        }
+
+        body.dark-theme .filter-section-category .form-control,
+        body.dark-theme .filter-section-category .form-select,
+        body.theme-dark .filter-section-category .form-control,
+        body.theme-dark .filter-section-category .form-select,
+        body.bas-theme-dark .filter-section-category .form-control,
+        body.bas-theme-dark .filter-section-category .form-select,
+        html[data-theme="dark"] .filter-section-category .form-control,
+        html[data-theme="dark"] .filter-section-category .form-select,
+        html[data-bs-theme="dark"] .filter-section-category .form-control,
+        html[data-bs-theme="dark"] .filter-section-category .form-select {
+            background-color: #071912 !important;
+            color: #ffffff !important;
+            border-color: #1b4938 !important;
+        }
+
+        body.dark-theme .filter-section-category .form-control:focus,
+        body.dark-theme .filter-section-category .form-select:focus,
+        body.theme-dark .filter-section-category .form-control:focus,
+        body.theme-dark .filter-section-category .form-select:focus,
+        html[data-theme="dark"] .filter-section-category .form-control:focus,
+        html[data-theme="dark"] .filter-section-category .form-select:focus {
+            border-color: #10b981 !important;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3) !important;
+        }
+
+        body.dark-theme .filter-section-category .form-control::placeholder,
+        body.theme-dark .filter-section-category .form-control::placeholder,
+        html[data-theme="dark"] .filter-section-category .form-control::placeholder {
+            color: #64748b !important;
+        }
+
+        /* Data Table Container in Dark Mode */
+        body.dark-theme .data-table-category,
+        body.theme-dark .data-table-category,
+        body.bas-theme-dark .data-table-category,
+        html[data-theme="dark"] .data-table-category,
+        html[data-bs-theme="dark"] .data-table-category,
+        body[data-theme="dark"] .data-table-category,
+        body[data-bs-theme="dark"] .data-table-category {
+            background-color: #0f2d22 !important;
+            border-color: #10b981 !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
+        }
+
+        body.dark-theme .table,
+        body.theme-dark .table,
+        body.bas-theme-dark .table,
+        html[data-theme="dark"] .table,
+        html[data-bs-theme="dark"] .table {
+            background-color: #0f2d22 !important;
+            color: #f1f5f9 !important;
+        }
+
+        /* Table Cells in Dark Mode */
+        body.dark-theme .table tbody td,
+        body.theme-dark .table tbody td,
+        body.bas-theme-dark .table tbody td,
+        html[data-theme="dark"] .table tbody td,
+        html[data-bs-theme="dark"] .table tbody td,
+        body[data-theme="dark"] .table tbody td,
+        body[data-bs-theme="dark"] .table tbody td {
+            background-color: #0f2d22 !important;
+            color: #f1f5f9 !important;
+            border-color: #1b4938 !important;
+        }
+
+        body.dark-theme .table-striped tbody tr:nth-of-type(odd) td,
+        body.theme-dark .table-striped tbody tr:nth-of-type(odd) td,
+        html[data-theme="dark"] .table-striped tbody tr:nth-of-type(odd) td {
+            background-color: #14382b !important;
+            color: #f1f5f9 !important;
+        }
+
+        body.dark-theme .table-hover tbody tr:hover td,
+        body.theme-dark .table-hover tbody tr:hover td,
+        html[data-theme="dark"] .table-hover tbody tr:hover td {
+            background-color: #1a4a39 !important;
+            color: #ffffff !important;
+        }
+
+        /* Bold Values (Voucher # and Amounts) */
+        body.dark-theme .table tbody td.fw-bold,
+        body.theme-dark .table tbody td.fw-bold,
+        html[data-theme="dark"] .table tbody td.fw-bold {
+            color: #ffffff !important;
+        }
+
+        body.dark-theme .table tbody td.text-truncate,
+        body.theme-dark .table tbody td.text-truncate,
+        html[data-theme="dark"] .table tbody td.text-truncate {
+            color: #cbd5e1 !important;
+        }
+
+        /* Created By & System Meta in Dark Mode */
+        body.dark-theme .badge-created-by,
+        body.theme-dark .badge-created-by,
+        body.bas-theme-dark .badge-created-by,
+        html[data-theme="dark"] .badge-created-by,
+        html[data-bs-theme="dark"] .badge-created-by {
+            background-color: #064e3b !important;
+            color: #a7f3d0 !important;
+            border-color: #059669 !important;
+        }
+
+        body.dark-theme .system-meta-cell .comp-name,
+        body.theme-dark .system-meta-cell .comp-name,
+        body.bas-theme-dark .system-meta-cell .comp-name,
+        html[data-theme="dark"] .system-meta-cell .comp-name,
+        html[data-bs-theme="dark"] .system-meta-cell .comp-name {
+            color: #ffffff !important;
+        }
+
+        body.dark-theme .system-meta-cell .comp-name i,
+        body.theme-dark .system-meta-cell .comp-name i,
+        html[data-theme="dark"] .system-meta-cell .comp-name i {
+            color: #34d399 !important;
+        }
+
+        body.dark-theme .system-meta-cell .comp-ip,
+        body.theme-dark .system-meta-cell .comp-ip,
+        body.bas-theme-dark .system-meta-cell .comp-ip,
+        html[data-theme="dark"] .system-meta-cell .comp-ip,
+        html[data-bs-theme="dark"] .system-meta-cell .comp-ip {
+            color: #94a3b8 !important;
+        }
+
+        body.dark-theme .system-meta-cell .comp-ip i,
+        body.theme-dark .system-meta-cell .comp-ip i,
+        html[data-theme="dark"] .system-meta-cell .comp-ip i {
+            color: #60a5fa !important;
+        }
+
+        /* Buttons in Dark Mode */
+        body.dark-theme .btn-outline-secondary,
+        body.theme-dark .btn-outline-secondary,
+        html[data-theme="dark"] .btn-outline-secondary {
+            color: #a7f3d0 !important;
+            border-color: #059669 !important;
+        }
+
+        body.dark-theme .btn-outline-secondary:hover,
+        body.theme-dark .btn-outline-secondary:hover,
+        html[data-theme="dark"] .btn-outline-secondary:hover {
+            background-color: #065f46 !important;
+            color: #ffffff !important;
+        }
+
+        body.dark-theme .btn-secondary,
+        body.theme-dark .btn-secondary,
+        html[data-theme="dark"] .btn-secondary {
+            background-color: #1b4938 !important;
+            border-color: #059669 !important;
+            color: #f8fafc !important;
+        }
+
+        @media (max-width: 768px) {
+            .page-header {
+                padding: 0.5rem 1rem !important;
+                background-color: #065f46 !important;
+            }
+
+            .main-content {
+                padding: 10px !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Standardized Page Header -->
+    <div class="page-header px-3">
+        <div style="flex: 1; display: flex; align-items: center;">
+            <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+            <h4 class="mb-0 text-white"><i class="fas fa-tags me-2"></i> Category Voucher List</h4>
+        </div>
+        <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
+            <div class="dropdown">
+                <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown" style="cursor: pointer;">
+                    <div class="avatar-circle me-2 bg-success text-white d-flex align-items-center justify-content-center"
+                        style="width: 35px; height: 35px; border-radius: 50%; font-weight: bold;">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <span id="userName" class="me-2">User</span>
+                    <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                    <li><a class="dropdown-item" href="/profile"><i class="fas fa-user-circle me-2"></i> Profile</a></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+                    <li><a class="dropdown-item logout-btn" href="#"><i
+                                class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="row align-items-center mb-4">
+            <div class="col-md-3"></div>
+            <div class="col-md-6 text-center">
+                <h1 class="page-title"><i class="fas fa-tags text-success me-2"></i> Category Voucher List</h1>
+                <p class="page-subtitle mb-0">View, search, edit and print all category payment vouchers</p>
+            </div>
+            <div class="col-md-3 text-end d-flex justify-content-end gap-2">
+                <a href="/category-voucher" class="btn btn-outline-secondary"><i
+                        class="fas fa-arrow-left me-2"></i> Back to Entry</a>
+                <a href="/category-voucher" class="btn btn-success" style="background: linear-gradient(135deg, #065f46 0%, #059669 100%); border: none;"><i class="fas fa-plus me-2"></i> Create Category Voucher</a>
+            </div>
+        </div>
+
+        <div class="filter-section-category shadow-sm">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-2">
+                    <label class="form-label">Search</label>
+                    <input type="text" id="listSearch" class="form-control" placeholder="Voucher # or Category">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">From Date</label>
+                    <input type="date" id="listFromDate" class="form-control">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">To Date</label>
+                    <input type="date" id="listToDate" class="form-control">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Branch Filter</label>
+                    <select id="listBranchFilter" class="form-select">
+                        <option value="">All Branches</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Category Filter</label>
+                    <select id="listCategoryFilter" class="form-select">
+                        <option value="">All Categories</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-success w-100 fw-bold" style="background: linear-gradient(135deg, #065f46 0%, #059669 100%); border: none; height: 38px;" onclick="applyFilters()"><i class="fas fa-search me-2"></i> Search</button>
+                </div>
+            </div>
+
+            <div class="mt-4 d-flex gap-2">
+                <button class="btn btn-info text-white fw-bold" onclick="printFullList()"><i class="fas fa-print me-2"></i>
+                    Print Full List</button>
+                <button class="btn btn-secondary fw-bold" onclick="printSelected()"><i class="fas fa-check-double me-2"></i>
+                    Print Selected</button>
+            </div>
+        </div>
+
+        <div class="data-table-category shadow-sm">
+            <table class="table table-hover table-striped">
+                <thead>
+                    <tr>
+                        <th width="40"><input type="checkbox" id="selectAllVouchers" onclick="toggleSelectAll()"></th>
+                        <th>Voucher #</th>
+                        <th>Date</th>
+                        <th>Customer Category</th>
+                        <th>Branch</th>
+                        <th>Amount</th>
+                        <th>Payment Method</th>
+                        <th>Created By</th>
+                        <th>System / IP</th>
+                        <th>Remarks</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="voucherListBody">
+                    <!-- Data loaded via JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244515"></script>
+    <script src="/js/desktop-ui.js"></script>
+    <script src="/js/payment-vouchers.js?v=203"></script>
+</body>
+
+</html>

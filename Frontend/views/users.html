@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List of Users - Bilal Accounting System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <style>
+        :root {
+            --bas-blue: #2c5ba9;
+            --bas-green: #00a65a;
+            --bas-light-blue: #f4f7fa;
+            --bas-border: #d2d6de;
+        }
+
+        body {
+            background-color: #f4f7fa;
+            font-size: 0.85rem;
+        }
+
+        .main-content {
+            margin-left: 0 !important;
+            padding-top: 0 !important;
+        }
+
+        .bas-header {
+            background-color: var(--bas-blue);
+            color: white;
+            padding: 8px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        .bas-container {
+            padding: 15px;
+        }
+
+        .section-box {
+            background: white;
+            border: 1px solid var(--bas-border);
+            border-radius: 3px;
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 2px;
+            font-size: 0.8rem;
+        }
+
+        .form-control-sm,
+        .form-select-sm {
+            border-radius: 2px;
+            border-color: var(--bas-border);
+        }
+
+        .btn-bas-save {
+            background-color: var(--bas-green);
+            color: white;
+            border: none;
+            padding: 4px 20px;
+            min-width: 80px;
+        }
+
+        .btn-bas-cancel {
+            background-color: #dd4b39;
+            color: white;
+            border: none;
+            padding: 4px 20px;
+            min-width: 80px;
+        }
+
+        .rights-header {
+            background-color: var(--bas-green);
+            color: white;
+            padding: 4px 10px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .rights-container {
+            height: calc(100vh - 120px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            border: 1px solid var(--bas-border);
+            padding: 0;
+            background: white;
+        }
+
+        .rights-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .rights-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .rights-container::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 3px;
+        }
+
+        .rights-section-inner {
+            padding: 10px;
+        }
+
+        .user-table-container {
+            height: calc(100vh - 360px);
+            overflow-y: auto;
+            border: 1px solid var(--bas-border);
+            background: white;
+        }
+
+        .table-bas {
+            font-size: 0.8rem;
+            width: 100%;
+        }
+
+        .table-bas thead th {
+            background-color: var(--bas-blue);
+            color: white;
+            position: sticky;
+            top: 0;
+            font-weight: normal;
+            padding: 6px 10px;
+        }
+
+        .table-bas tbody td {
+            padding: 4px 10px;
+            border-bottom: 1px solid #f1f1f1;
+        }
+
+        .checkbox-label {
+            font-size: 0.75rem;
+            margin-left: 5px;
+            display: inline-block;
+            vertical-align: top;
+            font-weight: 600;
+            line-height: 1.2;
+            word-break: break-word;
+            flex: 1;
+        }
+
+        .rights-subcategory {
+            grid-column: 1 / -1;
+            background-color: #3c8dbc;
+            color: white;
+            padding: 2px 10px;
+            font-weight: bold;
+            font-size: 0.75rem;
+            margin: 10px 0 5px 0;
+            border-radius: 2px;
+        }
+
+        .rights-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px 5px;
+            width: 100%;
+        }
+
+        .check-group {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 0;
+            min-width: 0;
+            /* Allow items to shrink */
+        }
+
+        .search-area {
+            margin-bottom: 10px;
+        }
+
+        .search-input {
+            width: 250px;
+            padding: 3px 10px;
+            font-size: 0.8rem;
+            border: 1px solid var(--bas-border);
+        }
+
+        /* Multi-select Dropdown Styles */
+        .multi-select-dropdown {
+            position: relative;
+            width: 100%;
+        }
+
+        .multi-select-btn {
+            width: 100%;
+            padding: 4px 10px;
+            font-size: 0.8rem;
+            border: 1px solid var(--bas-border);
+            background: white;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 0.25rem;
+        }
+
+        .multi-select-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background: white;
+            border: 1px solid var(--bas-border);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-height: 200px;
+            overflow-y: auto;
+            border-radius: 0 0 0.25rem 0.25rem;
+        }
+
+        .multi-select-content.show {
+            display: block;
+        }
+
+        .multi-select-item {
+            padding: 5px 10px;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .multi-select-item:hover {
+            background: #f8f9fa;
+        }
+
+        .multi-select-item input {
+            margin-right: 10px;
+        }
+
+        :root {
+            --bas-blue: #2c5ba9;
+            --bas-green: #00a65a;
+            --bas-light-blue: #f4f7fa;
+            --bas-border: #d2d6de;
+        }
+
+        body {
+            background-color: #f4f7fa;
+            font-size: 0.85rem;
+        }
+
+        .main-content {
+            margin-left: 0 !important;
+            padding-top: 0 !important;
+        }
+
+        .bas-header {
+            background-color: var(--bas-blue);
+            color: white;
+            padding: 8px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        .bas-container {
+            padding: 15px;
+        }
+
+        .section-box {
+            background: white;
+            border: 1px solid var(--bas-border);
+            border-radius: 3px;
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 2px;
+            font-size: 0.8rem;
+        }
+
+        .form-control-sm,
+        .form-select-sm {
+            border-radius: 2px;
+            border-color: var(--bas-border);
+        }
+
+        .btn-bas-save {
+            background-color: var(--bas-green);
+            color: white;
+            border: none;
+            padding: 4px 20px;
+            min-width: 80px;
+        }
+
+        .btn-bas-cancel {
+            background-color: #dd4b39;
+            color: white;
+            border: none;
+            padding: 4px 20px;
+            min-width: 80px;
+        }
+
+        .rights-header {
+            background-color: var(--bas-green);
+            color: white;
+            padding: 4px 10px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .rights-container {
+            height: calc(100vh - 120px);
+            overflow-y: auto;
+            overflow-x: hidden;
+            border: 1px solid var(--bas-border);
+            padding: 0;
+            background: white;
+        }
+
+        .rights-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .rights-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .rights-container::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 3px;
+        }
+
+        .rights-section-inner {
+            padding: 10px;
+        }
+
+        .user-table-container {
+            height: calc(100vh - 360px);
+            overflow-y: auto;
+            border: 1px solid var(--bas-border);
+            background: white;
+        }
+
+        .table-bas {
+            font-size: 0.8rem;
+            width: 100%;
+        }
+
+        .table-bas thead th {
+            background-color: var(--bas-blue);
+            color: white;
+            position: sticky;
+            top: 0;
+            font-weight: normal;
+            padding: 6px 10px;
+        }
+
+        .table-bas tbody td {
+            padding: 4px 10px;
+            border-bottom: 1px solid #f1f1f1;
+        }
+
+        .checkbox-label {
+            font-size: 0.75rem;
+            margin-left: 5px;
+            display: inline-block;
+            vertical-align: top;
+            font-weight: 600;
+            line-height: 1.2;
+            word-break: break-word;
+            flex: 1;
+        }
+
+        .rights-subcategory {
+            grid-column: 1 / -1;
+            background-color: #3c8dbc;
+            color: white;
+            padding: 2px 10px;
+            font-weight: bold;
+            font-size: 0.75rem;
+            margin: 10px 0 5px 0;
+            border-radius: 2px;
+        }
+
+        .rights-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px 5px;
+            width: 100%;
+        }
+
+        .check-group {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 0;
+            min-width: 0;
+            /* Allow items to shrink */
+        }
+
+        .search-area {
+            margin-bottom: 10px;
+        }
+
+        .search-input {
+            width: 250px;
+            padding: 3px 10px;
+            font-size: 0.8rem;
+            border: 1px solid var(--bas-border);
+        }
+
+        /* Multi-select Dropdown Styles */
+        .multi-select-dropdown {
+            position: relative;
+            width: 100%;
+        }
+
+        .multi-select-btn {
+            width: 100%;
+            padding: 4px 10px;
+            font-size: 0.8rem;
+            border: 1px solid var(--bas-border);
+            background: white;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 0.25rem;
+        }
+
+        .multi-select-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background: white;
+            border: 1px solid var(--bas-border);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-height: 200px;
+            overflow-y: auto;
+            border-radius: 0 0 0.25rem 0.25rem;
+        }
+
+        .multi-select-content.show {
+            display: block;
+        }
+
+        .multi-select-item {
+            padding: 5px 10px;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .multi-select-item:hover {
+            background: #f8f9fa;
+        }
+
+        .multi-select-item input {
+            margin-right: 10px;
+        }
+
+        /* Professional Mobile Enhancements */
+        @media (max-width: 768px) {
+            .page-header {
+                padding: 0.5rem 1rem !important;
+                background-color: var(--bas-blue) !important;
+            }
+
+            .bas-container {
+                padding: 10px !important;
+                padding-bottom: 80px !important;
+            }
+
+            .row.g-3 {
+                display: block !important;
+            }
+
+            .col-lg-8,
+            .col-lg-4 {
+                width: 100% !important;
+                padding: 0 !important;
+                margin-bottom: 15px !important;
+            }
+
+            .section-box,
+            .rights-container {
+                border-radius: 12px !important;
+                border: none !important;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
+                margin-bottom: 15px !important;
+            }
+
+            .form-label {
+                font-size: 0.75rem !important;
+                color: #64748b !important;
+                font-weight: 600 !important;
+            }
+
+            .form-control,
+            .form-select,
+            .multi-select-btn {
+                height: 38px !important;
+                font-size: 0.85rem !important;
+                border-radius: 8px !important;
+            }
+
+            .user-table-container {
+                height: calc(100vh - 540px) !important;
+                border-radius: 12px !important;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
+            }
+
+            .rights-container {
+                height: calc(100vh - 120px) !important;
+            }
+
+            /* Bottom Action Bar */
+            .action-bar-mobile {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: white;
+                display: flex !important;
+                justify-content: space-around;
+                padding: 8px 5px;
+                box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.1);
+                z-index: 1050;
+                border-top: 1px solid #e2e8f0;
+                height: 65px;
+            }
+
+            .action-btn-mobile {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                background: none;
+                border: none;
+                color: #64748b;
+                font-size: 0.65rem;
+                font-weight: 600;
+                flex: 1;
+                transition: all 0.2s;
+            }
+
+            .action-btn-mobile i {
+                font-size: 1.25rem;
+                margin-bottom: 3px;
+            }
+
+            .action-btn-mobile:active {
+                color: var(--bas-blue);
+            }
+
+            .btn-save-mobile i {
+                color: #10b981;
+            }
+
+            .btn-toggle-mobile i {
+                color: #3b82f6;
+            }
+
+            .btn-cancel-mobile i {
+                color: #f59e0b;
+            }
+
+            .col-md-2.d-flex.align-items-end.gap-1 {
+                display: none !important;
+                /* Hide desktop buttons */
+            }
+
+            #rightsColumn {
+                display: none !important;
+                /* Hide rights by default on mobile */
+            }
+
+            .rights-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main-content">
+        <!-- Standardized Page Header -->
+        <div class="page-header px-3">
+            <div style="flex: 1; display: flex; align-items: center;">
+                <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+                <h4 class="mb-0">List of Users</h4>
+            </div>
+            <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
+                <div class="dropdown">
+                    <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown"
+                        style="cursor: pointer;">
+                        <div class="avatar-circle me-2 bg-primary text-white d-flex align-items-center justify-content-center"
+                            style="width: 35px; height: 35px; border-radius: 50%; font-weight: bold;">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <span id="userName" class="me-2">User</span>
+                        <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                        <li><a class="dropdown-item logout-btn" href="#"><i
+                                    class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="bas-container">
+            <div class="row g-3">
+                <!-- Left: Form and Table -->
+                <div class="col-lg-8" id="formColumn">
+                    <!-- User Form -->
+                    <div class="section-box p-3">
+                        <form id="userForm">
+                            <input type="hidden" id="userId">
+                            <div class="row g-2 mb-2">
+                                <div class="col-md-4">
+                                    <label class="form-label">Group</label>
+                                    <select class="form-select form-select-sm" id="userGroup" required>
+                                        <option value="">Select Group</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Name</label>
+                                    <input type="text" class="form-control form-control-sm" id="userFullName" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Login Id</label>
+                                    <input type="text" class="form-control form-control-sm" id="userEmail" required>
+                                </div>
+                            </div>
+                            <div class="row g-2 mb-2">
+                                <div class="col-md-4">
+                                    <label class="form-label">Password</label>
+                                    <input type="password" class="form-control form-control-sm" id="userPassword">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Confirm Password</label>
+                                    <input type="password" class="form-control form-control-sm" id="confirmPassword">
+                                </div>
+                                <div class="col-md-2 d-flex flex-column justify-content-end pb-1">
+                                    <div class="form-check mb-1">
+                                        <input class="form-check-input" type="checkbox" id="userActive" checked>
+                                        <label class="form-check-label" for="userActive">Active</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="userAiEnabled">
+                                        <label class="form-check-label" for="userAiEnabled">AI Access</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 d-flex align-items-end gap-1">
+                                    <button type="button" class="btn btn-bas-save" onclick="saveUser()">Save</button>
+                                    <button type="button" class="btn btn-bas-cancel"
+                                        onclick="resetForm()">Cancel</button>
+                                </div>
+                            </div>
+                            <div class="row g-2">
+                                <div class="col-md-4">
+                                    <label class="form-label">Branches</label>
+                                    <div class="multi-select-dropdown" id="branchDropdown">
+                                        <div class="multi-select-btn" onclick="toggleBranchDropdown(event)">
+                                            <span id="selectedBranchesText">Select Branches</span>
+                                            <i class="fas fa-chevron-down"></i>
+                                        </div>
+                                        <div class="multi-select-content" id="branchList">
+                                            <!-- Checkboxes will be rendered here -->
+                                            <div class="p-2 text-muted" style="font-size: 0.75rem;">Loading branches...
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Department</label>
+                                    <select class="form-select form-select-sm" id="userDepartment">
+                                        <option value="">Select Department</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Zakat</label>
+                                    <select class="form-select form-select-sm" id="userZakat">
+                                        <option value="">Select Option</option>
+                                        <option value="yes">Yes</option>
+                                        <option value="no">No</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Search and Table -->
+                    <div class="search-area">
+                        <input type="text" class="search-input" placeholder="Search..." id="userSearch"
+                            onkeyup="filterUsers()">
+                    </div>
+
+                    <div class="user-table-container">
+                        <table class="table-bas">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Login Id</th>
+                                    <th>Group</th>
+                                    <th>Allow Direct Sales</th>
+                                    <th>Active</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Right: Permissions -->
+                <div class="col-lg-4" id="rightsColumn">
+                    <div class="rights-container">
+                        <div class="rights-header">User Access Controls</div>
+                        <div class="rights-section-inner">
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <label class="form-label">Allow Sale Delete</label>
+                                    <select class="form-select form-select-sm" id="userSaleDeleteLimit">
+                                        <option value="">Select Limit</option>
+                                        <option value="all">Allow Delete All</option>
+                                        <option value="own">Delete Own Only</option>
+                                        <option value="none">No Delete</option>
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">User Type</label>
+                                    <select class="form-select form-select-sm" id="userType">
+                                        <option value="">Select Type</option>
+                                        <option value="office">Office</option>
+                                        <option value="counter">Counter</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <label class="form-label">WH Customer Categories</label>
+                                    <div class="multi-select-dropdown" id="whCustomerCatDropdown">
+                                        <div class="multi-select-btn"
+                                            onclick="toggleGenericDropdown('whCustomerCatList')">
+                                            <span id="selectedWHCustomerCatsText">All Allowed</span>
+                                            <i class="fas fa-chevron-down"></i>
+                                        </div>
+                                        <div class="multi-select-content" id="whCustomerCatList">
+                                            <div class="p-2 text-muted" style="font-size: 0.75rem;">Loading
+                                                categories...</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">WH Item Categories</label>
+                                    <div class="multi-select-dropdown" id="whItemCatDropdown">
+                                        <div class="multi-select-btn" onclick="toggleGenericDropdown('whItemCatList')">
+                                            <span id="selectedWHItemCatsText">All Allowed</span>
+                                            <i class="fas fa-chevron-down"></i>
+                                        </div>
+                                        <div class="multi-select-content" id="whItemCatList">
+                                            <div class="p-2 text-muted" style="font-size: 0.75rem;">Loading
+                                                categories...</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="rights-grid" id="rightsGridControls">
+                                <!-- Reports Access Delegation to Group Rights -->
+                                <!-- Removed: REPORTS ACCESS section to enforce Group-only control -->
+
+
+                                <!-- Employee & Payroll -->
+                                <div class="rights-subcategory">EMPLOYEE & PAYROLL</div>
+                                <div class="check-group"><input type="checkbox" id="right_02"><label
+                                        class="checkbox-label">02: Allow Access Employee Para</label></div>
+                                <div class="check-group"><input type="checkbox" id="right_01"><label
+                                        class="checkbox-label">01: Allow Adv More Than Salary</label></div>
+                                <div class="check-group"><input type="checkbox" id="right_04"><label
+                                        class="checkbox-label">04: Salary Edit Access</label></div>
+                                <div class="check-group"><input type="checkbox" id="right_23"><label
+                                        class="checkbox-label">23: Allow Employee List</label></div>
+                                <div class="check-group"><input type="checkbox" id="mod_11"><label
+                                        class="checkbox-label">11: Allow PayRoll Delete</label></div>
+                                <div class="check-group"><input type="checkbox" id="mod_12"><label
+                                        class="checkbox-label">12: Allow Employee Advance Modification</label></div>
+                                <div class="check-group"><input type="checkbox" id="mod_13"><label
+                                        class="checkbox-label">13: Allow Employee Penalty Modification</label></div>
+
+                                <!-- Sales & Customer -->
+                                <div class="rights-subcategory">SALES & CUSTOMER</div>
+                                <div class="check-group"><input type="checkbox" id="right_03"><label
+                                        class="checkbox-label">03: Allow Direct Sales</label></div>
+                                <div class="check-group"><input type="checkbox" id="right_11"><label
+                                        class="checkbox-label">11: Allow Credit Sale</label></div>
+                                <div class="check-group"><input type="checkbox" id="right_12"><label
+                                        class="checkbox-label">12: Salesman On SaleScreen</label></div>
+                                <div class="check-group"><input type="checkbox" id="right_20"><label
+                                        class="checkbox-label">20: Show Total Sale</label></div>
+                                <div class="check-group"><input type="checkbox" id="right_21"><label
+                                        class="checkbox-label">21: Show Cost Price on Sale Screen</label></div>
+                                <div class="check-group"><input type="checkbox" id="right_22"><label
+                                        class="checkbox-label">22: Show Order List</label></div>
+                                <div class="check-group"><input type="checkbox" id="right_24"><label
+                                        class="checkbox-label">24: Allow Customer Ledger</label></div>
+                                <div class="check-group"><input type="checkbox" id="mod_01"><label
+                                        class="checkbox-label">01: Allow Sale Retail Entry Modification</label></div>
+                                <div class="check-group"><input type="checkbox" id="mod_04"><label
+                                        class="checkbox-label">04: Allow Whole Sale Entry Modification</label></div>
+                                <div class="check-group"><input type="checkbox" id="mod_02"><label
+                                        class="checkbox-label">02: Allow Sale Return Modification</label></div>
+                                <div class="check-group"><input type="checkbox" id="mod_10"><label
+                                        class="checkbox-label">10: Allow PendingSale Modification</label></div>
+
+                                <!-- Purchase & Finance -->
+                                <div class="rights-subcategory">PURCHASE & FINANCE</div>
+                                <div class="check-group"><input type="checkbox" id="mod_03"><label
+                                        class="checkbox-label">03: Allow Purchase Entry Modification</label></div>
+                                <div class="check-group"><input type="checkbox" id="mod_05"><label
+                                        class="checkbox-label">05: Allow Purchase Return Modification</label></div>
+                                <div class="check-group"><input type="checkbox" id="mod_07"><label
+                                        class="checkbox-label">07: Allow Supplier Payment Modification</label></div>
+                                <div class="check-group"><input type="checkbox" id="mod_08"><label
+                                        class="checkbox-label">08: Allow Customer Payment Modification</label></div>
+                                <div class="check-group"><input type="checkbox" id="mod_09"><label
+                                        class="checkbox-label">09: Allow Expense Modification</label></div>
+                                <div class="check-group"><input type="checkbox" id="mod_14"><label
+                                        class="checkbox-label">14: Allow Voucher Modification</label></div>
+                                <div class="check-group"><input type="checkbox" id="right_14"><label
+                                        class="checkbox-label">14: Allow DailyCash Update Delete</label></div>
+                                <div class="check-group"><input type="checkbox" id="right_15"><label
+                                        class="checkbox-label">15: Allow DW Closing Bank Detail</label></div>
+                                <div class="check-group"><input type="checkbox" id="right_27"><label
+                                        class="checkbox-label">27: Allow Day Opening Closing</label></div>
+                                <div class="check-group"><input type="checkbox" id="right_25"><label
+                                        class="checkbox-label">25: Allow Supplier Ledger</label></div>
+
+                                <!-- Items & Pricing -->
+                                <div class="rights-subcategory">ITEMS & PRICING</div>
+                                <div class="check-group"><input type="checkbox" id="right_05"><label
+                                        class="checkbox-label">05: Allow Item Wise Discount</label></div>
+                                <div class="check-group"><input type="checkbox" id="right_06"><label
+                                        class="checkbox-label">06: Allow Inv Wise Discount</label></div>
+                                <div class="check-group"><input type="checkbox" id="right_07"><label
+                                        class="checkbox-label">07: Allow Item Wise Tax</label></div>
+                                <div class="check-group"><input type="checkbox" id="right_08"><label
+                                        class="checkbox-label">08: Allow Inv Wise Tax</label></div>
+                                <div class="check-group"><input type="checkbox" id="right_13"><label
+                                        class="checkbox-label">13: Allow Cost Price in Item List</label></div>
+                                <div class="check-group"><input type="checkbox" id="right_16"><label
+                                        class="checkbox-label">16: Allow Finish List Access</label></div>
+                                <div class="check-group"><input type="checkbox" id="right_26"><label
+                                        class="checkbox-label">26: Show Cost Price</label></div>
+                                <div class="check-group"><input type="checkbox" id="wh_item"><label
+                                        class="checkbox-label">29: Allow WH Item Access</label></div>
+
+                                <!-- System & Warehouse -->
+                                <div class="rights-subcategory">SYSTEM & WAREHOUSE</div>
+                                <div class="check-group"><input type="checkbox" id="right_09"><label
+                                        class="checkbox-label">09: Allow Misc</label></div>
+                                <div class="check-group"><input type="checkbox" id="right_10"><label
+                                        class="checkbox-label">10: Allow Freight</label></div>
+                                <div class="check-group"><input type="checkbox" id="right_17"><label
+                                        class="checkbox-label">17: Allow Previous Date Access</label></div>
+                                <div class="check-group"><input type="checkbox" id="right_18"><label
+                                        class="checkbox-label">18: User Wise Sale List</label></div>
+                                <div class="check-group"><input type="checkbox" id="right_19"><label
+                                        class="checkbox-label">19: Allow Negative Stock</label></div>
+                                <div class="check-group"><input type="checkbox" id="wh_customer"><label
+                                        class="checkbox-label">28: Allow WH Customer Access</label></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Action Bar -->
+    <div class="action-bar-mobile d-none">
+        <button type="button" class="action-btn-mobile btn-toggle-mobile" id="mobileToggleBtn"
+            onclick="toggleMobileUserView()">
+            <i class="fas fa-key"></i>
+            <span id="toggleText">View Rights</span>
+        </button>
+        <button type="button" class="action-btn-mobile btn-save-mobile" onclick="saveUser()">
+            <i class="fas fa-save"></i>
+            <span>Save</span>
+        </button>
+        <button type="button" class="action-btn-mobile btn-cancel-mobile" onclick="resetForm()">
+            <i class="fas fa-times"></i>
+            <span>Cancel</span>
+        </button>
+    </div>
+
+    <script>
+        function toggleMobileUserView() {
+            const formColumn = document.getElementById('formColumn');
+            const rightsColumn = document.getElementById('rightsColumn');
+            const toggleText = document.getElementById('toggleText');
+            const toggleIcon = document.querySelector('#mobileToggleBtn i');
+
+            if (formColumn.style.display !== 'none') {
+                formColumn.style.setProperty('display', 'none', 'important');
+                rightsColumn.style.setProperty('display', 'block', 'important');
+                toggleText.innerText = 'View Form';
+                toggleIcon.className = 'fas fa-user-edit';
+            } else {
+                formColumn.style.setProperty('display', 'block', 'important');
+                rightsColumn.style.setProperty('display', 'none', 'important');
+                toggleText.innerText = 'View Rights';
+                toggleIcon.className = 'fas fa-key';
+            }
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244545"></script>
+    <script src="/js/users.js"></script>
+</body>
+
+</html>
+

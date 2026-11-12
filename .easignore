@@ -1,0 +1,17 @@
+# Explicitly ignore other projects and backups from mobile EAS build
+/Backend/
+/Frontend/
+/biometric-app/
+/barcode-printing-app/
+/BAS-SOFTWARE/
+/BAS-SOFTWARE.worktrees/
+/EXPORT/
+/assets/
+/scripts/
+/ai-brain/
+*.zip
+*.rar
+node_modules/
+.git/
+mobile-app/android/
+mobile-app/ios/

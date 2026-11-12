@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WH Item Ledger - BAS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #1e4c8c 0%, #2c5ba9 100%);
+        }
+
+        .report-container {
+            padding: 15px;
+            height: calc(100vh - 60px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-panel {
+            background: var(--primary-gradient);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            color: white;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-panel label {
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 6px;
+            display: block;
+            opacity: 0.9;
+        }
+
+        .filter-panel .form-control,
+        .filter-panel .form-select {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: white !important;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .filter-panel .form-select option {
+            color: #333;
+        }
+
+        .data-panel {
+            flex: 1;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #edf2f7;
+        }
+
+        .table-container {
+            flex: 1;
+            overflow: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .data-table thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .data-table th {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 12px 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .data-table td {
+            padding: 10px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.85rem;
+        }
+
+        .print-header {
+            display: none;
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px double #333;
+            padding-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .report-container {
+                padding: 10px;
+                height: auto;
+            }
+
+            .filter-panel .btn {
+                width: 100%;
+            }
+        }
+
+        @media print {
+
+            .page-header,
+            .filter-panel,
+            #sidebar-container {
+                display: none !important;
+            }
+
+            .main-content {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .report-container {
+                padding: 0;
+                height: auto;
+                display: block;
+            }
+
+            .print-header {
+                display: block;
+            }
+
+            .data-panel {
+                border: none;
+                box-shadow: none;
+                overflow: visible;
+            }
+
+            .table-container {
+                overflow: visible;
+            }
+
+            .data-table th {
+                background: #f1f5f9 !important;
+                color: black !important;
+                border-top: 1px solid #333;
+                border-bottom: 2px solid #333;
+            }
+        }
+
+        #itemSuggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: white;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            display: none;
+        }
+
+        .suggestion-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f5f9;
+            transition: all 0.12s ease;
+            color: #0f172a;
+            text-shadow: none !important;
+        }
+
+        .suggestion-item:hover,
+        .suggestion-item.active {
+            background-color: #0052d4 !important;
+            color: #ffffff !important;
+            text-shadow: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="sidebar-container"></div>
+    <div class="main-content">
+        <div class="page-header px-3">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer;"></i>
+                <h6 class="mb-0 fw-bold"><i class="fas fa-list-alt me-2"></i>WH ITEM LEDGER</h6>
+            </div>
+        </div>
+
+        <div class="report-container">
+            <!-- Print Header -->
+            <div class="print-header">
+                <h2 class="fw-bold mb-1">BILAL ACCOUNTING SOFTWARE</h2>
+                <h4 class="text-uppercase mb-2">Warehouse Item Ledger</h4>
+                <div class="d-flex justify-content-between px-4 mt-3">
+                    <span id="printItemName">Item: ________________</span>
+                    <span>Date Range: <span id="printDateRange"></span></span>
+                </div>
+            </div>
+
+            <div class="filter-panel d-print-none">
+                <div class="row g-3 align-items-end">
+                    <div class="col-lg-4 col-md-6">
+                        <label>Search Item (Name or Barcode)</label>
+                        <div class="position-relative">
+                            <input type="text" id="itemSearch" class="form-control" placeholder="Type to search..."
+                                oninput="filterItems(this)" onkeydown="onItemSearchKeydown(event)" autocomplete="off">
+                            <input type="hidden" id="filterItem">
+                            <div id="itemSuggestions"></div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-3">
+                        <label>From Date</label>
+                        <input type="date" id="filterFrom" class="form-control">
+                    </div>
+                    <div class="col-lg-2 col-md-3">
+                        <label>To Date</label>
+                        <input type="date" id="filterTo" class="form-control">
+                    </div>
+                    <div class="col-lg-4 col-md-12 d-flex gap-2">
+                        <button class="btn btn-danger text-white fw-bold shadow-sm" data-permission="wh_stock_audit"
+                            style="min-width: 120px;" onclick="openStockAdjustment()">
+                            <i class="fas fa-sliders-h me-1"></i>SET STOCK
+                        </button>
+                        <button class="btn btn-light flex-fill fw-bold shadow-sm" onclick="generateReport()">
+                            <i class="fas fa-sync-alt me-1"></i>GENERATE
+                        </button>
+                        <button class="btn btn-warning text-white fw-bold shadow-sm" style="min-width: 120px;"
+                            onclick="window.print()">
+                            <i class="fas fa-print me-1"></i>PRINT
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="data-panel">
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 100px">Date</th>
+                                <th style="width: 120px">Ref #</th>
+                                <th>Description</th>
+                                <th style="width: 100px" class="text-end">In (+)</th>
+                                <th style="width: 100px" class="text-end">Out (-)</th>
+                                <th style="width: 120px" class="text-end">Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reportContent">
+                            <tr>
+                                <td colspan="6" class="text-center py-5 text-muted">Select item and click Generate</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="stockAdjustmentModal" tabindex="-1" aria-labelledby="stockAdjustmentTitle" aria-hidden="true">
+        <div class="modal-dialog">
+            <form class="modal-content" onsubmit="saveStockAdjustment(event)">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="stockAdjustmentTitle">Set Item Stock</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-2">Item: <strong id="adjustmentItemName"></strong></p>
+                    <p class="text-muted small">Current quantity: <strong id="adjustmentCurrentQty"></strong></p>
+                    <label for="adjustmentQuantity" class="form-label">New quantity</label>
+                    <input type="number" class="form-control mb-3" id="adjustmentQuantity" min="0" step="any" required>
+                    <label for="adjustmentReason" class="form-label">Reason (recorded in the ledger)</label>
+                    <textarea class="form-control" id="adjustmentReason" maxlength="250" rows="3" required></textarea>
+                    <div class="form-text">This adds a stock adjustment entry; existing ledger history is not deleted or changed.</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger" id="saveStockAdjustmentButton">Save adjustment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244557"></script>
+    <script>
+        const token = localStorage.getItem('token');
+        let itemsList = [];
+        let searchIndex = -1;
+        let selectedItem = null;
+        let stockAdjustmentModal;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            stockAdjustmentModal = new bootstrap.Modal(document.getElementById('stockAdjustmentModal'));
+            const today = new Date().toISOString().split('T')[0];
+            const lastDec31 = new Date(new Date().getFullYear() - 1, 11, 31).toISOString().split('T')[0];
+            document.getElementById('filterFrom').value = today;
+            document.getElementById('filterTo').value = today;
+            await loadItems();
+        });
+
+        // Close suggestions on outside click
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.position-relative')) {
+                document.getElementById('itemSuggestions').style.display = 'none';
+            }
+        });
+
+        async function loadItems() {
+            try {
+                const res = await fetch('/api/v1/wh-items', { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await res.json();
+                if (data.success) {
+                    itemsList = data.data;
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        function filterItems(input) {
+            if (selectedItem && input.value !== selectedItem.name) {
+                selectedItem = null;
+                document.getElementById('filterItem').value = '';
+            }
+
+            const term = input.value.toLowerCase();
+            const suggestions = document.getElementById('itemSuggestions');
+
+            if (!term) {
+                suggestions.style.display = 'none';
+                return;
+            }
+
+            const filtered = itemsList.filter(i =>
+                (i.name && i.name.toLowerCase().includes(term)) ||
+                (i.itemsCode && i.itemsCode.toLowerCase().includes(term)) ||
+                (i.barcode && i.barcode.toLowerCase().includes(term))
+            ).slice(0, 15);
+
+            if (filtered.length > 0) {
+                renderSuggestions(filtered);
+                suggestions.style.display = 'block';
+            } else {
+                suggestions.style.display = 'none';
+            }
+        }
+
+        function renderSuggestions(list) {
+            const suggestions = document.getElementById('itemSuggestions');
+            suggestions.innerHTML = '';
+            searchIndex = -1;
+
+            list.forEach((i, index) => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item small';
+                div.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-start gap-2">
+                        <span class="fw-bold text-start flex-grow-1">${i.name}</span>
+                        <span class="text-muted text-end flex-shrink-0" style="font-size: 0.76rem; white-space: nowrap;">${i.itemsCode || ''}</span>
+                    </div>
+                    <div class="text-muted" style="font-size: 0.76rem;">${i.barcode || ''}</div>
+                `;
+                div.onclick = () => selectItem(i);
+                suggestions.appendChild(div);
+            });
+        }
+
+        function onItemSearchKeydown(e) {
+            const suggestions = document.getElementById('itemSuggestions');
+            const items = suggestions.querySelectorAll('.suggestion-item');
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                searchIndex = Math.min(searchIndex + 1, items.length - 1);
+                updateSearchFocus(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                searchIndex = Math.max(searchIndex - 1, 0);
+                updateSearchFocus(items);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (searchIndex > -1) {
+                    items[searchIndex].click();
+                } else if (items.length > 0) {
+                    items[0].click();
+                }
+            } else if (e.key === 'Escape') {
+                suggestions.style.display = 'none';
+            }
+        }
+
+        function updateSearchFocus(items) {
+            items.forEach((item, index) => {
+                if (index === searchIndex) {
+                    item.classList.add('active');
+                    item.scrollIntoView({ block: 'nearest' });
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        function selectItem(i) {
+            selectedItem = i;
+            document.getElementById('itemSearch').value = i.name;
+            document.getElementById('filterItem').value = i._id;
+            document.getElementById('itemSuggestions').style.display = 'none';
+            document.getElementById('printItemName').textContent = 'Item: ' + i.name;
+        }
+
+        function openStockAdjustment() {
+            if (!selectedItem) return alert('Please select an item first');
+
+            const currentQty = selectedItem.stock && selectedItem.stock.length
+                ? Number(selectedItem.stock[0].quantity) || 0
+                : 0;
+            document.getElementById('adjustmentItemName').textContent = selectedItem.name;
+            document.getElementById('adjustmentCurrentQty').textContent = currentQty.toLocaleString();
+            document.getElementById('adjustmentQuantity').value = currentQty;
+            document.getElementById('adjustmentReason').value = '';
+            stockAdjustmentModal.show();
+        }
+
+        async function saveStockAdjustment(event) {
+            event.preventDefault();
+            if (!selectedItem) return alert('Please select an item first');
+
+            const quantityInput = document.getElementById('adjustmentQuantity');
+            const reasonInput = document.getElementById('adjustmentReason');
+            const saveButton = document.getElementById('saveStockAdjustmentButton');
+            const quantity = Number(quantityInput.value);
+            const expectedCurrentQty = selectedItem.stock && selectedItem.stock.length
+                ? Number(selectedItem.stock[0].quantity) || 0
+                : 0;
+
+            if (!Number.isFinite(quantity) || quantity < 0) {
+                return alert('Enter a valid non-negative quantity');
+            }
+
+            saveButton.disabled = true;
+            try {
+                const response = await fetch('/api/v1/wh-ledger/item-ledger/adjust', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `******`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        item: selectedItem._id,
+                        quantity,
+                        expectedCurrentQty,
+                        reason: reasonInput.value
+                    })
+                });
+                const result = await response.json();
+                if (!response.ok || !result.success) {
+                    if (response.status === 409) {
+                        await loadItems();
+                        selectedItem = itemsList.find(item => item._id === selectedItem._id) || selectedItem;
+                    }
+                    throw new Error(result.message || 'Could not adjust stock');
+                }
+
+                if (selectedItem.stock && selectedItem.stock.length) {
+                    selectedItem.stock[0].quantity = quantity;
+                } else {
+                    selectedItem.stock = [{ quantity, opening: 0 }];
+                }
+
+                stockAdjustmentModal.hide();
+                await generateReport();
+                alert(result.message);
+            } catch (error) {
+                alert(error.message);
+            } finally {
+                saveButton.disabled = false;
+            }
+        }
+
+        async function generateReport() {
+            const item = document.getElementById('filterItem').value;
+            const from = document.getElementById('filterFrom').value;
+            const to = document.getElementById('filterTo').value;
+
+            if (!item) return alert('Please select an item');
+
+            const content = document.getElementById('reportContent');
+            content.innerHTML = '<tr><td colspan="6" class="text-center py-5"><div class="spinner-border text-primary"></div></td></tr>';
+
+            try {
+                const res = await fetch(`/api/v1/wh-ledger/item-ledger?item=${item}&from=${from}&to=${to}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const result = await res.json();
+                if (!result.success) throw new Error(result.error);
+
+                let html = '';
+                let runningBalance = result.data.openingBalance;
+
+                // Opening Row
+                html += `
+                    <tr class="table-light">
+                        <td colspan="3" class="text-end fw-bold">Opening Stock</td>
+                        <td class="text-end">-</td>
+                        <td class="text-end">-</td>
+                        <td class="text-end fw-bold">${runningBalance.toLocaleString()}</td>
+                    </tr>
+                `;
+
+                result.data.entries.forEach(e => {
+                    const qtyIn = e.type === 'in' ? e.quantity : 0;
+                    const qtyOut = e.type === 'out' ? e.quantity : 0;
+                    runningBalance += qtyIn - qtyOut;
+
+                    html += `
+                        <tr>
+                            <td>${new Date(e.date).toLocaleDateString('en-GB')}</td>
+                            <td><small class="fw-bold text-muted">${e.refId ? e.refId.substring(e.refId.length - 6) : '-'}</small></td>
+                            <td>${e.description}</td>
+                            <td class="text-end text-success">${qtyIn > 0 ? qtyIn.toLocaleString() : ''}</td>
+                            <td class="text-end text-danger">${qtyOut > 0 ? qtyOut.toLocaleString() : ''}</td>
+                            <td class="text-end fw-bold">${runningBalance.toLocaleString()}</td>
+                        </tr>
+                    `;
+                });
+
+                content.innerHTML = html || '<tr><td colspan="6" class="text-center py-5">No transactions found</td></tr>';
+
+                // Set print info
+                const itemName = document.getElementById('itemSearch').value;
+                document.getElementById('printItemName').textContent = 'Item: ' + itemName;
+                document.getElementById('printDateRange').textContent = `${from} to ${to}`;
+
+            } catch (err) {
+                content.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-danger">${err.message}</td></tr>`;
+            }
+        }
+    </script>
+</body>
+
+</html>

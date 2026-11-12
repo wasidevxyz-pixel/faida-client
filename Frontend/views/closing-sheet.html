@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Closing Sheet</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            /* Allow wrapping on mobile */
+            gap: 10px;
+        }
+
+        .header-left {
+            flex: 1;
+        }
+
+        .header-center {
+            flex: 1;
+            text-align: center;
+        }
+
+        .header-right {
+            flex: 1;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+
+        /* Tab Navigation - Horizontal Layout */
+        .nav-tabs {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            align-items: stretch !important;
+            justify-content: flex-start !important;
+
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            white-space: nowrap !important;
+
+            border-bottom: 2px solid #dee2e6 !important;
+            background: #f8f9fa !important;
+
+            padding: 0 !important;
+            margin: 0 !important;
+            gap: 0 !important;
+        }
+
+        .nav-tabs::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .nav-tabs::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .nav-tabs::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 3px;
+        }
+
+        .nav-tabs::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .nav-tabs .nav-item {
+            display: flex !important;
+            flex: 0 0 auto !important;
+            width: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
+            background: transparent !important;
+        }
+
+        .nav-tabs .nav-link {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+
+            border-radius: 0 !important;
+            border: 1px solid #dee2e6 !important;
+            border-right: none !important;
+            border-bottom: none !important;
+
+            padding: 8px 16px !important;
+            margin: 0 !important;
+
+            color: #495057 !important;
+            background: #e9ecef !important;
+            font-weight: 500 !important;
+            font-size: 0.875rem !important;
+            white-space: nowrap !important;
+
+            transition: all 0.2s ease !important;
+            height: 100% !important;
+        }
+
+        /* Add right border to last tab only */
+        .nav-tabs .nav-item:last-child .nav-link {
+            border-right: 1px solid #dee2e6 !important;
+        }
+
+        .nav-tabs .nav-link:hover {
+            background: #d4d7db !important;
+            color: #212529 !important;
+        }
+
+        .nav-tabs .nav-link.active {
+            background-color: #0288d1 !important;
+            color: white !important;
+            border-color: #0288d1 !important;
+            font-weight: 600 !important;
+            box-shadow: none !important;
+            z-index: 2 !important;
+        }
+
+        .tab-content {
+            border: 1px solid #dee2e6;
+            border-top: none;
+            padding: 15px;
+            background: white;
+            min-height: 400px;
+        }
+
+        .blue-header {
+            background: #0288d1;
+            color: white;
+            padding: 5px 10px;
+            font-weight: bold;
+        }
+
+        .form-control-sm {
+            border-radius: 0;
+            font-size: 0.85rem;
+        }
+
+        .total-row {
+            background: #e9ecef;
+            font-weight: bold;
+        }
+
+        .green-total {
+            background: #28a745;
+            color: white;
+            font-weight: bold;
+        }
+
+        .red-total {
+            background: #dc3545;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Professional Mobile Enhancements */
+        @media (max-width: 768px) {
+            .page-header {
+                padding: 0.5rem 1rem !important;
+                background-color: #0288d1 !important;
+            }
+
+            .container-fluid {
+                padding: 10px !important;
+                padding-bottom: 80px !important;
+            }
+
+            #myTab.nav-tabs {
+                border-bottom: 2px solid #0288d1 !important;
+                padding: 5px !important;
+                background-color: #fff !important;
+                overflow-x: auto !important;
+                display: flex !important;
+                flex-wrap: nowrap !important;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            #myTab .nav-link {
+                padding: 6px 12px !important;
+                font-size: 0.8rem !important;
+                border-radius: 8px 8px 0 0 !important;
+                margin-right: 5px !important;
+            }
+
+            body {
+                padding-bottom: 85px !important;
+            }
+
+            .tab-content {
+                height: auto !important;
+                border: none !important;
+                padding: 15px 0 !important;
+            }
+
+            .card.mb-3.p-3 {
+                border-radius: 12px !important;
+                border: none !important;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
+                margin-bottom: 15px !important;
+            }
+
+            .form-label,
+            label.fw-bold {
+                font-size: 0.75rem !important;
+                color: #64748b !important;
+            }
+
+            .form-control,
+            .form-select {
+                height: 38px !important;
+                font-size: 0.85rem !important;
+                border-radius: 8px !important;
+            }
+
+            .table-responsive {
+                border-radius: 12px !important;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
+                background: white;
+                margin-bottom: 15px;
+            }
+
+            /* Bottom Action Bar */
+            .action-bar-mobile {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: white;
+                display: flex !important;
+                justify-content: space-around;
+                padding: 8px 5px;
+                box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.1);
+                z-index: 1050;
+                border-top: 1px solid #e2e8f0;
+                height: 65px;
+            }
+
+            .action-btn-mobile {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                background: none;
+                border: none;
+                color: #64748b;
+                font-size: 0.65rem;
+                font-weight: 600;
+                flex: 1;
+                transition: all 0.2s;
+            }
+
+            .action-btn-mobile i {
+                font-size: 1.25rem;
+                margin-bottom: 3px;
+            }
+
+            .action-btn-mobile.active {
+                color: #0288d1;
+            }
+
+            .btn-search-mobile i {
+                color: #3b82f6;
+            }
+
+            .btn-save-mobile i {
+                color: #10b981;
+            }
+
+            .btn-print-mobile i {
+                color: #8b5cf6;
+            }
+
+            #dept-opening > .d-flex.justify-content-between.mb-2 {
+                display: none !important;
+                /* Hide desktop action buttons only in dept opening */
+            }
+
+            /* Ensure SMS filter control bar, report options, and Send SMS button are fully visible on mobile */
+            #sms-sending .d-flex.flex-wrap.align-items-center.justify-content-between {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 12px !important;
+                padding: 10px !important;
+            }
+
+            #sms-sending #smsReportOptions {
+                display: flex !important;
+                flex-wrap: wrap !important;
+                gap: 8px 14px !important;
+                width: 100% !important;
+            }
+
+            #sms-sending #smsReportOptions .form-check {
+                display: inline-flex !important;
+                align-items: center !important;
+                margin-right: 8px !important;
+            }
+
+            #sms-sending button[onclick*="sendSMS"] {
+                width: 100% !important;
+                padding: 8px 16px !important;
+                font-weight: 600 !important;
+                font-size: 0.9rem !important;
+            }
+
+            #sms-sending .card .d-flex.justify-content-between {
+                display: flex !important;
+            }
+
+            .tab-pane .row {
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+                display: flex !important;
+                flex-wrap: wrap !important;
+            }
+
+            .tab-pane [class*="col-"] {
+                padding-left: 4px !important;
+                padding-right: 4px !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                flex: 0 0 100% !important;
+                margin-bottom: 8px !important;
+            }
+
+            .tab-pane .row.mb-2,
+            .tab-pane .row.mb-3 {
+                margin-bottom: 8px !important;
+                display: flex !important;
+                flex-wrap: wrap !important;
+            }
+
+            .tab-pane label {
+                display: block !important;
+                margin-bottom: 3px !important;
+                text-align: left !important;
+                font-size: 0.8rem !important;
+                font-weight: 700 !important;
+                color: #334155 !important;
+            }
+
+            .tab-pane .text-end:not(input) {
+                text-align: left !important;
+            }
+
+            .tab-pane input.text-end {
+                text-align: right !important;
+            }
+
+            .tab-pane .green-total,
+            .tab-pane .red-total {
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+
+            .tab-pane .table-responsive {
+                width: 100% !important;
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            @page {
+                size: portrait;
+                margin: 1cm;
+            }
+
+            .page-header,
+            .nav-tabs,
+            .btn,
+            button,
+            .sidebar,
+            #sidebarToggle,
+            .card.mb-3.p-3,
+            .action-btns,
+            .search-box,
+            input[type="text"]::placeholder {
+                display: none !important;
+            }
+
+            .container-fluid {
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            .tab-content {
+                border: none !important;
+                padding: 0 !important;
+            }
+
+            .tab-pane {
+                display: none !important;
+                padding: 0 !important;
+            }
+
+            .tab-pane.active {
+                display: block !important;
+                opacity: 1 !important;
+            }
+
+            body {
+                background: white !important;
+                font-size: 11pt;
+            }
+
+            .table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+                margin-bottom: 20px !important;
+            }
+
+            .table th,
+            .table td {
+                border: 1px solid #333 !important;
+                color: black !important;
+                padding: 4px 8px !important;
+            }
+
+            .blue-header,
+            .table-info {
+                background: #f2f2f2 !important;
+                color: black !important;
+                font-weight: bold !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .green-total,
+            .table-success {
+                background: #e9ecef !important;
+                color: black !important;
+                border: 1px solid #333 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .red-total {
+                background: #f8d7da !important;
+                color: black !important;
+                border: 1px solid #333 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .sticky-top {
+                position: static !important;
+            }
+
+            input {
+                border: none !important;
+                background: transparent !important;
+                text-align: right !important;
+                padding: 0 !important;
+            }
+
+            .print-header {
+                display: block !important;
+                text-align: center;
+                margin-bottom: 20px;
+                border-bottom: 2px solid #333;
+                padding-bottom: 10px;
+            }
+        }
+
+        .print-header {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-header px-3">
+        <div style="flex: 1; display: flex; align-items: center;">
+            <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+            <i class="fas fa-file-invoice-dollar me-2"></i> Closing Sheet
+        </div>
+        <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
+            <div class="dropdown">
+                <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown" style="cursor: pointer;">
+                    <i class="fas fa-user-circle me-2" style="font-size: 1.2rem;"></i>
+                    <span id="userName" class="me-2">User</span>
+                    <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                    <li><a class="dropdown-item logout-btn" href="#"><i
+                                class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="print-header">
+        <h2 id="print-company-name">BAS SOFTWARE</h2>
+        <h4 id="print-report-title">Closing Sheet</h4>
+        <p><strong>Branch:</strong> <span id="print-branch-name"></span> | <strong>Date:</strong> <span
+                id="print-date"></span></p>
+    </div>
+
+    <div class="container-fluid p-3">
+        <!-- Top Controls -->
+        <div class="card mb-3 p-3">
+            <div class="row align-items-center g-3">
+                <div class="col-md-3">
+                    <label class="fw-bold me-2">Branch</label>
+                    <select id="branch" class="form-select form-select-sm d-inline-block w-auto">
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="fw-bold me-2">Date</label>
+                    <input type="date" id="date" class="form-control form-control-sm d-inline-block w-auto">
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-success btn-sm" onclick="loadSheet()">Search</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="dept-opening-tab" data-bs-toggle="tab"
+                    data-bs-target="#dept-opening" type="button" role="tab">Department Opening</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="closing01-tab" data-bs-toggle="tab" data-bs-target="#closing01"
+                    type="button" role="tab">Closing 01</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="closing02-tab" data-bs-toggle="tab" data-bs-target="#closing02"
+                    type="button" role="tab">Closing 02</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="income-statement-tab" data-bs-toggle="tab"
+                    data-bs-target="#income-statement" type="button" role="tab">Income Statement</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="reporting-tab" data-bs-toggle="tab" data-bs-target="#reporting"
+                    type="button" role="tab">Reporting</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="sms-sending-tab" data-bs-toggle="tab" data-bs-target="#sms-sending"
+                    type="button" role="tab">SMS Sending</button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="myTabContent">
+            <!-- Tab 1: Department Opening -->
+            <div class="tab-pane fade show active" id="dept-opening" role="tabpanel">
+                <div class="d-flex justify-content-between mb-2">
+                    <input type="text" placeholder="Search..." class="form-control form-control-sm"
+                        style="width: 300px;">
+                    <div>
+                        <button class="btn btn-success btn-sm" id="saveBtn" onclick="saveSheet()"
+                            data-action="save">Save (Alt+S)</button>
+                        <button class="btn btn-primary btn-sm" onclick="printSheet('opening')">Print</button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped table-bordered mb-0">
+                        <thead class="blue-header text-white">
+                            <tr>
+                                <th style="width: 15%">ID</th>
+                                <th style="width: 60%">Department</th>
+                                <th style="width: 25%" class="text-end">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody id="deptOpeningRows">
+                            <!-- JS Generated -->
+                        </tbody>
+                        <tfoot>
+                            <tr class="fw-bold">
+                                <td colspan="2" class="text-end">Total</td>
+                                <td class="text-end" id="deptOpeningTotal">0.00</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab 2: Closing 01 -->
+            <div class="tab-pane fade" id="closing01" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="blue-header mb-0">Closing 01</div>
+                    <button class="btn btn-primary btn-sm" onclick="printSheet('closing01')">
+                        <i class="fas fa-print"></i> Print
+                    </button>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="row mb-2 align-items-center">
+                            <label class="col-sm-4 fw-bold">Opening Cash</label>
+                            <div class="col-sm-8">
+                                <input type="number" id="openingCash" class="form-control form-control-sm bg-light"
+                                    value="0">
+                            </div>
+                        </div>
+                        <div class="row mb-2 align-items-center">
+                            <label class="col-sm-4 fw-bold">Received Cash</label>
+                            <div class="col-sm-8">
+                                <input type="number" id="receivedCash" class="form-control form-control-sm bg-light"
+                                    value="0" readonly>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive mt-3" style="max-height: 400px; overflow-y: auto;">
+                            <table class="table table-sm table-striped table-bordered mb-0">
+                                <thead class="blue-header text-white sticky-top">
+                                    <tr>
+                                        <th>Department</th>
+                                        <th class="text-end" style="width: 120px;">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="closing01DeptRows">
+                                    <!-- JS Generated -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-2 green-total p-2 rounded">
+                            <span>Total Closing 01</span>
+                            <span id="totalClosing01">0</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-2 red-total p-2 rounded">
+                            <span>Total</span>
+                            <span id="grandTotal">0</span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="row mb-2 align-items-center">
+                            <label class="col-sm-4 fw-bold">Department Total</label>
+                            <div class="col-sm-8">
+                                <input type="number" id="departmentTotal" class="form-control form-control-sm bg-light"
+                                    readonly value="0">
+                            </div>
+                        </div>
+                        <div class="row mb-2 align-items-center">
+                            <label class="col-sm-4 fw-bold">Counter Cash Total</label>
+                            <div class="col-sm-8">
+                                <input type="number" id="counterCashTotal" class="form-control form-control-sm bg-light"
+                                    readonly value="0">
+                            </div>
+                        </div>
+                        <div class="row mb-2 align-items-center">
+                            <label class="col-sm-4 fw-bold">Percentage_Cash_Total (+)</label>
+                            <div class="col-sm-8">
+                                <input type="number" id="percentageCashTotal"
+                                    class="form-control form-control-sm bg-light" readonly value="0">
+                            </div>
+                        </div>
+
+                        <div class="row mb-2 align-items-center mt-4">
+                            <label class="col-sm-4 fw-bold">Total Closing 02</label>
+                            <div class="col-sm-8">
+                                <input type="number" id="totalClosing02"
+                                    class="form-control form-control-sm green-total text-white border-0" value="0">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Closing 02 -->
+            <div class="tab-pane fade" id="closing02" role="tabpanel">
+                <div class="row">
+                    <!-- Left Container - ALL FIELDS -->
+                    <!-- Left Container - ALL FIELDS -->
+                    <div class="col-md-6">
+                        <div class="row mb-2">
+                            <label class="col-sm-3 fw-bold">Department</label>
+                            <div class="col-sm-9">
+                                <select id="closing02Dept" class="form-select form-select-sm">
+                                    <option value="">Select Department</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Row: Counter Closing | Bank Total -->
+                        <div class="row mb-2">
+                            <div class="col-sm-6">
+                                <div class="row">
+                                    <label class="col-sm-6 fw-bold small">Counter Closing</label>
+                                    <div class="col-sm-6">
+                                        <input type="number" id="counterClosing"
+                                            class="form-control form-control-sm bg-info text-white fw-bold" value="0">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="row">
+                                    <label class="col-sm-4 fw-bold small text-end">Bank Total</label>
+                                    <div class="col-sm-8">
+                                        <input type="number" id="bankTotal"
+                                            class="form-control form-control-sm bg-info text-white fw-bold" value="0"
+                                            readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Full Width Total (Green) -->
+                        <div class="row mb-2">
+                            <label class="col-sm-3 fw-bold">Total</label>
+                            <div class="col-sm-9">
+                                <input type="number" id="closing02Total"
+                                    class="form-control form-control-sm bg-success text-white fw-bold" value="0"
+                                    readonly>
+                            </div>
+                        </div>
+
+                        <!-- Row: LP | Coin -->
+                        <div class="row mb-2">
+                            <div class="col-sm-6">
+                                <div class="row">
+                                    <label class="col-sm-6 fw-bold">LP</label>
+                                    <div class="col-sm-6">
+                                        <input type="number" id="lp" class="form-control form-control-sm" value="0">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="row">
+                                    <label class="col-sm-4 fw-bold text-end">Coin</label>
+                                    <div class="col-sm-8">
+                                        <input type="number" id="coin" class="form-control form-control-sm" value="0">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Row: Misc (-) | Dis & C.S -->
+                        <div class="row mb-2">
+                            <div class="col-sm-6">
+                                <div class="row">
+                                    <label class="col-sm-6 fw-bold">Misc (-)</label>
+                                    <div class="col-sm-6">
+                                        <input type="number" id="misc" class="form-control form-control-sm" value="0">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="row">
+                                    <label class="col-sm-4 fw-bold text-end" style="white-space: nowrap;">Dis &
+                                        C.S</label>
+                                    <div class="col-sm-8">
+                                        <input type="number" id="divCS" class="form-control form-control-sm" value="0">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Full Width Total (Green) -->
+                        <div class="row mb-2">
+                            <label class="col-sm-3 fw-bold">Total</label>
+                            <div class="col-sm-9">
+                                <input type="number" id="closing02GrandTotal"
+                                    class="form-control form-control-sm bg-success text-white fw-bold" value="0"
+                                    readonly>
+                            </div>
+                        </div>
+
+                        <!-- Row: Received Cash | Total (Actually this seems to be Received Cash on left, and Total C02 on right or below) -->
+                        <!-- The image shows: Received Cash | Total (Green block) -->
+                        <div class="row mb-2">
+                            <div class="col-sm-6">
+                                <div class="row">
+                                    <label class="col-sm-6 fw-bold small">Received Cash</label>
+                                    <div class="col-sm-6">
+                                        <input type="number" id="receivedCashC02"
+                                            class="form-control form-control-sm bg-info text-white" value="0">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="row">
+                                    <label class="col-sm-4 fw-bold text-end">Total</label>
+                                    <div class="col-sm-8">
+                                        <input type="number" id="totalC02"
+                                            class="form-control form-control-sm bg-success text-white fw-bold" value="0"
+                                            readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Row: Opening (-) | T.Sale Manual -->
+                        <div class="row mb-2">
+                            <div class="col-sm-6">
+                                <div class="row">
+                                    <label class="col-sm-6 fw-bold small">Opening (-)</label>
+                                    <div class="col-sm-6">
+                                        <input type="number" id="openingMinus"
+                                            class="form-control form-control-sm bg-primary text-white" value="0">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="row">
+                                    <label class="col-sm-4 fw-bold text-end small" style="white-space:nowrap;">T.Sale
+                                        Manual</label>
+                                    <div class="col-sm-8">
+                                        <input type="number" id="tSaleManual"
+                                            class="form-control form-control-sm bg-warning text-dark" value="0">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Row: T.Sale Comp | Difference -->
+                        <div class="row mb-2">
+                            <div class="col-sm-6">
+                                <div class="row">
+                                    <div class="col-sm-6 d-flex align-items-center justify-content-between">
+                                        <label class="fw-bold small mb-0" style="white-space:nowrap;">Total Sale
+                                            Computer</label>
+                                        <button class="btn btn-primary px-2 py-0 me-1" type="button"
+                                            onclick="openDepartmentSalesModal()" style="height: 24px; line-height: 1;">
+                                            <i class="fas fa-plus" style="font-size: 0.7rem;"></i>
+                                        </button>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <input type="number" id="totalSaleComputer"
+                                            class="form-control form-control-sm bg-info text-white" value="0">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="row">
+                                    <label class="col-sm-4 fw-bold text-end small">Difference</label>
+                                    <div class="col-sm-8">
+                                        <input type="number" id="difference"
+                                            class="form-control form-control-sm bg-danger text-white fw-bold" value="0"
+                                            readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Row: Gross Sale | Discount Value -->
+                        <div class="row mb-2">
+                            <div class="col-sm-6">
+                                <div class="row">
+                                    <label class="col-sm-6 fw-bold small">Gross Sale</label>
+                                    <div class="col-sm-6">
+                                        <input type="number" id="grossSale" class="form-control form-control-sm"
+                                            value="0">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="row">
+                                    <label class="col-sm-4 fw-bold text-end small" style="white-space:nowrap;">Discount
+                                        Value</label>
+                                    <div class="col-sm-8">
+                                        <input type="number" id="discountValue" class="form-control form-control-sm"
+                                            value="0">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Row: Discount Per -->
+                        <div class="row mb-2">
+                            <div class="col-sm-6">
+                                <div class="row">
+                                    <label class="col-sm-6 fw-bold small">Discount Per</label>
+                                    <div class="col-sm-6">
+                                        <input type="number" step="0.01" id="discountPer"
+                                            class="form-control form-control-sm bg-info text-white" value="0.00">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="mt-3">
+                            <button class="btn btn-success btn-sm" onclick="saveSheet()" data-action="save"><i
+                                    class="fas fa-save"></i>
+                                Save (Alt+S)</button>
+                            <button class="btn btn-primary btn-sm" onclick="printSheet('closing02')"><i
+                                    class="fas fa-print"></i> Print</button>
+                            <button class="btn btn-info btn-sm text-white ms-1" onclick="openWarehouseSaleModal()"><i
+                                    class="fas fa-warehouse"></i> Warehouse Sale</button>
+                        </div>
+                    </div>
+
+                    <!-- Right Container - BOTH TABLES -->
+                    <div class="col-md-6">
+                        <!-- Department Table (Dynamic) -->
+                        <div class="mb-3">
+                            <table class="table table-bordered table-sm mb-0">
+                                <thead class="table-info">
+                                    <tr>
+                                        <th>Department</th>
+                                        <th class="text-end">Sale</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="closing02DeptTable">
+                                    <tr>
+                                        <td colspan="2" class="text-center text-muted">No data</td>
+                                    </tr>
+                                </tbody>
+                                <tfoot class="table-success">
+                                    <tr>
+                                        <th>Total</th>
+                                        <th class="text-end" id="closing02DeptTotal">0</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+
+                        <!-- Bank Table (Dynamic) -->
+                        <div class="mb-3">
+                            <table class="table table-bordered table-sm mb-0">
+                                <thead class="table-info">
+                                    <tr>
+                                        <th>Bank</th>
+                                        <th class="text-end">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="closing02BankTable">
+                                    <tr>
+                                        <td colspan="2" class="text-center text-muted">No data</td>
+                                    </tr>
+                                </tbody>
+                                <tfoot class="table-success">
+                                    <tr>
+                                        <th>Total</th>
+                                        <th class="text-end" id="closing02BankTotal">0</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 7: Income Statement -->
+            <div class="tab-pane fade ps-3" id="income-statement" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                    <h5 class="text-primary m-0"><i class="fas fa-file-invoice-dollar me-2"></i>Income Statement</h5>
+                </div>
+
+                <div class="row">
+                    <!-- Left Column: Income -->
+                    <div class="col-md-6">
+                        <div class="card shadow-sm mb-3">
+                            <div class="card-header bg-light fw-bold text-dark border-bottom">
+                                Income Sources
+                            </div>
+                            <div class="card-body p-0">
+                                <table class="table table-bordered mb-0">
+                                    <tbody>
+                                        <tr>
+                                            <th class="bg-light align-middle" style="width: 40%; color: #555;">Opening
+                                                Balance</th>
+                                            <td class="p-0"><input type="text" id="incomeOpening"
+                                                    class="form-control-plaintext text-end px-2 fw-bold" readonly
+                                                    value="0"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light align-middle" style="color: #555;">Cash Sale</th>
+                                            <td class="p-0"><input type="text" id="incomeCashSale"
+                                                    class="form-control-plaintext text-end px-2" readonly value="0">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light align-middle" style="color: #555;">Bank Sale</th>
+                                            <td class="p-0"><input type="text" id="incomeBankSale"
+                                                    class="form-control-plaintext text-end px-2" readonly value="0">
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Received Expenses Table -->
+                        <div class="card shadow-sm mb-3">
+                            <div class="card-header bg-light fw-bold text-dark border-bottom">
+                                Other Income / Receipts
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                                    <table class="table table-sm table-striped border-top mb-0">
+                                        <thead class="bg-secondary text-white sticky-top">
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Detail</th>
+                                                <th>Head</th>
+                                                <th>Sub Head</th>
+                                                <th>Remarks</th>
+                                                <th class="text-end">Amount</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="incomeDetailsRows">
+                                            <!-- JS Populated -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Pay -->
+                    <div class="col-md-6">
+                        <div class="card shadow-sm mb-3">
+                            <div class="card-header bg-light fw-bold text-dark border-bottom">
+                                Expenses (Pay)
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                                    <table class="table table-sm table-striped mb-0">
+                                        <thead class="bg-secondary text-white sticky-top">
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Detail</th>
+                                                <th>Head</th>
+                                                <th>Sub Head</th>
+                                                <th>Remarks</th>
+                                                <th class="text-end">Amount</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="payDetailsRows">
+                                            <!-- JS Populated -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Summary Section -->
+                <div class="row mt-3">
+                    <div class="col-md-6 offset-md-3">
+                        <div class="card shadow-sm border-secondary">
+                            <div class="card-header bg-secondary text-white text-center fw-bold">
+                                Net Summary
+                            </div>
+                            <div class="card-body p-0">
+                                <table class="table table-bordered mb-0">
+                                    <tr>
+                                        <th class="bg-light w-50 align-middle">Total Income</th>
+                                        <td class="p-0"><input type="text" id="diffIncome"
+                                                class="form-control-plaintext text-end px-2 fw-bold" readonly value="0">
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="bg-light align-middle">Total Expense</th>
+                                        <td class="p-0"><input type="text" id="diffExpense"
+                                                class="form-control-plaintext text-end px-2 fw-bold text-danger"
+                                                readonly value="0"></td>
+                                    </tr>
+                                    <tr class="table-active" style="border-top: 2px solid #333;">
+                                        <th class="bg-light text-success h5 mb-0 align-middle">Closing Balance</th>
+                                        <td class="p-0"><input type="text" id="diffBalance"
+                                                class="form-control-plaintext text-end px-2 fw-bold text-success h5 mb-0"
+                                                readonly value="0"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 text-center">
+                    <button class="btn btn-success" onclick="saveIncomeStatement()" data-action="save"><i
+                            class="fas fa-save me-1"></i>
+                        Save Statement</button>
+                    <button class="btn btn-primary" onclick="printSheet('income')"><i class="fas fa-print me-1"></i>
+                        Print</button>
+                    <button class="btn btn-info text-white" onclick="printSheet('dayWisePrint')"><i
+                            class="fas fa-calendar-alt me-1"></i> Day Wise Print</button>
+                </div>
+            </div>
+            <!-- Tab 8: Reporting -->
+            <div class="tab-pane fade" id="reporting" role="tabpanel">
+                <div class="blue-header mb-3">Reporting</div>
+
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <button class="btn btn-primary w-100" onclick="generateReport('openingBalance')">
+                            Opening Balance & Received Cash Detail
+                        </button>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="fw-bold">From</label>
+                        <input type="date" id="reportFromDate" class="form-control form-control-sm">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="fw-bold">To</label>
+                        <input type="date" id="reportToDate" class="form-control form-control-sm">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="fw-bold">&nbsp;</label>
+                        <button class="btn btn-info w-100" onclick="generateReport('deptWisePercentage')">
+                            Daily Department Wise Percentage Cash Detail
+                        </button>
+                    </div>
+                </div>
+
+                <div id="reportOutput" class="border p-3 bg-white" style="min-height: 400px;">
+                    <p class="text-muted text-center">Select a report type and date range to generate report</p>
+                </div>
+            </div>
+
+            <!-- Tab 6: SMS Sending -->
+            <div class="tab-pane fade" id="sms-sending" role="tabpanel">
+                <div class="blue-header mb-3">Customer SMS</div>
+
+                <div class="row mb-3 align-items-center justify-content-center">
+                    <label class="col-auto fw-bold">Type</label>
+                    <div class="col-md-4">
+                        <select id="smsCustomerType" class="form-select form-select-sm">
+                            <option value="">Select Type</option>
+                            <option value="All">All</option>
+                            <!-- Add other customer categories if needed -->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-responsive mb-3" style="max-height: 300px; overflow-y: auto;">
+                    <table class="table table-bordered table-sm">
+                        <thead class="blue-header text-white sticky-top">
+                            <tr>
+                                <th width="40" class="text-center"><input type="checkbox" id="selectAllSMS"></th>
+                                <th>Customer Name</th>
+                                <th>Phone No</th>
+                                <th>Mobile No</th>
+                                <th>Address</th>
+                            </tr>
+                        </thead>
+                        <tbody id="smsCustomersBody">
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">Loading customers...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Control Bar -->
+                <div class="d-flex flex-wrap align-items-center justify-content-between bg-light p-2 border mb-3">
+                    <div class="d-flex flex-wrap gap-3 align-items-center" id="smsReportOptions">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="smsReportType" id="smsDailySale"
+                                value="Daily Sale" onchange="generateSMSPreview()">
+                            <label class="form-check-label fw-bold" for="smsDailySale">Daily Sale</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="smsReportType" id="smsCashActivity"
+                                value="Cash Activity" onchange="generateSMSPreview()">
+                            <label class="form-check-label" for="smsCashActivity">Cash Activity</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="smsReportType" id="smsBankActivity"
+                                value="Bank Activity" onchange="generateSMSPreview()">
+                            <label class="form-check-label" for="smsBankActivity">Bank Activity</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="smsReportType" id="smsIncomeStatement"
+                                value="Income Statement" onchange="generateSMSPreview()">
+                            <label class="form-check-label" for="smsIncomeStatement">Income Statement</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="smsReportType" id="smsZakat"
+                                value="Zakat" onchange="generateSMSPreview()">
+                            <label class="form-check-label" for="smsZakat">Zakat</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="smsReportType" id="smsDeptWise"
+                                value="Department Wise Sale and Activity" onchange="generateSMSPreview()">
+                            <label class="form-check-label" for="smsDeptWise">Department Wise Sale and Activity</label>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="btn btn-primary btn-sm px-4" onclick="sendSMS()">Send SMS</button>
+                    </div>
+                </div>
+
+                <!-- Preview Area -->
+                <div class="card">
+                    <div class="card-body bg-light">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="card-subtitle text-muted mb-0">Message Preview</h6>
+                            <button class="btn btn-success btn-sm" onclick="copySMSMessage()" title="Copy Message">
+                                <i class="fas fa-copy me-1"></i> Copy
+                            </button>
+                        </div>
+                        <pre id="smsPreviewArea" class="mb-0"
+                            style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 0.95rem; line-height: 1.4; white-space: pre-wrap; color: black;"></pre>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <!-- Department Sales Modal -->
+        <div class="modal fade" id="departmentSalesModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title">Closing2_Department_Sales</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-sm" id="deptSalesTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Department</th>
+                                        <th>Total Sale Computer</th>
+                                        <th>Cost Sale</th>
+                                        <th style="width: 50px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- JS Generated -->
+                                </tbody>
+                                <tfoot>
+                                    <tr class="fw-bold table-light">
+                                        <td class="text-end">Total</td>
+                                        <td>
+                                            <input type="number" id="modalFooterComp"
+                                                class="form-control form-control-sm border-0 bg-transparent fw-bold"
+                                                readonly value="0">
+                                        </td>
+                                        <td>
+                                            <input type="number" id="modalFooterCost"
+                                                class="form-control form-control-sm border-0 bg-transparent fw-bold"
+                                                readonly value="0">
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <button class="btn btn-sm btn-info mb-3" onclick="addDeptSaleRow()"><i class="fas fa-plus"></i>
+                            Add
+                            Row</button>
+
+                        <div class="row align-items-center justify-content-end">
+                            <label class="col-auto fw-bold">Total Amount:</label>
+                            <div class="col-3">
+                                <input type="number" id="modalTotalAmount" class="form-control form-control-sm" readonly
+                                    value="0">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-success" onclick="saveDepartmentSalesModal()">Save</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Warehouse Sale Modal -->
+        <div class="modal fade" id="warehouseSaleModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-info text-white">
+                        <h5 class="modal-title"><i class="fas fa-warehouse me-2"></i>Warehouse Sale</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-sm" id="warehouseSaleTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Category</th>
+                                        <th>Sale Amount</th>
+                                        <th>Cost Amount</th>
+                                        <th>Profit</th>
+                                        <th style="width: 50px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- JS Generated -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <button class="btn btn-sm btn-info mb-3 text-white" onclick="addWarehouseRow()"><i
+                                class="fas fa-plus"></i>
+                            Add Row</button>
+
+                        <div class="row align-items-center justify-content-end gx-2">
+                            <label class="col-auto fw-bold">Total Sale:</label>
+                            <div class="col-2">
+                                <input type="number" id="warehouseTotalAmount"
+                                    class="form-control form-control-sm fw-bold bg-success text-white" readonly
+                                    value="0">
+                            </div>
+                            <label class="col-auto fw-bold">Total Cost:</label>
+                            <div class="col-2">
+                                <input type="number" id="warehouseTotalCost"
+                                    class="form-control form-control-sm fw-bold bg-warning text-dark" readonly
+                                    value="0">
+                            </div>
+                            <label class="col-auto fw-bold">Total Profit:</label>
+                            <div class="col-2">
+                                <input type="number" id="warehouseTotalProfit"
+                                    class="form-control form-control-sm fw-bold bg-info text-white" readonly value="0">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-success" onclick="saveWarehouseSale()">Save</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Action Bar -->
+    <div class="action-bar-mobile d-none">
+        <button type="button" class="action-btn-mobile btn-search-mobile" onclick="loadSheet()">
+            <i class="fas fa-search"></i>
+            <span>Search</span>
+        </button>
+        <button type="button" class="action-btn-mobile btn-save-mobile" id="mobileSaveBtn" onclick="saveSheet()">
+            <i class="fas fa-save"></i>
+            <span>Save</span>
+        </button>
+        <button type="button" class="action-btn-mobile btn-print-mobile" onclick="handleMobilePrint()">
+            <i class="fas fa-print"></i>
+            <span>Print</span>
+        </button>
+    </div>
+
+    <script>
+        function handleMobilePrint() {
+            const activeTab = document.querySelector('#myTab .nav-link.active');
+            const targetId = activeTab.getAttribute('data-bs-target').replace('#', '');
+
+            if (targetId === 'dept-opening') printSheet('opening');
+            else if (targetId === 'closing01') printSheet('closing01');
+            else if (targetId === 'closing02') printSheet('closing02');
+            else if (targetId === 'income-statement') {
+                // Determine which report to print based on visibility
+                if (document.getElementById('incomeStatementView').style.display !== 'none') printDiv('incomeStatementView');
+                else if (document.getElementById('grossProfitView').style.display !== 'none') printDiv('grossProfitView');
+                else if (document.getElementById('expenditureView').style.display !== 'none') printDiv('expenditureView');
+                else if (document.getElementById('otherExpView').style.display !== 'none') printDiv('otherExpView');
+            }
+            else if (targetId === 'reporting') printReport();
+        }
+
+        // Helper for printing divs
+        function printDiv(divId) {
+            const content = document.getElementById(divId).innerHTML;
+            const printWindow = window.open('', '', 'height=600,width=800');
+            printWindow.document.write('<html><head><title>Print Report</title>');
+            printWindow.document.write('<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">');
+            printWindow.document.write('</head><body><div class="p-3">');
+            printWindow.document.write(content);
+            printWindow.document.write('</div></body></html>');
+            printWindow.document.close();
+            printWindow.print();
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244458"></script>
+    <script src="/js/desktop-ui.js?v=custom"></script>
+    <script src="/js/closing-sheet.js?v=3.4"></script>
+</body>
+
+</html>
+

@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WH Stock Activity - BAS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #1e4c8c 0%, #2c5ba9 100%);
+        }
+
+        .report-container {
+            padding: 15px;
+            height: calc(100vh - 60px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-panel {
+            background: var(--primary-gradient);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            color: white;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-panel label {
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 6px;
+            display: block;
+            opacity: 0.9;
+        }
+
+        .filter-panel .form-control,
+        .filter-panel .form-select {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: white !important;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .filter-panel .form-select option {
+            color: #333;
+        }
+
+        .data-panel {
+            flex: 1;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #edf2f7;
+        }
+
+        .table-container {
+            flex: 1;
+            overflow: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .data-table thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .data-table th {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 12px 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .data-table td {
+            padding: 10px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.85rem;
+        }
+
+        .print-header {
+            display: none;
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px double #333;
+            padding-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .report-container {
+                padding: 10px;
+                height: auto;
+            }
+
+            .filter-panel .btn {
+                width: 100%;
+            }
+        }
+
+        @media print {
+
+            .page-header,
+            .filter-panel,
+            #sidebar-container {
+                display: none !important;
+            }
+
+            .main-content {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .report-container {
+                padding: 0;
+                height: auto;
+                display: block;
+            }
+
+            .print-header {
+                display: block;
+            }
+
+            .data-panel {
+                border: none;
+                box-shadow: none;
+                overflow: visible;
+            }
+
+            .table-container {
+                overflow: visible;
+            }
+
+            .data-table th {
+                background: #f1f5f9 !important;
+                color: black !important;
+                border-top: 1px solid #333;
+                border-bottom: 2px solid #333;
+            }
+        }
+
+        .suggestion-item {
+            cursor: pointer;
+            padding: 8px 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .suggestion-item:hover,
+        .suggestion-item.active {
+            background-color: #343a40;
+            color: white;
+        }
+
+        .suggestion-item:hover .text-muted,
+        .suggestion-item.active .text-muted {
+            color: #d1d1d1 !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="sidebar-container"></div>
+    <div class="main-content">
+        <div class="page-header px-3">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer;"></i>
+                <h6 class="mb-0 fw-bold"><i class="fas fa-exchange-alt me-2"></i>WH STOCK ACTIVITY</h6>
+            </div>
+        </div>
+
+        <div class="report-container">
+            <!-- Print Header -->
+            <div class="print-header">
+                <h2 class="fw-bold mb-1">BILAL ACCOUNTING SOFTWARE</h2>
+                <h4 class="text-uppercase mb-2">Warehouse Stock Activity Report</h4>
+                <div class="d-flex justify-content-between px-4 mt-3">
+                    <span id="printDateRange">Date Range: </span>
+                    <span>Generated: <span id="printDate"></span></span>
+                </div>
+            </div>
+
+            <div class="filter-panel d-print-none">
+                <div class="row g-2 align-items-end">
+                    <div class="col-lg-2 col-md-3">
+                        <label>Opening Date</label>
+                        <input type="date" id="filterFrom" class="form-control">
+                    </div>
+                    <div class="col-lg-2 col-md-3">
+                        <label>Closing Date</label>
+                        <input type="date" id="filterTo" class="form-control">
+                    </div>
+                    <div class="col-lg-2 col-md-3">
+                        <label>Display Criteria</label>
+                        <select id="filterCriteria" class="form-select">
+                            <option value="all">All Items</option>
+                            <option value="active">Active Only</option>
+                            <option value="zero_stock">Zero Stock Only</option>
+                            <option value="non_zero">Non-Zero Stock</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-4 col-md-5 position-relative">
+                        <label>Search Item</label>
+                        <input type="text" id="filterSearch" class="form-control" placeholder="Code or Name..."
+                            autocomplete="off">
+                        <div id="searchResults" class="list-group position-absolute w-100 shadow"
+                            style="display:none; z-index: 1000; max-height: 300px; overflow-y: auto; top: 70px;">
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-12 d-flex gap-2">
+                        <button class="btn btn-primary flex-fill fw-bold shadow-sm" onclick="generateReport()">
+                            <i class="fas fa-sync-alt me-1"></i>GENERATE
+                        </button>
+                        <button class="btn btn-warning text-white fw-bold shadow-sm" style="min-width: 80px;"
+                            onclick="window.print()">
+                            <i class="fas fa-print me-1"></i>PRINT
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="data-panel">
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Item Name</th>
+                                <th style="width: 100px" class="text-end">Opening</th>
+                                <th style="width: 100px" class="text-end text-success">Purch (+)</th>
+                                <th style="width: 100px" class="text-end text-danger">Sales (-)</th>
+                                <th style="width: 100px" class="text-end">Returns</th>
+                                <th style="width: 100px" class="text-end">Adjs</th>
+                                <th style="width: 120px" class="text-end">Closing</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reportContent">
+                            <tr>
+                                <td colspan="7" class="text-center py-5 text-muted">Click Generate to load stock
+                                    activity</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244564"></script>
+    <script>
+        const token = localStorage.getItem('token');
+        let searchTimeout;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const today = new Date().toISOString().split('T')[0];
+            const lastDec31 = new Date(new Date().getFullYear() - 1, 11, 31).toISOString().split('T')[0];
+            document.getElementById('filterFrom').value = today;
+            document.getElementById('filterTo').value = today;
+            document.getElementById('printDate').textContent = new Date().toLocaleString();
+
+            // Search Autocomplete
+            const searchInput = document.getElementById('filterSearch');
+            const resultsDiv = document.getElementById('searchResults');
+            let currentFocus = -1;
+
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.trim();
+                clearTimeout(searchTimeout);
+                currentFocus = -1;
+
+                if (query.length < 1) {
+                    resultsDiv.style.display = 'none';
+                    return;
+                }
+
+                searchTimeout = setTimeout(async () => {
+                    try {
+                        const res = await fetch(`/api/v1/wh-items?search=${encodeURIComponent(query)}&limit=10`, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        const data = await res.json();
+
+                        if (data.success && data.data.length > 0) {
+                            resultsDiv.innerHTML = '';
+                            data.data.forEach(item => {
+                                const div = document.createElement('div');
+                                div.className = 'list-group-item list-group-item-action suggestion-item';
+                                div.innerHTML = `
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <div class="fw-bold fs-6">${item.name}</div>
+                                            <small class="text-muted" style="font-size:0.75rem">${item.itemsCode || item.barcode || '-'}</small>
+                                        </div>
+                                    </div>
+                                `;
+                                div.onclick = () => {
+                                    searchInput.value = item.itemsCode || item.name;
+                                    resultsDiv.style.display = 'none';
+                                    generateReport();
+                                };
+                                resultsDiv.appendChild(div);
+                            });
+                            resultsDiv.style.display = 'block';
+                        } else {
+                            resultsDiv.style.display = 'none';
+                        }
+                    } catch (err) {
+                        console.error(err);
+                    }
+                }, 300);
+            });
+
+            // Keyboard Navigation
+            searchInput.addEventListener('keydown', function (e) {
+                const items = resultsDiv.getElementsByClassName('suggestion-item');
+                if (e.key === 'ArrowDown') {
+                    currentFocus++;
+                    addActive(items);
+                } else if (e.key === 'ArrowUp') {
+                    currentFocus--;
+                    addActive(items);
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (currentFocus > -1 && items && items[currentFocus]) {
+                        items[currentFocus].click();
+                    } else {
+                        resultsDiv.style.display = 'none';
+                        generateReport();
+                    }
+                }
+            });
+
+            function addActive(items) {
+                if (!items) return false;
+                removeActive(items);
+                if (currentFocus >= items.length) currentFocus = 0;
+                if (currentFocus < 0) currentFocus = (items.length - 1);
+                items[currentFocus].classList.add('active');
+                items[currentFocus].scrollIntoView({ block: 'nearest' });
+            }
+
+            function removeActive(items) {
+                for (let i = 0; i < items.length; i++) {
+                    items[i].classList.remove('active');
+                }
+            }
+
+            // Close results when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!searchInput.contains(e.target) && !resultsDiv.contains(e.target)) {
+                    resultsDiv.style.display = 'none';
+                }
+            });
+        });
+
+        async function generateReport() {
+            const from = document.getElementById('filterFrom').value;
+            const to = document.getElementById('filterTo').value;
+            const criteria = document.getElementById('filterCriteria').value;
+            const search = document.getElementById('filterSearch').value;
+
+            const content = document.getElementById('reportContent');
+            content.innerHTML = '<tr><td colspan="7" class="text-center py-5"><div class="spinner-border text-primary"></div></td></tr>';
+
+            try {
+                const res = await fetch(`/api/v1/wh-ledger/stock-activity?from=${from}&to=${to}&criteria=${criteria}&search=${search}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const result = await res.json();
+                if (!result.success) throw new Error(result.error);
+
+                let html = '';
+                result.data.forEach(item => {
+                    html += `
+                        <tr>
+                            <td class="fw-bold">${item.name} <br><small class="text-muted">${item.code}</small></td>
+                            <td class="text-end">${(item.opening || 0).toLocaleString()}</td>
+                            <td class="text-end text-success">${(item.purchases || 0).toLocaleString()}</td>
+                            <td class="text-end text-danger">${(item.sales || 0).toLocaleString()}</td>
+                            <td class="text-end">${(item.returns || 0).toLocaleString()}</td>
+                            <td class="text-end">${(item.adjustments || 0).toLocaleString()}</td>
+                            <td class="text-end fw-bold">${(item.closing || 0).toLocaleString()}</td>
+                        </tr>
+                    `;
+                });
+
+                content.innerHTML = html || '<tr><td colspan="7" class="text-center py-5">No activity found</td></tr>';
+                document.getElementById('printDateRange').textContent = `Date Range: ${from} to ${to}`;
+
+            } catch (err) {
+                content.innerHTML = `<tr><td colspan="7" class="text-center py-5 text-danger">${err.message}</td></tr>`;
+            }
+        }
+    </script>
+</body>
+
+</html>
+

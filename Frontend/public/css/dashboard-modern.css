@@ -1,0 +1,2431 @@
+/**
+ * D.Watson BAS Software - Modern Dashboard Stylesheet
+ * Strictly scoped under .bas-modern-dashboard to prevent any global bleeding.
+ * Supports Dark Mode (default) & Light Mode with instant toggle.
+ */
+
+/* ==========================================================================
+   Design Tokens & CSS Variables (Scoped to .bas-modern-dashboard)
+   ========================================================================== */
+.bas-modern-dashboard {
+  --bas-primary: #0066ff;
+  --bas-primary-rgb: 0, 102, 255;
+  --bas-electric: #0052d4;
+  --bas-cyan: #00d4ff;
+  --bas-cyan-rgb: 0, 212, 255;
+  --bas-accent: #4364f7;
+  --bas-success: #10b981;
+  --bas-warning: #f59e0b;
+  --bas-danger: #ef4444;
+
+  --bas-font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --bas-radius-sm: 8px;
+  --bas-radius-md: 14px;
+  --bas-radius-lg: 20px;
+  --bas-radius-xl: 26px;
+  --bas-transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  --bas-bounce: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ----------------- DARK THEME (Default) ----------------- */
+.bas-modern-dashboard.theme-dark {
+  --bas-dash-bg: #0f1c3d;
+  --bas-dash-bg-gradient: radial-gradient(ellipse 95% 85% at 50% 25%, #1e3770 0%, #142650 50%, #0d1936 100%);
+  --bas-dash-card-bg: rgba(255, 255, 255, 0.96);
+  --bas-dash-card-border: #ffffff;
+  --bas-dash-card-glow: 0 16px 45px rgba(5, 15, 38, 0.4), 0 0 25px rgba(0, 212, 255, 0.25);
+  --bas-dash-header-bg: rgba(12, 24, 52, 0.94);
+  --bas-dash-text: #071530;
+  --bas-dash-text-muted: #475569;
+  --bas-dash-text-sub: #64748b;
+  --bas-dash-input-bg: rgba(10, 22, 48, 0.75);
+  --bas-dash-input-border: rgba(67, 100, 247, 0.35);
+  --bas-dash-item-hover: rgba(0, 212, 255, 0.12);
+  --bas-dash-pill-bg: #ffffff;
+  --bas-dash-pill-border: #ffffff;
+  --bas-dash-toggle-bg: rgba(16, 32, 68, 0.85);
+  --bas-dash-toggle-active: #0066ff;
+  --bas-dash-toggle-text: #ffffff;
+  --bas-sidebar-bg: #0b1733;
+  --bas-sidebar-border: rgba(0, 212, 255, 0.16);
+
+  /* 3D Showcase Tokens */
+  --bas-tile-bg: linear-gradient(145deg, #ffffff 0%, #f4f8fe 100%);
+  --bas-tile-border: #ffffff;
+  --bas-podium-top: #15336e;
+  --bas-podium-side: #0b1d42;
+  --bas-podium-glow: rgba(0, 212, 255, 0.65);
+  --bas-screen-bg: #ffffff;
+}
+
+/* ----------------- LIGHT THEME ----------------- */
+.bas-modern-dashboard.theme-light {
+  --bas-dash-bg: #f1f5fb;
+  --bas-dash-bg-gradient: radial-gradient(circle at 15% 20%, #e2eefe 0%, #edf3fc 45%, #e6edf7 100%);
+  --bas-dash-card-bg: rgba(255, 255, 255, 0.88);
+  --bas-dash-card-border: rgba(0, 102, 255, 0.16);
+  --bas-dash-card-glow: 0 10px 30px rgba(16, 42, 86, 0.08), 0 2px 8px rgba(0, 102, 255, 0.04);
+  --bas-dash-header-bg: linear-gradient(135deg, #07132b 0%, #0d2149 50%, #102a5c 100%);
+  --bas-dash-text: #0b192c;
+  --bas-dash-text-muted: #475a77;
+  --bas-dash-text-sub: #788ca5;
+  --bas-dash-input-bg: rgba(245, 248, 253, 0.95);
+  --bas-dash-input-border: rgba(0, 102, 255, 0.2);
+  --bas-dash-item-hover: rgba(0, 102, 255, 0.06);
+  --bas-dash-pill-bg: rgba(0, 102, 255, 0.08);
+  --bas-dash-pill-border: rgba(0, 102, 255, 0.22);
+  --bas-dash-toggle-bg: rgba(225, 235, 248, 0.9);
+  --bas-dash-toggle-active: #ffffff;
+  --bas-dash-toggle-text: #0b192c;
+  --bas-sidebar-bg: #071022;
+  --bas-sidebar-border: rgba(0, 212, 255, 0.15);
+
+  /* 3D Showcase Tokens */
+  --bas-tile-bg: rgba(255, 255, 255, 0.92);
+  --bas-tile-border: rgba(0, 102, 255, 0.25);
+  --bas-podium-top: #dae8fc;
+  --bas-podium-side: #bfd5f5;
+  --bas-podium-glow: rgba(0, 102, 255, 0.25);
+  --bas-screen-bg: #111d38;
+}
+
+/* ==========================================================================
+   Root Layout & Canvas
+   ========================================================================== */
+.bas-modern-dashboard {
+  min-height: 100vh;
+  width: 100%;
+  background: var(--bas-dash-bg);
+  background-image: var(--bas-dash-bg-gradient);
+  font-family: var(--bas-font-main);
+  color: var(--bas-dash-text);
+  overflow-x: hidden;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  transition: background 0.35s ease, color 0.25s ease;
+  position: relative;
+}
+
+.bas-modern-dashboard *,
+.bas-modern-dashboard *::before,
+.bas-modern-dashboard *::after {
+  box-sizing: border-box;
+}
+
+/* Ambient Radial Glow Lighting */
+.bas-modern-dashboard .bas-dash-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+  contain: strict;
+  transform: translateZ(0);
+}
+
+.bas-modern-dashboard .bas-dash-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(45px);
+  opacity: 0.45;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  pointer-events: none;
+}
+
+.bas-modern-dashboard .bas-dash-orb-1 {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(0, 102, 255, 0.45) 0%, rgba(0, 82, 212, 0) 70%);
+  top: -120px;
+  left: -80px;
+}
+
+.bas-modern-dashboard .bas-dash-orb-2 {
+  width: 550px;
+  height: 550px;
+  background: radial-gradient(circle, rgba(0, 212, 255, 0.3) 0%, rgba(0, 212, 255, 0) 70%);
+  top: 30%;
+  right: -100px;
+}
+
+.bas-modern-dashboard .bas-dash-orb-center {
+  width: 860px;
+  height: 560px;
+  background: radial-gradient(ellipse at center, rgba(0, 102, 255, 0.42) 0%, rgba(0, 212, 255, 0.22) 38%, rgba(20, 42, 90, 0) 74%);
+  top: 50%;
+  left: 50%;
+  transform: translate3d(-50%, -50%, 0);
+  filter: blur(35px);
+  opacity: 0.85;
+  z-index: 1;
+  backface-visibility: hidden;
+}
+
+/* Subtle Perspective Digital Cyber Grid for 3D Environment in Dark Mode */
+.bas-modern-dashboard.theme-dark::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(0, 212, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.035) 1px, transparent 1px);
+  background-size: 44px 44px;
+  background-position: center center;
+  pointer-events: none;
+  z-index: 1;
+  mask-image: radial-gradient(ellipse 85% 75% at center, rgba(0,0,0,0.85) 15%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 85% 75% at center, rgba(0,0,0,0.85) 15%, transparent 75%);
+}
+
+/* ==========================================================================
+   Executive Modern Top Navigation Header
+   ========================================================================== */
+.bas-modern-dashboard .bas-dash-header {
+  position: sticky;
+  top: 0;
+  z-index: 1045;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 28px;
+  background: linear-gradient(135deg, #07132b 0%, #0d2149 50%, #102a5c 100%) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 2px solid rgba(0, 212, 255, 0.35) !important;
+  box-shadow: 0 4px 20px rgba(7, 19, 43, 0.35) !important;
+  gap: 16px;
+  color: #ffffff !important;
+}
+
+.bas-modern-dashboard .bas-dash-header .bas-header-title {
+  color: #ffffff !important;
+}
+
+.bas-modern-dashboard .bas-dash-header .bas-header-subtitle {
+  color: #94a3b8 !important;
+}
+
+.bas-modern-dashboard .bas-dash-header .bas-user-name {
+  color: #ffffff !important;
+}
+
+.bas-modern-dashboard .bas-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.bas-modern-dashboard .bas-menu-trigger-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  color: #ffffff !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.15rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  transition: all 0.2s ease;
+}
+
+.bas-modern-dashboard .bas-menu-trigger-btn i,
+.bas-modern-dashboard .bas-menu-trigger-btn .fa-bars,
+.bas-modern-dashboard .bas-menu-trigger-btn svg {
+  color: #ffffff !important;
+  display: inline-block !important;
+  font-size: 1.15rem !important;
+}
+
+.bas-modern-dashboard .bas-menu-trigger-btn:hover {
+  background: #0066ff !important;
+  color: #ffffff !important;
+  border-color: #00d4ff !important;
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.5) !important;
+}
+
+.bas-modern-dashboard .bas-header-title-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.bas-modern-dashboard .bas-header-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: #ffffff !important;
+  margin: 0;
+}
+
+.bas-modern-dashboard .bas-header-subtitle {
+  font-size: 0.76rem;
+  font-weight: 500;
+  color: #94a3b8 !important;
+}
+
+/* Branch Indicator Pill - Removed per user request */
+.bas-modern-dashboard .bas-branch-indicator,
+#dashBranchName {
+  display: none !important;
+}
+
+.bas-modern-dashboard.theme-light .bas-branch-indicator {
+  color: #0052d4;
+}
+
+.bas-modern-dashboard .bas-branch-indicator i {
+  font-size: 0.85rem;
+}
+
+/* Center Search Bar */
+.bas-modern-dashboard .bas-header-center {
+  flex: 1;
+  max-width: 460px;
+}
+
+.bas-modern-dashboard .bas-header-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.bas-modern-dashboard .bas-header-search-icon {
+  position: absolute;
+  left: 15px;
+  color: #0066ff !important;
+  font-size: 0.95rem;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.bas-modern-dashboard .bas-header-search-input {
+  width: 100%;
+  height: 42px;
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 22px !important;
+  padding: 0 42px 0 42px !important;
+  font-size: 0.88rem !important;
+  font-weight: 500 !important;
+  color: #071530 !important;
+  outline: none !important;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.16), inset 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  transition: all 0.2s ease !important;
+}
+
+.bas-modern-dashboard .bas-header-search-input::placeholder {
+  color: #64748b !important;
+  font-weight: 500 !important;
+}
+
+.bas-modern-dashboard .bas-header-search-input:focus {
+  border-color: #0066ff !important;
+  box-shadow: 0 0 0 3.5px rgba(0, 102, 255, 0.22), 0 6px 20px rgba(0, 102, 255, 0.18) !important;
+  background: #ffffff !important;
+}
+
+/* Keyboard hint badge (e.g. "/") */
+.bas-modern-dashboard .bas-dash-search-kbd-hint {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #64748b;
+  padding: 1px 7px;
+  border-radius: 5px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.4;
+  pointer-events: none;
+  font-family: inherit;
+  transition: opacity 0.15s ease;
+  z-index: 2;
+}
+
+/* Clear Button (X) */
+.bas-modern-dashboard .bas-dash-search-clear-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  border: none;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  z-index: 3;
+}
+
+.bas-modern-dashboard .bas-dash-search-clear-btn:hover {
+  background: #cbd5e1;
+  color: #0f172a;
+}
+
+/* Dashboard Spotlight Search Dropdown */
+.bas-modern-dashboard .bas-dash-search-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 16px 40px rgba(7, 19, 43, 0.28) !important;
+  max-height: 420px;
+  overflow-y: auto;
+  z-index: 9999;
+  padding: 6px;
+  text-align: left;
+}
+
+.bas-modern-dashboard .bas-dash-search-section-header {
+  padding: 8px 10px 4px;
+  font-size: 0.69rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #f1f5f9;
+  margin: 4px 0 3px;
+}
+
+.bas-modern-dashboard .bas-dash-search-section-header:first-child {
+  margin-top: 0;
+}
+
+.bas-modern-dashboard .bas-dash-search-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  color: #0f172a !important;
+  text-decoration: none !important;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  position: relative;
+}
+
+.bas-modern-dashboard .bas-dash-search-item:hover,
+.bas-modern-dashboard .bas-dash-search-item.active {
+  background: #0052d4 !important;
+  color: #ffffff !important;
+}
+
+.bas-modern-dashboard .bas-dash-search-item .item-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #f1f5f9;
+  color: #0066ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  transition: all 0.12s ease;
+}
+
+.bas-modern-dashboard .bas-dash-search-item:hover .item-icon,
+.bas-modern-dashboard .bas-dash-search-item.active .item-icon {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+}
+
+.bas-modern-dashboard .bas-dash-search-item .item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.bas-modern-dashboard .bas-dash-search-item .item-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #0f172a;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bas-modern-dashboard .bas-dash-search-item:hover .item-title,
+.bas-modern-dashboard .bas-dash-search-item.active .item-title {
+  color: #ffffff !important;
+}
+
+.bas-modern-dashboard .bas-dash-search-item .item-sub {
+  font-size: 0.72rem;
+  color: #64748b;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bas-modern-dashboard .bas-dash-search-item:hover .item-sub,
+.bas-modern-dashboard .bas-dash-search-item.active .item-sub {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.bas-modern-dashboard .bas-dash-search-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 12px;
+  background: #e0f2fe;
+  color: #0369a1;
+  flex-shrink: 0;
+  transition: all 0.12s ease;
+}
+
+.bas-modern-dashboard .bas-dash-search-badge.badge-stock {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.bas-modern-dashboard .bas-dash-search-item:hover .bas-dash-search-badge,
+.bas-modern-dashboard .bas-dash-search-item.active .bas-dash-search-badge {
+  background: rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+}
+
+.bas-modern-dashboard .bas-dash-search-item .item-arrow {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  transition: transform 0.12s ease;
+  flex-shrink: 0;
+}
+
+.bas-modern-dashboard .bas-dash-search-item:hover .item-arrow,
+.bas-modern-dashboard .bas-dash-search-item.active .item-arrow {
+  color: #ffffff !important;
+  transform: translateX(3px);
+}
+
+.bas-modern-dashboard .bas-dash-search-footer {
+  padding: 7px 12px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  border-radius: 0 0 10px 10px;
+  font-size: 0.7rem;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 6px -6px -6px -6px;
+}
+
+.bas-modern-dashboard .bas-dash-search-footer kbd {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 0.67rem;
+  color: #334155;
+  box-shadow: 0 1px 1px rgba(0,0,0,0.06);
+}
+
+/* Header Right Zone (Clock, Theme, Profile) */
+.bas-modern-dashboard .bas-header-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+/* Live Clock Pill - High Visibility Crisp White per user request */
+.bas-modern-dashboard .bas-live-clock {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #ffffff !important;
+  letter-spacing: 0.2px;
+}
+
+.bas-modern-dashboard .bas-live-clock span {
+  color: #ffffff !important;
+}
+
+.bas-modern-dashboard .bas-live-clock i {
+  color: #ffffff !important;
+  font-size: 0.85rem;
+}
+
+.bas-modern-dashboard.theme-light .bas-live-clock,
+.bas-modern-dashboard.theme-light .bas-live-clock i,
+.bas-modern-dashboard.theme-light .bas-live-clock span {
+  color: #ffffff !important;
+}
+
+/* Theme Toggle Pill - Only allowed on /login page per user requirement */
+.bas-modern-dashboard .bas-dash-theme-toggle,
+.bas-dash-theme-toggle {
+  display: none !important;
+}
+
+.bas-modern-dashboard .bas-dash-theme-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 18px;
+  border: none;
+  background: transparent;
+  color: var(--bas-dash-text-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--bas-transition);
+  outline: none;
+}
+
+.bas-modern-dashboard .bas-dash-theme-btn.active {
+  background: var(--bas-dash-toggle-active);
+  color: var(--bas-dash-toggle-text);
+  box-shadow: 0 2px 8px rgba(0, 102, 255, 0.3);
+}
+
+/* User Profile Badge (Executive Frosted Glass Dark Badge - Guaranteed 100% Text Visibility) */
+.bas-modern-dashboard .bas-user-profile-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 14px 4px 6px;
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.14) !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) !important;
+  cursor: pointer;
+  transition: var(--bas-transition);
+  text-decoration: none;
+  color: #ffffff !important;
+}
+
+.bas-modern-dashboard .bas-user-profile-badge:hover {
+  background: rgba(255, 255, 255, 0.24) !important;
+  border-color: #00d4ff !important;
+  box-shadow: 0 0 16px rgba(0, 212, 255, 0.45) !important;
+}
+
+.bas-modern-dashboard .bas-user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0052d4, #00d4ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+}
+
+.bas-modern-dashboard .bas-user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.bas-modern-dashboard .bas-user-name,
+#dashUserName {
+  font-size: 0.84rem !important;
+  font-weight: 800 !important;
+  line-height: 1.2;
+  color: #ffffff !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5) !important;
+}
+
+.bas-modern-dashboard .bas-user-role,
+.bas-modern-dashboard.theme-light .bas-user-role,
+#dashUserRole {
+  font-size: 0.72rem !important;
+  font-weight: 600 !important;
+  color: #00d4ff !important;
+  text-transform: capitalize !important;
+  letter-spacing: 0.3px !important;
+}
+
+.bas-modern-dashboard .bas-user-profile-badge .fa-chevron-down {
+  color: #ffffff !important;
+  opacity: 0.85 !important;
+}
+
+/* ==========================================================================
+   3D Animated Interactive Showcase Workspace (No link, No data)
+   ========================================================================== */
+.bas-modern-dashboard .bas-dash-content.bas-dash-3d-wrapper {
+  position: relative;
+  z-index: 10;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  min-height: calc(100vh - 75px);
+  max-height: calc(100vh - 75px);
+  overflow: hidden;
+  padding: 14px 24px 18px 24px;
+  width: 100%;
+  max-width: 1540px;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* Top Floating Capsule in 3D Space */
+.bas-modern-dashboard .bas-3d-top-header {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2px;
+  z-index: 5;
+}
+
+/* 3D Perspective Stage Container */
+.bas-modern-dashboard .bas-dash-3d-stage {
+  perspective: 1200px;
+  transform-style: preserve-3d;
+  width: 100%;
+  height: 480px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: auto 0;
+}
+
+.bas-modern-dashboard .bas-dash-3d-scene {
+  position: relative;
+  width: 900px;
+  max-width: 96vw;
+  height: 380px;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* Bottom Floating Dock */
+.bas-modern-dashboard .bas-3d-bottom-dock {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 4px;
+  z-index: 5;
+  flex-wrap: wrap;
+}
+
+.bas-modern-dashboard .bas-3d-bottom-dock .bas-3d-action-pill {
+  margin-bottom: 0;
+}
+
+.bas-modern-dashboard .bas-3d-bottom-dock .bas-3d-designer-badge {
+  margin-bottom: 0;
+}
+
+/* 1. Futuristic Glowing Holographic 3D Podium */
+.bas-modern-dashboard .bas-3d-podium {
+  position: absolute;
+  bottom: 15px;
+  left: 50%;
+  transform: translateX(-50%) rotateX(60deg);
+  width: 440px;
+  height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, var(--bas-podium-top) 0%, var(--bas-podium-side) 75%);
+  border: 2px solid var(--bas-cyan);
+  box-shadow: 
+    0 0 45px var(--bas-podium-glow),
+    inset 0 0 30px rgba(0, 212, 255, 0.4);
+  animation: basPodiumPulse 5s ease-in-out infinite alternate;
+  transform-style: preserve-3d;
+}
+
+.bas-modern-dashboard.theme-light .bas-3d-podium {
+  border-color: #0066ff;
+  box-shadow: 
+    0 0 35px var(--bas-podium-glow),
+    inset 0 0 25px rgba(0, 102, 255, 0.2);
+}
+
+.bas-modern-dashboard .bas-podium-ring {
+  position: absolute;
+  inset: -14px;
+  border-radius: 50%;
+  border: 1.5px dashed rgba(0, 212, 255, 0.5);
+  animation: basRingRotate 25s linear infinite;
+}
+
+.bas-modern-dashboard.theme-light .bas-podium-ring {
+  border-color: rgba(0, 102, 255, 0.45);
+}
+
+.bas-modern-dashboard .bas-podium-ring-outer {
+  position: absolute;
+  inset: -28px;
+  border-radius: 50%;
+  border: 1px dotted rgba(0, 212, 255, 0.25);
+  animation: basRingRotate 38s linear infinite reverse;
+}
+
+.bas-modern-dashboard.theme-light .bas-podium-ring-outer {
+  border-color: rgba(0, 102, 255, 0.2);
+}
+
+.bas-modern-dashboard .bas-podium-badge {
+  position: absolute;
+  bottom: -24px;
+  left: 50%;
+  transform: translateX(-50%) rotateX(-60deg);
+  background: linear-gradient(135deg, #0052d4, #00d4ff) !important;
+  color: #ffffff !important;
+  font-size: 0.90rem;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  padding: 6px 32px;
+  border-radius: 14px;
+  border: 1.5px solid rgba(255, 255, 255, 0.6) !important;
+  box-shadow: 0 6px 28px rgba(0, 212, 255, 0.65);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  z-index: 5;
+  white-space: nowrap;
+}
+
+/* 2. Central 3D Enterprise Console Terminal */
+.bas-modern-dashboard .bas-3d-terminal {
+  position: absolute;
+  top: 25px;
+  left: 50%;
+  width: 440px;
+  height: 285px;
+  transform: translateX(-50%) translateZ(45px) rotateX(8deg);
+  background: #ffffff !important;
+  border-radius: 20px;
+  border: 2.5px solid #ffffff !important;
+  box-shadow: 
+    0 30px 75px rgba(0, 0, 0, 0.75),
+    0 0 50px rgba(0, 212, 255, 0.45),
+    inset 0 1px 0 #ffffff !important;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: basTerminalFloat 6s ease-in-out infinite alternate;
+  transform-style: preserve-3d;
+}
+
+.bas-modern-dashboard.theme-light .bas-3d-terminal {
+  border-color: rgba(0, 102, 255, 0.35);
+  box-shadow: 
+    0 25px 50px rgba(16, 42, 86, 0.18),
+    0 0 35px rgba(0, 102, 255, 0.15),
+    inset 0 0 20px rgba(0, 102, 255, 0.08);
+}
+
+.bas-modern-dashboard .bas-terminal-topbar {
+  height: 30px;
+  background: linear-gradient(90deg, #07132b 0%, #0d2149 100%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  gap: 7px;
+}
+
+.bas-modern-dashboard .bas-terminal-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.bas-modern-dashboard .bas-terminal-dot.r { background: #ff5f56; }
+.bas-modern-dashboard .bas-terminal-dot.y { background: #ffbd2e; }
+.bas-modern-dashboard .bas-terminal-dot.g { background: #27c93f; }
+
+.bas-modern-dashboard .bas-terminal-title {
+  margin-left: 8px;
+  font-size: 0.72rem;
+  color: #ffffff !important;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.bas-modern-dashboard .bas-terminal-screen {
+  flex: 1;
+  padding: 12px 18px 8px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: linear-gradient(180deg, #ffffff 0%, #f4f8fe 100%) !important;
+}
+
+.bas-modern-dashboard.theme-light .bas-terminal-screen {
+  background: linear-gradient(180deg, #ffffff 0%, #f4f8fe 100%);
+}
+
+/* ==========================================================================
+   Central 3D Terminal: User Recent Activity Screens & Quick Workspaces
+   ========================================================================== */
+
+/* Terminal Screen Header */
+.bas-modern-dashboard .bas-terminal-screen-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1.5px solid rgba(0, 102, 255, 0.12);
+}
+
+.bas-modern-dashboard .bas-screen-welcome {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bas-modern-dashboard .bas-screen-badge {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(0, 102, 255, 0.1);
+  color: #0052d4;
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 7px;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 102, 255, 0.2);
+}
+
+.bas-modern-dashboard .bas-screen-heading {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #071530 !important;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.bas-modern-dashboard .bas-screen-user-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.70rem;
+  font-weight: 700;
+  color: #0052d4;
+  background: rgba(0, 212, 255, 0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 212, 255, 0.25);
+}
+
+/* 2x2 Interactive Quick Access Cards Grid */
+.bas-modern-dashboard .bas-recent-screens-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin: 4px 0 6px 0;
+  flex: 1;
+}
+
+.bas-modern-dashboard .bas-recent-screen-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1.5px solid #e2e8f0;
+  text-decoration: none !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.bas-modern-dashboard .bas-recent-screen-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 3.5px;
+  background: linear-gradient(180deg, #0052d4, #00d4ff);
+  opacity: 0.85;
+  transition: width 0.2s ease;
+}
+
+.bas-modern-dashboard .bas-recent-screen-card:hover {
+  transform: translateY(-2.5px);
+  border-color: #0066ff;
+  box-shadow: 0 6px 18px rgba(0, 102, 255, 0.18);
+  background: linear-gradient(135deg, #ffffff 0%, #f4f8fe 100%);
+}
+
+.bas-modern-dashboard .bas-recent-screen-card:hover::before {
+  width: 5px;
+}
+
+.bas-modern-dashboard .bas-recent-card-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #0052d4 0%, #00d4ff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff !important;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  box-shadow: 0 3px 8px rgba(0, 82, 212, 0.25);
+  transition: transform 0.2s ease;
+}
+
+.bas-modern-dashboard .bas-recent-screen-card:hover .bas-recent-card-icon {
+  transform: scale(1.08) rotate(-4deg);
+}
+
+.bas-modern-dashboard .bas-recent-card-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.bas-modern-dashboard .bas-recent-card-title {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #071530 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.bas-modern-dashboard .bas-recent-card-sub {
+  font-size: 0.64rem;
+  font-weight: 600;
+  color: #64748b;
+  margin-top: 1px;
+}
+
+.bas-modern-dashboard .bas-recent-card-arrow {
+  font-size: 0.65rem;
+  color: #94a3b8;
+  opacity: 0.6;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.bas-modern-dashboard .bas-recent-screen-card:hover .bas-recent-card-arrow {
+  color: #0066ff;
+  opacity: 1;
+  transform: translate(2px, -2px);
+}
+
+
+.bas-modern-dashboard .bas-terminal-ticker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.66rem;
+  font-weight: 600;
+  color: #334155 !important;
+  border-top: 1px solid #e2e8f0 !important;
+  padding-top: 6px;
+}
+
+.bas-modern-dashboard .bas-ticker-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #e0f2fe !important;
+  color: #0284c7 !important;
+  border: 1px solid #bae6fd !important;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-weight: 700;
+}
+
+.bas-modern-dashboard .bas-ticker-dot {
+  width: 6px;
+  height: 6px;
+  background: #0284c7 !important;
+  border-radius: 50%;
+  animation: basDotBlink 1.5s infinite;
+}
+
+/* 3. Floating 3D Holographic Badges & Tiles (Software Modules) */
+.bas-modern-dashboard .bas-floating-tile {
+  position: absolute;
+  background: linear-gradient(145deg, #ffffff 0%, #f4f8fe 100%) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 2px solid #ffffff !important;
+  border-radius: 18px;
+  padding: 11px 18px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  box-shadow: 
+    0 20px 45px rgba(0, 0, 0, 0.65),
+    0 0 25px rgba(0, 212, 255, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 1) !important;
+  transform-style: preserve-3d;
+  will-change: transform;
+  z-index: 6;
+  white-space: nowrap;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bas-modern-dashboard .bas-floating-tile:hover {
+  border-color: #00d4ff !important;
+  box-shadow: 
+    0 25px 55px rgba(0, 0, 0, 0.8),
+    0 0 40px rgba(0, 212, 255, 0.6),
+    inset 0 1px 0 #ffffff !important;
+  transform: translateZ(125px) scale(1.04) !important;
+}
+
+.bas-modern-dashboard.theme-light .bas-floating-tile {
+  box-shadow: 
+    0 16px 35px rgba(16, 42, 86, 0.12),
+    0 0 20px rgba(0, 102, 255, 0.08);
+}
+
+/* Tile 1: Top Left - Retail POS */
+.bas-modern-dashboard .bas-tile-1 {
+  top: 15px;
+  left: -20px;
+  transform: translateZ(90px);
+  animation: basTileFloat1 7s ease-in-out infinite alternate;
+}
+
+/* Tile 2: Top Right - Warehouse */
+.bas-modern-dashboard .bas-tile-2 {
+  top: 15px;
+  right: -20px;
+  transform: translateZ(80px);
+  animation: basTileFloat2 8.5s ease-in-out infinite alternate;
+}
+
+/* Tile 3: Mid Left - Wholesale B2B */
+.bas-modern-dashboard .bas-tile-3 {
+  top: 140px;
+  left: -50px;
+  transform: translateZ(105px);
+  animation: basTileFloat3 6.8s ease-in-out infinite alternate;
+}
+
+/* Tile 4: Mid Right - Purchasing & AP */
+.bas-modern-dashboard .bas-tile-4 {
+  top: 140px;
+  right: -50px;
+  transform: translateZ(85px);
+  animation: basTileFloat4 7.6s ease-in-out infinite alternate;
+}
+
+/* Tile 5: Bottom Left - Dual Biometrics */
+.bas-modern-dashboard .bas-tile-5 {
+  bottom: 25px;
+  left: -15px;
+  transform: translateZ(95px);
+  animation: basTileFloat5 7.2s ease-in-out infinite alternate;
+}
+
+/* Tile 6: Bottom Right - Double-Entry Ledger */
+.bas-modern-dashboard .bas-tile-6 {
+  bottom: 25px;
+  right: -15px;
+  transform: translateZ(90px);
+  animation: basTileFloat6 8s ease-in-out infinite alternate;
+}
+
+.bas-modern-dashboard .bas-tile-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.bas-modern-dashboard .bas-tile-chip {
+  font-size: 0.64rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #0052d4, #0066ff) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(0, 102, 255, 0.35);
+  border: none !important;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.bas-modern-dashboard.theme-light .bas-tile-chip {
+  background: rgba(0, 102, 255, 0.1);
+  color: #0052d4;
+  border-color: rgba(0, 102, 255, 0.22);
+}
+
+.bas-modern-dashboard .bas-tile-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0052d4 0%, #00d4ff 100%) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff !important;
+  font-size: 1.15rem;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 14px rgba(0, 102, 255, 0.4);
+  flex-shrink: 0;
+}
+
+.bas-modern-dashboard.theme-light .bas-tile-icon {
+  color: #0052d4;
+  background: linear-gradient(135deg, rgba(0, 102, 255, 0.15) 0%, rgba(0, 212, 255, 0.2) 100%);
+  border-color: rgba(0, 102, 255, 0.25);
+}
+
+.bas-modern-dashboard .bas-tile-info {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.bas-modern-dashboard .bas-tile-val {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #071530 !important;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.bas-modern-dashboard .bas-tile-lbl {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #475569 !important;
+  letter-spacing: 0.01em;
+}
+
+/* Isometric 3D Cube Graphic */
+.bas-modern-dashboard .bas-iso-cube {
+  width: 36px;
+  height: 36px;
+  position: relative;
+  transform-style: preserve-3d;
+  animation: basCubeSpin 14s linear infinite;
+  margin-right: 2px;
+}
+
+.bas-modern-dashboard .bas-cube-face {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, rgba(0, 102, 255, 0.85), rgba(0, 212, 255, 0.9)) !important;
+  border: 1.5px solid #ffffff !important;
+  border-radius: 4px;
+  box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.4), 0 0 12px rgba(0, 212, 255, 0.45);
+}
+
+.bas-modern-dashboard.theme-light .bas-cube-face {
+  background: rgba(0, 102, 255, 0.25);
+  border-color: #0052d4;
+  box-shadow: inset 0 0 8px rgba(0, 102, 255, 0.2);
+}
+
+.bas-modern-dashboard .bas-cube-face.f { transform: translateZ(18px); }
+.bas-modern-dashboard .bas-cube-face.b { transform: rotateY(180deg) translateZ(18px); }
+.bas-modern-dashboard .bas-cube-face.r { transform: rotateY(90deg) translateZ(18px); }
+.bas-modern-dashboard .bas-cube-face.l { transform: rotateY(-90deg) translateZ(18px); }
+.bas-modern-dashboard .bas-cube-face.t { transform: rotateX(90deg) translateZ(18px); }
+.bas-modern-dashboard .bas-cube-face.bt { transform: rotateX(-90deg) translateZ(18px); }
+
+/* Executive Hero Left Column Typography */
+.bas-modern-dashboard .bas-3d-welcome-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #ffffff !important;
+  border: 1.5px solid #ffffff !important;
+  border-radius: 30px;
+  padding: 7px 22px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #071530 !important;
+  letter-spacing: 0.02em;
+  margin-bottom: 12px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45), 0 0 20px rgba(0, 212, 255, 0.35);
+}
+
+.bas-modern-dashboard.theme-light .bas-3d-welcome-pill {
+  color: #0052d4;
+  background: rgba(0, 82, 212, 0.08);
+  border-color: rgba(0, 82, 212, 0.22);
+}
+
+.bas-modern-dashboard .bas-3d-main-title {
+  font-size: 2.75rem;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  margin-bottom: 12px;
+  color: var(--bas-dash-text);
+  text-align: left;
+  text-shadow: 0 4px 18px rgba(0, 102, 255, 0.22);
+}
+
+.bas-modern-dashboard .bas-gradient-brand {
+  background: linear-gradient(135deg, #00d4ff 0%, #4364f7 60%, #0052d4 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+.bas-modern-dashboard.theme-light .bas-gradient-brand {
+  background: linear-gradient(135deg, #0052d4 0%, #0066ff 60%, #00a8ff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Slogan Tagline with Pulsing 3D Dot */
+.bas-modern-dashboard .bas-3d-tagline {
+  font-size: 1.22rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--bas-dash-text);
+  margin-bottom: 14px;
+  text-align: left;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bas-modern-dashboard.theme-light .bas-3d-tagline {
+  color: #0b192c;
+}
+
+.bas-modern-dashboard .bas-tagline-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #00d4ff;
+  box-shadow: 0 0 10px #00d4ff;
+  animation: basDotPulse 2s infinite ease-in-out;
+  flex-shrink: 0;
+}
+
+.bas-modern-dashboard.theme-light .bas-tagline-dot {
+  background: #0066ff;
+  box-shadow: 0 0 10px #0066ff;
+}
+
+@keyframes basDotPulse {
+  0%, 100% { transform: scale(1); opacity: 0.85; }
+  50% { transform: scale(1.45); opacity: 1; box-shadow: 0 0 16px #00d4ff; }
+}
+
+.bas-modern-dashboard .bas-3d-sub-caption {
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: var(--bas-dash-text-muted);
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.bas-modern-dashboard .bas-3d-sub-caption strong {
+  color: var(--bas-dash-text);
+  font-weight: 700;
+}
+
+.bas-modern-dashboard.theme-light .bas-3d-sub-caption strong {
+  color: #0b192c;
+}
+
+/* Sidebar Action Guidance Pill */
+.bas-modern-dashboard .bas-3d-action-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 22px;
+  border-radius: 30px;
+  background: #ffffff !important;
+  border: 1.5px solid #ffffff !important;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #0f172a !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
+  line-height: 1.5;
+}
+
+.bas-modern-dashboard.theme-light .bas-3d-action-pill {
+  background: rgba(0, 82, 212, 0.05);
+  border-color: rgba(0, 82, 212, 0.18);
+  color: #102a43;
+}
+
+/* Designer Signature Badge (Bilal Shah) */
+.bas-modern-dashboard .bas-3d-designer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 24px;
+  border-radius: 30px;
+  background: linear-gradient(135deg, #0052d4, #00d4ff) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.4) !important;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #ffffff !important;
+  box-shadow: 0 8px 24px rgba(0, 212, 255, 0.45);
+}
+
+.bas-modern-dashboard.theme-light .bas-3d-designer-badge {
+  background: rgba(0, 102, 255, 0.08);
+  border-color: rgba(0, 102, 255, 0.25);
+}
+
+.bas-modern-dashboard .bas-3d-designer-badge i {
+  color: #ffffff !important;
+  font-size: 0.95rem;
+}
+
+.bas-modern-dashboard.theme-light .bas-3d-designer-badge i {
+  color: #0066ff;
+}
+
+.bas-modern-dashboard .bas-3d-designer-badge strong {
+  color: #ffffff !important;
+  font-weight: 800;
+}
+
+.bas-modern-dashboard.theme-light .bas-3d-designer-badge strong {
+  color: #0052d4;
+}
+
+/* Cursor Glow Effect */
+.bas-modern-dashboard .bas-cursor-glow {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 212, 255, 0.14) 0%, rgba(0, 102, 255, 0) 65%);
+  filter: blur(50px);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.3s ease;
+  z-index: 1;
+  opacity: 0;
+}
+
+.bas-modern-dashboard.theme-light .bas-cursor-glow {
+  background: radial-gradient(circle, rgba(0, 102, 255, 0.09) 0%, rgba(0, 102, 255, 0) 65%);
+}
+
+/* ==========================================================================
+   Keyframe Animations for 3D Elements
+   ========================================================================== */
+@keyframes basPodiumPulse {
+  0% { box-shadow: 0 0 25px var(--bas-podium-glow), inset 0 0 20px rgba(0, 212, 255, 0.25); }
+  100% { box-shadow: 0 0 55px var(--bas-podium-glow), inset 0 0 38px rgba(0, 212, 255, 0.5); }
+}
+
+@keyframes basRingRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes basTerminalFloat {
+  0% { transform: translateX(-50%) translateZ(45px) rotateX(8deg) translateY(0); }
+  100% { transform: translateX(-50%) translateZ(45px) rotateX(8deg) translateY(-14px); }
+}
+
+@keyframes basTileFloat1 {
+  0% { transform: translateZ(85px) translateY(0) rotate(0deg); }
+  100% { transform: translateZ(85px) translateY(-12px) rotate(1.5deg); }
+}
+
+@keyframes basTileFloat2 {
+  0% { transform: translateZ(70px) translateY(0) rotate(0deg); }
+  100% { transform: translateZ(70px) translateY(-15px) rotate(-2deg); }
+}
+
+@keyframes basTileFloat3 {
+  0% { transform: translateZ(95px) translateY(0); }
+  100% { transform: translateZ(95px) translateY(-10px); }
+}
+
+@keyframes basTileFloat4 {
+  0% { transform: translateZ(80px) translateY(0); }
+  100% { transform: translateZ(80px) translateY(-13px); }
+}
+
+@keyframes basTileFloat5 {
+  0% { transform: translateZ(95px) translateY(0) rotate(0deg); }
+  100% { transform: translateZ(95px) translateY(-11px) rotate(-1.2deg); }
+}
+
+@keyframes basTileFloat6 {
+  0% { transform: translateZ(90px) translateY(0) rotate(0deg); }
+  100% { transform: translateZ(90px) translateY(-14px) rotate(1.5deg); }
+}
+
+@keyframes basCubeSpin {
+  0% { transform: rotateX(15deg) rotateY(0deg); }
+  100% { transform: rotateX(15deg) rotateY(360deg); }
+}
+
+@keyframes basChartDraw {
+  0% { stroke-dashoffset: 400; }
+  100% { stroke-dashoffset: 0; }
+}
+
+@keyframes basDotBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* ==========================================================================
+   Layout Positioning & Sidebar Offset Synchronization (Prevents overlapping)
+   ========================================================================== */
+@media (min-width: 769px) {
+  body:has(.bas-modern-dashboard).sidebar-mini,
+  body.bas-dash-theme-dark.sidebar-mini,
+  body.bas-dash-theme-light.sidebar-mini {
+    padding-left: 60px !important;
+    transition: padding-left 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+
+  body:has(.bas-modern-dashboard).sidebar-full,
+  body.bas-dash-theme-dark.sidebar-full,
+  body.bas-dash-theme-light.sidebar-full {
+    padding-left: 280px !important;
+    transition: padding-left 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  body:has(.bas-modern-dashboard).sidebar-mini,
+  body:has(.bas-modern-dashboard).sidebar-full,
+  body.bas-dash-theme-dark.sidebar-mini,
+  body.bas-dash-theme-dark.sidebar-full,
+  body.bas-dash-theme-light.sidebar-mini,
+  body.bas-dash-theme-light.sidebar-full {
+    padding-left: 0 !important;
+  }
+}
+
+/* ==========================================================================
+   Sidebar Modern Dark & Light Overrides (Active on /main only)
+   ========================================================================== */
+body.bas-dash-theme-light,
+body:has(.bas-modern-dashboard.theme-light),
+body.bas-dash-theme-dark,
+body:has(.bas-modern-dashboard.theme-dark) {
+  --sidebar-bg: #071022 !important;
+  --popover-bg: #091326 !important;
+  --popover-text: #f0f6fc !important;
+  --active-item-bg: rgba(0, 212, 255, 0.15) !important;
+  --item-hover-bg: rgba(0, 212, 255, 0.08) !important;
+}
+
+body:has(.bas-modern-dashboard) #sidebar,
+body:has(.bas-modern-dashboard) .sidebar-container,
+body.bas-dash-theme-dark #sidebar,
+body.bas-dash-theme-dark .sidebar-container,
+body.bas-dash-theme-light #sidebar,
+body.bas-dash-theme-light .sidebar-container {
+  transition: left 0.3s, width 0.3s, background-color 0.25s ease, border-color 0.25s ease !important;
+}
+
+/* ----------------- 1. DARK THEME SIDEBAR ----------------- */
+body:has(.bas-modern-dashboard.theme-dark) #sidebar,
+body:has(.bas-modern-dashboard.theme-dark) .sidebar-container,
+body.bas-dash-theme-dark #sidebar,
+body.bas-dash-theme-dark .sidebar-container {
+  background-color: #071022 !important;
+  border-right: 1px solid rgba(0, 212, 255, 0.15) !important;
+  box-shadow: 4px 0 25px rgba(0, 0, 0, 0.5) !important;
+}
+
+body:has(.bas-modern-dashboard.theme-dark) #sidebar .sidebar-header,
+body:has(.bas-modern-dashboard.theme-dark) #sidebar .user-info-mini,
+body:has(.bas-modern-dashboard.theme-dark) .sidebar-container .sidebar-header,
+body:has(.bas-modern-dashboard.theme-dark) .sidebar-container .user-info-mini,
+body.bas-dash-theme-dark #sidebar .sidebar-header,
+body.bas-dash-theme-dark #sidebar .user-info-mini,
+body.bas-dash-theme-dark .sidebar-container .sidebar-header,
+body.bas-dash-theme-dark .sidebar-container .user-info-mini {
+  background-color: #050b18 !important;
+  border-bottom: 1px solid rgba(0, 212, 255, 0.12) !important;
+}
+
+body:has(.bas-modern-dashboard.theme-dark) #sidebar .sidebar-header #sidebarToggleBtn,
+body.bas-dash-theme-dark #sidebar .sidebar-header #sidebarToggleBtn {
+  color: #00d4ff !important;
+}
+
+body:has(.bas-modern-dashboard.theme-dark) #sidebar .sidebar-header .logo-text,
+body.bas-dash-theme-dark #sidebar .sidebar-header .logo-text {
+  color: #f0f6fc !important;
+}
+
+body:has(.bas-modern-dashboard.theme-dark) #sidebar .user-avatar-circle,
+body:has(.bas-modern-dashboard.theme-dark) .sidebar-container .user-avatar-circle,
+body.bas-dash-theme-dark #sidebar .user-avatar-circle,
+body.bas-dash-theme-dark .sidebar-container .user-avatar-circle {
+  background: rgba(10, 21, 46, 0.95) !important;
+  border: 1.5px solid rgba(0, 212, 255, 0.35) !important;
+  box-shadow: 0 0 14px rgba(0, 212, 255, 0.25) !important;
+}
+
+body:has(.bas-modern-dashboard.theme-dark) #sidebar #defaultUserIcon,
+body.bas-dash-theme-dark #sidebar #defaultUserIcon {
+  color: #00d4ff !important;
+}
+
+body:has(.bas-modern-dashboard.theme-dark) #sidebar .nav-link,
+body:has(.bas-modern-dashboard.theme-dark) #sidebar .nav-link i,
+body:has(.bas-modern-dashboard.theme-dark) #sidebar .nav-link span,
+body:has(.bas-modern-dashboard.theme-dark) .sidebar-container .nav-link,
+body:has(.bas-modern-dashboard.theme-dark) .sidebar-container .nav-link i,
+body:has(.bas-modern-dashboard.theme-dark) .sidebar-container .nav-link span,
+body.bas-dash-theme-dark #sidebar .nav-link,
+body.bas-dash-theme-dark #sidebar .nav-link i,
+body.bas-dash-theme-dark #sidebar .nav-link span,
+body.bas-dash-theme-dark .sidebar-container .nav-link,
+body.bas-dash-theme-dark .sidebar-container .nav-link i,
+body.bas-dash-theme-dark .sidebar-container .nav-link span {
+  color: #8b9bb4 !important;
+}
+
+body:has(.bas-modern-dashboard.theme-dark) #sidebar .nav-link:hover,
+body:has(.bas-modern-dashboard.theme-dark) #sidebar .nav-link:hover i,
+body:has(.bas-modern-dashboard.theme-dark) #sidebar .nav-link:hover span,
+body:has(.bas-modern-dashboard.theme-dark) .sidebar-container .nav-link:hover,
+body:has(.bas-modern-dashboard.theme-dark) .sidebar-container .nav-link:hover i,
+body:has(.bas-modern-dashboard.theme-dark) .sidebar-container .nav-link:hover span,
+body.bas-dash-theme-dark #sidebar .nav-link:hover,
+body.bas-dash-theme-dark #sidebar .nav-link:hover i,
+body.bas-dash-theme-dark #sidebar .nav-link:hover span,
+body.bas-dash-theme-dark .sidebar-container .nav-link:hover,
+body.bas-dash-theme-dark .sidebar-container .nav-link:hover i,
+body.bas-dash-theme-dark .sidebar-container .nav-link:hover span {
+  color: #00d4ff !important;
+  background: rgba(0, 212, 255, 0.08) !important;
+}
+
+body:has(.bas-modern-dashboard.theme-dark) #sidebar .nav-item.active > .nav-link,
+body:has(.bas-modern-dashboard.theme-dark) #sidebar .nav-link.active,
+body:has(.bas-modern-dashboard.theme-dark) .sidebar-container .nav-item.active > .nav-link,
+body:has(.bas-modern-dashboard.theme-dark) .sidebar-container .nav-link.active,
+body.bas-dash-theme-dark #sidebar .nav-item.active > .nav-link,
+body.bas-dash-theme-dark #sidebar .nav-link.active,
+body.bas-dash-theme-dark .sidebar-container .nav-item.active > .nav-link,
+body.bas-dash-theme-dark .sidebar-container .nav-link.active {
+  background: linear-gradient(90deg, rgba(0, 102, 255, 0.28) 0%, rgba(0, 212, 255, 0.1) 100%) !important;
+  color: #00d4ff !important;
+  border-left: 3px solid #00d4ff !important;
+}
+
+body:has(.bas-modern-dashboard.theme-dark) #sidebar .nav-item.active > .nav-link i,
+body:has(.bas-modern-dashboard.theme-dark) #sidebar .nav-link.active i,
+body:has(.bas-modern-dashboard.theme-dark) .sidebar-container .nav-item.active > .nav-link i,
+body:has(.bas-modern-dashboard.theme-dark) .sidebar-container .nav-link.active i,
+body.bas-dash-theme-dark #sidebar .nav-item.active > .nav-link i,
+body.bas-dash-theme-dark #sidebar .nav-link.active i,
+body.bas-dash-theme-dark .sidebar-container .nav-item.active > .nav-link i,
+body.bas-dash-theme-dark .sidebar-container .nav-link.active i {
+  color: #00d4ff !important;
+}
+
+body:has(.bas-modern-dashboard.theme-dark) #sidebar .arrow,
+body:has(.bas-modern-dashboard.theme-dark) #sidebar .arrow-icon,
+body:has(.bas-modern-dashboard.theme-dark) .sidebar-container .arrow,
+body:has(.bas-modern-dashboard.theme-dark) .sidebar-container .arrow-icon,
+body.bas-dash-theme-dark #sidebar .arrow,
+body.bas-dash-theme-dark #sidebar .arrow-icon,
+body.bas-dash-theme-dark .sidebar-container .arrow,
+body.bas-dash-theme-dark .sidebar-container .arrow-icon {
+  color: #8b9bb4 !important;
+}
+
+body:has(.bas-modern-dashboard.theme-dark) #sidebar .popover-menu,
+body:has(.bas-modern-dashboard.theme-dark) .sidebar-container .popover-menu,
+body.bas-dash-theme-dark #sidebar .popover-menu,
+body.bas-dash-theme-dark .sidebar-container .popover-menu {
+  background-color: #091326 !important;
+  border: 1px solid rgba(0, 212, 255, 0.25) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+}
+
+body:has(.bas-modern-dashboard.theme-dark) #sidebar .popover-header,
+body.bas-dash-theme-dark #sidebar .popover-header {
+  background-color: #0d1a33 !important;
+  color: #00d4ff !important;
+  border-bottom: 1px solid rgba(0, 212, 255, 0.2) !important;
+}
+
+body:has(.bas-modern-dashboard.theme-dark) #sidebar .popover-item,
+body:has(.bas-modern-dashboard.theme-dark) .sidebar-container .popover-item,
+body.bas-dash-theme-dark #sidebar .popover-item,
+body.bas-dash-theme-dark .sidebar-container .popover-item {
+  color: #cbd5e1 !important;
+}
+
+body:has(.bas-modern-dashboard.theme-dark) #sidebar .popover-item:hover,
+body:has(.bas-modern-dashboard.theme-dark) .sidebar-container .popover-item:hover,
+body.bas-dash-theme-dark #sidebar .popover-item:hover,
+body.bas-dash-theme-dark .sidebar-container .popover-item:hover {
+  background-color: rgba(0, 212, 255, 0.12) !important;
+  color: #00d4ff !important;
+}
+
+/* ----------------- 2. UNIVERSAL DARK EXECUTIVE SIDEBAR (Active on /main) ----------------- */
+/* In accordance with user requirement, the sidebar always retains the executive dark theme */
+
+body:has(.bas-modern-dashboard.theme-light) .sidebar-container.full .small-link:hover,
+body.bas-dash-theme-light .sidebar-container.full .small-link:hover {
+  color: #0052d4 !important;
+  background-color: rgba(0, 102, 255, 0.06) !important;
+}
+
+body:has(.bas-modern-dashboard.theme-light) .sidebar-container.full .sidebar-sub-header,
+body.bas-dash-theme-light .sidebar-container.full .sidebar-sub-header {
+  color: #64748b !important;
+}
+
+/* ----------------- 3. LOGO AND AVATAR PROPORTIONS IN SIDEBAR ----------------- */
+body:has(.bas-modern-dashboard) #sidebar .user-info-mini,
+body:has(.bas-modern-dashboard) .sidebar-container .user-info-mini,
+body.bas-dash-theme-dark #sidebar .user-info-mini,
+body.bas-dash-theme-dark .sidebar-container .user-info-mini,
+body.bas-dash-theme-light #sidebar .user-info-mini,
+body.bas-dash-theme-light .sidebar-container .user-info-mini {
+  padding: 12px 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+body:has(.bas-modern-dashboard) #sidebar .user-avatar-circle,
+body:has(.bas-modern-dashboard) .sidebar-container .user-avatar-circle,
+body.bas-dash-theme-dark #sidebar .user-avatar-circle,
+body.bas-dash-theme-dark .sidebar-container .user-avatar-circle,
+body.bas-dash-theme-light #sidebar .user-avatar-circle,
+body.bas-dash-theme-light .sidebar-container .user-avatar-circle {
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  transition: all 0.2s ease !important;
+}
+
+body:has(.bas-modern-dashboard) #sidebar.mini .user-avatar-circle,
+body:has(.bas-modern-dashboard) .sidebar-container.mini .user-avatar-circle,
+body.bas-dash-theme-dark #sidebar.mini .user-avatar-circle,
+body.bas-dash-theme-dark .sidebar-container.mini .user-avatar-circle,
+body.bas-dash-theme-light #sidebar.mini .user-avatar-circle,
+body.bas-dash-theme-light .sidebar-container.mini .user-avatar-circle {
+  width: 42px !important;
+  height: 42px !important;
+}
+
+body:has(.bas-modern-dashboard) #sidebar.full .user-avatar-circle,
+body:has(.bas-modern-dashboard) .sidebar-container.full .user-avatar-circle,
+body.bas-dash-theme-dark #sidebar.full .user-avatar-circle,
+body.bas-dash-theme-dark .sidebar-container.full .user-avatar-circle,
+body.bas-dash-theme-light #sidebar.full .user-avatar-circle,
+body.bas-dash-theme-light .sidebar-container.full .user-avatar-circle {
+  width: 58px !important;
+  height: 58px !important;
+}
+
+body:has(.bas-modern-dashboard) #sidebar .user-avatar-circle img,
+body:has(.bas-modern-dashboard) .sidebar-container .user-avatar-circle img,
+body.bas-dash-theme-dark #sidebar .user-avatar-circle img,
+body.bas-dash-theme-dark .sidebar-container .user-avatar-circle img,
+body.bas-dash-theme-light #sidebar .user-avatar-circle img,
+body.bas-dash-theme-light .sidebar-container .user-avatar-circle img {
+  width: 78% !important;
+  height: 78% !important;
+  object-fit: contain !important;
+  border-radius: 50% !important;
+}
+
+/* ==========================================================================
+   Responsive Breakpoints & Reduced Motion
+   ========================================================================== */
+@media (max-width: 1280px) {
+  .bas-modern-dashboard .bas-split-layout {
+    gap: 24px;
+  }
+  .bas-modern-dashboard .bas-3d-main-title {
+    font-size: 2.35rem;
+  }
+  .bas-modern-dashboard .bas-dash-3d-scene {
+    transform: scale(0.88);
+  }
+}
+
+@media (max-width: 1024px) {
+  .bas-modern-dashboard .bas-dash-content.bas-dash-3d-wrapper {
+    min-height: auto;
+    max-height: none;
+    overflow-y: auto;
+    padding: 24px 18px 40px 18px;
+  }
+  .bas-modern-dashboard .bas-split-layout {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .bas-modern-dashboard .bas-split-col-left {
+    align-items: center;
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .bas-modern-dashboard .bas-3d-main-title {
+    text-align: center;
+    font-size: 2.2rem;
+  }
+  .bas-modern-dashboard .bas-3d-tagline {
+    text-align: center;
+    justify-content: center;
+  }
+  .bas-modern-dashboard .bas-3d-sub-caption {
+    text-align: center;
+  }
+  .bas-modern-dashboard .bas-3d-action-pill {
+    text-align: center;
+    justify-content: center;
+  }
+  .bas-modern-dashboard .bas-dash-3d-stage {
+    height: 360px;
+  }
+  .bas-modern-dashboard .bas-dash-3d-scene {
+    transform: scale(0.82);
+  }
+}
+
+@media (max-width: 800px) {
+  .bas-modern-dashboard .bas-dash-content.bas-dash-3d-wrapper {
+    padding: 16px 14px 40px 14px;
+  }
+  .bas-modern-dashboard .bas-dash-3d-stage {
+    height: 320px;
+  }
+  .bas-modern-dashboard .bas-dash-3d-scene {
+    transform: scale(0.70);
+  }
+  .bas-modern-dashboard .bas-3d-main-title {
+    font-size: 1.75rem;
+  }
+  .bas-modern-dashboard .bas-3d-sub-caption {
+    font-size: 0.90rem;
+  }
+  .bas-modern-dashboard .bas-live-clock {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .bas-modern-dashboard .bas-dash-3d-stage {
+    height: 290px;
+  }
+  .bas-modern-dashboard .bas-dash-3d-scene {
+    transform: scale(0.58);
+  }
+  .bas-modern-dashboard .bas-3d-main-title {
+    font-size: 1.45rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bas-modern-dashboard .bas-3d-podium,
+  .bas-modern-dashboard .bas-podium-ring,
+  .bas-modern-dashboard .bas-podium-ring-outer,
+  .bas-modern-dashboard .bas-3d-terminal,
+  .bas-modern-dashboard .bas-floating-tile,
+  .bas-modern-dashboard .bas-iso-cube,
+  .bas-modern-dashboard .bas-chart-line,
+  .bas-modern-dashboard .bas-ticker-dot {
+    animation: none !important;
+  }
+  .bas-modern-dashboard .bas-dash-3d-scene {
+    transition: none !important;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   UNIVERSAL DARK NAVY SIDEBAR (MATCHING LOGIN & HEADER ACROSS ALL THEMES)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+#sidebar,
+.sidebar-container,
+body.theme-light #sidebar,
+body.theme-light .sidebar-container,
+body.bas-dash-theme-light #sidebar,
+body.bas-dash-theme-light .sidebar-container,
+html.bas-theme-light #sidebar,
+html.bas-theme-light .sidebar-container,
+body.theme-dark #sidebar,
+body.theme-dark .sidebar-container,
+body.bas-dash-theme-dark #sidebar,
+body.bas-dash-theme-dark .sidebar-container {
+    background-color: #071022 !important;
+    background: #071022 !important;
+    border-right: 1px solid rgba(0, 212, 255, 0.16) !important;
+    box-shadow: 4px 0 25px rgba(0, 0, 0, 0.45) !important;
+}
+
+#sidebar .sidebar-menu,
+.sidebar-container .sidebar-menu,
+body.theme-light #sidebar .sidebar-menu,
+body.bas-dash-theme-light #sidebar .sidebar-menu,
+html.bas-theme-light #sidebar .sidebar-menu {
+    background-color: #071022 !important;
+    background: #071022 !important;
+}
+
+#sidebar .sidebar-header,
+#sidebar .user-info-mini,
+.sidebar-container .sidebar-header,
+.sidebar-container .user-info-mini,
+body.theme-light #sidebar .sidebar-header,
+body.theme-light #sidebar .user-info-mini,
+body.bas-dash-theme-light #sidebar .sidebar-header,
+body.bas-dash-theme-light #sidebar .user-info-mini,
+html.bas-theme-light #sidebar .sidebar-header {
+    background-color: #081124 !important;
+    background: #081124 !important;
+    border-bottom: 1px solid rgba(0, 212, 255, 0.14) !important;
+}
+
+#sidebar .sidebar-header #sidebarToggleBtn,
+body.theme-light #sidebar .sidebar-header #sidebarToggleBtn,
+body.bas-dash-theme-light #sidebar .sidebar-header #sidebarToggleBtn {
+    color: #f0f6fc !important;
+}
+
+#sidebar .sidebar-header .logo-text,
+body.theme-light #sidebar .sidebar-header .logo-text,
+body.bas-dash-theme-light #sidebar .sidebar-header .logo-text {
+    color: #00d4ff !important;
+}
+
+#sidebar .nav-link,
+#sidebar .nav-link i,
+#sidebar .nav-link span,
+body.theme-light #sidebar .nav-link,
+body.theme-light #sidebar .nav-link i,
+body.theme-light #sidebar .nav-link span,
+body.bas-dash-theme-light #sidebar .nav-link,
+body.bas-dash-theme-light #sidebar .nav-link i,
+body.bas-dash-theme-light #sidebar .nav-link span {
+    color: #8b9bb4 !important;
+}
+
+#sidebar .nav-link:hover,
+#sidebar .nav-link:hover i,
+#sidebar .nav-link:hover span,
+body.theme-light #sidebar .nav-link:hover,
+body.theme-light #sidebar .nav-link:hover i,
+body.theme-light #sidebar .nav-link:hover span,
+body.bas-dash-theme-light #sidebar .nav-link:hover,
+body.bas-dash-theme-light #sidebar .nav-link:hover i,
+body.bas-dash-theme-light #sidebar .nav-link:hover span {
+    color: #00d4ff !important;
+    background: rgba(0, 212, 255, 0.08) !important;
+}
+
+#sidebar .nav-item.active > .nav-link,
+#sidebar .nav-link.active,
+body.theme-light #sidebar .nav-item.active > .nav-link,
+body.theme-light #sidebar .nav-link.active,
+body.bas-dash-theme-light #sidebar .nav-item.active > .nav-link,
+body.bas-dash-theme-light #sidebar .nav-link.active {
+    background: linear-gradient(90deg, rgba(0, 212, 255, 0.18) 0%, rgba(0, 102, 255, 0.08) 100%) !important;
+    color: #00d4ff !important;
+    border-left: 3px solid #00d4ff !important;
+}
+
+#sidebar .nav-item.active > .nav-link i,
+#sidebar .nav-link.active i,
+body.theme-light #sidebar .nav-item.active > .nav-link i,
+body.theme-light #sidebar .nav-link.active i,
+body.bas-dash-theme-light #sidebar .nav-item.active > .nav-link i,
+body.bas-dash-theme-light #sidebar .nav-link.active i {
+    color: #00d4ff !important;
+}
+
+#sidebar .popover-menu,
+.sidebar-container .popover-menu,
+body.theme-light #sidebar .popover-menu,
+body.bas-dash-theme-light #sidebar .popover-menu {
+    background-color: #091326 !important;
+    background: #091326 !important;
+    border: 1px solid rgba(0, 212, 255, 0.25) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
+}
+
+#sidebar .popover-header,
+body.theme-light #sidebar .popover-header,
+body.bas-dash-theme-light #sidebar .popover-header {
+    background-color: #0d1a33 !important;
+    background: #0d1a33 !important;
+    color: #00d4ff !important;
+    border-bottom: 1px solid rgba(0, 212, 255, 0.2) !important;
+}
+
+#sidebar .popover-item,
+body.theme-light #sidebar .popover-item,
+body.bas-dash-theme-light #sidebar .popover-item {
+    color: #cbd5e1 !important;
+}
+
+#sidebar .popover-item:hover,
+body.theme-light #sidebar .popover-item:hover,
+body.bas-dash-theme-light #sidebar .popover-item:hover {
+    background-color: rgba(0, 212, 255, 0.12) !important;
+    color: #00d4ff !important;
+}
+
+/* ==========================================================================
+   Comprehensive Responsive System (Mobile, Tablet, Desktop)
+   ========================================================================== */
+
+/* 1. Medium Desktops & Laptops (992px to 1280px) */
+@media (max-width: 1280px) {
+  .bas-modern-dashboard .bas-dash-3d-scene {
+    width: 780px;
+    height: 380px;
+  }
+  .bas-modern-dashboard .bas-3d-terminal {
+    width: 400px;
+    height: 275px;
+  }
+  .bas-modern-dashboard .bas-floating-tile {
+    padding: 9px 14px;
+    gap: 10px;
+  }
+  .bas-modern-dashboard .bas-tile-val {
+    font-size: 0.88rem;
+  }
+  .bas-modern-dashboard .bas-tile-lbl {
+    font-size: 0.68rem;
+  }
+  .bas-modern-dashboard .bas-tile-1 { left: -10px; }
+  .bas-modern-dashboard .bas-tile-2 { right: -10px; }
+  .bas-modern-dashboard .bas-tile-3 { left: -30px; }
+  .bas-modern-dashboard .bas-tile-4 { right: -30px; }
+  .bas-modern-dashboard .bas-tile-5 { left: -10px; }
+  .bas-modern-dashboard .bas-tile-6 { right: -10px; }
+}
+
+/* 2. Tablets & Small Laptops (769px to 991px) */
+@media (max-width: 991px) {
+  .bas-modern-dashboard .bas-live-clock {
+    display: none !important; /* Hide clock on tablets to keep search bar & header comfortable */
+  }
+  .bas-modern-dashboard .bas-dash-header {
+    padding: 10px 18px !important;
+  }
+  .bas-modern-dashboard .bas-header-center {
+    max-width: 340px;
+  }
+  .bas-modern-dashboard .bas-dash-3d-stage {
+    height: 420px;
+  }
+  .bas-modern-dashboard .bas-dash-3d-scene {
+    width: 700px;
+    height: 360px;
+  }
+  .bas-modern-dashboard .bas-3d-terminal {
+    width: 360px;
+    height: 260px;
+  }
+  .bas-modern-dashboard .bas-floating-tile {
+    padding: 8px 12px;
+  }
+  .bas-modern-dashboard .bas-tile-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
+  .bas-modern-dashboard .bas-tile-1 { left: 0; top: 10px; }
+  .bas-modern-dashboard .bas-tile-2 { right: 0; top: 10px; }
+  .bas-modern-dashboard .bas-tile-3 { left: -15px; top: 125px; }
+  .bas-modern-dashboard .bas-tile-4 { right: -15px; top: 125px; }
+  .bas-modern-dashboard .bas-tile-5 { left: 0; bottom: 20px; }
+  .bas-modern-dashboard .bas-tile-6 { right: 0; bottom: 20px; }
+}
+
+/* 3. Mobile Phones & Phablets (<= 768px) */
+@media (max-width: 768px) {
+  /* Header Mobile Transformation */
+  .bas-modern-dashboard .bas-dash-header {
+    padding: 10px 14px !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+  }
+
+  .bas-modern-dashboard .bas-header-left {
+    flex: 1 !important;
+    gap: 10px !important;
+    min-width: 0 !important;
+  }
+
+  .bas-modern-dashboard .bas-menu-trigger-btn {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 1rem !important;
+    flex-shrink: 0 !important;
+  }
+
+  .bas-modern-dashboard .bas-header-title {
+    font-size: 1.05rem !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .bas-modern-dashboard .bas-header-subtitle {
+    font-size: 0.68rem !important;
+    display: none !important; /* Hide subtitle on small phones to save space */
+  }
+
+  .bas-modern-dashboard .bas-live-clock {
+    display: none !important;
+  }
+
+  .bas-modern-dashboard .bas-header-right {
+    gap: 6px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .bas-modern-dashboard .bas-user-profile-badge {
+    padding: 4px 8px !important;
+    gap: 6px !important;
+    border-radius: 18px !important;
+  }
+
+  .bas-modern-dashboard .bas-user-avatar {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 0.78rem !important;
+  }
+
+  .bas-modern-dashboard .bas-user-name {
+    font-size: 0.78rem !important;
+    max-width: 90px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .bas-modern-dashboard .bas-user-role {
+    font-size: 0.64rem !important;
+  }
+
+  /* Full-width Search Bar row on Mobile */
+  .bas-modern-dashboard .bas-header-center {
+    order: 3 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 0 0 100% !important;
+    margin-top: 4px !important;
+  }
+
+  .bas-modern-dashboard .bas-header-search-wrap {
+    width: 100% !important;
+  }
+
+  .bas-modern-dashboard .bas-header-search-input {
+    height: 38px !important;
+    font-size: 0.82rem !important;
+    padding: 0 36px 0 38px !important;
+    border-radius: 20px !important;
+  }
+
+  .bas-modern-dashboard .bas-header-search-icon {
+    left: 12px !important;
+    font-size: 0.85rem !important;
+  }
+
+  .bas-modern-dashboard .bas-dash-search-kbd-hint {
+    display: none !important; /* No physical '/' on mobile keyboards */
+  }
+
+  /* Content Container: Enable Natural Vertical Scrolling on Phones */
+  .bas-modern-dashboard .bas-dash-content.bas-dash-3d-wrapper {
+    min-height: auto !important;
+    max-height: none !important;
+    height: auto !important;
+    overflow-y: visible !important;
+    padding: 14px 14px 50px 14px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Top Welcome Pill */
+  .bas-modern-dashboard .bas-3d-top-header {
+    margin-bottom: 12px !important;
+  }
+
+  .bas-modern-dashboard .bas-3d-welcome-pill {
+    font-size: 0.72rem !important;
+    padding: 5px 12px !important;
+    text-align: center !important;
+    width: 100% !important;
+    justify-content: center !important;
+    white-space: normal !important;
+    line-height: 1.3 !important;
+  }
+
+  /* Flatten 3D Stage on Mobile into Clean Vertical Flow */
+  .bas-modern-dashboard .bas-dash-3d-stage {
+    perspective: none !important;
+    transform-style: flat !important;
+    height: auto !important;
+    margin: 0 !important;
+    width: 100% !important;
+    display: block !important;
+  }
+
+  .bas-modern-dashboard .bas-dash-3d-scene {
+    transform: none !important;
+    transform-style: flat !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    margin: 0 !important;
+    position: static !important;
+  }
+
+  /* Hide 3D Perspective Podium on Mobile */
+  .bas-modern-dashboard .bas-3d-podium {
+    display: none !important;
+  }
+
+  /* Central Terminal becomes a Top-Grade Mobile Card */
+  .bas-modern-dashboard .bas-3d-terminal {
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    transform: none !important;
+    animation: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    margin: 0 0 10px 0 !important;
+    border-radius: 16px !important;
+    border: 1.5px solid #ffffff !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 212, 255, 0.25) !important;
+  }
+
+  .bas-modern-dashboard .bas-terminal-topbar {
+    height: 28px !important;
+    padding: 0 10px !important;
+  }
+
+  .bas-modern-dashboard .bas-terminal-title {
+    font-size: 0.68rem !important;
+  }
+
+  .bas-modern-dashboard .bas-terminal-screen {
+    padding: 12px !important;
+  }
+
+  .bas-modern-dashboard .bas-terminal-screen-header {
+    margin-bottom: 10px !important;
+  }
+
+  .bas-modern-dashboard .bas-screen-badge {
+    font-size: 0.65rem !important;
+    padding: 2px 7px !important;
+  }
+
+  .bas-modern-dashboard .bas-screen-heading {
+    font-size: 0.95rem !important;
+  }
+
+  .bas-modern-dashboard .bas-screen-user-tag {
+    font-size: 0.66rem !important;
+    padding: 2px 8px !important;
+  }
+
+  .bas-modern-dashboard .bas-recent-screens-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .bas-modern-dashboard .bas-recent-screen-card {
+    padding: 8px 10px !important;
+    gap: 8px !important;
+    border-radius: 10px !important;
+  }
+
+  .bas-modern-dashboard .bas-recent-card-icon {
+    width: 30px !important;
+    height: 30px !important;
+    font-size: 0.8rem !important;
+    border-radius: 8px !important;
+  }
+
+  .bas-modern-dashboard .bas-recent-card-title {
+    font-size: 0.74rem !important;
+  }
+
+  .bas-modern-dashboard .bas-recent-card-sub {
+    font-size: 0.62rem !important;
+  }
+
+  .bas-modern-dashboard .bas-terminal-ticker {
+    font-size: 0.62rem !important;
+    padding-top: 6px !important;
+  }
+
+  /* 6 Software Module Tiles: Stacked Vertically as Beautiful Mobile Cards */
+  .bas-modern-dashboard .bas-floating-tile {
+    position: static !important;
+    top: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    right: auto !important;
+    transform: none !important;
+    animation: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 12px 14px !important;
+    border-radius: 14px !important;
+    border: 1.5px solid #ffffff !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    white-space: normal !important;
+  }
+
+  .bas-modern-dashboard .bas-floating-tile:hover {
+    transform: translateY(-2px) !important;
+  }
+
+  .bas-modern-dashboard .bas-tile-icon {
+    width: 38px !important;
+    height: 38px !important;
+    font-size: 1.05rem !important;
+    border-radius: 10px !important;
+    flex-shrink: 0 !important;
+  }
+
+  .bas-modern-dashboard .bas-iso-cube {
+    width: 32px !important;
+    height: 32px !important;
+    margin-right: 0 !important;
+    flex-shrink: 0 !important;
+  }
+
+  .bas-modern-dashboard .bas-cube-face {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  .bas-modern-dashboard .bas-tile-info {
+    flex: 1 !important;
+    min-width: 0 !important;
+  }
+
+  .bas-modern-dashboard .bas-tile-header {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    margin-bottom: 2px !important;
+    flex-wrap: wrap !important;
+  }
+
+  .bas-modern-dashboard .bas-tile-val {
+    font-size: 0.88rem !important;
+    font-weight: 800 !important;
+  }
+
+  .bas-modern-dashboard .bas-tile-chip {
+    font-size: 0.58rem !important;
+    font-weight: 800 !important;
+    padding: 1px 6px !important;
+    border-radius: 5px !important;
+  }
+
+  .bas-modern-dashboard .bas-tile-lbl {
+    font-size: 0.68rem !important;
+    color: #475569 !important;
+    line-height: 1.25 !important;
+  }
+
+  /* Bottom Dock on Mobile */
+  .bas-modern-dashboard .bas-3d-bottom-dock {
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 8px !important;
+    margin: 14px 0 25px 0 !important;
+  }
+
+  .bas-modern-dashboard .bas-3d-action-pill {
+    width: 100% !important;
+    font-size: 0.72rem !important;
+    padding: 9px 12px !important;
+    text-align: center !important;
+    justify-content: center !important;
+    white-space: normal !important;
+    line-height: 1.35 !important;
+  }
+
+  .bas-modern-dashboard .bas-3d-designer-badge {
+    width: 100% !important;
+    font-size: 0.74rem !important;
+    padding: 8px 12px !important;
+    justify-content: center !important;
+  }
+}
+
+/* Extra Small Phones (<= 420px) */
+@media (max-width: 420px) {
+  .bas-modern-dashboard .bas-recent-screens-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

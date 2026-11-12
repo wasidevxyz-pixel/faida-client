@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Registration | BAS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="/css/desktop-style.css?v=101" rel="stylesheet">
+    <link href="/css/sidebar.css?v=101" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+
+        .page-header {
+            background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 10px 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .card {
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            background: white;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section-header {
+            padding: 10px 15px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: white;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-header i {
+            margin-right: 10px;
+        }
+
+        .bg-profile {
+            background: #2ecc71;
+        }
+
+        .bg-fix {
+            background: #3498db;
+        }
+
+        .bg-duty {
+            background: #e74c3c;
+        }
+
+        .bg-access {
+            background: #34495e;
+        }
+
+        .bg-bank {
+            background: #16a085;
+        }
+
+        .card-body {
+            padding: 15px;
+            flex: 1;
+        }
+
+        .form-label {
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: #555;
+            margin-bottom: 3px;
+            white-space: nowrap;
+        }
+
+        .form-control-sm,
+        .form-select-sm {
+            height: 32px;
+            font-size: 0.85rem;
+            border: 1px solid #d1d9e6;
+            border-radius: 5px;
+            transition: all 0.2s;
+        }
+
+        .form-control-sm:focus,
+        .form-select-sm:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .plus-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .list-btn {
+            background-color: #f39c12;
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Professional Mobile Enhancements */
+        @media (max-width: 768px) {
+            .page-header {
+                padding: 0.5rem 0.75rem !important;
+                background: #1e3c72 !important;
+            }
+
+            .page-header div:first-child {
+                font-size: 0.95rem;
+            }
+
+            .page-header #userName,
+            .page-header .fa-chevron-down {
+                display: none;
+            }
+
+            .container-fluid {
+                padding: 10px !important;
+                padding-bottom: 80px !important;
+                /* Space for bottom bar */
+            }
+
+            .card {
+                margin-bottom: 15px !important;
+                border-radius: 12px !important;
+            }
+
+            .section-header {
+                padding: 8px 12px !important;
+                font-size: 0.85rem !important;
+            }
+
+            .form-label {
+                font-size: 0.75rem !important;
+                color: #64748b !important;
+            }
+
+            .row.mb-2 {
+                margin-bottom: 0.75rem !important;
+            }
+
+            /* Bottom Action Bar */
+            .action-bar-mobile {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: white;
+                display: flex !important;
+                justify-content: space-around;
+                padding: 8px 5px;
+                box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.1);
+                z-index: 1050;
+                border-top: 1px solid #e2e8f0;
+                height: 65px;
+            }
+
+            .action-btn-mobile {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                background: none;
+                border: none;
+                color: #64748b;
+                font-size: 0.65rem;
+                font-weight: 600;
+                flex: 1;
+                transition: all 0.2s;
+            }
+
+            .action-btn-mobile i {
+                font-size: 1.25rem;
+                margin-bottom: 3px;
+            }
+
+            .action-btn-mobile.active,
+            .action-btn-mobile:active {
+                color: #1e3c72;
+            }
+
+            .action-btn-mobile.btn-save i {
+                color: #10b981;
+            }
+
+            .action-btn-mobile.btn-clear i {
+                color: #ef4444;
+            }
+
+            .action-btn-mobile.btn-list i {
+                color: #f59e0b;
+            }
+
+            .action-btn-mobile.btn-refresh i {
+                color: #3b82f6;
+            }
+
+            /* Hide the desktop actions in the card on mobile */
+            .card-body .d-flex.flex-column.gap-1 {
+                display: none !important;
+            }
+        }
+
+        .photo-box {
+            width: 120px;
+            height: 120px;
+            border: 2px dashed #cbd5e0;
+            border-radius: 12px;
+            background-color: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            overflow: hidden;
+            margin: 0 auto 10px;
+            position: relative;
+        }
+
+        .remove-photo-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 20px;
+            height: 20px;
+            background: rgba(220, 38, 38, 0.9);
+            color: white;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            cursor: pointer;
+            border: 1px solid white;
+            z-index: 5;
+            transition: all 0.2s;
+        }
+
+        .remove-photo-btn:hover {
+            background: #b91c1c;
+            transform: scale(1.1);
+        }
+
+        .photo-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        .photo-box:hover img {
+            transform: scale(1.2);
+            filter: brightness(0.9);
+        }
+
+        .photo-box::after {
+            content: "\f00e";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 1.5rem;
+            opacity: 0;
+            transition: all 0.3s;
+            pointer-events: none;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            z-index: 2;
+        }
+
+        .photo-box:hover::after {
+            opacity: 1;
+        }
+
+        .photo-box:hover {
+            border-color: #3498db;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        /* Large Preview Modal */
+        #photoPreviewModal .modal-content {
+            background-color: transparent;
+            border: none;
+        }
+        
+        #photoPreviewModal .modal-body {
+            position: relative;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #largePhotoPreview {
+            max-width: 90vw;
+            max-height: 80vh;
+            border-radius: 12px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 4px solid white;
+        }
+
+        .btn-custom {
+            padding: 8px 15px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .checkbox-container {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-check-label {
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        .divider {
+            height: 1px;
+            background: #e2e8f0;
+            margin: 12px 0;
+        }
+
+        .row-sm-gap {
+            --bs-gutter-x: 12px;
+        }
+
+        .bank-label {
+            font-size: 0.75rem;
+            color: #718096;
+            margin-bottom: 2px;
+            display: block;
+        }
+
+        .btn-xs {
+            padding: 1px 5px;
+            font-size: 0.7rem;
+            line-height: 1.5;
+            border-radius: 3px;
+        }
+
+        /* GLOBAL FIREFOX SPINNER REMOVAL (INJECTED) */
+        input[type="number"] {
+            -moz-appearance: textfield !important;
+            appearance: textfield !important;
+        }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none !important;
+            margin: 0 !important;
+        }
+        input[type="number"]::-moz-number-spin-box,
+        input[type="number"]::-moz-number-spin-inner,
+        input[type="number"]::-moz-number-spin-up-button,
+        input[type="number"]::-moz-number-spin-down-button {
+            display: none !important;
+            -moz-appearance: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-header px-4 d-flex justify-content-between align-items-center">
+        <div>
+            <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+            <i class="fas fa-id-card me-2"></i> Employee Registration
+        </div>
+        <div class="d-flex align-items-center gap-4">
+            <button class="btn btn-sm btn-primary d-flex align-items-center gap-2 px-3 fw-bold shadow-sm rounded-pill"
+                onclick="window.location.href='/employee-registration'">
+                <i class="fas fa-plus"></i> New
+            </button>
+            <div id="refreshBtn" style="cursor: pointer;" title="Refresh Data"><i class="fas fa-sync-alt"></i></div>
+            <div class="dropdown">
+                <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown" style="cursor: pointer;">
+                    <i class="fas fa-user-circle me-2" style="font-size: 1.4rem;"></i>
+                    <span id="userName" class="me-2">Bilal Shah</span>
+                    <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                    <li><a class="dropdown-item py-2 logout-btn" href="#"><i
+                                class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid p-3">
+        <form id="employeeForm">
+            <input type="hidden" id="employeeId">
+            <div class="row row-sm-gap align-items-stretch">
+                <!-- Column 1: Profile -->
+                <div class="col-lg-4 d-flex flex-column">
+                    <div class="card flex-grow-1 shadow-sm">
+                        <div class="section-header bg-profile">
+                            <i class="fas fa-user-edit"></i> Profile
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-2">
+                                <label class="col-4 form-label">Code</label>
+                                <div class="col-8">
+                                    <input type="text" id="code"
+                                        class="form-control form-control-sm border-0 bg-light fw-bold text-primary"
+                                        readonly placeholder="AUTO">
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <label class="col-4 form-label text-danger">Name *</label>
+                                <div class="col-8">
+                                    <input type="text" id="name" class="form-control form-control-sm shadow-none"
+                                        required>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <label class="col-4 form-label">Name (Urdu)</label>
+                                <div class="col-8">
+                                    <input type="text" id="name_urdu" class="form-control form-control-sm shadow-none" dir="rtl" placeholder="نام (اردو)">
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <label class="col-4 form-label">Father/Mother</label>
+                                <div class="col-8">
+                                    <input type="text" id="fatherName" class="form-control form-control-sm">
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <label class="col-4 form-label">CNIC</label>
+                                <div class="col-8">
+                                    <input type="text" id="cnic" class="form-control form-control-sm"
+                                        placeholder="XXXXX-XXXXXXX-X">
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <label class="col-4 form-label text-danger">Branch *</label>
+                                <div class="col-8">
+                                    <select id="branch" class="form-select form-select-sm">
+                                        <option value="">Select Branch</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <label class="col-4 form-label text-nowrap text-danger">Department *</label>
+                                <div class="col-8">
+                                    <div class="input-group input-group-sm">
+                                        <select id="department" class="form-select"></select>
+                                        <button class="plus-btn" type="button" onclick="openDeptModal()"><i
+                                                class="fas fa-plus"></i></button>
+                                        <button class="list-btn" type="button" onclick="openDeptList()"><i
+                                                class="fas fa-list"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <label class="col-4 form-label text-nowrap text-danger">Designation *</label>
+                                <div class="col-8">
+                                    <div class="input-group input-group-sm">
+                                        <select id="designation" class="form-select"></select>
+                                        <button class="plus-btn" type="button" onclick="openDesigModal()"><i
+                                                class="fas fa-plus"></i></button>
+                                        <button class="list-btn" type="button" onclick="openDesigList()"><i
+                                                class="fas fa-list"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <label class="col-4 form-label">Address</label>
+                                <div class="col-8">
+                                    <input type="text" id="address" class="form-control form-control-sm">
+                                </div>
+                            </div>
+
+                            <div class="divider"></div>
+
+                            <div class="row mb-2">
+                                <div class="col-6">
+                                    <label class="bank-label">Acc No (Locked)</label>
+                                    <input type="text" id="acNo" class="form-control form-control-sm bg-light fw-bold"
+                                        readonly placeholder="Select Bank">
+                                </div>
+                                <div class="col-6">
+                                    <label class="bank-label">Select Bank</label>
+                                    <select id="selectBank" class="form-select form-select-sm">
+                                        <option value="">- Choose -</option>
+                                        <option value="HBL">HBL</option>
+                                        <option value="ALF">ALF</option>
+                                        <option value="BOP">BOP</option>
+                                        <option value="BIP">BIP</option>
+                                        <option value="BAHL">BAHL</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <label class="col-4 form-label">Mobile No</label>
+                                <div class="col-8">
+                                    <input type="text" id="mobileNo" class="form-control form-control-sm">
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <label class="col-4 form-label">DOB</label>
+                                <div class="col-8">
+                                    <input type="date" id="dateOfBirth" class="form-control form-control-sm">
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-6">
+                                    <label class="bank-label text-danger">Incr. Date *</label>
+                                    <input type="date" id="incrDate" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-6">
+                                    <label class="bank-label text-danger">Joining Date *</label>
+                                    <input type="date" id="joiningDate" class="form-control form-control-sm">
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <div class="col-6">
+                                    <label class="bank-label">Issue Date</label>
+                                    <input type="date" id="issueDate" class="form-control form-control-sm">
+                                </div>
+                                <div class="col-6">
+                                    <label class="bank-label">Expiry Date</label>
+                                    <input type="date" id="expiryDate" class="form-control form-control-sm">
+                                </div>
+                            </div>
+
+                            <div class="row mb-2">
+                                <label class="col-4 form-label text-danger">Gender *</label>
+                                <div class="col-8">
+                                    <select id="gender" class="form-select form-select-sm">
+                                        <option value="Male" selected>Male</option>
+                                        <option value="Female">Female</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <label class="col-4 form-label text-danger">Religion *</label>
+                                <div class="col-8">
+                                    <select id="religion" class="form-select form-select-sm">
+                                        <option value="Islam" selected>Islam</option>
+                                        <option value="Christian">Christian</option>
+                                        <option value="Hindu">Hindu</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <label class="col-4 form-label text-nowrap text-danger">Marital Status *</label>
+                                <div class="col-8">
+                                    <select id="maritalStatus" class="form-select form-select-sm">
+                                        <option value="Married">Married</option>
+                                        <option value="Single" selected>Single</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-center gap-3 mt-3">
+                                <div class="photo-box mb-0" id="photoPreview"
+                                    style="margin:0; width: 100px; height: 100px;"
+                                    onclick="handlePhotoClick()">
+                                    <div class="photo-placeholder"><i class="fas fa-camera"></i></div>
+                                    <div class="remove-photo-btn" onclick="event.stopPropagation(); removePhoto()"><i
+                                            class="fas fa-times"></i></div>
+                                </div>
+
+                                <div class="flex-grow-1">
+                                    <div class="d-flex gap-3 mb-2">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="isActive" checked>
+                                            <label class="form-check-label small" for="isActive">Active</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="isSalesman">
+                                            <label class="form-check-label small" for="isSalesman">Salesman</label>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex flex-column gap-1">
+                                        <button type="button" class="btn btn-primary btn-sm w-100 py-1 shadow-sm"
+                                            onclick="saveEmployee()">
+                                            <i class="fas fa-save me-1"></i> Save
+                                        </button>
+                                        <div class="d-flex gap-1">
+                                            <button type="button"
+                                                class="btn btn-danger btn-sm flex-grow-1 py-1 shadow-sm"
+                                                onclick="clearForm()">
+                                                <i class="fas fa-times me-1"></i> Clear
+                                            </button>
+                                            <button type="button" id="btnEmployeeList"
+                                                class="btn btn-success btn-sm flex-grow-1 py-1 shadow-sm"
+                                                onclick="location.href='employee-list'">
+                                                <i class="fas fa-list me-1"></i> List
+                                            </button>
+                                        </div>
+                                        <button type="button" id="btnIdCard"
+                                            class="btn btn-sm w-100 py-1 shadow-sm"
+                                            style="background:#0D2EA6;color:#fff;display:none;"
+                                            onclick="downloadIdCard()"
+                                            title="Download print-ready CR80 ID card PDF">
+                                            <i class="fas fa-id-card me-1"></i> Download ID Card
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="file" id="photoInput" hidden accept="image/*" onchange="previewPhoto(this)">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Column 2: Salary & Duty -->
+                <div class="col-lg-4 d-flex flex-column">
+                    <div class="card mb-3 shadow-sm">
+                        <div class="section-header bg-fix">
+                            <i class="fas fa-money-bill-wave"></i> Fix
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-2">
+                                <label class="col-4 form-label">Opening</label>
+                                <div class="col-8">
+                                    <input type="number" id="opening"
+                                        class="form-control form-control-sm text-end bg-light" 
+                                        style="-moz-appearance: textfield !important; appearance: textfield !important;"
+                                        value="0" readonly>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <label class="col-4 form-label">Salary</label>
+                                <div class="col-4 pe-1">
+                                    <input type="number" id="basicSalary" class="form-control form-control-sm text-end"
+                                        style="-moz-appearance: textfield !important; appearance: textfield !important;"
+                                        value="0">
+                                </div>
+                                <div class="col-4 ps-1">
+                                    <select id="salaryType" class="form-select form-select-sm">
+                                        <option value="Per Month">Month</option>
+                                        <option value="Per Day">Day</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <label class="col-4 form-label">Fix Allowance</label>
+                                <div class="col-4 pe-1">
+                                    <input type="number" id="fixAllowance" class="form-control form-control-sm text-end"
+                                        style="-moz-appearance: textfield !important; appearance: textfield !important;"
+                                        value="0">
+                                </div>
+                                <label class="col-2 form-label px-1 text-center">ST.L</label>
+                                <div class="col-2 ps-1">
+                                    <input type="number" id="stLoss" class="form-control form-control-sm text-end"
+                                        style="-moz-appearance: textfield !important; appearance: textfield !important;"
+                                        value="0">
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <label class="col-4 form-label">Other Allowance</label>
+                                <div class="col-8">
+                                    <input type="number" id="otherAllowance"
+                                        class="form-control form-control-sm text-end" 
+                                        style="-moz-appearance: textfield !important; appearance: textfield !important;"
+                                        value="0">
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <label class="col-4 form-label">Allow Food</label>
+                                <div class="col-4 pe-1">
+                                    <select id="allowFood" class="form-select form-select-sm">
+                                        <option value="No Food">No Food</option>
+                                        <option value="1 Time Deduction">1 Time Deduction</option>
+                                        <option value="2 Time Deduction">2 Time Deduction</option>
+                                        <option value="Free">Free</option>
+                                    </select>
+                                </div>
+                                <div class="col-4 ps-1">
+                                    <input type="number" id="foodAllowanceRs"
+                                        class="form-control form-control-sm text-end" 
+                                        style="-moz-appearance: textfield !important; appearance: textfield !important;"
+                                        placeholder="Rs.">
+                                </div>
+                            </div>
+                            <div class="row mb-2">
+                                <label class="col-4 form-label">Bank Cash</label>
+                                <div class="col-4 pe-1">
+                                    <select id="bankCash" class="form-select form-select-sm">
+                                        <option value="Cash">Cash</option>
+                                        <option value="Bank">Bank</option>
+                                    </select>
+                                </div>
+                                <label class="col-2 form-label px-1 text-center">Ded</label>
+                                <div class="col-2 ps-1">
+                                    <input type="number" id="deduction" class="form-control form-control-sm text-end"
+                                        style="-moz-appearance: textfield !important; appearance: textfield !important;"
+                                        value="0">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <label class="col-4 form-label">Security Deposit</label>
+                                <div class="col-8">
+                                    <input type="number" id="securityDeposit"
+                                        class="form-control form-control-sm text-end" 
+                                        style="-moz-appearance: textfield !important; appearance: textfield !important;"
+                                        value="0">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card flex-grow-1 shadow-sm">
+                        <div class="section-header bg-duty">
+                            <i class="fas fa-business-time"></i> Duty
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-6">
+                                    <label class="form-label text-danger">F.DutyTime *</label>
+                                    <input type="time" id="fDutyTime" class="form-control form-control-sm"
+                                        value="09:00">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label text-danger">T.DutyTime *</label>
+                                    <input type="time" id="tDutyTime" class="form-control form-control-sm"
+                                        value="21:00">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-4 form-label text-nowrap">Off Day</label>
+                                <div class="col-8">
+                                    <select id="offDay" class="form-select form-select-sm">
+                                        <option value="Sunday">Sunday</option>
+                                        <option value="Monday">Monday</option>
+                                        <option value="Tuesday">Tuesday</option>
+                                        <option value="Wednesday">Wednesday</option>
+                                        <option value="Thursday">Thursday</option>
+                                        <option value="Friday">Friday</option>
+                                        <option value="Saturday">Saturday</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <label class="col-4 form-label">Total Hrs</label>
+                                <div class="col-8">
+                                    <input type="text" id="totalHrs"
+                                        class="form-control form-control-sm border-0 bg-light fw-bold" readonly
+                                        placeholder="Calculated">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ID Card Documents Section -->
+                    <div class="card mt-3 shadow-sm border-0" style="background: #f8f9fa;">
+                        <div class="section-header bg-dark text-white">
+                            <i class="fas fa-file-invoice"></i> ID Card Documents
+                        </div>
+                        <div class="card-body p-2">
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <div class="card h-100 border shadow-none">
+                                        <div class="card-body p-2 text-center">
+                                            <p class="small fw-bold mb-1">FRONT SIDE</p>
+                                            <div id="frontPreview"
+                                                class="bg-light border rounded d-flex align-items-center justify-content-center mb-2"
+                                                style="height: 80px; cursor: pointer; position: relative; overflow: hidden;"
+                                                onclick="document.getElementById('idFrontInput').click()">
+                                                <span class="text-muted small"><i class="fas fa-plus"></i> Upload</span>
+                                                <div class="remove-photo-btn"
+                                                    onclick="event.stopPropagation(); resetDocumentPreview('front')"><i
+                                                        class="fas fa-times"></i></div>
+                                            </div>
+
+                                            <div class="d-flex gap-1">
+                                                <button type="button" class="btn btn-outline-primary btn-xs flex-grow-1"
+                                                    onclick="document.getElementById('idFrontInput').click()"><i
+                                                        class="fas fa-upload"></i></button>
+                                                <button type="button" class="btn btn-outline-success btn-xs flex-grow-1"
+                                                    onclick="printDocument('front')"><i
+                                                        class="fas fa-print"></i></button>
+                                            </div>
+                                            <input type="file" id="idFrontInput" hidden accept="image/*,application/pdf"
+                                                onchange="previewDocument(this, 'front')">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="card h-100 border shadow-none">
+                                        <div class="card-body p-2 text-center">
+                                            <p class="small fw-bold mb-1">BACK SIDE</p>
+                                            <div id="backPreview"
+                                                class="bg-light border rounded d-flex align-items-center justify-content-center mb-2"
+                                                style="height: 80px; cursor: pointer; position: relative; overflow: hidden;"
+                                                onclick="document.getElementById('idBackInput').click()">
+                                                <span class="text-muted small"><i class="fas fa-plus"></i> Upload</span>
+                                                <div class="remove-photo-btn"
+                                                    onclick="event.stopPropagation(); resetDocumentPreview('back')"><i
+                                                        class="fas fa-times"></i></div>
+                                            </div>
+
+                                            <div class="d-flex gap-1">
+                                                <button type="button" class="btn btn-outline-primary btn-xs flex-grow-1"
+                                                    onclick="document.getElementById('idBackInput').click()"><i
+                                                        class="fas fa-upload"></i></button>
+                                                <button type="button" class="btn btn-outline-success btn-xs flex-grow-1"
+                                                    onclick="printDocument('back')"><i
+                                                        class="fas fa-print"></i></button>
+                                            </div>
+                                            <input type="file" id="idBackInput" hidden accept="image/*,application/pdf"
+                                                onchange="previewDocument(this, 'back')">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Column 3: Access & Bank Details -->
+                <div class="col-lg-4 d-flex flex-column">
+                    <div class="card mb-3 shadow-sm">
+                        <div class="section-header bg-access">
+                            <i class="fas fa-lock"></i> Access Controls
+                        </div>
+                        <div class="card-body">
+                            <div class="checkbox-container" id="accessControlsSection">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="allowOvertime" checked>
+                                    <label class="form-check-label" for="allowOvertime">Allow Overtime</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="otst30WorkingDays" checked>
+                                    <label class="form-check-label"
+                                        for="otst30WorkingDays">OTST_ThirtyWorkingDays</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="eobi">
+                                    <label class="form-check-label" for="eobi">EOBI</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="payFullSalaryThroughBank">
+                                    <label class="form-check-label"
+                                        for="payFullSalaryThroughBank">Pay_FullSalary_Through_Bank</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="electricityBill">
+                                    <label class="form-check-label" for="electricityBill">ElectricityBill</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="thirtyWorkingDays">
+                                    <label class="form-check-label" for="thirtyWorkingDays">Thirty Working Days</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="allowEmployeeAdvance" checked>
+                                    <label class="form-check-label" for="allowEmployeeAdvance">Allow Employee
+                                        Advances</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="allowRottiPerks">
+                                    <label class="form-check-label" for="allowRottiPerks">Allow Rotti Perks</label>
+                                </div>
+                                <div class="form-check text-danger">
+                                    <input class="form-check-input" type="checkbox" id="dontAllowRottiPerks">
+                                    <label class="form-check-label" for="dontAllowRottiPerks">Dont Allow Rotti
+                                        Perks</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="allowNashtaPerks">
+                                    <label class="form-check-label" for="allowNashtaPerks">Allow Nashta Perks</label>
+                                </div>
+                                <div class="form-check text-danger">
+                                    <input class="form-check-input" type="checkbox" id="dontAllowNashtaPerks">
+                                    <label class="form-check-label" for="dontAllowNashtaPerks">Dont Allow Nashta
+                                        Perks</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card flex-grow-1 shadow-sm">
+                        <div class="section-header bg-bank">
+                            <i class="fas fa-university"></i> Bank Details
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-2 align-items-center">
+                                <label class="col-3 form-label">HBL</label>
+                                <div class="col-9">
+                                    <input type="text" id="bank_hbl" class="form-control form-control-sm"
+                                        placeholder="Acc Number">
+                                </div>
+                            </div>
+                            <div class="row mb-2 align-items-center">
+                                <label class="col-3 form-label">ALF</label>
+                                <div class="col-9">
+                                    <input type="text" id="bank_alf" class="form-control form-control-sm"
+                                        placeholder="Acc Number">
+                                </div>
+                            </div>
+                            <div class="row mb-2 align-items-center">
+                                <label class="col-3 form-label">BOP</label>
+                                <div class="col-9">
+                                    <input type="text" id="bank_bop" class="form-control form-control-sm"
+                                        placeholder="Acc Number">
+                                </div>
+                            </div>
+                            <div class="row mb-2 align-items-center">
+                                <label class="col-3 form-label">BIP</label>
+                                <div class="col-9">
+                                    <input type="text" id="bank_bip" class="form-control form-control-sm"
+                                        placeholder="Acc Number">
+                                </div>
+                            </div>
+                            <div class="row align-items-center">
+                                <label class="col-3 form-label">BAHL</label>
+                                <div class="col-9">
+                                    <input type="text" id="bank_bahl" class="form-control form-control-sm"
+                                        placeholder="Acc Number">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal fade" id="deptModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content border-0">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Manage Departments</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-2 mb-3">
+                        <div class="col-8">
+                            <label class="form-label small">Department Name</label>
+                            <input type="text" id="newDeptName" class="form-control form-control-sm"
+                                placeholder="Enter department name">
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label small">Max Checkout</label>
+                            <input type="time" id="deptMaxCheckout" class="form-control form-control-sm" value="03:00">
+                        </div>
+                        <div class="col-12">
+                            <button type="button" class="btn btn-primary btn-sm w-100" id="saveDeptBtn"
+                                onclick="saveNewDepartment()">Save</button>
+                        </div>
+                    </div>
+                    <div class="divider"></div>
+                    <h6 class="mb-2 fw-bold text-muted">Existing Departments</h6>
+                    <div id="deptListContainer" class="list-group list-group-flush"
+                        style="max-height: 300px; overflow-y: auto; border: 1px solid #eee; border-radius: 5px;">
+                        <!-- List populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="desigModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content border-0">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Manage Designations</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group mb-3">
+                        <input type="text" id="newDesigName" class="form-control"
+                            placeholder="Enter new designation name">
+                        <button type="button" class="btn btn-primary" id="saveDesigBtn"
+                            onclick="saveNewDesignation()">Save</button>
+                    </div>
+                    <div class="divider"></div>
+                    <h6 class="mb-2 fw-bold text-muted">Existing Designations</h6>
+                    <div id="desigListContainer" class="list-group list-group-flush"
+                        style="max-height: 300px; overflow-y: auto; border: 1px solid #eee; border-radius: 5px;">
+                        <!-- List populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Photo Preview Modal -->
+    <div class="modal fade" id="photoPreviewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" 
+                        data-bs-dismiss="modal" aria-label="Close" style="z-index: 10;"></button>
+                    <img id="largePhotoPreview" src="" alt="Employee Photo">
+                </div>
+                <div class="modal-footer justify-content-center border-0 pb-3">
+                    <h5 class="text-white mb-0" id="previewEmployeeName">Employee Name</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Action Bar -->
+    <div class="action-bar-mobile d-none">
+        <button type="button" class="action-btn-mobile btn-refresh" onclick="location.reload()">
+            <i class="fas fa-sync-alt"></i>
+            <span>Refresh</span>
+        </button>
+        <button type="button" class="action-btn-mobile btn-save" onclick="saveEmployee()">
+            <i class="fas fa-save"></i>
+            <span>Save</span>
+        </button>
+        <button type="button" class="action-btn-mobile btn-clear" onclick="clearForm()">
+            <i class="fas fa-undo"></i>
+            <span>Clear</span>
+        </button>
+        <button type="button" class="action-btn-mobile btn-list" onclick="location.href='employee-list'">
+            <i class="fas fa-users"></i>
+            <span>List</span>
+        </button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js?v=4.0"></script>
+    <script src="/js/sidebar.js?v=1789486244477"></script>
+    <script src="/js/desktop-ui.js?v=4.0"></script>
+    <script src="/js/employee-registration.js?v=4.4"></script>
+    <script>
+        // Professional Photo Preview Logic
+        function handlePhotoClick() {
+            const photoPreview = document.getElementById('photoPreview');
+            const img = photoPreview.querySelector('img');
+            
+            if (img && img.src && !img.src.includes('blob:null')) {
+                // If an image exists, show the large modal
+                const largeImg = document.getElementById('largePhotoPreview');
+                const modalTitle = document.getElementById('previewEmployeeName');
+                const empName = document.getElementById('name').value || 'Employee Preview';
+                
+                largeImg.src = img.src;
+                modalTitle.innerText = empName;
+                
+                const photoModal = new bootstrap.Modal(document.getElementById('photoPreviewModal'));
+                photoModal.show();
+            } else {
+                // If no image, open file picker
+                document.getElementById('photoInput').click();
+            }
+        }
+
+        // Add visual feedback to show zoom is active
+        document.addEventListener('DOMContentLoaded', () => {
+            const photoBox = document.getElementById('photoPreview');
+            photoBox.title = "Click to View Large / Upload";
+        });
+    </script>
+</body>
+
+</html>

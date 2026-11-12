@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WHT Ded Detail</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .filter-section {
+            background: #fff;
+            padding: 15px;
+            border-bottom: 1px solid #dee2e6;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .report-table-container {
+            background: #fff;
+            margin: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .table thead th {
+            background-color: #1e4c8c;
+            color: white;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .table tbody td {
+            font-size: 0.9rem;
+            vertical-align: middle;
+        }
+        @media print {
+            .filter-section, .sidebar, .page-header, .btn-print-hide {
+                display: none !important;
+            }
+            .main-content {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .report-table-container {
+                box-shadow: none !important;
+                margin: 0 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-header px-3">
+        <h4 class="mb-0 text-white">WHT Ded Detail</h4>
+    </div>
+
+    <div class="filter-section">
+        <div class="container-fluid">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-2">
+                    <label class="form-label fw-bold">Branch</label>
+                    <select id="branchSelect" class="form-select form-select-sm">
+                        <option value="">Select Branch</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-bold">Department</label>
+                    <select id="deptSelect" class="form-select form-select-sm">
+                        <option value="">All Departments</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-bold">Designation</label>
+                    <select id="desigSelect" class="form-select form-select-sm">
+                        <option value="">All Designations</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-bold">From Month</label>
+                    <input type="month" id="fromMonth" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-bold">To Month</label>
+                    <input type="month" id="toMonth" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-2">
+                    <div class="form-check mt-1 mb-1">
+                        <input class="form-check-input" type="checkbox" id="activeOnlyCheck" checked>
+                        <label class="form-check-label fw-bold small" for="activeOnlyCheck">Active Only</label>
+                    </div>
+                    <div class="form-check mt-1 mb-1">
+                        <input class="form-check-input" type="checkbox" id="hasDeductionCheck">
+                        <label class="form-check-label fw-bold small" for="hasDeductionCheck">Deduction Only</label>
+                    </div>
+                    <div class="d-flex gap-1">
+                        <button class="btn btn-primary btn-sm btn-print-hide flex-grow-1" onclick="loadReport()">
+                            <i class="fas fa-sync me-1"></i> Generate
+                        </button>
+                        <button class="btn btn-success btn-sm btn-print-hide flex-grow-1" onclick="window.print()">
+                            <i class="fas fa-print me-1"></i> Print
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="report-table-container">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th style="width: 50px; text-align:center;">Sr.</th>
+                        <th>Employee Name</th>
+                        <th>ID Card (CNIC)</th>
+                        <th class="text-center">Net Total</th>
+                        <th class="text-center">WHT Deduction</th>
+                        <th class="text-center">Bank Paid</th>
+                    </tr>
+                </thead>
+                <tbody id="reportTableBody">
+                    <tr>
+                        <td colspan="10" class="text-center py-4 text-muted">
+                            Click 'Generate' to load report data
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot id="reportTableFoot" class="table-light fw-bold">
+                    <!-- Totals will go here -->
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js"></script>
+    <script src="/js/wh-ded-report-v3.js?v=20260617-3"></script>
+</body>
+</html>

@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Report</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Print Styles */
+        @media print {
+            .print-controls {
+                display: none !important;
+            }
+
+            body {
+                background: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .page-container {
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 15px !important;
+                box-shadow: none !important;
+            }
+        }
+
+        body {
+            background: #f5f5f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .print-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .page-container {
+            max-width: 1000px;
+            margin: 20px auto;
+            background: white;
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .report-header {
+            border-bottom: 3px solid #0288d1;
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+        }
+
+        .company-logo {
+            max-height: 70px;
+            max-width: 200px;
+        }
+
+        .report-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a5f7a;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .report-subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .filter-summary {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #0288d1;
+        }
+
+        .filter-item {
+            display: inline-block;
+            margin-right: 20px;
+            font-size: 14px;
+        }
+
+        .filter-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .filter-value {
+            color: #0288d1;
+            font-weight: 500;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .data-table th {
+            background: linear-gradient(135deg, #1a5f7a 0%, #0288d1 100%);
+            color: white;
+            padding: 12px 15px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .data-table td {
+            padding: 10px 15px;
+            border-bottom: 1px solid #dee2e6;
+            font-size: 13px;
+        }
+
+        .data-table tbody tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .data-table tbody tr:hover {
+            background: #e3f2fd;
+        }
+
+        .text-end {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .expense-amount {
+            color: #dc3545;
+            font-weight: 600;
+        }
+
+        .receipt-amount {
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        .total-row {
+            background: linear-gradient(135deg, #1a5f7a 0%, #0288d1 100%) !important;
+            color: white !important;
+            font-weight: 700;
+        }
+
+        .total-row td {
+            border-bottom: none;
+            padding: 15px;
+            font-size: 14px;
+        }
+
+        .summary-cards {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .summary-card {
+            flex: 1;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .summary-card.expense {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+        }
+
+        .summary-card.receipt {
+            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+            color: white;
+        }
+
+        .summary-card.balance {
+            background: linear-gradient(135deg, #0288d1 0%, #1565c0 100%);
+            color: white;
+        }
+
+        .summary-card .label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .summary-card .value {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .section-title {
+            background: linear-gradient(135deg, #1a5f7a 0%, #0288d1 100%);
+            color: white;
+            padding: 10px 15px;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 25px 0 15px 0;
+            border-radius: 5px;
+        }
+
+        .signature-section {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .signature-box {
+            text-align: center;
+            width: 200px;
+        }
+
+        .signature-line {
+            border-top: 2px solid #333;
+            margin-top: 60px;
+            padding-top: 10px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .report-footer {
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px solid #dee2e6;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+        }
+
+        .group-header {
+            background: #e9ecef;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .group-header td {
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+
+        .group-total {
+            background: #d4edda;
+            font-weight: 600;
+        }
+
+        .group-total td {
+            border-top: 2px solid #28a745;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Print Controls -->
+    <div class="print-controls no-print">
+        <div class="btn-group mb-2">
+            <button class="btn btn-primary" onclick="window.print()">
+                <i class="fas fa-print me-1"></i> Print
+            </button>
+            <button class="btn btn-secondary" onclick="window.close()">
+                <i class="fas fa-times me-1"></i> Close
+            </button>
+        </div>
+    </div>
+
+    <!-- Report Container -->
+    <div id="reportContent" class="page-container">
+        <!-- Loading -->
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3">Generating Expense Report...</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Get URL Parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const startDate = urlParams.get('startDate');
+        const endDate = urlParams.get('endDate');
+        const branch = urlParams.get('branch') || '';
+        const head = urlParams.get('head') || '';
+        const subHead = urlParams.get('subHead') || '';
+        const type = urlParams.get('type') || ''; // expense, receipt, or all
+        const groupBy = urlParams.get('groupBy') || 'none'; // none, head, subHead, branch, date
+
+        // Format currency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-PK', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount || 0);
+        }
+
+        // Format date
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const d = new Date(dateStr);
+            return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+
+        // Show error
+        function showError(message) {
+            document.getElementById('reportContent').innerHTML = `
+                <div class="alert alert-danger text-center">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    ${message}
+                </div>
+            `;
+        }
+
+        // Render Report
+        function renderReport(data, company, filters) {
+            const expenses = data.expenses || data.data || [];
+
+            // Calculate totals
+            let totalExpense = 0;
+            let totalReceipt = 0;
+            expenses.forEach(e => {
+                if (e.type === 'receipt') {
+                    totalReceipt += Math.abs(e.amount || 0);
+                } else {
+                    totalExpense += Math.abs(e.amount || 0);
+                }
+            });
+            const netBalance = totalReceipt - totalExpense;
+
+            // Format filter display
+            const filterDisplay = [];
+            if (filters.startDate) filterDisplay.push(`<span class="filter-item"><span class="filter-label">From:</span> <span class="filter-value">${formatDate(filters.startDate)}</span></span>`);
+            if (filters.endDate) filterDisplay.push(`<span class="filter-item"><span class="filter-label">To:</span> <span class="filter-value">${formatDate(filters.endDate)}</span></span>`);
+            if (filters.branch) filterDisplay.push(`<span class="filter-item"><span class="filter-label">Branch:</span> <span class="filter-value">${filters.branch}</span></span>`);
+            if (filters.head) filterDisplay.push(`<span class="filter-item"><span class="filter-label">Head:</span> <span class="filter-value">${filters.head}</span></span>`);
+            if (filters.subHead) filterDisplay.push(`<span class="filter-item"><span class="filter-label">Sub Head:</span> <span class="filter-value">${filters.subHead}</span></span>`);
+            if (filters.type && filters.type !== 'all') filterDisplay.push(`<span class="filter-item"><span class="filter-label">Type:</span> <span class="filter-value">${filters.type === 'expense' ? 'Expenses Only' : 'Receipts Only'}</span></span>`);
+
+            let html = `
+                <!-- Header -->
+                <div class="report-header">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            ${company.logo ? `<img src="${company.logo}" class="company-logo" alt="Logo">` : ''}
+                            <h3 class="mt-2 mb-0">${company.companyName || 'My Company'}</h3>
+                            <p class="text-muted mb-0">${company.address || ''}</p>
+                        </div>
+                        <div class="text-end">
+                            <div class="report-title">Expense Report</div>
+                            <div class="report-subtitle">Generated on ${new Date().toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filter Summary -->
+                ${filterDisplay.length > 0 ? `
+                <div class="filter-summary">
+                    <strong><i class="fas fa-filter me-2"></i>Report Filters:</strong><br>
+                    ${filterDisplay.join('')}
+                </div>
+                ` : ''}
+
+                <!-- Summary Cards -->
+                <div class="summary-cards">
+                    <div class="summary-card expense">
+                        <div class="label"><i class="fas fa-arrow-up me-1"></i> Total Expenses</div>
+                        <div class="value">${formatCurrency(totalExpense)}</div>
+                    </div>
+                    <div class="summary-card receipt">
+                        <div class="label"><i class="fas fa-arrow-down me-1"></i> Total Receipts</div>
+                        <div class="value">${formatCurrency(totalReceipt)}</div>
+                    </div>
+                    <div class="summary-card balance">
+                        <div class="label"><i class="fas fa-balance-scale me-1"></i> Net Balance</div>
+                        <div class="value">${formatCurrency(netBalance)}</div>
+                    </div>
+                </div>
+
+                <!-- Data Table -->
+                <div class="section-title">
+                    <i class="fas fa-list me-2"></i>Transaction Details (${expenses.length} records)
+                </div>
+            `;
+
+            // Group data if needed
+            if (filters.groupBy && filters.groupBy !== 'none') {
+                html += renderGroupedTable(expenses, filters.groupBy);
+            } else {
+                html += renderSimpleTable(expenses);
+            }
+
+            // Signature Section
+            html += `
+                <div class="signature-section">
+                    <div class="signature-box">
+                        <div class="signature-line">Prepared By</div>
+                    </div>
+                    <div class="signature-box">
+                        <div class="signature-line">Verified By</div>
+                    </div>
+                    <div class="signature-box">
+                        <div class="signature-line">Approved By</div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="report-footer">
+                    <p class="mb-0">This is a computer-generated report. No signature required.</p>
+                    <p class="mb-0">Generated from Bilal Accounting System</p>
+                </div>
+            `;
+
+            document.getElementById('reportContent').innerHTML = html;
+        }
+
+        // Render Simple Table (no grouping)
+        function renderSimpleTable(expenses) {
+            if (expenses.length === 0) {
+                return '<div class="alert alert-warning text-center">No transactions found for the selected criteria.</div>';
+            }
+
+            let totalAmount = 0;
+            let html = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 10%">Date</th>
+                            <th style="width: 10%">Type</th>
+                            <th style="width: 12%">Branch</th>
+                            <th style="width: 15%">Head</th>
+                            <th style="width: 15%">Sub Head</th>
+                            <th style="width: 20%">Remarks</th>
+                            <th style="width: 13%" class="text-end">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            expenses.forEach(e => {
+                const isExpense = e.type !== 'receipt';
+                const amount = Math.abs(e.amount || 0);
+                totalAmount += isExpense ? -amount : amount;
+
+                html += `
+                    <tr>
+                        <td>${formatDate(e.date)}</td>
+                        <td><span class="${isExpense ? 'expense-amount' : 'receipt-amount'}">${isExpense ? 'Expense' : 'Receipt'}</span></td>
+                        <td>${e.branch || '-'}</td>
+                        <td>${e.head || '-'}</td>
+                        <td>${e.subHead || '-'}</td>
+                        <td>${e.notes || e.description || '-'}</td>
+                        <td class="text-end ${isExpense ? 'expense-amount' : 'receipt-amount'}">${formatCurrency(amount)}</td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                    </tbody>
+                    <tfoot>
+                        <tr class="total-row">
+                            <td colspan="6" class="text-end">Net Total</td>
+                            <td class="text-end">${formatCurrency(totalAmount)}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            `;
+
+            return html;
+        }
+
+        // Render Grouped Table
+        function renderGroupedTable(expenses, groupField) {
+            if (expenses.length === 0) {
+                return '<div class="alert alert-warning text-center">No transactions found for the selected criteria.</div>';
+            }
+
+            // Group the data
+            const groups = {};
+            expenses.forEach(e => {
+                let key = '';
+                if (groupField === 'head') key = e.head || 'Unknown';
+                else if (groupField === 'subHead') key = e.subHead || 'Unknown';
+                else if (groupField === 'branch') key = e.branch || 'Unknown';
+                else if (groupField === 'date') key = formatDate(e.date);
+                else key = 'All';
+
+                if (!groups[key]) groups[key] = [];
+                groups[key].push(e);
+            });
+
+            let html = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 12%">Date</th>
+                            <th style="width: 10%">Type</th>
+                            <th style="width: 15%">Head</th>
+                            <th style="width: 15%">Sub Head</th>
+                            <th style="width: 25%">Remarks</th>
+                            <th style="width: 13%" class="text-end">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            let grandTotal = 0;
+
+            Object.keys(groups).sort().forEach(groupKey => {
+                const items = groups[groupKey];
+                let groupTotal = 0;
+
+                // Group Header
+                html += `<tr class="group-header"><td colspan="6"><i class="fas fa-folder-open me-2"></i>${groupField.toUpperCase()}: ${groupKey}</td></tr>`;
+
+                // Group Items
+                items.forEach(e => {
+                    const isExpense = e.type !== 'receipt';
+                    const amount = Math.abs(e.amount || 0);
+                    groupTotal += isExpense ? -amount : amount;
+
+                    html += `
+                        <tr>
+                            <td>${formatDate(e.date)}</td>
+                            <td><span class="${isExpense ? 'expense-amount' : 'receipt-amount'}">${isExpense ? 'Expense' : 'Receipt'}</span></td>
+                            <td>${e.head || '-'}</td>
+                            <td>${e.subHead || '-'}</td>
+                            <td>${e.notes || e.description || '-'}</td>
+                            <td class="text-end ${isExpense ? 'expense-amount' : 'receipt-amount'}">${formatCurrency(amount)}</td>
+                        </tr>
+                    `;
+                });
+
+                // Group Total
+                html += `<tr class="group-total"><td colspan="5" class="text-end">Subtotal for ${groupKey}</td><td class="text-end">${formatCurrency(groupTotal)}</td></tr>`;
+                grandTotal += groupTotal;
+            });
+
+            html += `
+                    </tbody>
+                    <tfoot>
+                        <tr class="total-row">
+                            <td colspan="5" class="text-end">Grand Total</td>
+                            <td class="text-end">${formatCurrency(grandTotal)}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            `;
+
+            return html;
+        }
+
+        // Load Report Data
+        async function loadReport() {
+            try {
+                const token = localStorage.getItem('token');
+
+                // Load Company Settings
+                const companyResponse = await fetch('/api/v1/settings/company-info', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const companyData = await companyResponse.json();
+                const company = companyData.data || {};
+
+                // Build query params
+                let queryParams = '?';
+                if (startDate) queryParams += `startDate=${startDate}&`;
+                if (endDate) queryParams += `endDate=${endDate}&`;
+                if (branch) queryParams += `branch=${encodeURIComponent(branch)}&`;
+                if (head) queryParams += `head=${encodeURIComponent(head)}&`;
+                if (subHead) queryParams += `subHead=${encodeURIComponent(subHead)}&`;
+                if (type && type !== 'all') queryParams += `type=${type}&`;
+                queryParams += 'limit=10000'; // Get all records
+
+                // Fetch Expenses
+                const expenseResponse = await fetch(`/api/v1/expenses${queryParams}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!expenseResponse.ok) throw new Error('Failed to fetch expense data');
+
+                const expenseData = await expenseResponse.json();
+
+                // Render Report
+                renderReport(expenseData, company, {
+                    startDate,
+                    endDate,
+                    branch,
+                    head,
+                    subHead,
+                    type,
+                    groupBy
+                });
+
+            } catch (error) {
+                console.error('Print error:', error);
+                showError(error.message);
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', loadReport);
+    </script>
+</body>
+
+</html>
+

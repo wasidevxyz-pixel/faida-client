@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Attendance Report</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #1e4c8c 0%, #2c5ba9 100%);
+            --accent-color: #00a65a;
+            --border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        body {
+            background-color: #f8fafc;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-size: 0.85rem;
+        }
+
+        .filter-panel {
+            background: var(--primary-gradient);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            color: white;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-row:last-child {
+            margin-bottom: 0;
+            align-items: flex-end;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group.small {
+            flex: 0.5;
+            min-width: 120px;
+        }
+
+        .filter-panel label {
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 6px;
+            display: block;
+            opacity: 0.9;
+            color: white;
+        }
+
+        .filter-panel .form-select,
+        .filter-panel .form-control {
+            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.1);
+            color: white !important;
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            border-radius: 6px;
+            height: 38px;
+            transition: all 0.3s;
+        }
+
+        .filter-panel .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .filter-panel .form-select option {
+            background: #1e4c8c;
+            color: white;
+        }
+
+        .filter-panel .form-select:focus,
+        .filter-panel .form-control:focus {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+            border-color: white;
+            outline: none;
+        }
+
+        /* Select2 customization for dark theme */
+        .select2-container--bootstrap-5 .select2-selection {
+            background-color: rgba(255, 255, 255, 0.1) !important;
+            border: 1px solid var(--border-color) !important;
+            color: white !important;
+            height: 38px !important;
+            border-radius: 6px !important;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+            color: white !important;
+            line-height: 36px !important;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection--single .select2-selection__arrow b {
+            border-color: white transparent transparent transparent !important;
+        }
+
+        .btn-view {
+            background: #28a745;
+            color: white;
+            border: 1.5px solid white;
+            padding: 0 25px;
+            height: 38px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-view:hover {
+            background: #218838;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn-reset {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-reset:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .btn-print {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-print:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div id="sidebar-container"></div>
+
+    <div class="main-content">
+        <!-- Header -->
+        <div class="page-header px-3 d-flex align-items-center justify-content-between"
+            style="height: 50px; background: white; border-bottom: 1px solid #e2e8f0;">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+                <h5 class="mb-0 fw-bold" style="color: #1e4c8c;">Employee Attendance</h5>
+            </div>
+            <div class="dropdown">
+                <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                    style="border:none; color: #1e4c8c;">
+                    <i class="fas fa-user-circle me-2"></i> <span id="userName">User</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item logout-btn" href="#"><i
+                                class="fas fa-sign-out-alt me-2 text-danger"></i>Logout</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="container-fluid p-4">
+            <!-- Filter Panel -->
+            <div class="filter-panel shadow-sm">
+                <!-- Row 1: Dates -->
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label>From Date</label>
+                        <input type="date" id="filterFrom" class="form-control">
+                    </div>
+                    <div class="filter-group">
+                        <label>To Date</label>
+                        <input type="date" id="filterTo" class="form-control">
+                    </div>
+                </div>
+
+                <!-- Row 2: Branch & Department -->
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label>Branch</label>
+                        <select id="filterBranch" class="form-select">
+                            <option value="">Select Branch</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Department</label>
+                        <select id="filterDept" class="form-select">
+                            <option value="">Select Department</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Row 3: Code & Employee & Order -->
+                <div class="filter-row">
+                    <div class="filter-group small">
+                        <label>Code</label>
+                        <input type="text" id="filterCode" class="form-control" placeholder="Code..">
+                    </div>
+                    <div class="filter-group me-3">
+                        <label>Employee</label>
+                        <select id="filterEmployee" class="form-select">
+                            <option value="">Select Employee</option>
+                        </select>
+                    </div>
+                    <div class="filter-group d-flex align-items-end ms-2" style="flex: 0 0 auto; min-width: auto;">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="checkOrder">
+                            <label class="form-check-label small text-white" for="checkOrder"
+                                style="opacity: 1; text-transform: none; letter-spacing: 0; white-space: nowrap;">
+                                Order By Check In ASC
+                            </label>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 align-items-end">
+                        <button class="btn btn-view" onclick="generateReport()">View Report</button>
+                        <button class="btn btn-reset" title="Reset Filters" onclick="location.reload()">
+                            <i class="fas fa-redo"></i>
+                        </button>
+                        <button class="btn btn-print" title="Print Report" onclick="generateReport()">
+                            <i class="fas fa-print"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Placeholder for active branch name on screen if user wants it -->
+            <div id="activeFilters" class="mb-3"></div>
+
+            <!-- Result Placeholder (Empty for now like Detail Screen) -->
+            <div class="card shadow-sm border-0" style="border-radius: 12px; min-height: 200px;">
+                <div class="card-body text-center py-5 text-muted">
+                    <i class="fas fa-search fa-3x mb-3 opacity-25"></i>
+                    <p>Use filters above to view attendance details.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="/js/sidebar.js?v=1789486244470"></script>
+    <script src="/js/employee-attendance-report.js"></script>
+</body>
+
+</html>

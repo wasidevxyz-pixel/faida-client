@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Import File/ Multiple (Attendance)</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #0056b3;
+            --secondary-blue: #007bff;
+            --accent-blue: #0086e6;
+            --bg-light: #f4f7f6;
+            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        body {
+            background-color: var(--bg-light);
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            color: #333;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            padding: 1rem 1.5rem;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin: 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .main-card {
+            background: white;
+            border-radius: 12px;
+            border: none;
+            box-shadow: var(--card-shadow);
+            margin-top: 2rem;
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        .card-header-custom {
+            background: #0074b7;
+            color: white;
+            padding: 12px 20px;
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #444;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 6px;
+            border: 1px solid #ced4da;
+            padding: 10px 12px;
+            font-size: 0.95rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+
+        .btn-custom {
+            padding: 10px 24px;
+            font-weight: 600;
+            border-radius: 6px;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-upload {
+            background-color: #428bca;
+            color: white;
+            border: none;
+        }
+
+        .btn-upload:hover {
+            background-color: #357ebd;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .btn-save {
+            background-color: #428bca;
+            color: white;
+            border: none;
+            min-width: 100px;
+            justify-content: center;
+        }
+
+        .btn-save:hover {
+            background-color: #357ebd;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .btn-back {
+            background-color: #00a65a;
+            color: white;
+            border: none;
+            margin-top: 2rem;
+        }
+
+        .btn-back:hover {
+            background-color: #008d4c;
+            color: white;
+        }
+
+        .row-spacing {
+            margin-bottom: 20px;
+        }
+
+        .time-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-card {
+                margin: 1rem;
+            }
+        }
+
+        /* Employee Search Styling */
+        #employeeSearch {
+            padding-left: 36px !important;
+            border-radius: 6px;
+            border: 1px solid #ced4da;
+            font-size: 0.95rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        #employeeSearch:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+
+        #employeeSearch::placeholder {
+            color: #999;
+        }
+
+        /* Employee Suggestions Dropdown */
+        #employeeSuggestions {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            border: 1px solid #ced4da;
+            border-top: none;
+        }
+
+        .employee-suggestion-item {
+            padding: 10px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.15s;
+            font-size: 0.95rem;
+        }
+
+        .employee-suggestion-item:hover {
+            background-color: #e3f2fd;
+        }
+
+        .employee-suggestion-item.active {
+            background-color: #bbdefb;
+            font-weight: 500;
+        }
+
+        .employee-suggestion-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <div class="page-header">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1.2rem;"></i>
+            <h1 class="header-title">Import File/ Multiple (Attendance)</h1>
+        </div>
+        <div class="dropdown">
+            <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown" style="cursor: pointer;">
+                <i class="fas fa-user-circle me-2" style="font-size: 1.5rem;"></i>
+                <span id="userName" class="me-2 fw-medium">User</span>
+                <i class="fas fa-chevron-down" style="font-size: 0.8rem;"></i>
+            </div>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                <li><a class="dropdown-item py-2 logout-btn" href="#"><i
+                            class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 col-xl-8">
+                <div class="main-card">
+                    <div class="card-header-custom">
+                        Import File/ Multiple (Attendance)
+                    </div>
+                    <div class="card-body p-4 p-md-5">
+                        <form id="attendanceForm">
+                            <!-- Branch -->
+                            <div class="row row-spacing align-items-center">
+                                <label class="col-md-3 form-label">Branch</label>
+                                <div class="col-md-9">
+                                    <select id="branchSelect" class="form-select" required>
+                                        <option value="">Select Branch</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Code -->
+                            <div class="row row-spacing align-items-center">
+                                <label class="col-md-3 form-label">Code</label>
+                                <div class="col-md-9">
+                                    <input type="text" id="employeeCode" class="form-control"
+                                        placeholder="Enter Employee Code">
+                                </div>
+                            </div>
+
+                            <!-- Employee -->
+                            <div class="row row-spacing align-items-center">
+                                <label class="col-md-3 form-label">Employee</label>
+                                <div class="col-md-9">
+                                    <div class="position-relative">
+                                        <input type="text" id="employeeSearch" class="form-control mb-2" 
+                                            placeholder="🔍 Search employee by name or code...">
+                                        <div id="employeeSuggestions" class="position-absolute w-100 bg-white border border-top-0 rounded-bottom shadow-sm" 
+                                            style="display: none; max-height: 250px; overflow-y: auto; z-index: 1000; top: 42px;">
+                                        </div>
+                                        <select id="employeeSelect" class="form-select">
+                                            <option value="">Select Employee</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- File Upload -->
+                            <div class="row row-spacing align-items-center mt-4">
+                                <label class="col-md-3 form-label">Import Type</label>
+                                <div class="col-md-9">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="importMode" id="modeNormal" value="normal" checked>
+                                        <label class="form-check-label" for="modeNormal">Standard (In/Out Columns)</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="importMode" id="modeRaw" value="raw">
+                                        <label class="form-check-label" for="modeRaw">Biometric Raw (1 Row/Scan)</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row row-spacing align-items-center">
+                                <div class="col-md-9 offset-md-3">
+                                    <div class="input-group">
+                                        <input type="file" id="excelFile" class="form-control" accept=".xlsx, .xls">
+                                        <button type="button" class="btn btn-custom btn-upload" id="uploadBtn">
+                                            <i class="fas fa-upload"></i> Upload & Process
+                                        </button>
+                                    </div>
+                                    <small class="text-muted mt-2 d-block" id="importHelpText">
+                                        Support Excel (.xlsx, .xls). Standard mode expects: Code, Date, CheckIn, CheckOut.
+                                    </small>
+                                </div>
+                            </div>
+
+                            <hr class="my-5">
+
+                            <!-- From -->
+                            <div class="row row-spacing align-items-center">
+                                <label class="col-md-3 form-label">From</label>
+                                <div class="col-md-9">
+                                    <div class="row g-2">
+                                        <div class="col-sm-7">
+                                            <input type="date" id="fromDate" class="form-control" required>
+                                        </div>
+                                        <div class="col-sm-5">
+                                            <div class="input-group">
+                                                <input type="time" id="fromTime" class="form-control" value="10:00">
+                                                <span class="input-group-text"><i class="far fa-clock"></i></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- To -->
+                            <div class="row row-spacing align-items-center">
+                                <label class="col-md-3 form-label">To</label>
+                                <div class="col-md-9">
+                                    <div class="row g-2 flex-nowrap align-items-center">
+                                        <div class="col-sm-5">
+                                            <input type="date" id="toDate" class="form-control" required>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <div class="input-group">
+                                                <input type="time" id="toTime" class="form-control" value="22:00">
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <select id="statusSelect" class="form-select">
+                                                <option value="Present">Present</option>
+                                                <option value="Absent">Absent</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-sm-1">
+                                            <button type="submit" class="btn btn-custom btn-save" id="saveBtn">
+                                                Save
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <button class="btn btn-custom btn-back" onclick="window.location.href='/attendance-list'">
+                    <i class="fas fa-arrow-left"></i> Back
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main JS logic -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244505"></script>
+    <script>
+        // Store all employees globally for search filtering
+        let allEmployees = [];
+        let searchTimeout;
+        let currentHighlightIndex = -1;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            setDefaultDates();
+            await loadBranches();
+
+            // Branch change -> Load employees
+            document.getElementById('branchSelect').addEventListener('change', (e) => {
+                loadEmployees(e.target.value);
+                document.getElementById('employeeSearch').value = ''; // Clear search when branch changes
+                allEmployees = []; // Reset employees list
+                closeSuggestions();
+            });
+
+            // Employee code input -> Select employee
+            document.getElementById('employeeCode').addEventListener('input', (e) => {
+                const code = e.target.value.toLowerCase();
+                const select = document.getElementById('employeeSelect');
+                for (let opt of select.options) {
+                    if (opt.dataset.code && opt.dataset.code.toLowerCase() === code) {
+                        select.value = opt.value;
+                        break;
+                    }
+                }
+            });
+
+            // Employee select change -> Update code
+            document.getElementById('employeeSelect').addEventListener('change', (e) => {
+                const opt = e.target.options[e.target.selectedIndex];
+                if (opt && opt.dataset.code) {
+                    document.getElementById('employeeCode').value = opt.dataset.code;
+                    closeSuggestions();
+                }
+            });
+
+            // Employee search filter with real-time suggestions
+            document.getElementById('employeeSearch').addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                const searchTerm = e.target.value.toLowerCase().trim();
+                currentHighlightIndex = -1;
+                
+                // Debounce the search for performance with large datasets
+                searchTimeout = setTimeout(() => {
+                    showEmployeeSuggestions(searchTerm);
+                }, 100);
+            });
+
+            // Keyboard navigation in suggestions
+            document.getElementById('employeeSearch').addEventListener('keydown', (e) => {
+                const suggestionsBox = document.getElementById('employeeSuggestions');
+                const items = suggestionsBox.querySelectorAll('.employee-suggestion-item');
+                
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    currentHighlightIndex = Math.min(currentHighlightIndex + 1, items.length - 1);
+                    updateHighlight(items);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    currentHighlightIndex = Math.max(currentHighlightIndex - 1, -1);
+                    updateHighlight(items);
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (currentHighlightIndex >= 0 && items[currentHighlightIndex]) {
+                        items[currentHighlightIndex].click();
+                    }
+                } else if (e.key === 'Escape') {
+                    closeSuggestions();
+                }
+            });
+
+            // Close suggestions when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('#employeeSearch') && !e.target.closest('#employeeSuggestions')) {
+                    closeSuggestions();
+                }
+            });
+
+            // Form Submit (Manual Range)
+            document.getElementById('attendanceForm').addEventListener('submit', handleManualSave);
+
+            // Excel Upload
+            document.getElementById('uploadBtn').addEventListener('click', handleExcelUpload);
+        });
+
+        function showEmployeeSuggestions(searchTerm) {
+            const suggestionsBox = document.getElementById('employeeSuggestions');
+            suggestionsBox.innerHTML = '';
+            
+            if (searchTerm === '') {
+                closeSuggestions();
+                return;
+            }
+            
+            // Filter employees by search term
+            const filtered = allEmployees.filter(emp => {
+                const nameMatch = emp.name.toLowerCase().startsWith(searchTerm);
+                const codeMatch = emp.code.toLowerCase().startsWith(searchTerm);
+                return nameMatch || codeMatch;
+            });
+            
+            if (filtered.length === 0) {
+                closeSuggestions();
+                return;
+            }
+            
+            // Show suggestions
+            filtered.slice(0, 100).forEach((emp, index) => {
+                const div = document.createElement('div');
+                div.className = 'employee-suggestion-item';
+                div.textContent = `${emp.code} - ${emp.name}`;
+                div.dataset.id = emp.id;
+                div.dataset.code = emp.code;
+                
+                div.addEventListener('click', () => {
+                    selectEmployee(emp.id, emp.code);
+                    document.getElementById('employeeSearch').value = `${emp.code} - ${emp.name}`;
+                    closeSuggestions();
+                });
+                
+                div.addEventListener('mouseenter', () => {
+                    document.querySelectorAll('.employee-suggestion-item').forEach(el => el.classList.remove('active'));
+                    div.classList.add('active');
+                });
+                
+                suggestionsBox.appendChild(div);
+            });
+            
+            suggestionsBox.style.display = 'block';
+            
+            // Auto-select if only one match
+            if (filtered.length === 1) {
+                setTimeout(() => {
+                    selectEmployee(filtered[0].id, filtered[0].code);
+                    document.getElementById('employeeSearch').value = `${filtered[0].code} - ${filtered[0].name}`;
+                    closeSuggestions();
+                }, 300);
+            }
+        }
+
+        function selectEmployee(empId, empCode) {
+            document.getElementById('employeeSelect').value = empId;
+            document.getElementById('employeeCode').value = empCode;
+            closeSuggestions();
+        }
+
+        function closeSuggestions() {
+            document.getElementById('employeeSuggestions').style.display = 'none';
+            currentHighlightIndex = -1;
+        }
+
+        function updateHighlight(items) {
+            items.forEach((item, index) => {
+                if (index === currentHighlightIndex) {
+                    item.classList.add('active');
+                    item.scrollIntoView({ block: 'nearest' });
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        function setDefaultDates() {
+            const now = new Date();
+            const today = now.toISOString().split('T')[0];
+            document.getElementById('fromDate').value = today;
+            document.getElementById('toDate').value = today;
+        }
+
+        async function loadBranches() {
+            try {
+                const token = localStorage.getItem('token');
+                let response = await fetch('/api/v1/stores', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!response.ok) {
+                    response = await fetch('/api/v1/sub-branches', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                }
+
+                const data = await response.json();
+                if (data.success && data.data) {
+                    const select = document.getElementById('branchSelect');
+                    select.innerHTML = '<option value="">Select Branch</option>';
+
+                    const rawNames = data.data.map(item => (item.name || item.branchName || '').trim());
+                    const uniqueBranches = [...new Set(rawNames)].filter(n => n !== '').sort();
+
+                    uniqueBranches.forEach(name => {
+                        const opt = document.createElement('option');
+                        opt.value = name;
+                        opt.textContent = name;
+                        select.appendChild(opt);
+                    });
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        async function loadEmployees(branch) {
+            const select = document.getElementById('employeeSelect');
+            select.innerHTML = '<option value="">Select Employee</option>';
+            if (!branch) return;
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`/api/v1/employees?branch=${branch}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                if (data.success) {
+                    // Store all employees for search functionality
+                    allEmployees = [];
+                    
+                    data.data.forEach(e => {
+                        if (!e.isActive) return;
+                        
+                        allEmployees.push({
+                            id: e._id,
+                            code: e.code,
+                            name: e.name
+                        });
+                        
+                        const opt = document.createElement('option');
+                        opt.value = e._id;
+                        opt.dataset.code = e.code;
+                        opt.textContent = `${e.code} - ${e.name}`;
+                        select.appendChild(opt);
+                    });
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        async function handleManualSave(e) {
+            e.preventDefault();
+            const employeeId = document.getElementById('employeeSelect').value;
+            const branch = document.getElementById('branchSelect').value;
+            const fromDateStr = document.getElementById('fromDate').value;
+            const toDateStr = document.getElementById('toDate').value;
+            const fromTime = document.getElementById('fromTime').value;
+            const toTime = document.getElementById('toTime').value;
+            const status = document.getElementById('statusSelect').value;
+
+            if (!employeeId) {
+                alert('Please select an employee');
+                return;
+            }
+
+            const fromDate = new Date(fromDateStr);
+            const toDate = new Date(toDateStr);
+
+            if (toDate < fromDate) {
+                alert('To Date cannot be earlier than From Date');
+                return;
+            }
+
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.style.display = 'flex';
+
+            try {
+                const token = localStorage.getItem('token');
+                const attendanceRecords = [];
+
+                // Generate records for each day in range
+                const employeeCode = document.getElementById('employeeCode').value;
+                let current = new Date(fromDate);
+                while (current <= toDate) {
+                    const dateISO = current.toISOString().split('T')[0];
+
+                    // Simple working hours calculation
+                    let workedHrs = '';
+                    let totalHrs = 0;
+                    if (fromTime && toTime) {
+                        const [fH, fM] = fromTime.split(':').map(Number);
+                        const [tH, tM] = toTime.split(':').map(Number);
+                        let diffMin = (tH * 60 + tM) - (fH * 60 + fM);
+                        if (diffMin < 0) diffMin += 1440;
+
+                        workedHrs = `${Math.floor(diffMin / 60)}:${(diffMin % 60).toString().padStart(2, '0')}`;
+                        totalHrs = diffMin / 60;
+                    }
+
+                    const isAbsent = status === 'Absent';
+                    attendanceRecords.push({
+                        employee: employeeId,
+                        code: employeeCode,
+                        date: dateISO,
+                        branch: branch,
+                        checkIn: isAbsent ? '' : formatToAMPM(fromTime),
+                        checkOut: isAbsent ? '' : formatToAMPM(toTime),
+                        workedHrs: isAbsent ? '' : workedHrs,
+                        totalHrs: isAbsent ? 0 : totalHrs,
+                        displayStatus: status,
+                        isPresent: status === 'Present'
+                    });
+
+                    current.setDate(current.getDate() + 1);
+                }
+
+                // Call bulk API
+                const response = await fetch('/api/v1/attendance/bulk', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ attendanceRecords })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert(`Successfully marked attendance for ${attendanceRecords.length} days`);
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Failed to save attendance');
+            } finally {
+                loadingOverlay.style.display = 'none';
+            }
+        }
+
+        async function handleExcelUpload() {
+            const fileInput = document.getElementById('excelFile');
+            const file = fileInput.files[0];
+            const branch = document.getElementById('branchSelect').value;
+
+            if (!file) {
+                alert('Please choose an Excel file first');
+                return;
+            }
+            if (!branch) {
+                alert('Please select a branch');
+                return;
+            }
+
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.style.display = 'flex';
+
+            const importMode = document.querySelector('input[name="importMode"]:checked').value;
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+                    console.log('Detected Import Mode:', importMode, 'Excel Data:', jsonData);
+
+                    const token = localStorage.getItem('token');
+
+                    // 1. Load Employees for branch to map code -> ID
+                    const empRes = await fetch(`/api/v1/employees?branch=${branch}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const empData = await empRes.json();
+                    if (!empData.success) throw new Error('Failed to fetch employees');
+
+                    const empMap = {};
+                    empData.data.forEach(emp => {
+                        empMap[emp.code.toString().trim()] = { id: emp._id, code: emp.code };
+                    });
+
+                    // 2. Parse Logic
+                    const attendanceRecords = [];
+
+                    if (importMode === 'raw') {
+                        // BIOMETRIC RAW MODE (Pairing scans)
+                        // Pairs multiple rows based on {Code, Date}
+                        const pairMap = {};
+
+                        jsonData.forEach(row => {
+                            const code = (row.Code || row.UserId || row.ID || row.id || '').toString().trim();
+                            const emp = empMap[code];
+                            if (!emp) return;
+
+                            let ts = row.Timestamp || row.Time || row.DateTime || row.Date;
+                            if (typeof ts === 'number') ts = new Date((ts - 25569) * 86400 * 1000);
+                            else ts = new Date(ts);
+
+                            if (isNaN(ts.getTime())) return;
+
+                            const dStr = ts.toISOString().split('T')[0];
+                            const tStr = ts.toTimeString().split(' ')[0].substring(0, 5); // HH:mm
+                            const key = `${emp.id}_${dStr}`;
+
+                            if (!pairMap[key]) {
+                                pairMap[key] = {
+                                    employee: emp.id,
+                                    code: emp.code,
+                                    date: dStr,
+                                    branch: branch,
+                                    scans: []
+                                };
+                            }
+                            pairMap[key].scans.push(tStr);
+                        });
+
+                        // Convert paired scans to attendance records
+                        Object.values(pairMap).forEach(group => {
+                            group.scans.sort();
+                            const checkIn = group.scans[0];
+                            const checkOut = group.scans.length > 1 ? group.scans[group.scans.length-1] : '';
+
+                            let workedHrs = '';
+                            let totalHrs = 0;
+                            if (checkIn && checkOut) {
+                                const cin = parseExcelTime(checkIn);
+                                const cout = parseExcelTime(checkOut);
+                                if (cin && cout) {
+                                  let diff = cout - cin; if (diff < 0) diff += 1440;
+                                  workedHrs = `${Math.floor(diff/60)}:${(diff%60).toString().padStart(2,'0')}`;
+                                  totalHrs = diff / 60;
+                                }
+                            }
+
+                            attendanceRecords.push({
+                                employee: group.employee,
+                                code: group.code,
+                                date: group.date,
+                                branch: group.branch,
+                                checkIn: formatTimeToAMPM(checkIn),
+                                checkOut: formatTimeToAMPM(checkOut),
+                                workedHrs: workedHrs,
+                                totalHrs: totalHrs,
+                                displayStatus: 'Present',
+                                isPresent: true
+                            });
+                        });
+
+                    } else {
+                        // STANDARD MODE (1 Row = 1 Attendance Day)
+                        jsonData.forEach(row => {
+                            const code = (row.Code || row.code || '').toString().trim();
+                            const emp = empMap[code];
+                            if (!emp) return;
+
+                            let dateStr = row.Date || row.date;
+                            if (typeof dateStr === 'number') dateStr = new Date((dateStr - 25569) * 86400 * 1000).toISOString().split('T')[0];
+                            else dateStr = new Date(dateStr).toISOString().split('T')[0];
+                            if (!dateStr || dateStr === 'NaN-NaN-NaN') return;
+
+                            const status = row.Status || row.status || 'Present';
+                            const checkIn = row.CheckIn || row.checkin || '';
+                            const checkOut = row.CheckOut || row.checkout || '';
+
+                            let workedHrs = '';
+                            let totalHrs = 0;
+                            if (checkIn && checkOut) {
+                                const cin = parseExcelTime(checkIn);
+                                const cout = parseExcelTime(checkOut);
+                                if (cin && cout) {
+                                    let diff = cout - cin; if (diff < 0) diff += 1440;
+                                    workedHrs = `${Math.floor(diff / 60)}:${(diff % 60).toString().padStart(2, '0')}`;
+                                    totalHrs = diff / 60;
+                                }
+                            }
+
+                            attendanceRecords.push({
+                                employee: emp.id,
+                                code: emp.code,
+                                date: dateStr,
+                                branch: branch,
+                                checkIn: formatTimeToAMPM(checkIn),
+                                checkOut: formatTimeToAMPM(checkOut),
+                                workedHrs: workedHrs,
+                                totalHrs: totalHrs,
+                                displayStatus: status,
+                                isPresent: status === 'Present'
+                            });
+                        });
+                    }
+
+                    if (attendanceRecords.length === 0) {
+                        alert('No records matched. Check your Excel columns and Branch.');
+                        return;
+                    }
+
+                    // 3. Send to bulk API
+                    const response = await fetch('/api/v1/attendance/bulk', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ attendanceRecords })
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                        alert(`Successfully imported ${attendanceRecords.length} records in ${importMode} mode.`);
+                        fileInput.value = '';
+                    } else {
+                        alert('Import failed: ' + result.message);
+                    }
+
+                } catch (err) {
+                    console.error(err);
+                    alert('Error processing Excel: ' + err.message);
+                } finally {
+                    loadingOverlay.style.display = 'none';
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // Shortcut keys
+        document.addEventListener('keydown', (e) => {
+            if (e.altKey && e.key.toLowerCase() === 's') {
+                e.preventDefault();
+                document.getElementById('saveBtn').click();
+            }
+        });
+
+        // Helpers
+        function formatToAMPM(time24) {
+            if (!time24) return '';
+            const [h, m] = time24.split(':').map(Number);
+            const modifier = h >= 12 ? 'PM' : 'AM';
+            const hours = h % 12 || 12;
+            return `${hours}:${m.toString().padStart(2, '0')} ${modifier}`;
+        }
+
+        function formatTimeToAMPM(timeInput) {
+            if (!timeInput) return '';
+            // If it's a number (Excel decimal time)
+            if (typeof timeInput === 'number') {
+                const totalMinutes = Math.round(timeInput * 1440);
+                const h = Math.floor(totalMinutes / 60);
+                const m = totalMinutes % 60;
+                return formatToAMPM(`${h}:${m}`);
+            }
+            // If it's already in AM/PM format
+            if (timeInput.toLowerCase().includes('am') || timeInput.toLowerCase().includes('pm')) {
+                return timeInput.toUpperCase();
+            }
+            // Assume 24h string
+            return formatToAMPM(timeInput);
+        }
+
+        function parseExcelTime(timeInput) {
+            if (typeof timeInput === 'number') return Math.round(timeInput * 1440);
+            if (typeof timeInput === 'string' && timeInput.includes(':')) {
+                // If AM/PM
+                if (timeInput.toLowerCase().includes('am') || timeInput.toLowerCase().includes('pm')) {
+                    let [time, modifier] = timeInput.split(' ');
+                    let [h, m] = time.split(':').map(Number);
+                    if (h === 12) h = 0;
+                    if (modifier && modifier.toLowerCase() === 'pm') h += 12;
+                    return h * 60 + (m || 0);
+                }
+                const [h, m] = timeInput.split(':').map(Number);
+                return h * 60 + m;
+            }
+            return null;
+        }
+    </script>
+</body>
+
+</html>
+

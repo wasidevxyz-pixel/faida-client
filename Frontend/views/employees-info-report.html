@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMPLOYES_INFO Report - BAS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <style>
+        :root {
+            --blue-900: #0f2f57;
+            --blue-800: #163d72;
+            --blue-700: #1e4c8c;
+            --blue-100: #eaf2ff;
+            --ink: #1f2937;
+        }
+
+        body {
+            background: linear-gradient(180deg, #eef4fb 0%, #f8fbff 35%, #ffffff 100%);
+            color: var(--ink);
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, var(--blue-900), var(--blue-700));
+            color: white;
+            padding: 12px 18px;
+            box-shadow: 0 8px 24px rgba(15, 47, 87, 0.2);
+            border-bottom: none;
+        }
+
+        .report-shell {
+            padding: 16px;
+        }
+
+        .controls-card,
+        .report-card {
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(30, 76, 140, 0.12);
+            border-radius: 18px;
+            box-shadow: 0 12px 30px rgba(15, 47, 87, 0.08);
+        }
+
+        .controls-card {
+            padding: 18px;
+            margin-bottom: 16px;
+        }
+
+        .controls-title {
+            font-size: 0.82rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            color: var(--blue-700);
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .form-label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #5b6472;
+            margin-bottom: 5px;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 12px;
+            border-color: #cfd9ea;
+            min-height: 40px;
+            background: #fff;
+            color: #1f2937;
+        }
+
+        .hero-header {
+            padding: 18px 22px;
+            background: linear-gradient(135deg, var(--blue-700), #285faa);
+            color: white;
+            border-radius: 18px 18px 0 0;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .hero-header h2 {
+            margin: 0;
+            font-weight: 900;
+            letter-spacing: 0.06em;
+        }
+
+        .hero-header .subline {
+            margin-top: 6px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+        }
+
+        .branch-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.14);
+            font-weight: 700;
+            font-size: 0.82rem;
+        }
+
+        .branch-meta {
+            margin-top: 10px;
+            font-size: 0.86rem;
+            line-height: 1.55;
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        .report-toolbar {
+            padding: 14px 18px;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid #e8eef7;
+            background: #ffffff;
+        }
+
+        .mini-stat {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 150px;
+            padding: 10px 12px;
+            border-radius: 14px;
+            background: var(--blue-100);
+            border: 1px solid rgba(30, 76, 140, 0.12);
+        }
+
+        .mini-stat .label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #58719b;
+            font-weight: 800;
+        }
+
+        .mini-stat .value {
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: var(--blue-800);
+        }
+
+        .table-wrap {
+            overflow: auto;
+        }
+
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            color: #1f2937;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .report-table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            background: #000 !important;
+            color: white;
+            text-transform: uppercase;
+            font-size: 0.76rem;
+            letter-spacing: 0.06em;
+            padding: 12px 10px;
+            border: 1px solid #000 !important;
+            white-space: nowrap;
+        }
+
+        .report-table thead {
+            display: table-header-group;
+        }
+
+        .report-table tbody tr {
+            page-break-inside: avoid;
+        }
+
+        .report-table td {
+            padding: 10px 10px;
+            border-bottom: 1px solid #edf2f7;
+            vertical-align: middle;
+            color: #1f2937;
+        }
+
+        .report-table tbody tr:hover {
+            background: #f7fbff;
+        }
+
+        .name-cell {
+            font-weight: 700;
+            color: #24344a;
+        }
+
+        .print-header {
+            display: none;
+        }
+
+        @media print {
+            html,
+            body {
+                background: #fff !important;
+                color: #000 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .page-header,
+            .controls-card,
+            .no-print {
+                display: none !important;
+            }
+
+            .report-shell {
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            .report-card {
+                border: none !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                background: #fff !important;
+                color: #000 !important;
+            }
+
+            .print-header {
+                display: block !important;
+                text-align: center;
+                margin-bottom: 10px;
+                padding-bottom: 8px;
+                border-bottom: 2px solid #000;
+                color: #000 !important;
+            }
+
+            .print-header h1,
+            .print-header h3,
+            .print-header p {
+                margin-bottom: 0;
+            }
+
+            .print-header h1 {
+                font-size: 24px;
+                color: #000;
+                font-weight: 900;
+            }
+
+            .print-header h3 {
+                font-size: 18px;
+                color: #000;
+                margin-top: 5px;
+            }
+
+            .print-header p {
+                font-size: 13px;
+                color: #000;
+                margin-top: 6px;
+            }
+
+            .report-toolbar {
+                background: #fff !important;
+                border-bottom: 1px solid #000 !important;
+                padding: 8px 0 10px !important;
+                margin-bottom: 8px;
+            }
+
+            .mini-stat {
+                background: #fff !important;
+                border: 1px solid #000 !important;
+                border-radius: 6px !important;
+                box-shadow: none !important;
+                min-width: 120px;
+                padding: 6px 10px !important;
+            }
+
+            .mini-stat .label,
+            .mini-stat .value {
+                color: #000 !important;
+            }
+
+            .report-table thead th {
+                position: static;
+                font-size: 10px;
+                padding: 7px 6px;
+                background: #000 !important;
+                color: #fff !important;
+                border-color: #000 !important;
+                font-family: 'Times New Roman', Times, serif !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .report-table thead {
+                display: table-header-group;
+            }
+
+            .report-table tbody tr {
+                page-break-inside: avoid;
+            }
+
+            .report-table td {
+                font-size: 11px;
+                padding: 7px 6px;
+                font-family: 'Times New Roman', Times, serif !important;
+                color: #000 !important;
+                border-bottom: 1px solid #000 !important;
+            }
+
+            .report-table tbody tr:hover {
+                background: transparent !important;
+            }
+
+            @page {
+                size: A4 landscape;
+                margin: 0.8cm;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-header px-3 d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-3">
+            <i class="fas fa-bars" id="sidebarToggle" style="cursor:pointer;"></i>
+            <div>
+                <div class="fw-bold">Payroll Reports</div>
+                <div class="small opacity-75">EMPLOYES_INFO directory report</div>
+            </div>
+        </div>
+        <div class="d-none d-md-flex align-items-center gap-2">
+            <button class="btn btn-light btn-sm no-print" onclick="generateReport()"><i class="fas fa-filter me-1"></i>Generate</button>
+            <button class="btn btn-warning btn-sm no-print" onclick="window.print()"><i class="fas fa-print me-1"></i>Print</button>
+        </div>
+    </div>
+
+    <div class="report-shell">
+        <div class="controls-card no-print">
+            <div class="controls-title">Filters</div>
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label">Branch</label>
+                    <select id="branchFilter" class="form-select form-select-sm">
+                        <option value="all">All Branches</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Search</label>
+                    <input type="text" id="searchFilter" class="form-control form-control-sm" placeholder="Name, CNIC, mobile or code">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Status</label>
+                    <div class="form-check mt-2">
+                        <input class="form-check-input" type="checkbox" id="isActiveFilter">
+                        <label class="form-check-label fw-bold small" for="isActiveFilter">Is Active</label>
+                    </div>
+                </div>
+                <div class="col-md-3 d-flex gap-2">
+                    <button class="btn btn-primary w-100" onclick="generateReport()"><i class="fas fa-search me-1"></i>Generate</button>
+                    <button class="btn btn-outline-secondary" onclick="resetFilters()"><i class="fas fa-rotate-left me-1"></i>Reset</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="report-card">
+            <div class="print-header">
+                <h1>BILAL ACCOUNTING SYSTEM</h1>
+                <h3>EMPLOYES_INFO</h3>
+                <p id="printBranchText">All Branches</p>
+                <p id="printBranchDetails"></p>
+            </div>
+
+            <div class="hero-header no-print">
+                <h2>EMPLOYES_INFO</h2>
+                <div class="subline">Employee directory pulled from registration records</div>
+                <div class="branch-chip"><i class="fas fa-building"></i><span id="headerBranchText">All Branches</span></div>
+                <div class="branch-meta" id="headerBranchMeta">Select a branch to show branch phone and address in the report header.</div>
+            </div>
+
+            <div class="report-toolbar">
+                <div class="mini-stat">
+                    <div class="label">Employees</div>
+                    <div class="value" id="employeeCount">0</div>
+                </div>
+                <div class="mini-stat">
+                    <div class="label">Branch View</div>
+                    <div class="value" id="branchViewLabel">All</div>
+                </div>
+                <div class="mini-stat">
+                    <div class="label">Generated</div>
+                    <div class="value" style="font-size: 0.95rem;" id="generatedAt">-</div>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 8%;">#</th>
+                            <th style="width: 30%;">Employee Name</th>
+                            <th style="width: 20%;">CNIC</th>
+                            <th style="width: 18%;">Mobile Number</th>
+                            <th style="width: 24%;">Designation</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportBody">
+                        <tr>
+                            <td colspan="5" class="text-center py-5 text-muted">Select a branch and generate the report.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244481"></script>
+    <script>
+        const branchStoreMap = new Map();
+        let visibleBranchNames = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadBranches();
+            updateGeneratedAt();
+            document.getElementById('reportBody').innerHTML = '<tr><td colspan="5" class="text-center py-5 text-muted">Select a branch and click Generate to load employees.</td></tr>';
+        });
+
+        function updateGeneratedAt() {
+            const now = new Date();
+            document.getElementById('generatedAt').textContent = now.toLocaleDateString('en-GB', {
+                day: '2-digit', month: 'short', year: 'numeric'
+            });
+        }
+
+        async function loadBranches() {
+            try {
+                const response = await window.pageAccess.authenticatedFetch('/api/v1/stores');
+                const payload = await response.json();
+                if (!payload.success) return;
+
+                const user = JSON.parse(localStorage.getItem('user')) || {};
+                const userRole = String(user.role || '').toLowerCase();
+                const isAdmin = ['admin', 'administrator', 'superadmin'].includes(userRole);
+                let allowedBranches = [];
+
+                if (Array.isArray(user.branch)) {
+                    allowedBranches = user.branch.map(b => String(b).trim().toLowerCase()).filter(Boolean);
+                } else if (typeof user.branch === 'string' && user.branch.trim()) {
+                    allowedBranches = user.branch.split(',').map(b => String(b).trim().toLowerCase()).filter(Boolean);
+                }
+
+                const branchSelect = document.getElementById('branchFilter');
+                branchSelect.disabled = false;
+                const visibleBranches = payload.data.filter(branch => {
+                    const branchName = (branch.name || '').trim();
+                    if (!branchName) return false;
+                    if (allowedBranches.includes('all branches')) return true;
+                    if (allowedBranches.length === 0) return isAdmin;
+                    const normalizedName = branchName.toLowerCase();
+                    const normalizedClean = normalizedName.replace(/[()]/g, '').trim();
+                    return allowedBranches.some(allowed =>
+                        allowed === normalizedName ||
+                        allowed === normalizedClean ||
+                        normalizedName.includes(allowed) ||
+                        normalizedClean.includes(allowed)
+                    );
+                });
+
+                branchSelect.innerHTML = '';
+                if (visibleBranches.length > 1) {
+                    const allOption = document.createElement('option');
+                    allOption.value = 'all';
+                    allOption.textContent = 'All Branches';
+                    branchSelect.appendChild(allOption);
+                }
+
+                visibleBranchNames = visibleBranches.map(branch => (branch.name || '').trim()).filter(Boolean);
+
+                visibleBranches.forEach(branch => {
+                    const branchName = (branch.name || '').trim();
+                    if (!branchName) return;
+                    branchStoreMap.set(branchName, branch);
+                    const option = document.createElement('option');
+                    option.value = branchName;
+                    option.textContent = branchName;
+                    branchSelect.appendChild(option);
+                });
+
+                if (visibleBranches.length === 1) {
+                    branchSelect.value = visibleBranches[0].name;
+                    renderHeader(visibleBranches[0].name);
+                } else if (visibleBranches.length === 0) {
+                    branchSelect.innerHTML = '<option value="">No branches available</option>';
+                    branchSelect.value = '';
+                    branchSelect.disabled = true;
+                    renderHeader('');
+                }
+            } catch (error) {
+                console.error('Failed to load branches:', error);
+            }
+        }
+
+        function resetFilters() {
+            document.getElementById('branchFilter').value = 'all';
+            document.getElementById('searchFilter').value = '';
+            document.getElementById('isActiveFilter').checked = false;
+            generateReport();
+        }
+
+        function renderHeader(branchValue) {
+            const headerBranchText = document.getElementById('headerBranchText');
+            const headerBranchMeta = document.getElementById('headerBranchMeta');
+            const printBranchText = document.getElementById('printBranchText');
+            const printBranchDetails = document.getElementById('printBranchDetails');
+            const branchViewLabel = document.getElementById('branchViewLabel');
+
+            if (!branchValue) {
+                headerBranchText.textContent = 'No branches available';
+                headerBranchMeta.textContent = 'This user does not have any assigned branches.';
+                printBranchText.textContent = 'Branch: None';
+                printBranchDetails.textContent = '';
+                branchViewLabel.textContent = 'None';
+                return;
+            }
+
+            if (branchValue === 'all') {
+                headerBranchText.textContent = 'All Branches';
+                headerBranchMeta.textContent = 'Combined employee directory across all branches.';
+                printBranchText.textContent = 'Branch: All Branches';
+                printBranchDetails.textContent = '';
+                branchViewLabel.textContent = 'All';
+                return;
+            }
+
+            const branch = branchStoreMap.get(branchValue);
+            headerBranchText.textContent = branchValue;
+            branchViewLabel.textContent = branchValue;
+
+            const pieces = [];
+            if (branch?.phone) pieces.push(`Phone: ${branch.phone}`);
+            if (branch?.contactNo) pieces.push(`Contact: ${branch.contactNo}`);
+            if (branch?.address) pieces.push(`Address: ${branch.address}`);
+
+            headerBranchMeta.textContent = pieces.length ? pieces.join(' | ') : 'Branch details are not available in the store record.';
+            printBranchText.textContent = `Branch: ${branchValue}`;
+            printBranchDetails.textContent = pieces.join(' | ');
+        }
+
+        async function generateReport() {
+            const branch = document.getElementById('branchFilter').value;
+            const search = document.getElementById('searchFilter').value.trim();
+            const isActiveOnly = document.getElementById('isActiveFilter').checked;
+            document.getElementById('reportBody').innerHTML = '<tr><td colspan="5" class="text-center py-5 text-muted">Loading...</td></tr>';
+
+            try {
+                let mergedData = [];
+
+                if (branch === 'all') {
+                    renderHeader('all');
+                    const targetBranches = visibleBranchNames.length > 0 ? visibleBranchNames : [];
+                    for (const branchName of targetBranches) {
+                        const params = new URLSearchParams();
+                        params.set('branch', branchName);
+                        if (search) params.set('search', search);
+                        if (isActiveOnly) params.set('isActive', 'true');
+
+                        const response = await window.pageAccess.authenticatedFetch(`/api/v1/employees/reports/employees-info?${params.toString()}`);
+                        const payload = await response.json();
+                        if (payload.success && Array.isArray(payload.data)) {
+                            mergedData = mergedData.concat(payload.data);
+                        }
+                    }
+                } else {
+                    renderHeader(branch);
+                    const params = new URLSearchParams();
+                    params.set('branch', branch);
+                    if (search) params.set('search', search);
+                    if (isActiveOnly) params.set('isActive', 'true');
+
+                    const response = await window.pageAccess.authenticatedFetch(`/api/v1/employees/reports/employees-info?${params.toString()}`);
+                    const payload = await response.json();
+                    if (payload.success && Array.isArray(payload.data)) {
+                        mergedData = payload.data;
+                    }
+                }
+
+                mergedData.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+                document.getElementById('employeeCount').textContent = mergedData.length || 0;
+
+                if (!mergedData.length) {
+                    document.getElementById('reportBody').innerHTML = '<tr><td colspan="5" class="text-center py-5 text-muted">No employees found for the selected filters.</td></tr>';
+                    return;
+                }
+
+                document.getElementById('reportBody').innerHTML = mergedData.map((row, index) => `
+                    <tr>
+                        <td class="text-center">${index + 1}</td>
+                        <td class="name-cell">${escapeHtml(row.name || '')}</td>
+                        <td>${escapeHtml(row.cnic || '')}</td>
+                        <td>${escapeHtml(row.mobileNo || '')}</td>
+                        <td>${escapeHtml(row.designation || '') || '—'}</td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                document.getElementById('reportBody').innerHTML = `<tr><td colspan="5" class="text-center py-5 text-danger">${escapeHtml(error.message)}</td></tr>`;
+            }
+        }
+
+        function escapeHtml(value) {
+            return String(value)
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
+        }
+    </script>
+</body>
+
+</html>

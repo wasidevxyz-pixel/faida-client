@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warehouse Print</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-dark: #1a237e;
+            --accent-color: #0d47a1;
+            --table-header: #f8f9fa;
+            --text-dark: #212121;
+        }
+
+        body {
+            background: #f0f2f5;
+            font-family: "Times New Roman", Times, serif;
+            color: var(--text-dark);
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .print-canvas {
+            background: white;
+            width: 210mm;
+            max-width: 100%;
+            min-height: 297mm;
+            margin: 20px auto;
+            padding: 8mm 10mm;
+            box-sizing: border-box;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        @media screen and (max-width: 1024px) {
+            body {
+                background: #f0f2f5;
+            }
+
+            .print-canvas {
+                margin: 10px auto;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                padding: 6mm 8mm;
+            }
+        }
+
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            align-items: flex-start;
+            border-bottom: 2px solid black;
+            padding-bottom: 4px;
+            margin-bottom: 5px;
+        }
+
+        .company-logo {
+            max-width: 180px;
+            max-height: 80px;
+            object-fit: contain;
+        }
+
+        .doc-title {
+            text-align: right;
+        }
+
+        .doc-title h1 {
+            font-size: 1.8rem;
+            color: var(--primary-dark);
+            margin: 0;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .doc-title p {
+            margin: 0;
+            color: black;
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .info-card {
+            background: #fff;
+            padding: 5px;
+            border: 1px solid black;
+            border-radius: 8px;
+            color: black;
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+            color: black;
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .main-table {
+            width: 100%;
+            max-width: 100%;
+            table-layout: auto;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+            font-size: 0.68rem;
+        }
+
+        /* Updated Header Color */
+        .main-table th {
+            background-color: #2c2c2c;
+            /* Light Black */
+            color: white;
+            padding: 4px 3px;
+            text-align: center;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            font-size: 0.68rem;
+            white-space: nowrap;
+        }
+
+        .item-name-cell {
+            white-space: nowrap;
+            font-size: 0.62rem;
+            font-weight: 500;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 250px;
+            /* Safety cap */
+        }
+
+
+        .main-table td {
+            padding: 2px 3px;
+            border: 1px solid black;
+        }
+
+        .class-group-header {
+            background-color: transparent;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+        .subtotal-row {
+            background-color: #C0C0C0;
+            color: black;
+            font-weight: 600;
+        }
+
+        .subtotal-row td {
+            padding: 4px 4px !important;
+        }
+
+        .totals-section {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .totals-table {
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .totals-table td {
+            padding: 3px 8px;
+            border-bottom: 1px solid black;
+        }
+
+        .grand-total-box {
+            background: black;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 800;
+            border: 2px solid white;
+        }
+
+        .footer-signatures {
+            margin-top: 40px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            text-align: center;
+        }
+
+        .sig-box {
+            border-top: 2px solid black;
+            padding-top: 10px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .no-print-area {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        /* B&W Mode Styles */
+        body.bw-mode .main-table th {
+            background-color: #000 !important;
+            color: #fff !important;
+            border: 1px solid #fff !important;
+        }
+
+        body.bw-mode .grand-total-box {
+            background-color: #000 !important;
+            color: #fff !important;
+            border: 2px solid #000 !important;
+        }
+
+        body.bw-mode .class-group-header {
+            background-color: #333 !important;
+            color: #fff !important;
+            border: 1px solid #fff !important;
+        }
+
+        body.bw-mode .subtotal-row {
+            background-color: #555 !important;
+            color: #fff !important;
+        }
+
+        body.bw-mode .subtotal-row td {
+            border: 1px solid #fff !important;
+        }
+
+        body.bw-mode .info-label {
+            background-color: #e8e8e8 !important;
+            color: #000 !important;
+        }
+
+        body.bw-mode .badge {
+            background-color: #ccc !important;
+            color: #000 !important;
+        }
+
+        body.bw-mode h1,
+        body.bw-mode h2,
+        body.bw-mode h3 {
+            color: #000 !important;
+        }
+
+
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 8mm 6mm;
+            }
+
+            body {
+                background: white;
+                margin: 0;
+                padding: 0;
+            }
+
+            .print-canvas {
+                margin: 0;
+                box-shadow: none;
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 0 !important;
+                transform: none;
+                /* No scale for actual print */
+            }
+
+            .no-print-area {
+                display: none;
+            }
+
+            /* Black & White Printer Fix */
+            .main-table th {
+                background-color: #2c2c2c !important;
+                color: white !important;
+                border: 1px solid white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .subtotal-row {
+                background-color: #C0C0C0 !important;
+                color: black !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .grand-total-box {
+                background-color: black !important;
+                color: white !important;
+                border: 2px solid white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .class-group-header {
+                background-color: transparent !important;
+                color: black !important;
+                border: 1px solid #ddd !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="no-print-area">
+        <button class="btn btn-primary shadow" onclick="window.print()">
+            <i class="fas fa-print me-2"></i>Print Document
+        </button>
+        <button class="btn btn-light ms-2 shadow" onclick="window.close()">
+            <i class="fas fa-times me-2"></i>Close
+        </button>
+
+        <!-- Color/B&W Toggle -->
+        <div class="form-check form-switch d-inline-block ms-3">
+            <input class="form-check-input" type="checkbox" id="bwModeToggle" onchange="toggleBWMode()">
+            <label class="form-check-label" for="bwModeToggle">
+                <i class="fas fa-leaf me-1"></i>Eco / B&W Print Mode
+            </label>
+        </div>
+    </div>
+
+    <script>
+        function toggleBWMode() {
+            const isChecked = document.getElementById('bwModeToggle').checked;
+            if (isChecked) {
+                document.body.classList.add('bw-mode');
+            } else {
+                document.body.classList.remove('bw-mode');
+            }
+        }
+    </script>
+
+    <div class="print-canvas" id="printContent">
+        <!-- HEADER -->
+        <div class="header-section d-flex justify-content-between">
+            <div style="width: 30%;">
+                <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+                    class="company-logo" id="compLogo" style="display: none;" onerror="this.style.display='none'">
+            </div>
+            <div style="flex: 1; text-align: center;" class="align-self-center">
+                <div
+                    style="display: inline-block; border-bottom: 2px solid black; min-width: 150px; padding: 5px 10px;">
+                    <span class="fs-2 fw-black text-dark" id="docNo"></span>
+                </div>
+            </div>
+            <div class="doc-title" style="width: 30%;">
+                <h1 id="documentType" style="font-size: 1.8rem;">TAX INVOICE</h1>
+                <p>Date: <span id="docDate"></span></p>
+            </div>
+        </div>
+
+        <!-- DETAILS GRID -->
+        <div class="details-grid">
+            <div class="info-card">
+                <div class="info-label">From: Company Details</div>
+                <div class="info-value" id="compName">My Company Name</div>
+                <div id="compDetails" class="small">
+                    Address Line 1<br>
+                    Phone: 000-00000<br>
+                    STRN: 123456 | NTN: 987654
+                </div>
+            </div>
+            <div class="info-card">
+                <div class="info-label" id="partyTypeLabel">To: Bill To</div>
+                <div class="info-value" id="partyName">Customer Name</div>
+                <div id="partyDetails" class="small">
+                    Party Address<br>
+                    Phone: 000-00000<br>
+                    STRN: - | NTN: -
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN TABLE -->
+        <table class="main-table" id="itemsTable">
+            <thead>
+                <tr>
+                    <th style="width: 28px;">#</th>
+                    <th style="width: 65px;">Code</th>
+                    <th>Item Description</th>
+                    <th style="width: 38px;">Qty</th>
+                    <th style="width: 48px;">Cost</th>
+                    <th style="width: 48px;" id="thRetail">Retail</th>
+                    <th style="width: 46px;" id="thIncentive">Incentive</th>
+                    <th style="width: 50px;">Disc %</th>
+                    <th style="width: 50px;">Disc Rs</th>
+                    <th style="width: 62px;">Total</th>
+                </tr>
+            </thead>
+            <tbody id="itemsBody">
+                <!-- Grouped Items will be inserted here -->
+            </tbody>
+        </table>
+
+        <!-- TOTALS & REMARKS -->
+        <div class="row g-4">
+            <div class="col-6 d-flex flex-column">
+                <!-- Total Qty Box (Left Side) -->
+                <div class="info-card mb-2" style="width: fit-content; padding: 4px 12px;">
+                    <span class="info-label me-2">TOTAL QTY:</span>
+                    <span class="fw-bold fs-6" id="totalQty">0</span>
+                </div>
+
+                <div class="info-card flex-grow-1">
+                    <div class="info-label">Remarks / Terms</div>
+                    <div id="docRemarks" class="small">
+                        1. Goods once sold are not returnable.<br>
+                        2. Payment must be made within 7 days.
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <table class="totals-table float-end">
+                    <tr>
+                        <td>Gross Amount</td>
+                        <td class="text-end fw-bold" id="totalGross">0.00</td>
+                    </tr>
+                    <tr>
+                        <td>Discount (-)</td>
+                        <td class="text-end fw-bold" id="totalDisc">0.00</td>
+                    </tr>
+                    <tr>
+                        <td>Net Amount</td>
+                        <td class="text-end fw-bold" id="totalSub">0.00</td>
+                    </tr>
+                    <tr>
+                        <td>Tax Total</td>
+                        <td class="text-end fw-bold" id="totalTax">0.00</td>
+                    </tr>
+                    <tr>
+                        <td>Misc Charges</td>
+                        <td class="text-end fw-bold" id="totalMisc">0.00</td>
+                    </tr>
+                    <tr class="grand-total-box">
+                        <td>Grand Total</td>
+                        <td class="text-end" id="totalGrand">0.00</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- FOOTER SIGNATURES -->
+        <div class="footer-signatures">
+            <div class="sig-box">Receiver Signature</div>
+            <div class="sig-box">Verified By</div>
+            <div class="sig-box">Authorized Signature</div>
+        </div>
+
+        <div class="mt-5 text-center small" style="color: black;">
+            Printed on: <span id="printTime"></span> | System Generated Document
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const params = new URLSearchParams(window.location.search);
+            const type = params.get('type');
+            const id = params.get('id');
+            const token = localStorage.getItem('token');
+
+            if (!id || !type) return alert('Invalid Request');
+
+            try {
+                // 1. Fetch Company Info
+                const compRes = await fetch('/api/v1/settings/company-info', { headers: { 'Authorization': `Bearer ${token}` } });
+                const compData = (await compRes.json()).data || {};
+
+                // Set Company UI
+                document.getElementById('compName').textContent = compData.companyName || 'BAS Software';
+                document.getElementById('compDetails').innerHTML = `
+                    ${compData.address || ''}<br>
+                    Phone: ${compData.phone || ''} | Email: ${compData.email || ''}<br>
+                    STRN: ${compData.taxNumber || 'N/A'} | NTN: ${compData.pan || 'N/A'}
+                `;
+                if (compData.logo) {
+                    const logoImg = document.getElementById('compLogo');
+                    logoImg.src = compData.logo;
+                    logoImg.style.display = 'block';
+                }
+
+                // 2. Fetch Document Data
+                let endpoint = '';
+                let title = '';
+                switch (type) {
+                    case 'purchase': endpoint = `/api/v1/wh-purchases/${id}`; title = 'PURCHASE INVOICE'; break;
+                    case 'purchase-return': endpoint = `/api/v1/wh-purchase-returns/${id}`; title = 'PURCHASE RETURN'; break;
+                    case 'sale': endpoint = `/api/v1/wh-sales/${id}`; title = 'SALE INVOICE'; break;
+                    case 'sale-return': endpoint = `/api/v1/wh-sale-returns/${id}`; title = 'SALE RETURN'; break;
+                    case 'stock-audit': endpoint = `/api/v1/wh-stock-audits/${id}`; title = 'STOCK AUDIT REPORT'; break;
+                }
+
+                document.getElementById('documentType').textContent = title;
+
+                const docRes = await fetch(endpoint, { headers: { 'Authorization': `Bearer ${token}` } });
+                const doc = (await docRes.json()).data;
+                if (!doc) throw new Error('Document not found');
+
+                // Set Doc UI
+                let dNo = doc.invoiceNo || doc.postingNumber || doc.returnNo || doc.auditNo || 'N/A';
+
+                // Shortcut formatting for print (e.g. INV-WS-2026-0001 -> INV-01)
+                if (typeof dNo === 'string' && dNo.includes('-')) {
+                    const parts = dNo.split('-');
+                    const serialPart = parts[parts.length - 1];
+                    if (!isNaN(serialPart)) {
+                        const numericPart = parseInt(serialPart);
+                        const paddedShort = String(numericPart).padStart(2, '0');
+                        if (dNo.startsWith('INV-WS-')) dNo = `INV-${paddedShort}`;
+                        else if (dNo.startsWith('SR-WS-')) dNo = `SR-${paddedShort}`;
+                        else if (dNo.startsWith('PUR-')) dNo = `PUR-${paddedShort}`;
+                        else if (dNo.startsWith('PR-WS-')) dNo = `PR-${paddedShort}`;
+                    }
+                }
+                document.getElementById('docNo').textContent = dNo;
+                const actualDate = doc.date || doc.invoiceDate || doc.returnDate || doc.createdAt;
+                document.getElementById('docDate').textContent = actualDate ? new Date(actualDate).toLocaleDateString() : 'N/A';
+                document.getElementById('docRemarks').textContent = doc.remarks || 'No remarks provided.';
+
+                // Party Details
+                const party = doc.supplier || doc.customer || {};
+                document.getElementById('partyTypeLabel').textContent = (type === 'purchase' || type === 'purchase-return') ? 'From: Supplier' : 'To: Customer';
+                document.getElementById('partyName').textContent = party.supplierName || party.customerName || party.name || 'General';
+                document.getElementById('partyDetails').innerHTML = `
+                    ${party.address || 'N/A'}<br>
+                    Phone: ${party.phone || party.mobile || 'N/A'}
+                `;
+
+                // Add STRN/NTN dynamically
+                let pNTN = party.customerNTN || party.supplierNTN || party.ntn || party.NTN;
+                let pSTRN = party.strn || party.STRN;
+                let taxInfo = '';
+                if (pSTRN && pSTRN !== 'N/A' && pSTRN !== '-') taxInfo += `STRN: ${pSTRN}`;
+                if (pNTN && pNTN !== 'N/A' && pNTN !== '-') taxInfo += (taxInfo ? ' | ' : '') + `NTN: ${pNTN}`;
+                if (taxInfo) {
+                    document.getElementById('partyDetails').innerHTML += `<br>${taxInfo}`;
+                }
+
+                // Totals Calculation Refinement from line items
+                let calcBase = 0;
+                let calcDisc = 0;
+                let calcTax = 0;
+                let calcQty = 0;
+                let totalSystemVal = 0;
+                let totalPhysicalVal = 0;
+
+                (doc.items || []).forEach(line => {
+                    let cost = parseFloat(line.costPrice || 0);
+                    let sysQty = parseFloat(line.systemQty || 0);
+                    let physQty = parseFloat(line.physicalQty || 0);
+
+                    totalSystemVal += (cost * sysQty);
+                    totalPhysicalVal += (cost * physQty);
+
+                    let price = parseFloat(line.pcsPrice || line.costPrice || line.salePrice || line.price || 0);
+                    let qty = parseFloat(line.quantity || line.returnQty || 0);
+
+                    if (type === 'stock-audit') {
+                        qty = physQty;
+                        price = cost;
+                    }
+
+                    const itTax = parseFloat(line.taxAmount || line.taxRs || 0);
+                    const itDisc = parseFloat(line.discountAmount || line.disRs || 0);
+
+                    calcBase += (price * qty);
+                    calcDisc += itDisc;
+                    calcTax += itTax;
+                    calcQty += qty;
+                });
+
+                document.getElementById('totalQty').textContent = Math.round(calcQty).toLocaleString();
+
+                const globalDisc = parseFloat(doc.globalDiscountAmount || doc.totalDiscount || 0);
+                const finalGross = calcBase + calcTax;
+                const finalDisc = calcDisc + globalDisc;
+                const finalNet = finalGross - finalDisc;
+
+                if (type === 'stock-audit') {
+                    // Update Labels for Financial Audit
+                    document.querySelector('.totals-table tr:nth-child(1) td:first-child').textContent = 'System Value (Cost)';
+                    document.querySelector('.totals-table tr:nth-child(2) td:first-child').innerHTML = 'Physical Value (Cost)';
+                    document.querySelector('.totals-table tr:nth-child(3) td:first-child').textContent = 'Variance (Loss/Gain)';
+
+                    // Hide Tax/Misc
+                    document.querySelector('.totals-table tr:nth-child(4)').style.display = 'none';
+                    document.querySelector('.totals-table tr:nth-child(5)').style.display = 'none';
+
+                    const variance = totalPhysicalVal - totalSystemVal;
+
+                    document.getElementById('totalGross').textContent = Math.round(totalSystemVal).toLocaleString();
+                    document.getElementById('totalDisc').textContent = Math.round(totalPhysicalVal).toLocaleString();
+                    document.getElementById('totalDisc').classList.remove('text-danger');
+
+                    const subEl = document.getElementById('totalSub');
+                    subEl.textContent = Math.round(variance).toLocaleString();
+                    subEl.className = `text-end fw-bold ${variance < 0 ? 'text-danger' : 'text-success'}`;
+
+                    const grandEl = document.getElementById('totalGrand');
+                    grandEl.textContent = Math.round(variance).toLocaleString();
+                } else {
+                    document.getElementById('totalGross').textContent = finalGross.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+                    document.getElementById('totalDisc').textContent = finalDisc.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+                    document.getElementById('totalSub').textContent = finalNet.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+
+                    document.getElementById('totalTax').textContent = (doc.taxAmount || doc.totalTax || doc.globalTaxAmount || calcTax || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+                    document.getElementById('totalGrand').textContent = (doc.grandTotal || doc.netTotal || doc.totalAmount || finalNet || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+
+                    if (document.getElementById('totalMisc')) {
+                        document.getElementById('totalMisc').textContent = parseFloat(doc.miscCharges || doc.freightCharges || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+                    }
+                }
+
+                // Items Logic - GROUP BY ITEM CLASS
+                const tbody = document.getElementById('itemsBody');
+                tbody.innerHTML = '';
+
+                // For Stock Audit, details are different
+                if (type === 'stock-audit') {
+                    renderAuditItems(doc.items, tbody);
+                } else {
+                    // Hide incentive and retail columns if not Sale
+                    if (!type.includes('sale')) {
+                        document.getElementById('thIncentive').style.display = 'none';
+                        document.getElementById('thRetail').style.display = 'none';
+                    }
+                    renderStandardItems(doc.items, tbody, type);
+                }
+
+                document.getElementById('printTime').textContent = new Date().toLocaleString();
+
+            } catch (err) {
+                console.error(err);
+                alert('Printing failed: ' + err.message);
+            }
+        });
+
+        function renderStandardItems(items, tbody, docType) {
+            // Group by class
+            const groups = {};
+            items.forEach(line => {
+                const item = line.item || {};
+                const classObj = item.itemClass || item.class || line.itemClass || {};
+                const className = line.className || classObj.name || (typeof classObj === 'string' ? classObj : null) || (typeof item.itemClass === 'string' ? item.itemClass : null) || (typeof line.itemClass === 'string' ? line.itemClass : null) || 'General Products';
+                if (!groups[className]) groups[className] = [];
+                groups[className].push(line);
+            });
+
+            let globalIndex = 1;
+            for (const className in groups) {
+                // Header row for class
+                const headerRow = document.createElement('tr');
+                headerRow.className = 'class-group-header';
+                headerRow.innerHTML = `<td colspan="10" class="ps-3">Class: ${className}</td>`;
+                tbody.appendChild(headerRow);
+
+                let classTotal = 0;
+                groups[className].forEach(line => {
+                    const item = line.item || {};
+                    const tr = document.createElement('tr');
+                    const total = parseFloat(line.total || line.netTotal || line.totalAmount || 0);
+                    classTotal += total;
+
+                    const price = line.pcsPrice || line.costPrice || line.salePrice || line.price || 0;
+                    const retail = line.retailPrice || (item.retailPrice) || 0;
+                    const incentive = line.incentive || item.incentive || 0;
+                    const discRs = line.discountAmount || line.disRs || 0;
+                    let discPercent = parseFloat(line.discountPercent || line.disP || 0);
+                    const qtyVal = parseFloat(line.quantity || line.returnQty || 0);
+                    if (!discPercent && discRs > 0 && (price * qtyVal) > 0) {
+                        discPercent = (discRs / (price * qtyVal)) * 100;
+                    }
+                    const formattedDisc = discPercent > 0 ? (Math.round(discPercent * 100) / 100).toFixed(2) + '%' : '0%';
+
+                    let html = `
+                        <td class="text-center">${globalIndex++}</td>
+                        <td class="text-center">${item.itemsCode || item.code || ''}</td>
+                        <td>
+                            <div class="item-name-cell">${item.name || line.name || 'N/A'}</div>
+                            <small class="text-muted">${item.pack || ''}</small>
+                        </td>
+                        <td class="text-center">${line.quantity || line.returnQty || 0}</td>
+                        <td class="text-end">${Math.round(price)}</td>`;
+
+                    if (docType.includes('sale')) {
+                        html += `
+                        <td class="text-end">${Math.round(retail)}</td>
+                        <td class="text-center">${Math.round(incentive)}</td>
+                    `;
+                    }
+
+                    html += `
+                    <td class="text-center">${formattedDisc}</td>
+                    <td class="text-end">${Math.round(discRs)}</td>
+                    <td class="text-end">${Math.round(total)}</td>
+                `;
+                    tr.innerHTML = html;
+                    tbody.appendChild(tr);
+                });
+
+                // Subtotal row for class
+                const subRow = document.createElement('tr');
+                subRow.className = 'subtotal-row';
+                // Increased colspan by 1 for Retail Price in sales
+                const colSpan = docType.includes('sale') ? 9 : 7;
+                subRow.innerHTML = `
+                    <td colspan="${colSpan}" class="text-end">Sub Total (${className}):</td>
+                    <td class="text-end fw-bold">${Math.round(classTotal)}</td>
+                `;
+                tbody.appendChild(subRow);
+            }
+        }
+
+        function renderAuditItems(items, tbody) {
+            // Update Headers for Audit
+            const thead = document.querySelector('.main-table thead tr');
+            thead.innerHTML = `
+                <th style="width: 30px;">#</th>
+                <th style="width: 70px;">Code</th>
+                <th>Item Description</th>
+                <th style="width: 40px;">System Qty</th>
+                <th style="width: 40px;">Physical Qty</th>
+                <th style="width: 40px;">Diff</th>
+                <th style="width: 60px;">Cost</th>
+                <th style="width: 70px;">Sys Val</th>
+                <th style="width: 70px;">Phy Val</th>
+                <th style="width: 70px;">Variance</th>
+            `;
+
+            let totalSys = 0;
+            let totalPhys = 0;
+            let totalSysVal = 0;
+            let totalPhysVal = 0;
+
+            items.forEach((line, index) => {
+                const item = line.item || {};
+                const tr = document.createElement('tr');
+                const sys = parseFloat(line.systemQty || 0);
+                const phys = parseFloat(line.physicalQty || 0);
+                const cost = parseFloat(line.costPrice || 0);
+                const diff = phys - sys;
+
+                const sysV = sys * cost;
+                const physV = phys * cost;
+                const variV = diff * cost;
+
+                totalSys += sys;
+                totalPhys += phys;
+                totalSysVal += sysV;
+                totalPhysVal += physV;
+
+                tr.innerHTML = `
+                    <td class="text-center">${index + 1}</td>
+                    <td class="text-center">${item.itemsCode || item.code || ''}</td>
+                    <td>
+                        <div class="fw-bold" style="font-size: 0.65rem;">${item.name || line.name || 'N/A'}</div>
+                        <small class="text-muted">${item.pack || ''}</small>
+                    </td>
+                    <td class="text-center">${sys}</td>
+                    <td class="text-center fw-bold">${phys}</td>
+                    <td class="text-center ${diff < 0 ? 'text-danger' : (diff > 0 ? 'text-success' : '')} fw-bold">${diff}</td>
+                    <td class="text-end">${Math.round(cost)}</td>
+                    <td class="text-end">${Math.round(sysV).toLocaleString()}</td>
+                    <td class="text-end fw-bold">${Math.round(physV).toLocaleString()}</td>
+                    <td class="text-end fw-bold ${variV < 0 ? 'text-danger' : (variV > 0 ? 'text-success' : '')}">${Math.round(variV).toLocaleString()}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Add Summary Footer Row inside the table
+            const footerTr = document.createElement('tr');
+            footerTr.className = 'subtotal-row';
+            const totalDiff = totalPhys - totalSys;
+            const totalVari = totalPhysVal - totalSysVal;
+
+            footerTr.innerHTML = `
+                <td colspan="3" class="text-end fw-bold">TOTALS:</td>
+                <td class="text-center fw-bold">${totalSys.toLocaleString()}</td>
+                <td class="text-center fw-bold">${totalPhys.toLocaleString()}</td>
+                <td class="text-center fw-bold ${totalDiff < 0 ? 'text-danger' : (totalDiff > 0 ? 'text-success' : '')}">${totalDiff.toLocaleString()}</td>
+                <td></td>
+                <td class="text-end fw-bold">${Math.round(totalSysVal).toLocaleString()}</td>
+                <td class="text-end fw-bold">${Math.round(totalPhysVal).toLocaleString()}</td>
+                <td class="text-end fw-bold ${totalVari < 0 ? 'text-danger' : (totalVari > 0 ? 'text-success' : '')}">${Math.round(totalVari).toLocaleString()}</td>
+            `;
+            tbody.appendChild(footerTr);
+        }
+    </script>
+</body>
+
+</html>
+

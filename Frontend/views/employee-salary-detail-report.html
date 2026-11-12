@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Salary Detail - Bilal Accounting System</title>
+    <!-- CSS Dependencies -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #1e4c8c 0%, #2c5ba9 100%);
+            --accent-color: #00a65a;
+            --border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        body {
+            background-color: #f8fafc;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-size: 0.85rem;
+        }
+
+        /* Two-Row Filter Panel - Coloring like Ledger Report */
+        .filter-panel {
+            background: var(--primary-gradient);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            color: white;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-row:last-child {
+            margin-bottom: 0;
+            align-items: flex-end;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group.small {
+            flex: 0.5;
+            min-width: 120px;
+        }
+
+        .filter-panel label {
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 6px;
+            display: block;
+            opacity: 0.9;
+            color: white;
+        }
+
+        .filter-panel .form-select,
+        .filter-panel .form-control {
+            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.1);
+            color: white !important;
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            border-radius: 6px;
+            height: 38px;
+            transition: all 0.3s;
+        }
+
+        .filter-panel .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .filter-panel .form-select option {
+            background: #1e4c8c;
+            color: white;
+        }
+
+        .filter-panel .form-select:focus,
+        .filter-panel .form-control:focus {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+            border-color: white;
+            outline: none;
+        }
+
+        /* Search Suggestions */
+        #suggestionsBox {
+            position: absolute;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-height: 250px;
+            overflow-y: auto;
+            z-index: 1100;
+            display: none;
+            margin-top: 5px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .suggestion-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+            transition: all 0.2s;
+            font-size: 0.8rem;
+        }
+
+        .suggestion-item:hover,
+        .suggestion-item.focused {
+            background: #1e4c8c;
+            color: white;
+        }
+
+        /* Report Table Styling - Matching Advance Report */
+        .data-panel {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #edf2f7;
+            /* Ensure it takes height like advance report if needed, but auto is fine for now */
+        }
+
+        .table-responsive {
+            flex: 1;
+            overflow: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 1.1rem;
+            /* Further increased from 0.95rem */
+        }
+
+        .data-table thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: #f8fafc;
+        }
+
+        .data-table th,
+        .data-table td {
+            border: 1px solid #dee2e6;
+            padding: 8px 10px;
+        }
+
+        .data-table thead th {
+            background: #1e4c8c;
+            /* Dark Blue Header */
+            color: white;
+            font-weight: 800;
+            text-transform: uppercase;
+            text-align: center;
+            /* Center align headers */
+            font-size: 0.75rem;
+            /* Increased Size */
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            padding: 12px 10px;
+            border-color: white;
+            /* White border for contrast */
+        }
+
+        .data-table tbody td {
+            vertical-align: middle;
+            color: #334155;
+        }
+
+        .amount-col {
+            text-align: right !important;
+            min-width: 90px;
+        }
+
+        .date-col {
+            text-align: center !important;
+        }
+
+        /* Apply monospace only to data cells for alignment */
+        td.amount-col {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .branch-group-header {
+            background: #f8fafc;
+            color: #000000 !important;
+            font-weight: 800;
+            padding: 10px 15px;
+            text-align: center;
+        }
+
+        .branch-group-header .branch-name {
+            font-size: 0.85rem;
+            color: #000000 !important;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .dept-group-header {
+            background: #f0f7ff;
+            color: #1e4c8c;
+            font-weight: 700;
+            padding: 8px 15px;
+            border-left: 4px solid #1e4c8c;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .dept-group-header .dept-name {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .dept-total-row {
+            background: #e2e8f1 !important;
+            /* legacy soft blue-grey */
+            font-weight: 800 !important;
+            color: #1e4c8c;
+            border-top: 1px solid #cbd5e1;
+            text-transform: uppercase;
+        }
+
+        .branch-total-row {
+            background: #94a3b8 !important;
+            /* Darker - Branch Total */
+            font-weight: 800;
+            color: #ffffff !important;
+            /* White text for contrast */
+            border-top: 2px solid #64748b;
+        }
+
+        .grand-total-row {
+            background: #0f172a !important;
+            color: white !important;
+            font-weight: 900;
+            font-size: 1rem;
+        }
+
+
+        /* Buttons */
+        .btn-view {
+            background: #28a745;
+            color: white;
+            border: 1.5px solid white;
+            padding: 0 25px;
+            height: 38px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-view:hover {
+            background: #218838;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn-reset {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-reset:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .btn-print {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-print:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        /* Print Styles */
+        /* Print Styles - Portrait Fit */
+        @media print {
+            @page {
+                size: portrait;
+                margin: 5mm;
+            }
+
+            .filter-panel,
+            #sidebar,
+            #sidebarToggle,
+            .sidebar-backdrop,
+            .btn-view,
+            .btn-reset,
+            .btn-print,
+            .page-header {
+                display: none !important;
+            }
+
+            .main-content {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+            }
+
+            .container-fluid {
+                padding: 0 !important;
+                width: 100% !important;
+            }
+
+            .data-panel {
+                box-shadow: none !important;
+                padding: 0 !important;
+                border: none !important;
+                border-radius: 0 !important;
+                /* Square corners for print */
+                width: 100% !important;
+            }
+
+            .table-responsive {
+                overflow: visible !important;
+                width: 100% !important;
+            }
+
+            .data-table {
+                width: 100% !important;
+                font-size: 0.7rem !important;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 2px 3px !important;
+                /* Ultra compact */
+            }
+
+            /* Ensure Colors Print */
+            .data-table thead th {
+                background: #333 !important;
+                color: white !important;
+                font-weight: 700 !important;
+                font-size: 0.6rem !important;
+                padding: 3px 4px !important;
+                white-space: normal !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                border: 1px solid #fff !important;
+                /* White border between headings */
+                text-align: center !important;
+                /* Center align headings */
+                vertical-align: middle !important;
+            }
+
+            .branch-group-header {
+                background: #e9ecef !important;
+                color: #000 !important;
+                font-weight: 800 !important;
+                text-transform: uppercase;
+                border: 1px solid #dee2e6 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                padding: 4px 10px !important;
+            }
+
+            .branch-group-header .branch-name {
+                font-size: 0.75rem !important;
+                /* Reduced from global 1.1rem */
+                color: #000 !important;
+            }
+
+            .dept-group-header {
+                background: #f8f9fa !important;
+                color: #000 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                padding: 4px 6px !important;
+                border: 1px solid #dee2e6 !important;
+            }
+
+            .dept-group-header .dept-name {
+                font-size: 0.65rem !important;
+                /* Adjusted to match table */
+            }
+
+            .dept-total-row {
+                background: #f2f2f2 !important;
+                color: #000 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                font-weight: bold !important;
+                border: 1px solid #dee2e6 !important;
+            }
+
+            .branch-total-row {
+                background: #cccccc !important;
+                /* Darker Grey for Branch Total */
+                color: #000 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                font-weight: bold !important;
+                border: 1px solid #999 !important;
+            }
+
+            .grand-total-row {
+                background: #000 !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            body {
+                background: white !important;
+                font-size: 10pt;
+            }
+        }
+
+        .print-only {
+            display: none;
+        }
+
+        @media print {
+            .print-only {
+                display: block;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main-content">
+        <!-- Page Header -->
+        <div class="page-header px-3 d-flex align-items-center justify-content-between"
+            style="height: 50px; background: white; border-bottom: 1px solid #e2e8f0;">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+                <h5 class="mb-0 fw-bold" style="color: #1e4c8c;">Employee Salary Detail</h5>
+            </div>
+            <div id="printHeaderDate" class="text-muted small"></div>
+        </div>
+
+        <div class="container-fluid p-3">
+            <!-- Filter Panel matching Image 3 -->
+            <div class="filter-panel shadow-sm">
+                <!-- Row 1 -->
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label>Branch</label>
+                        <select class="form-select" id="branchFilter">
+                            <option value="All Branches">All Branches</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Select Department</label>
+                        <select class="form-select" id="deptFilter">
+                            <option value="">Select Department</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Select Designation</label>
+                        <select class="form-select" id="desigFilter">
+                            <option value="">Select Designation</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Emp Type</label>
+                        <select class="form-select" id="empTypeFilter">
+                            <option value="all">All Emp</option>
+                            <option value="commission">Commission Emp</option>
+                            <option value="bank">Bank Emp</option>
+                            <option value="cash">Cash Emp</option>
+                            <option value="zero_salary">Zero Salary Only</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Row 2 -->
+                <div class="filter-row">
+                    <div class="filter-group small">
+                        <label>Code</label>
+                        <input type="text" class="form-control" id="codeSearch" placeholder="Code..">
+                    </div>
+                    <div class="filter-group" style="position: relative;">
+                        <label>Employee</label>
+                        <input type="text" class="form-control" id="empSearch" placeholder="Search name..">
+                        <input type="hidden" id="selectedEmpId">
+                        <div id="suggestionsBox"></div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-view" onclick="generateReport()">View Salary Detail</button>
+                        <button class="btn btn-reset" title="Reset Filters" onclick="resetFilters()">
+                            <i class="fas fa-redo"></i>
+                        </button>
+                        <button class="btn btn-print" title="Print Report" onclick="window.print()">
+                            <i class="fas fa-print"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Content -->
+            <div class="data-panel shadow-sm" id="reportContent">
+                <div class="text-center py-5 text-muted">
+                    <i class="fas fa-search fa-3x mb-3 opacity-25"></i>
+                    <p>Use filters above to view employee salary details.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244478"></script>
+    <script>
+        // Initialize Sidebar
+        // Sidebar auto-initializes via sidebar.js
+
+        // Global State
+        const token = localStorage.getItem('token');
+        const headers = {
+            'Authorization': `Bearer ${token}`,
+            'x-api-key': 'BAS-AUTH-KEY-2024'
+        };
+        let allEmployees = [];
+        let focusedSuggestionIndex = -1;
+
+        // Initialize Dates
+        document.addEventListener('DOMContentLoaded', () => {
+            resetFilters();
+            loadFilters();
+            setupSearch();
+        });
+
+        function resetFilters() {
+            document.getElementById('branchFilter').value = 'All Branches';
+            document.getElementById('deptFilter').value = '';
+            document.getElementById('desigFilter').value = '';
+            document.getElementById('empTypeFilter').value = 'all';
+            document.getElementById('codeSearch').value = '';
+            document.getElementById('empSearch').value = '';
+            document.getElementById('selectedEmpId').value = '';
+            document.getElementById('reportContent').innerHTML = `
+                <div class="text-center py-5 text-muted">
+                    <i class="fas fa-search fa-3x mb-3 opacity-25"></i>
+                    <p>Use filters above to view employee salary details.</p>
+                </div>
+            `;
+        }
+
+        async function loadFilters() {
+            try {
+                // 1. Load Branches (Standardized with dashboard fallback)
+                let branchRes = await window.pageAccess.authenticatedFetch('/api/v1/stores');
+                if (!branchRes.ok) {
+                    branchRes = await window.pageAccess.authenticatedFetch('/api/v1/sub-branches');
+                }
+
+                const branchData = await branchRes.json();
+                if (branchData.success && branchData.data) {
+                    const branchSelect = document.getElementById('branchFilter');
+                    branchSelect.innerHTML = '<option value="All Branches">All Branches</option>';
+
+                    const rawNames = branchData.data.map(item => (item.name || item.branchName || '').trim());
+                    const uniqueBranches = [...new Set(rawNames)].filter(n => n !== '').sort();
+
+                    uniqueBranches.forEach(name => {
+                        const opt = document.createElement('option');
+                        opt.value = name;
+                        opt.textContent = name;
+                        branchSelect.appendChild(opt);
+                    });
+
+                    // Reload employee list whenever branch changes so autocomplete is always branch-scoped
+                    branchSelect.addEventListener('change', async () => {
+                        const branch = branchSelect.value;
+                        const url = (branch && branch !== 'All Branches')
+                            ? `/api/v1/employees?limit=2000&branch=${encodeURIComponent(branch)}`
+                            : '/api/v1/employees?limit=2000';
+                        try {
+                            const r = await window.pageAccess.authenticatedFetch(url);
+                            const d = await r.json();
+                            if (d.success && d.data) allEmployees = d.data;
+                        } catch (e) { console.error('Failed to reload employees for branch:', e); }
+                        // Clear employee selection when branch changes
+                        document.getElementById('empSearch').value = '';
+                        document.getElementById('selectedEmpId').value = '';
+                    });
+                } // end if (branchData.success && branchData.data)
+
+                // 2. Load Departments from Employee Registration Module
+                const deptRes = await window.pageAccess.authenticatedFetch('/api/v1/employee-departments');
+                const deptData = await deptRes.json();
+                const deptSelect = document.getElementById('deptFilter');
+                deptSelect.innerHTML = '<option value="">Select Department</option>';
+                if (deptData.success && deptData.data) {
+                    deptData.data.sort((a, b) => a.name.localeCompare(b.name)).forEach(d => {
+                        const opt = document.createElement('option');
+                        opt.value = d._id;
+                        opt.textContent = d.name;
+                        deptSelect.appendChild(opt);
+                    });
+                }
+
+                // 3. Load Designations from Designation Module
+                const desigRes = await window.pageAccess.authenticatedFetch('/api/v1/designations');
+                const desigData = await desigRes.json();
+                const desigSelect = document.getElementById('desigFilter');
+                desigSelect.innerHTML = '<option value="">Select Designation</option>';
+                if (desigData.success && desigData.data) {
+                    desigData.data.sort((a, b) => a.name.localeCompare(b.name)).forEach(d => {
+                        const opt = document.createElement('option');
+                        opt.value = d._id;
+                        opt.textContent = d.name;
+                        desigSelect.appendChild(opt);
+                    });
+                }
+
+                // 4. Load Employees for Search Suggestions (branch-aware)
+                const empBranch = document.getElementById('branchFilter').value;
+                const empUrl = (empBranch && empBranch !== 'All Branches')
+                    ? `/api/v1/employees?limit=2000&branch=${encodeURIComponent(empBranch)}`
+                    : '/api/v1/employees?limit=2000';
+                const empRes = await window.pageAccess.authenticatedFetch(empUrl);
+                const empData = await empRes.json();
+                if (empData.success && empData.data) {
+                    allEmployees = empData.data;
+                }
+
+            } catch (err) { console.error('Error loading filters:', err); }
+        }
+
+        function setupSearch() {
+            const searchInput = document.getElementById('empSearch');
+            const suggestionsBox = document.getElementById('suggestionsBox');
+
+            searchInput.addEventListener('input', (e) => {
+                const val = e.target.value.toLowerCase().trim();
+                if (!val) {
+                    suggestionsBox.style.display = 'none';
+                    document.getElementById('selectedEmpId').value = '';
+                    return;
+                }
+
+                const selectedBranch = document.getElementById('branchFilter').value;
+                const filtered = allEmployees.filter(emp => {
+                    const matchesText = emp.name.toLowerCase().includes(val) || emp.code.toLowerCase().includes(val);
+                    // Strict branch filter: only show employees from selected branch
+                    const matchesBranch = (!selectedBranch || selectedBranch === 'All Branches')
+                        || (emp.branch && emp.branch.trim().toLowerCase() === selectedBranch.trim().toLowerCase());
+                    return matchesText && matchesBranch;
+                }).slice(0, 10);
+
+                if (filtered.length > 0) {
+                    suggestionsBox.innerHTML = filtered.map((emp, idx) => `
+                        <div class="suggestion-item" data-id="${emp._id}" data-idx="${idx}">
+                            <strong>${emp.code}</strong> - ${emp.name}
+                        </div>
+                    `).join('');
+                    suggestionsBox.style.display = 'block';
+                    focusedSuggestionIndex = -1;
+                } else {
+                    suggestionsBox.style.display = 'none';
+                }
+            });
+
+            searchInput.addEventListener('keydown', (e) => {
+                const items = suggestionsBox.querySelectorAll('.suggestion-item');
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    focusedSuggestionIndex = Math.min(focusedSuggestionIndex + 1, items.length - 1);
+                    updateFocusedSuggestion(items);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    focusedSuggestionIndex = Math.max(focusedSuggestionIndex - 1, 0);
+                    updateFocusedSuggestion(items);
+                } else if (e.key === 'Enter' && focusedSuggestionIndex >= 0) {
+                    e.preventDefault();
+                    items[focusedSuggestionIndex].click();
+                }
+            });
+
+            suggestionsBox.addEventListener('click', (e) => {
+                const item = e.target.closest('.suggestion-item');
+                if (item) {
+                    const id = item.getAttribute('data-id');
+                    const text = item.textContent.trim();
+                    searchInput.value = text.split('-')[1].trim();
+                    document.getElementById('selectedEmpId').value = id;
+                    suggestionsBox.style.display = 'none';
+                }
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!searchInput.contains(e.target)) suggestionsBox.style.display = 'none';
+            });
+        }
+
+        function updateFocusedSuggestion(items) {
+            items.forEach((item, idx) => {
+                item.classList.toggle('focused', idx === focusedSuggestionIndex);
+                if (idx === focusedSuggestionIndex) item.scrollIntoView({ block: 'nearest' });
+            });
+        }
+
+        async function generateReport() {
+            const content = document.getElementById('reportContent');
+            content.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2">Generating report...</p></div>';
+
+            try {
+                const params = new URLSearchParams({
+                    branch: document.getElementById('branchFilter').value,
+                    department: document.getElementById('deptFilter').value,
+                    designation: document.getElementById('desigFilter').value,
+                    type: document.getElementById('empTypeFilter').value,
+                    employeeId: document.getElementById('selectedEmpId').value,
+                    code: document.getElementById('codeSearch').value
+                });
+
+                const res = await window.pageAccess.authenticatedFetch(`/api/v1/employee-salary-detail/report?${params}`);
+                const data = await res.json();
+
+                if (!data.success || Object.keys(data.data).length === 0) {
+                    content.innerHTML = '<div class="alert alert-info">No data found for the selected filters.</div>';
+                    return;
+                }
+
+                renderReport(data.data);
+            } catch (err) {
+                console.error(err);
+                content.innerHTML = '<div class="alert alert-danger">Error: ' + err.message + '</div>';
+            }
+        }
+
+        function renderReport(groupedData) {
+            const content = document.getElementById('reportContent');
+            let html = `
+                <div class="print-only">
+                    <h2 style="color: #000; margin-bottom: 5px; text-align: center; text-transform: uppercase; font-weight: 900;">Employee Salary Detail</h2>
+                    <p style="text-align: center; color: #666; font-size: 0.8rem;">Generated on: ${new Date().toLocaleString()}</p>
+                    <hr style="border-top: 2px solid #000;">
+                </div>
+            `;
+
+            let grandTotalBasic = 0;
+            let grandTotalFix = 0;
+            let grandTotalST = 0;
+            let grandTotalOther = 0;
+            let grandTotalNet = 0;
+
+            for (const [branch, depts] of Object.entries(groupedData)) {
+                let branchBasic = 0, branchFix = 0, branchST = 0, branchOther = 0, branchNet = 0;
+
+                html += `
+                    <div class="branch-section mb-3">
+                        <div class="branch-group-header mb-0">
+                            <span class="branch-name">${branch}</span>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table" style="table-layout: fixed; width: 100%; border-top: none;">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 6%;">Code</th>
+                                        <th style="width: 28%;">Employee Name</th>
+                                        <th style="width: 11%;" class="date-col">Incr. Date</th>
+                                        <th style="width: 11%;" class="amount-col">Basic Salary</th>
+                                        <th style="width: 11%;" class="amount-col">Fix Allowance</th>
+                                        <th style="width: 11%;" class="amount-col">ST LESS Allowance</th>
+                                        <th style="width: 11%;" class="amount-col">Other Allowance</th>
+                                        <th style="width: 11%;" class="amount-col">Net Salary</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                `;
+
+                for (const [dept, deptData] of Object.entries(depts)) {
+                    let deptFix = 0, deptST = 0, deptOther = 0, deptCalculatedNetTotal = 0;
+
+                    html += `
+                        <tr>
+                            <td colspan="8" class="dept-group-header">
+                                <span class="dept-name"><i class="fas fa-folder-open me-2"></i>${dept}</span>
+                            </td>
+                        </tr>
+                    `;
+
+                    deptData.employees.forEach(emp => {
+                        const fix = (emp.fixAllowance || 0);
+                        const st = (emp.stLoss || 0);
+                        const other = (emp.otherAllowance || 0);
+                        const calculatedNet = emp.basicSalary + fix + st + other;
+
+                        deptFix += fix;
+                        deptST += st;
+                        deptOther += other;
+                        deptCalculatedNetTotal += calculatedNet;
+
+                        html += `
+                            <tr>
+                                <td>${emp.code}</td>
+                                <td class="fw-medium">${emp.name}</td>
+                                <td class="date-col">${emp.incrDate ? new Date(emp.incrDate).toLocaleDateString('en-GB') : 'N/A'}</td>
+                                <td class="amount-col">${emp.basicSalary.toLocaleString()}</td>
+                                <td class="amount-col">${fix.toLocaleString()}</td>
+                                <td class="amount-col">${st.toLocaleString()}</td>
+                                <td class="amount-col">${other.toLocaleString()}</td>
+                                <td class="amount-col fw-bold">${calculatedNet.toLocaleString()}</td>
+                            </tr>
+                        `;
+                    });
+
+                    html += `
+                        <tr class="dept-total-row">
+                            <td colspan="3" class="text-end" style="width: 45%;">SUBTOTAL (${dept})</td>
+                            <td class="amount-col" style="width: 11%;">${deptData.totalBasic.toLocaleString()}</td>
+                            <td class="amount-col" style="width: 11%;">${deptFix.toLocaleString()}</td>
+                            <td class="amount-col" style="width: 11%;">${deptST.toLocaleString()}</td>
+                            <td class="amount-col" style="width: 11%;">${deptOther.toLocaleString()}</td>
+                            <td class="amount-col" style="width: 11%;">${deptCalculatedNetTotal.toLocaleString()}</td>
+                        </tr>
+                    `;
+
+                    branchBasic += deptData.totalBasic;
+                    branchFix += deptFix;
+                    branchST += deptST;
+                    branchOther += deptOther;
+                    branchNet += deptCalculatedNetTotal;
+                }
+
+                html += `
+                                </tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+
+                grandTotalBasic += branchBasic;
+                grandTotalFix += branchFix;
+                grandTotalST += branchST;
+                grandTotalOther += branchOther;
+                grandTotalNet += branchNet;
+            }
+
+            html += `
+                <div class="grand-total-section mt-4 mb-5">
+                    <div class="table-responsive">
+                    <table class="data-table" style="table-layout: fixed; width: 100%;">
+                        <tfoot>
+                            <tr class="grand-total-row">
+                                <td colspan="3" class="text-end fw-bold" style="width: 45%;">GRAND TOTAL</td>
+                                <td class="amount-col fw-bold" style="width: 11%;">${grandTotalBasic.toLocaleString()}</td>
+                                <td class="amount-col fw-bold" style="width: 11%;">${grandTotalFix.toLocaleString()}</td>
+                                <td class="amount-col fw-bold" style="width: 11%;">${grandTotalST.toLocaleString()}</td>
+                                <td class="amount-col fw-bold" style="width: 11%;">${grandTotalOther.toLocaleString()}</td>
+                                <td class="amount-col fw-bold" style="width: 11%;">${grandTotalNet.toLocaleString()}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    </div>
+                </div>
+            `;
+
+            content.innerHTML = html;
+        }
+    </script>
+</body>
+
+</html>

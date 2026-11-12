@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vouchers Report - Bilal Accounting System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <style>
+        .report-container {
+            padding: 15px;
+            height: calc(100vh - 60px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-panel {
+            background: linear-gradient(135deg, #1a5f7a 0%, #0288d1 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            color: white;
+        }
+
+        .filter-panel label {
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .filter-panel .form-control,
+        .filter-panel .form-select {
+            border: none;
+            border-radius: 5px;
+        }
+
+        .quick-filters {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .quick-filters .btn {
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .data-panel {
+            flex: 1;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .data-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .data-header h5 {
+            margin: 0;
+            color: #1a5f7a;
+        }
+
+        .summary-cards {
+            display: flex;
+            gap: 15px;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .summary-card {
+            flex: 1;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .summary-card.total-vouchers {
+            background: linear-gradient(135deg, #1a5f7a 0%, #0288d1 100%);
+            color: white;
+        }
+
+        .summary-card.payment-vouchers {
+            background: linear-gradient(135deg, #c62828 0%, #e53935 100%);
+            color: white;
+        }
+
+        .summary-card.receipt-vouchers {
+            background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
+            color: white;
+        }
+
+        .summary-card.journal-vouchers {
+            background: linear-gradient(135deg, #f57c00 0%, #ff9800 100%);
+            color: white;
+        }
+
+        .summary-card .label {
+            font-size: 12px;
+            opacity: 0.9;
+            text-transform: uppercase;
+        }
+
+        .summary-card .value {
+            font-size: 22px;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+
+        .table-container {
+            flex: 1;
+            overflow: auto;
+            padding: 0;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 0;
+        }
+
+        .data-table thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .data-table th {
+            background: linear-gradient(135deg, #1a5f7a 0%, #0288d1 100%);
+            color: white;
+            padding: 12px 15px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 11px;
+        }
+
+        .data-table td {
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+
+        .data-table tbody tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .data-table tbody tr:hover {
+            background: #e8eaf6;
+        }
+
+        .group-header {
+            background: #e8eaf6 !important;
+            font-weight: 600;
+        }
+
+        .group-header td {
+            padding: 8px 15px;
+            font-size: 14px;
+            color: #1a5f7a;
+        }
+
+        .group-total {
+            background: #c5cae9 !important;
+            font-weight: 600;
+        }
+
+        .total-row {
+            background: linear-gradient(135deg, #1a5f7a 0%, #0288d1 100%) !important;
+        }
+
+        .total-row td {
+            color: white !important;
+            font-weight: 700;
+            padding: 15px;
+        }
+
+        .no-data {
+            padding: 50px;
+            text-align: center;
+            color: #666;
+        }
+
+        .no-data i {
+            font-size: 50px;
+            color: #ddd;
+            margin-bottom: 15px;
+        }
+
+        .loading {
+            padding: 50px;
+            text-align: center;
+        }
+
+        .badge-payment {
+            background: #c62828;
+        }
+
+        .badge-receipt {
+            background: #2e7d32;
+        }
+
+        .badge-journal {
+            background: #f57c00;
+        }
+
+        @media (max-width: 768px) {
+            .filter-panel .row>div {
+                margin-bottom: 10px;
+            }
+
+            .summary-cards {
+                flex-direction: column;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: white !important;
+            }
+
+            .page-header,
+            .filter-panel,
+            .quick-filters {
+                display: none !important;
+            }
+
+            .print-header {
+                display: block !important;
+            }
+
+            .report-container {
+                padding: 0 !important;
+                height: auto !important;
+            }
+
+            .data-panel {
+                box-shadow: none !important;
+                border-radius: 0 !important;
+            }
+
+            .data-header {
+                background: none !important;
+                border-bottom: 2px solid #333 !important;
+            }
+
+            .summary-cards {
+                display: none !important;
+            }
+
+            .table-container {
+                overflow: visible !important;
+            }
+
+            .data-table th {
+                background: #333 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .total-row {
+                background: #333 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="print-header" style="display:none; text-align:center; margin-bottom:20px;">
+        <h2 style="margin:0; text-transform:uppercase; letter-spacing:1px;">Bilal Accounting System</h2>
+        <h4 id="printBranchName" style="margin:5px 0 0; color:#555;">All Branches</h4>
+        <h5 id="printReportTitle"
+            style="margin:5px 0; border-bottom:1px solid #ccc; display:inline-block; padding-bottom:5px;">Vouchers
+            Report</h5>
+        <p id="printDateRange" style="margin:5px 0 0; font-size:12px; color:#666;">-</p>
+    </div>
+
+    <div class="page-header px-3">
+        <div style="flex: 1; display: flex; align-items: center;">
+
+            <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+            <i class="fas fa-file-alt me-2"></i> Vouchers Report
+        </div>
+        <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
+            <div class="dropdown">
+                <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown" style="cursor: pointer;">
+                    <i class="fas fa-user-circle me-2" style="font-size: 1.2rem;"></i>
+                    <span id="userName" class="me-2">User</span>
+                    <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                    <li><a class="dropdown-item logout-btn" href="#"><i
+                                class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="report-container">
+        <div class="filter-panel">
+            <div class="row g-3">
+                <div class="col-md-2">
+                    <label>From Date</label>
+                    <input type="date" id="filterFromDate" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-2">
+                    <label>To Date</label>
+                    <input type="date" id="filterToDate" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-2">
+                    <label>Voucher Type</label>
+                    <select id="filterVoucherType" class="form-select form-select-sm">
+                        <option value="">All Types</option>
+                        <option value="payment">Payment Voucher</option>
+                        <option value="receipt">Receipt Voucher</option>
+                        <option value="journal">Journal Voucher</option>
+                        <option value="contra">Contra Voucher</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label>Group By</label>
+                    <select id="filterGroupBy" class="form-select form-select-sm">
+                        <option value="none">No Grouping</option>
+                        <option value="type">Type Wise</option>
+                        <option value="date">Date Wise</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label>Global Search</label>
+                    <input type="text" id="filterSearch" class="form-control form-control-sm"
+                        placeholder="Voucher #, narration...">
+                </div>
+                <div class="col-md-2 d-flex align-items-end gap-2">
+                    <button class="btn btn-light btn-sm" onclick="loadReport()"><i class="fas fa-search me-1"></i>
+                        Search</button>
+                    <button class="btn btn-warning btn-sm" onclick="printReport()"><i class="fas fa-print me-1"></i>
+                        Print</button>
+                </div>
+            </div>
+            <div class="quick-filters">
+                <span class="me-2"><i class="fas fa-clock me-1"></i> Quick:</span>
+                <button class="btn btn-outline-light btn-sm" onclick="setDateRange('today')">Today</button>
+                <button class="btn btn-outline-light btn-sm" onclick="setDateRange('week')">This Week</button>
+                <button class="btn btn-outline-light btn-sm" onclick="setDateRange('month')">This Month</button>
+                <button class="btn btn-outline-light btn-sm" onclick="setDateRange('lastMonth')">Last Month</button>
+                <button class="btn btn-outline-light btn-sm" onclick="setDateRange('year')">This Year</button>
+            </div>
+        </div>
+
+        <div class="data-panel">
+            <div class="data-header">
+                <h5><i class="fas fa-list me-2"></i>Voucher Details</h5>
+                <div><span id="recordCount" class="badge" style="background:#3f51b5">0 vouchers</span></div>
+            </div>
+
+            <div class="summary-cards">
+                <div class="summary-card total-vouchers">
+                    <div class="label"><i class="fas fa-file-alt me-1"></i> Total Vouchers</div>
+                    <div class="value" id="totalVouchers">0</div>
+                </div>
+                <div class="summary-card payment-vouchers">
+                    <div class="label"><i class="fas fa-arrow-up me-1"></i> Payments</div>
+                    <div class="value" id="paymentVouchers">0</div>
+                </div>
+                <div class="summary-card receipt-vouchers">
+                    <div class="label"><i class="fas fa-arrow-down me-1"></i> Receipts</div>
+                    <div class="value" id="receiptVouchers">0</div>
+                </div>
+                <div class="summary-card journal-vouchers">
+                    <div class="label"><i class="fas fa-exchange-alt me-1"></i> Journals</div>
+                    <div class="value" id="journalVouchers">0</div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 100px">Date</th>
+                            <th style="width: 120px">Voucher #</th>
+                            <th style="width: 100px">Type</th>
+                            <th>Narration</th>
+                            <th style="width: 120px" class="text-end">Debit</th>
+                            <th style="width: 120px" class="text-end">Credit</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportTableBody">
+                        <tr>
+                            <td colspan="6" class="no-data"><i class="fas fa-search"></i>
+                                <p>Select filters and click "Search"</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244549"></script>
+    <script src="/js/desktop-ui.js?v=12"></script>
+    <script>
+        function formatCurrency(amt) { return new Intl.NumberFormat('en-PK', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amt || 0); }
+        function formatDate(d) { if (!d) return '-'; return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }); }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            if (!localStorage.getItem('token')) { window.location.href = 'login'; return; }
+            setDateRange('month');
+        });
+
+        function setDateRange(range) {
+            const today = new Date();
+            let from = new Date(), to = new Date();
+            switch (range) {
+                case 'today': from = to = today; break;
+                case 'week': from = new Date(today); from.setDate(today.getDate() - today.getDay()); to = new Date(from); to.setDate(from.getDate() + 6); break;
+                case 'month': from = new Date(today.getFullYear(), today.getMonth(), 1); to = new Date(today.getFullYear(), today.getMonth() + 1, 0); break;
+                case 'lastMonth': from = new Date(today.getFullYear(), today.getMonth() - 1, 1); to = new Date(today.getFullYear(), today.getMonth(), 0); break;
+                case 'year': from = new Date(today.getFullYear(), 0, 1); to = new Date(today.getFullYear(), 11, 31); break;
+            }
+            document.getElementById('filterFromDate').value = from.toISOString().split('T')[0];
+            document.getElementById('filterToDate').value = to.toISOString().split('T')[0];
+        }
+
+        async function loadReport() {
+            const token = localStorage.getItem('token');
+            const tbody = document.getElementById('reportTableBody');
+            tbody.innerHTML = `<tr><td colspan="6" class="loading"><div class="spinner-border" style="color:#3f51b5"></div><p class="mt-2 text-muted">Loading...</p></td></tr>`;
+
+            const startDate = document.getElementById('filterFromDate').value;
+            const endDate = document.getElementById('filterToDate').value;
+            const voucherType = document.getElementById('filterVoucherType').value;
+            const groupBy = document.getElementById('filterGroupBy').value;
+            const search = document.getElementById('filterSearch').value;
+
+            let query = '?limit=10000';
+            if (startDate) query += `&startDate=${startDate}`;
+            if (endDate) query += `&endDate=${endDate}`;
+            if (voucherType) query += `&type=${voucherType}`;
+
+            // Update Print Header
+            if (document.getElementById('printBranchName')) document.getElementById('printBranchName').textContent = 'All Branches';
+            if (document.getElementById('printDateRange')) document.getElementById('printDateRange').textContent = `Period: ${formatDate(startDate)} to ${formatDate(endDate)}`;
+
+            try {
+                const res = await fetch(`/api/v1/vouchers${query}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (!res.ok) throw new Error('Failed to fetch');
+                const result = await res.json();
+                let vouchers = result.data || [];
+
+                if (search) {
+                    const sl = search.toLowerCase();
+                    vouchers = vouchers.filter(v => (v.voucherNumber || '').toLowerCase().includes(sl) || (v.narration || '').toLowerCase().includes(sl));
+                }
+
+                // Context filtering (Supplier vs Category)
+                const urlParams = new URLSearchParams(window.location.search);
+                const context = urlParams.get('context');
+                if (context === 'supplier') {
+                    vouchers = vouchers.filter(v => v.type === 'payment' && (v.narration || v.description) !== 'Category Wise Payment');
+                    if (document.querySelector('.data-header h5')) document.querySelector('.data-header h5').textContent = 'Supplier Payment Vouchers';
+                } else if (context === 'category') {
+                    vouchers = vouchers.filter(v => v.type === 'payment' && (v.narration || v.description) === 'Category Wise Payment');
+                    if (document.querySelector('.data-header h5')) document.querySelector('.data-header h5').textContent = 'Category Payment Vouchers';
+                }
+
+                let total = vouchers.length, payments = 0, receipts = 0, journals = 0;
+                let totalDebit = 0, totalCredit = 0;
+                vouchers.forEach(v => {
+                    if (v.type === 'payment') payments++;
+                    else if (v.type === 'receipt') receipts++;
+                    else journals++;
+                    totalDebit += v.debitAmount || v.amount || 0;
+                    totalCredit += v.creditAmount || v.amount || 0;
+                });
+
+                document.getElementById('totalVouchers').textContent = total;
+                document.getElementById('paymentVouchers').textContent = payments;
+                document.getElementById('receiptVouchers').textContent = receipts;
+                document.getElementById('journalVouchers').textContent = journals;
+                document.getElementById('recordCount').textContent = `${vouchers.length} vouchers`;
+
+                if (vouchers.length === 0) { tbody.innerHTML = `<tr><td colspan="6" class="no-data"><i class="fas fa-inbox"></i><p>No vouchers found</p></td></tr>`; return; }
+
+                if (groupBy && groupBy !== 'none') renderGroupedTable(vouchers, groupBy);
+                else renderSimpleTable(vouchers);
+            } catch (e) {
+                console.error(e);
+                tbody.innerHTML = `<tr><td colspan="6" class="no-data text-danger"><i class="fas fa-exclamation-triangle"></i><p>Error: ${e.message}</p></td></tr>`;
+            }
+        }
+
+        function renderSimpleTable(vouchers) {
+            const tbody = document.getElementById('reportTableBody');
+            let html = '', totalDebit = 0, totalCredit = 0;
+            vouchers.forEach(v => {
+                const debit = v.debitAmount || v.amount || 0;
+                const credit = v.creditAmount || v.amount || 0;
+                totalDebit += debit;
+                totalCredit += credit;
+                const typeClass = v.type === 'payment' ? 'badge-payment' : v.type === 'receipt' ? 'badge-receipt' : 'badge-journal';
+                html += `<tr>
+                    <td>${formatDate(v.date || v.createdAt)}</td>
+                    <td><strong>${v.voucherNumber || '-'}</strong></td>
+                    <td><span class="badge ${typeClass}">${v.type || 'Journal'}</span></td>
+                    <td>${v.narration || v.description || '-'}</td>
+                    <td class="text-end">${formatCurrency(debit)}</td>
+                    <td class="text-end">${formatCurrency(credit)}</td>
+                </tr>`;
+            });
+            html += `<tr class="total-row"><td colspan="4" class="text-end">Total</td><td class="text-end">${formatCurrency(totalDebit)}</td><td class="text-end">${formatCurrency(totalCredit)}</td></tr>`;
+            tbody.innerHTML = html;
+        }
+
+        function renderGroupedTable(vouchers, groupField) {
+            const tbody = document.getElementById('reportTableBody');
+            const groups = {};
+            vouchers.forEach(v => {
+                let key = '';
+                if (groupField === 'type') key = v.type || 'Journal';
+                else if (groupField === 'date') key = formatDate(v.date || v.createdAt);
+                else key = 'All';
+                if (!groups[key]) groups[key] = [];
+                groups[key].push(v);
+            });
+
+            let html = '', grandDebit = 0, grandCredit = 0;
+            Object.keys(groups).sort().forEach(k => {
+                const items = groups[k];
+                let groupDebit = 0, groupCredit = 0;
+                html += `<tr class="group-header"><td colspan="6"><i class="fas fa-folder-open me-2"></i>${k} (${items.length})</td></tr>`;
+                items.forEach(v => {
+                    const debit = v.debitAmount || v.amount || 0;
+                    const credit = v.creditAmount || v.amount || 0;
+                    groupDebit += debit;
+                    groupCredit += credit;
+                    const typeClass = v.type === 'payment' ? 'badge-payment' : v.type === 'receipt' ? 'badge-receipt' : 'badge-journal';
+                    html += `<tr>
+                        <td>${formatDate(v.date || v.createdAt)}</td>
+                        <td><strong>${v.voucherNumber || '-'}</strong></td>
+                        <td><span class="badge ${typeClass}">${v.type || 'Journal'}</span></td>
+                        <td>${v.narration || v.description || '-'}</td>
+                        <td class="text-end">${formatCurrency(debit)}</td>
+                        <td class="text-end">${formatCurrency(credit)}</td>
+                    </tr>`;
+                });
+                html += `<tr class="group-total"><td colspan="4" class="text-end">Subtotal</td><td class="text-end">${formatCurrency(groupDebit)}</td><td class="text-end">${formatCurrency(groupCredit)}</td></tr>`;
+                grandDebit += groupDebit;
+                grandCredit += groupCredit;
+            });
+            html += `<tr class="total-row"><td colspan="4" class="text-end">Grand Total</td><td class="text-end">${formatCurrency(grandDebit)}</td><td class="text-end">${formatCurrency(grandCredit)}</td></tr>`;
+            tbody.innerHTML = html;
+        }
+
+        function printReport() { window.print(); }
+    </script>
+</body>
+
+</html>
+

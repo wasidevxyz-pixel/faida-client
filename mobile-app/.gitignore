@@ -1,0 +1,49 @@
+# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+
+# dependencies
+node_modules/
+
+# Expo & EAS build artifacts
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+.eas/
+
+# Native builds
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.apk
+*.aab
+*.ipa
+
+# Metro & Bundler
+.metro-health-check*
+*.tsbuildinfo
+
+# Debug & Logs
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+*.log
+*output.txt
+
+# macOS & OS
+.DS_Store
+Thumbs.db
+*.pem
+
+# Local env files
+.env
+.env*.local
+.env.local
+
+# Generated native folders (prebuild)
+/ios
+# /android (tracked for local gradlew release builds & custom network configs)
+

@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WH Stock Position - BAS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #1e4c8c 0%, #2c5ba9 100%);
+        }
+
+        .report-container {
+            padding: 15px;
+            height: calc(100vh - 60px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-panel {
+            background: var(--primary-gradient);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            color: white;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-panel label {
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 6px;
+            display: block;
+            opacity: 0.9;
+        }
+
+        .filter-panel .form-control,
+        .filter-panel .form-select {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: white !important;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .filter-panel .form-select option {
+            color: #333;
+        }
+
+        .data-panel {
+            flex: 1;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #edf2f7;
+        }
+
+        .table-container {
+            flex: 1;
+            overflow: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .data-table thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .data-table th {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 12px 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .data-table td {
+            padding: 10px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.85rem;
+        }
+
+        .category-header-row td {
+            background: #f8fafc;
+            font-weight: 800;
+            color: #1e4c8c;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .print-header {
+            display: none;
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px double #333;
+            padding-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .report-container {
+                padding: 10px;
+                height: auto;
+            }
+
+            .filter-panel .btn {
+                width: 100%;
+            }
+        }
+
+        @media print {
+
+            @page {
+                size: A4 portrait;
+                margin: 1cm;
+            }
+
+            .page-header,
+            .filter-panel,
+            #sidebar-container,
+            button,
+            .d-print-none {
+                display: none !important;
+            }
+
+            .main-content {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .report-container {
+                padding: 0;
+                height: auto;
+                display: block;
+            }
+
+            .print-header {
+                display: block !important;
+                text-align: center;
+                border-bottom: 2px solid #1e4c8c;
+                margin-bottom: 20px;
+                padding-bottom: 10px;
+            }
+
+            .print-header h2 {
+                color: #1e4c8c;
+                font-size: 24pt;
+                font-weight: 800;
+                margin-bottom: 5px;
+            }
+
+            .print-header h4 {
+                color: #444;
+                font-size: 14pt;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+            }
+
+            .data-panel {
+                border: none;
+                box-shadow: none;
+                overflow: visible;
+            }
+
+            .table-container {
+                overflow: visible;
+            }
+
+            .data-table th {
+                background-color: #f1f5f9 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                color: #000 !important;
+                border: 1px solid #000 !important;
+                font-size: 9pt !important;
+                padding: 8px 5px !important;
+            }
+
+            .data-table td {
+                border: 1px solid #000 !important;
+                font-size: 9pt !important;
+                padding: 6px 8px !important;
+            }
+
+            /* Expand Item Name Column */
+            .data-table th:nth-child(4),
+            .data-table td:nth-child(4) {
+                width: 40% !important;
+                text-align: left !important;
+            }
+
+            .category-section-title {
+                background: #1e4c8c !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                color: #fff !important;
+                border: 1px solid #000 !important;
+                font-size: 11pt !important;
+                padding: 8px 15px !important;
+                margin-top: 15px !important;
+                border-radius: 0;
+            }
+
+            .table-group {
+                margin-bottom: 0px;
+                margin-top: 5px;
+            }
+
+            .bg-light {
+                background-color: #f8fafc !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                border: 1px solid #000 !important;
+            }
+
+            .text-primary {
+                color: #1e4c8c !important;
+            }
+
+            .text-success {
+                color: #15803d !important;
+            }
+        }
+
+        .category-section-title {
+            background: #f8fafc;
+            padding: 10px 15px;
+            font-weight: 800;
+            color: #1e4c8c;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            border: 1px solid #edf2f7;
+            border-radius: 8px 8px 0 0;
+            /* margin-top removed */
+        }
+
+        .table-group {
+            margin-bottom: 30px;
+            margin-top: 30px;
+        }
+
+        .table-group:first-child {
+            margin-top: 0;
+        }
+
+        .table-group .data-table {
+            border-top: none;
+        }
+
+        .table-group .data-table thead th {
+            border-top: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="sidebar-container"></div>
+    <div class="main-content">
+        <div class="page-header px-3">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer;"></i>
+                <h6 class="mb-0 fw-bold"><i class="fas fa-cubes me-2"></i>WH STOCK POSITION</h6>
+            </div>
+        </div>
+
+        <div class="report-container">
+            <!-- Print Header -->
+            <div class="print-header">
+                <h2 class="fw-bold mb-1">BILAL ACCOUNTING SOFTWARE</h2>
+                <h4 class="text-uppercase mb-2">Warehouse Stock Position Report</h4>
+                <div class="d-flex justify-content-between px-4 mt-3">
+                    <span id="printFilters">Filters: All Items</span>
+                    <span>Date: <span id="printDate"></span></span>
+                </div>
+            </div>
+
+            <div class="filter-panel d-print-none">
+                <div class="row g-3">
+                    <div class="col-lg-3 col-md-6">
+                        <label>Company</label>
+                        <select id="filterCompany" class="form-select">
+                            <option value="">All Companies</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <label>Category</label>
+                        <select id="filterCategory" class="form-select">
+                            <option value="">All Categories</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <label>Class</label>
+                        <select id="filterClass" class="form-select">
+                            <option value="">All Classes</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <label>Sub-Class</label>
+                        <select id="filterSubClass" class="form-select">
+                            <option value="">All Sub-Classes</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <label>Supplier</label>
+                        <select id="filterSupplier" class="form-select">
+                            <option value="">All Suppliers</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-3 col-md-4">
+                        <label>Stock Criteria</label>
+                        <select id="filterCriteria" class="form-select">
+                            <option value="all">All Items</option>
+                            <option value="zero">Equal to Zero</option>
+                            <option value="greater">Greater than Zero</option>
+                            <option value="less">Less than Zero</option>
+                            <option value="incentive">With Incentive</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-4 col-md-5">
+                        <label>Search Item</label>
+                        <input type="text" id="filterSearch" class="form-control" placeholder="Code or Name...">
+                    </div>
+                    <div class="col-lg-2 col-md-3 d-flex flex-column justify-content-end">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="showIncentive">
+                            <label class="form-check-label text-white small" for="showIncentive">SHOW INCENTIVE</label>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-light fw-bold flex-fill" onclick="generateReport()">
+                                <i class="fas fa-sync-alt me-1"></i>GENERATE
+                            </button>
+                            <button class="btn btn-warning text-white fw-bold" onclick="window.print()">
+                                <i class="fas fa-print"></i>
+                            </button>
+                            <button class="btn btn-success fw-bold" onclick="exportToExcel()">
+                                <i class="fas fa-file-excel"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="data-panel">
+                <div class="table-container" id="reportOutput">
+                    <div class="text-center py-5 text-muted">Click Generate to load stock position</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244566"></script>
+    <script>
+        const token = localStorage.getItem('token');
+
+        let currentRepoData = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            document.getElementById('printDate').textContent = new Date().toLocaleString();
+            await loadFilters();
+
+            // Auto-check Show Incentive when "With Incentive" criteria is selected, uncheck otherwise
+            document.getElementById('filterCriteria').addEventListener('change', function () {
+                if (this.value === 'incentive') {
+                    document.getElementById('showIncentive').checked = true;
+                } else {
+                    document.getElementById('showIncentive').checked = false;
+                }
+            });
+
+            // Re-render table when checkbox is toggled (client-side toggle)
+            document.getElementById('showIncentive').addEventListener('change', () => {
+                if (currentRepoData.length > 0) {
+                    renderData(currentRepoData);
+                }
+            });
+
+            // Implement Auto Search (Live Filtering) with Debounce
+            let filterTimeout;
+            document.getElementById('filterSearch').addEventListener('input', () => {
+                clearTimeout(filterTimeout);
+                filterTimeout = setTimeout(() => {
+                    const query = document.getElementById('filterSearch').value.toLowerCase().trim();
+                    if (currentRepoData.length > 0) {
+                        const filtered = currentRepoData.filter(item =>
+                            (item.name && item.name.toLowerCase().includes(query)) ||
+                            (item.itemsCode && String(item.itemsCode).toLowerCase().includes(query)) ||
+                            (item.barcode && String(item.barcode).toLowerCase().includes(query))
+                        );
+                        renderData(filtered);
+                    } else if (query.length >= 3) {
+                        generateReport();
+                    }
+                }, 300);
+            });
+        });
+
+        async function loadFilters() {
+            try {
+                const [companies, categories, classes, subClasses, suppliers] = await Promise.all([
+                    fetch('/api/v1/wh-item-companies', { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json()),
+                    fetch('/api/v1/wh-item-categories', { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json()),
+                    fetch('/api/v1/wh-item-classes', { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json()),
+                    fetch('/api/v1/wh-item-subclasses', { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json()),
+                    fetch('/api/v1/wh-suppliers', { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json())
+                ]);
+
+                const userStr = localStorage.getItem('user');
+                const user = userStr ? JSON.parse(userStr) : null;
+                const allowed = (user && user.allowedWHItemCategories && user.allowedWHItemCategories.length > 0) ? user.allowedWHItemCategories : null;
+
+                if (companies.success) populateSelect('filterCompany', companies.data);
+                if (categories.success) {
+                    const filteredCats = allowed ? categories.data.filter(c => allowed.includes(c._id)) : categories.data;
+                    populateSelect('filterCategory', filteredCats);
+                }
+                if (classes.success) populateSelect('filterClass', classes.data);
+                if (subClasses.success) populateSelect('filterSubClass', subClasses.data);
+                if (suppliers.success) populateSelect('filterSupplier', suppliers.data, 'supplierName');
+            } catch (error) { console.error('Error loading filters:', error); }
+        }
+
+        function populateSelect(id, data, nameField = 'name') {
+            const select = document.getElementById(id);
+            data.forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item._id;
+                opt.textContent = item[nameField];
+                select.appendChild(opt);
+            });
+        }
+
+        async function generateReport() {
+            const btn = document.querySelector('button[onclick="generateReport()"]');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>...';
+
+            const criteria = document.getElementById('filterCriteria').value;
+            // Auto check "Show Incentive" if filtering by incentive
+            if (criteria === 'incentive') {
+                document.getElementById('showIncentive').checked = true;
+            }
+
+            const filters = {
+                company: document.getElementById('filterCompany').value,
+                category: document.getElementById('filterCategory').value,
+                itemClass: document.getElementById('filterClass').value,
+                subClass: document.getElementById('filterSubClass').value,
+                supplier: document.getElementById('filterSupplier').value,
+                criteria: criteria,
+                search: document.getElementById('filterSearch').value
+            };
+
+            try {
+                const query = new URLSearchParams(filters).toString();
+                const response = await fetch(`/api/v1/wh-ledger/stock-position?${query}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const result = await response.json();
+                if (result.success) {
+                    let data = result.data;
+
+                    // Filter by allowed categories
+                    const userStr = localStorage.getItem('user');
+                    const user = userStr ? JSON.parse(userStr) : null;
+                    if (user && user.allowedWHItemCategories && user.allowedWHItemCategories.length > 0) {
+                        const allowed = user.allowedWHItemCategories;
+                        data = data.filter(item => {
+                            const catId = typeof item.category === 'object' ? item.category?._id : item.category;
+                            return allowed.includes(catId);
+                        });
+                    }
+
+                    // Sort data by Category name then Item name A-Z
+                    data.sort((a, b) => {
+                        const catA = (a.category?.name || 'Uncategorized').toLowerCase();
+                        const catB = (b.category?.name || 'Uncategorized').toLowerCase();
+                        if (catA !== catB) return catA.localeCompare(catB);
+                        return a.name.localeCompare(b.name);
+                    });
+                    currentRepoData = data;
+                    renderData(data);
+                }
+            } catch (error) { console.error('Error:', error); }
+            finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sync-alt me-1"></i>GENERATE';
+            }
+        }
+
+        function renderData(data) {
+            const container = document.getElementById('reportOutput');
+            const criteria = document.getElementById('filterCriteria').value;
+            const showIncentive = document.getElementById('showIncentive').checked || criteria === 'incentive';
+            container.innerHTML = '';
+
+            if (!data.length) {
+                container.innerHTML = `<div class="text-center py-5">No items found</div>`;
+                return;
+            }
+
+            const groupedData = data.reduce((acc, item) => {
+                const catName = item.category?.name || 'Uncategorized';
+                if (!acc[catName]) acc[catName] = [];
+                acc[catName].push(item);
+                return acc;
+            }, {});
+
+            let totalVal = 0;
+            let totalQty = 0; // Added totalQty calculation
+            const sortedCategories = Object.keys(groupedData).sort();
+
+            sortedCategories.forEach(catName => {
+                const items = groupedData[catName];
+                // Sort items A-Z by name within each category
+                items.sort((a, b) => a.name.localeCompare(b.name));
+
+                // Create Group Wrapper
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'table-group';
+
+                // Category Header
+                const catHeader = document.createElement('div');
+                catHeader.className = 'category-section-title';
+                catHeader.textContent = catName;
+                groupDiv.appendChild(catHeader);
+
+                // Table
+                const table = document.createElement('table');
+                table.className = 'data-table';
+
+                // Table Header
+                table.innerHTML = `
+                    <thead>
+                        <tr>
+                            <th style="width: 60px" class="text-center">Seq</th>
+                            <th style="width: 100px" class="text-center">Code</th>
+                            <th style="width: 140px" class="text-center">Barcode</th>
+                            <th>Item Name</th>
+                            <th style="width: 150px" class="text-end">Stock</th>
+                            <th style="width: 120px" class="text-end">Cost</th>
+                            <th style="width: 120px" class="text-end">Retail Price</th>
+                            ${showIncentive ? '<th style="width: 120px" class="text-end">Incentive</th>' : ''}
+                            <th style="width: 150px" class="text-end">Value</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                `;
+
+                const tbody = table.querySelector('tbody');
+
+                items.forEach((item, idx) => {
+                    const price = item.costPrice || 0;
+                    const stock = item.currentStock || 0;
+                    const stockVal = Math.round(stock * price); // Rounded
+                    totalVal += stockVal;
+                    totalQty += stock; // Add to totalQty
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="text-center text-muted small">${idx + 1}</td>
+                        <td class="text-center fw-bold">${item.itemsCode || '-'}</td>
+                        <td class="text-center text-muted small">${item.barcode || '-'}</td>
+                        <td>${item.name}</td>
+                        <td class="text-end fw-bold ${stock <= 0 ? 'text-danger' : 'text-success'}">${stock.toLocaleString()}</td>
+                        <td class="text-end">${price.toLocaleString()}</td>
+                        <td class="text-end">${(item.retailPrice || 0).toLocaleString()}</td>
+                        ${showIncentive ? `<td class="text-end">${(item.incentive || 0).toLocaleString()}</td>` : ''}
+                        <td class="text-end fw-bold">${stockVal.toLocaleString()}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+
+                groupDiv.appendChild(table);
+                container.appendChild(groupDiv);
+            });
+
+            // Grand Total
+            const totalDiv = document.createElement('div');
+            totalDiv.className = 'p-3 bg-light d-flex justify-content-end align-items-center mt-3 border rounded gap-5'; // Added gap-5
+            totalDiv.innerHTML = `
+                <div class="d-flex align-items-center">
+                    <span class="fw-bold me-3">GRAND TOTAL QTY:</span>
+                    <span class="fs-5 fw-bold text-success">${totalQty.toLocaleString()}</span>
+                </div>
+                <div class="d-flex align-items-center">
+                    <span class="fw-bold me-3">GRAND TOTAL VALUE:</span>
+                    <span class="fs-5 fw-bold text-primary">${Math.round(totalVal).toLocaleString()}</span>
+                </div>
+            `;
+            container.appendChild(totalDiv);
+        }
+
+        function exportToExcel() {
+            if (!currentRepoData.length) {
+                alert('No data to export. Please generate the report first.');
+                return;
+            }
+
+            // Create a copy and sort globally A-Z by name
+            const sortedData = [...currentRepoData].sort((a, b) =>
+                (a.name || '').localeCompare(b.name || '')
+            );
+
+            const exportData = sortedData.map((item, index) => ({
+                'Sr#': index + 1,
+                'Code': item.itemsCode || '',
+                'Barcode': item.barcode || '',
+                'Item Name': item.name,
+                'Category': item.category?.name || '',
+                'Stock': item.currentStock,
+                'Cost': item.costPrice,
+                'Retail Price': item.retailPrice || 0,
+                'Value': Math.round(item.currentStock * item.costPrice),
+                'Incentive': item.incentive || 0
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(exportData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Stock Position");
+
+            // Auto-size columns
+            const colWidths = [
+                { wch: 5 },  // Seq
+                { wch: 15 }, // Code
+                { wch: 20 }, // Barcode
+                { wch: 40 }, // Item Name
+                { wch: 20 }, // Company
+                { wch: 20 }, // Category
+                { wch: 10 }, // Stock
+                { wch: 10 }, // Cost
+                { wch: 15 }, // Value
+                { wch: 10 }  // Incentive
+            ];
+            ws['!cols'] = colWidths;
+
+            XLSX.writeFile(wb, `WH_Stock_Position_${new Date().toISOString().split('T')[0]}.xlsx`);
+        }
+    </script>
+</body>
+
+</html>
+

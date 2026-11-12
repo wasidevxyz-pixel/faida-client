@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Payroll Summary Report - Bilal Accounting System</title>
+    <!-- CSS Dependencies -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #1e4c8c 0%, #2c5ba9 100%);
+            --accent-color: #00a65a;
+            --ref-blue-header: #1e4c8c;
+            --border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        body {
+            background-color: #f8fafc;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-size: 0.85rem;
+        }
+
+        /* Two-Row Filter Panel - Premium Design */
+        .filter-panel {
+            background: var(--primary-gradient);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            color: white;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-row:last-child {
+            margin-bottom: 0;
+            align-items: flex-end;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group.small {
+            flex: 0.5;
+            min-width: 120px;
+        }
+
+        .filter-panel label {
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 6px;
+            display: block;
+            opacity: 0.9;
+            color: white;
+        }
+
+        .filter-panel .form-select,
+        .filter-panel .form-control {
+            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.1);
+            color: white !important;
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            border-radius: 6px;
+            height: 38px;
+            transition: all 0.3s;
+        }
+
+        .filter-panel .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .filter-panel .form-select option {
+            background: #1e4c8c;
+            color: white;
+        }
+
+        .filter-panel .form-select:focus,
+        .filter-panel .form-control:focus {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+            border-color: white;
+            outline: none;
+        }
+
+        /* Search Suggestions */
+        #suggestionsBox {
+            position: absolute;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-height: 250px;
+            overflow-y: auto;
+            z-index: 1100;
+            display: none;
+            margin-top: 5px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .suggestion-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+            transition: all 0.2s;
+            font-size: 0.8rem;
+        }
+
+        .suggestion-item:hover,
+        .suggestion-item.focused {
+            background: #1e4c8c;
+            color: white;
+        }
+
+        /* Buttons */
+        .btn-panel-action {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 0 15px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        .btn-panel-action:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .btn-view {
+            background: #28a745;
+            color: white;
+            padding: 0 20px;
+            height: 38px;
+            border: 1.5px solid white;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        .btn-view:hover {
+            background: #218838;
+            transform: translateY(-1px);
+        }
+
+        /* Report Container Styling */
+        .report-panel {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid #edf2f7;
+            padding: 20px;
+            min-height: 400px;
+        }
+
+        #suggestionsBox {
+            position: absolute;
+            background: white;
+            border: 1px solid #ccc;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .suggestion-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+
+        .suggestion-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        .report-section {
+            background: white;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ccc;
+            min-height: 400px;
+        }
+
+        .summary-card {
+            border: 2px solid var(--ref-blue-header);
+            border-radius: 8px;
+            overflow: hidden;
+            background: white;
+            max-width: 900px;
+            margin: 30px auto;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .summary-header {
+            background: var(--ref-blue-header);
+            color: white;
+            padding: 12px 20px;
+            font-weight: 700;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            letter-spacing: 1px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border-bottom: 2px solid var(--ref-blue-header);
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 18px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.85rem;
+            transition: background 0.2s;
+        }
+
+        .summary-item:hover {
+            background-color: #f8f9ff;
+        }
+
+        .summary-label {
+            display: flex;
+            align-items: center;
+            color: #555;
+        }
+
+        .summary-value {
+            font-weight: 700;
+            color: #222;
+        }
+
+        .summary-footer {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 20px;
+            background: #2e7d32;
+            color: white;
+            align-items: center;
+        }
+
+        @media print {
+            @page {
+                size: landscape;
+                margin: 2mm;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            .page-header {
+                display: none !important;
+            }
+
+            .report-section {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            body {
+                background-color: white !important;
+                font-size: 0.45rem !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .report-table {
+                font-size: 0.42rem !important;
+                width: 100% !important;
+                table-layout: auto !important;
+                border: 0.5px solid #000 !important;
+            }
+
+            .report-table th,
+            .report-table td {
+                padding: 0.5px 1px !important;
+                border: 0.1px solid #777 !important;
+                word-break: break-all !important;
+            }
+
+            body.portrait-print .report-table {
+                font-size: 0.85rem !important;
+            }
+
+            body.portrait-print .report-table th,
+            body.portrait-print .report-table td {
+                padding: 4px 8px !important;
+            }
+
+            body.portrait-print .print-header h3 {
+                font-size: 1.4rem !important;
+            }
+
+            body.portrait-print .print-header h4 {
+                font-size: 1.2rem !important;
+            }
+
+            /* Specifically target the name column to not be too wide */
+            .emp-name-cell {
+                min-width: 80px !important;
+                max-width: 120px !important;
+                white-space: normal !important;
+            }
+
+            .dept-header-row td {
+                font-size: 0.5rem !important;
+                padding: 2px !important;
+            }
+
+            .report-table tfoot tr td,
+            .dept-total-row td {
+                padding: 2.5px 1px !important;
+                font-size: 0.52rem !important;
+                line-height: 1.2 !important;
+                border-top: 1.5px solid #000 !important;
+                border-bottom: 1.5px solid #000 !important;
+            }
+
+            .summary-card {
+                max-width: 100% !important;
+                margin: 5px 0 !important;
+                font-size: 0.45rem !important;
+            }
+
+            .summary-header {
+                padding: 2px !important;
+                font-size: 0.55rem !important;
+            }
+
+            .summary-item {
+                padding: 2px 8px !important;
+                font-size: 0.45rem !important;
+            }
+
+            .summary-footer {
+                padding: 4px 8px !important;
+            }
+
+            .summary-footer span:first-child {
+                font-size: 0.6rem !important;
+            }
+
+            .summary-footer span:last-child {
+                font-size: 0.7rem !important;
+            }
+
+            .print-header {
+                margin-bottom: 5px !important;
+            }
+
+            .print-header h3 {
+                font-size: 0.9rem !important;
+                margin: 0 !important;
+            }
+
+            .print-header h4 {
+                font-size: 0.7rem !important;
+                margin: 1px 0 !important;
+            }
+
+            .print-header p {
+                margin: 0 !important;
+                font-size: 0.5rem !important;
+            }
+
+            .print-header hr {
+                margin: 5px 0 !important;
+            }
+
+            .print-footer {
+                margin-top: 70px !important;
+                padding: 0 20px !important;
+            }
+
+            .print-footer div {
+                width: 150px !important;
+                font-size: 0.6rem !important;
+            }
+        }
+
+        /* Table styles for report */
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+        }
+
+        .report-table th,
+        .report-table td {
+            border: 1px solid #555;
+            padding: 4px;
+            text-align: center;
+        }
+
+        .report-table th {
+            background-color: var(--ref-blue-header);
+            color: #fff;
+            border: 1px solid #fff !important;
+            font-weight: bold;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        /* Set outer black border for the header area */
+        .report-table thead tr:first-child th {
+            border-top: 1px solid #000 !important;
+        }
+
+        .report-table thead tr th:first-child {
+            border-left: 1px solid #000 !important;
+        }
+
+        .report-table thead tr th:last-child {
+            border-right: 1px solid #000 !important;
+        }
+
+        .report-table thead tr:last-child th {
+            border-bottom: 1px solid #000 !important;
+        }
+
+        .text-end {
+            text-align: right !important;
+        }
+
+        .fw-bold {
+            font-weight: bold !important;
+        }
+    </style>
+</head>
+
+<div class="container-fluid p-4">
+    <div class="filter-panel no-print">
+        <!-- Row 1 -->
+        <div class="filter-row">
+            <div class="filter-group">
+                <label>Month Year</label>
+                <input type="month" id="monthYear" class="form-control">
+            </div>
+            <div class="filter-group">
+                <label>Branch</label>
+                <select id="branchSelect" class="form-select">
+                    <option value="All Branches">All Branches</option>
+                </select>
+            </div>
+            <div class="filter-group small">
+                <label>Code</label>
+                <input type="text" id="codeSearch" class="form-control" placeholder="Code..">
+            </div>
+            <div class="filter-group" style="position: relative;">
+                <label>Employee</label>
+                <input type="text" id="empSearch" class="form-control" placeholder="Search employee name...">
+                <input type="hidden" id="selectedEmpId">
+                <div id="suggestionsBox"></div>
+            </div>
+        </div>
+
+        <!-- Row 2 -->
+        <div class="filter-row">
+            <div class="d-flex gap-2 w-100">
+                <button class="btn btn-view" onclick="viewPayrollReport()">
+                    <i class="fas fa-file-invoice-dollar me-2"></i>VIEW PAYROLL REPORT
+                </button>
+                <button class="btn btn-panel-action" onclick="viewSecurityDeposit()">
+                    <i class="fas fa-shield-alt me-2"></i>VIEW SECURITY DEPOSIT
+                </button>
+                <button class="btn btn-panel-action" onclick="resetFilters()">
+                    <i class="fas fa-undo me-2"></i>RESET
+                </button>
+                <button class="btn btn-panel-action" onclick="window.print()">
+                    <i class="fas fa-print me-2"></i>PRINT REPORT
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="reportContainer" class="report-panel">
+        <div class="text-center py-5 text-muted">
+            <i class="fas fa-search fa-4x mb-3 opacity-25"></i>
+            <h5>Select filters and click a button to view the report</h5>
+        </div>
+    </div>
+</div>
+
+<!-- JS Dependencies -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/pageAccess.js"></script>
+<script src="/js/sidebar.js?v=1789486244476"></script>
+<script>
+    const token = localStorage.getItem('token');
+    let allEmployees = [];
+    let departmentMap = {};
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // Set default month to current
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        document.getElementById('monthYear').value = `${year}-${month}`;
+
+        loadBranches();
+        loadEmployees();
+        loadDepartments();
+        setupSearch();
+    });
+
+    async function loadDepartments() {
+        try {
+            const res = await window.pageAccess.authenticatedFetch('/api/v1/departments');
+            const data = await res.json();
+            if (data.success) {
+                data.data.forEach(d => {
+                    departmentMap[d._id] = d.name;
+                });
+            }
+        } catch (err) {
+            console.error('Error loading departments:', err);
+        }
+    }
+
+    async function loadBranches() {
+        try {
+            // Load Branches (Standardized with dashboard fallback)
+            let res = await window.pageAccess.authenticatedFetch('/api/v1/stores');
+            if (!res.ok) {
+                res = await window.pageAccess.authenticatedFetch('/api/v1/sub-branches');
+            }
+
+            const data = await res.json();
+            if (data.success && data.data) {
+                const select = document.getElementById('branchSelect');
+                select.innerHTML = '<option value="All Branches">All Branches</option>';
+
+                const rawNames = data.data.map(item => (item.name || item.branchName || '').trim());
+                const uniqueBranches = [...new Set(rawNames)].filter(n => n !== '').sort();
+
+                uniqueBranches.forEach(name => {
+                    const opt = document.createElement('option');
+                    opt.value = name;
+                    opt.textContent = name;
+                    select.appendChild(opt);
+                });
+            }
+        } catch (err) {
+            console.error('Error loading branches:', err);
+        }
+    }
+
+    async function loadEmployees() {
+        try {
+            const res = await window.pageAccess.authenticatedFetch('/api/v1/employees?limit=2000');
+            const data = await res.json();
+            if (data.success) {
+                allEmployees = data.data;
+            }
+        } catch (err) {
+            console.error('Error loading employees:', err);
+        }
+    }
+
+    function setupSearch() {
+        const input = document.getElementById('empSearch');
+        const box = document.getElementById('suggestionsBox');
+        const hiddenId = document.getElementById('selectedEmpId');
+
+        input.addEventListener('input', () => {
+            const val = input.value.toLowerCase().trim();
+            if (!val) {
+                box.style.display = 'none';
+                hiddenId.value = '';
+                return;
+            }
+
+            const filtered = allEmployees.filter(e =>
+                e.name.toLowerCase().includes(val) ||
+                e.code.toLowerCase().includes(val)
+            ).slice(0, 10);
+
+            if (filtered.length > 0) {
+                box.innerHTML = filtered.map(e => `
+                        <div class="suggestion-item" data-id="${e._id}" data-code="${e.code}" data-name="${e.name}">
+                            <strong>${e.code}</strong> - ${e.name}
+                        </div>
+                    `).join('');
+                box.style.display = 'block';
+            } else {
+                box.style.display = 'none';
+            }
+        });
+
+        box.addEventListener('click', (e) => {
+            const item = e.target.closest('.suggestion-item');
+            if (item) {
+                input.value = item.dataset.name;
+                hiddenId.value = item.dataset.id;
+                document.getElementById('codeSearch').value = item.dataset.code;
+                box.style.display = 'none';
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!input.contains(e.target)) box.style.display = 'none';
+        });
+    }
+
+    function resetFilters() {
+        const now = new Date();
+        document.getElementById('monthYear').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        document.getElementById('branchSelect').value = 'All Branches';
+        document.getElementById('codeSearch').value = '';
+        document.getElementById('empSearch').value = '';
+        document.getElementById('selectedEmpId').value = '';
+        document.getElementById('reportContainer').innerHTML = `
+                <div class="text-center py-5 text-muted">
+                    <i class="fas fa-search fa-4x mb-3 opacity-25"></i>
+                    <h5>Select filters and click a button to view the report</h5>
+                </div>
+            `;
+    }
+
+    function decimalToHHMM(decimalHrs) {
+        if (!decimalHrs || isNaN(decimalHrs)) return "0";
+        const hrs = Math.floor(decimalHrs);
+        const mins = Math.round((decimalHrs - hrs) * 60);
+        if (mins === 0) return hrs.toString();
+        return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+    }
+
+    async function viewPayrollReport() {
+        document.body.classList.remove('portrait-print');
+        const pStyle = document.getElementById('portrait-style');
+        if (pStyle) pStyle.remove();
+
+        const monthYear = document.getElementById('monthYear').value;
+        const branch = document.getElementById('branchSelect').value;
+        const code = document.getElementById('codeSearch').value;
+        const empId = document.getElementById('selectedEmpId').value;
+
+        if (!monthYear) {
+            alert('Please select a month');
+            return;
+        }
+
+        const container = document.getElementById('reportContainer');
+        container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div><p class="mt-2">Loading Payroll Data...</p></div>';
+
+        try {
+            let url = `/api/v1/payrolls?monthYear=${monthYear}`;
+            if (branch !== 'All Branches') url += `&branch=${encodeURIComponent(branch)}`;
+            if (empId) url += `&employee=${empId}`;
+            if (code) url += `&code=${encodeURIComponent(code)}`;
+
+            const res = await window.pageAccess.authenticatedFetch(url);
+            const data = await res.json();
+
+            if (!data.success || data.data.length === 0) {
+                container.innerHTML = '<div class="alert alert-info">No payroll records found for the selected filters.</div>';
+                return;
+            }
+
+            // Render the summary table (Crosstab style)
+            renderPayrollSummary(data.data, monthYear, branch);
+        } catch (err) {
+            console.error(err);
+            container.innerHTML = `<div class="alert alert-danger">Error: ${err.message}</div>`;
+        }
+    }
+
+    function renderPayrollSummary(payrolls, monthYear, branch) {
+        const container = document.getElementById('reportContainer');
+
+        // Format Month for header
+        const [y, m] = monthYear.split('-');
+        const monthName = new Date(y, m - 1).toLocaleString('default', { month: 'long' });
+
+        let html = `
+                <div class="print-header text-center mb-4">
+                    <h3 class="mb-1" style="color: var(--ref-blue-header); font-weight: bold;">Bilal Accounting System</h3>
+                    <p class="mb-1 text-muted">A Reliable Name of Trust</p>
+                    <h4 class="mt-3 mb-1">Employee PayRoll Summary</h4>
+                    <p class="fw-bold">Month: ${monthName} ${y} ${branch !== 'All Branches' ? '| Branch: ' + branch : ''}</p>
+                    <hr>
+                </div>
+                <div class="table-responsive">
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th rowspan="2">#</th>
+                                <th rowspan="2">Code</th>
+                                <th rowspan="2">Employee Name</th>
+                                <th colspan="2">Duty (Hrs)</th>
+                                <th colspan="8">Earnings</th>
+                                <th rowspan="2">Earnings Total</th>
+                                <th colspan="7">Deductions</th>
+                                <th rowspan="2">Deductions Total</th>
+                                <th rowspan="2">Gross Total</th>
+                                <th colspan="5">Advances</th>
+                                <th rowspan="2">Net Total</th>
+                            </tr>
+                            <tr>
+                                <th>Req.</th>
+                                <th>Wrk.</th>
+                                <th>Basic Salary</th>
+                                <th colspan="2">OverTime (H | A)</th>
+                                <th>Rotti (Rent)</th>
+                                <th>Nashta (Tea)</th>
+                                <th>Monthly Comm.</th>
+                                <th>Wh. Comm.</th>
+                                <th>Allow.</th>
+                                
+                                <th colspan="2">ShortTime (H | A)</th>
+                                <th>Penalty</th>
+                                <th>Food/EB</th>
+                                <th>Sec.Dep.</th>
+                                <th>Oth.Ded</th>
+                                <th>WHT Ded</th>
+
+                                <th>Pre. Bal</th>
+                                <th>Cur. Adv</th>
+                                <th>Total Bal</th>
+                                <th>Recov.</th>
+                                <th>Rem. Bal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+        let globals = {
+            reqHrs: 0, wrkHrs: 0, otHrs: 0, stHrs: 0,
+            basic: 0, ot: 0, rotti: 0, nashta: 0, mComm: 0, wComm: 0, allow: 0, eTotal: 0,
+            st: 0, penalty: 0, food: 0, sec: 0, otherDed: 0, wht: 0, dTotal: 0,
+            gross: 0, prevAdv: 0, currentAdv: 0, remAdv: 0, recov: 0, net: 0,
+            bankPaid: 0, cashPaid: 0
+        };
+
+        // Group by department
+        const groups = payrolls.reduce((acc, p) => {
+            // Priority: Payroll Dept -> Live Employee Data -> Fallback
+            let dept = p.department;
+
+            // If it's an ID or missing or "N/A", try to resolve it from live data
+            if (!dept || dept === 'N/A' || dept === 'Other' || /^[0-9a-fA-F]{24}$/.test(dept)) {
+                // Find this employee in our live 'allEmployees' list for latest data
+                const liveEmp = allEmployees.find(e => e._id === (p.employee?._id || p.employee));
+
+                if (liveEmp?.department?.name) {
+                    dept = liveEmp.department.name;
+                } else if (liveEmp?.department) {
+                    // It might be an ID or a name string
+                    dept = departmentMap[liveEmp.department] || liveEmp.department;
+                } else if (p.employee?.department?.name) {
+                    dept = p.employee.department.name;
+                } else {
+                    const potentialId = p.employee?.department || p.department;
+                    dept = departmentMap[potentialId] || dept || 'N/A';
+                }
+            }
+
+            // Clean up to ensure it's a string name
+            if (dept && departmentMap[dept]) dept = departmentMap[dept];
+            if (!dept || dept === 'undefined') dept = 'N/A';
+
+            if (!acc[dept]) acc[dept] = [];
+            acc[dept].push(p);
+            return acc;
+        }, {});
+
+        Object.keys(groups).forEach((dept, deptIdx) => {
+            let deptTotals = {
+                reqHrs: 0, wrkHrs: 0, otHrs: 0, stHrs: 0,
+                basic: 0, ot: 0, rotti: 0, nashta: 0, mComm: 0, wComm: 0, allow: 0, eTotal: 0,
+                st: 0, penalty: 0, food: 0, sec: 0, otherDed: 0, wht: 0, dTotal: 0,
+                gross: 0, prevAdv: 0, currentAdv: 0, remAdv: 0, recov: 0, net: 0
+            };
+
+            html += `
+                    <tr class="dept-header-row" style="background-color: #f8f9fa;">
+                        <td colspan="30" style="text-align: center; font-weight: bold; font-size: 0.85rem; text-transform: uppercase;">${dept}</td>
+                    </tr>
+                `;
+
+            groups[dept].forEach((p, i) => {
+                const basic = (p.perMonth || 0);
+                const ot = (p.overTime || 0);
+                const rent = (p.rent || 0);
+                const tea = (p.teaAllowance || 0);
+                const mComm = (p.monthlyComm || 0);
+                const ugComm = (p.ugComm || 0);
+                const wComm = (p.warehouseComm || 0);
+                const others = (p.natin || 0) + (p.stLateAllow || 0) + (p.otherAllow || 0);
+
+                // Recalculate eTotal to include Basic Salary if it's missing or to ensure it matches visual columns
+                const eTotal = basic + ot + rent + tea + mComm + ugComm + wComm + others;
+
+                const dTotal = (p.deductionsTotal || 0);
+                const shortTime = (p.shortTimeAmount || p.shortWeek || 0);
+                const otherDed = (p.otherDeduction || 0) + (p.umrahDeduction || 0);
+                const whtDed = (p.wht || 0);
+                const preTaxDed = dTotal || (shortTime + (p.penalty || 0) + (p.ebDeduction || 0)
+                    + (p.securityDeposit || 0) + otherDed + (p.fund || 0) + (p.ttw || 0));
+                const deductionsTotal = preTaxDed + whtDed;
+                const grossTotal = Math.max(0, p.grossTotal || (eTotal - preTaxDed));
+                const netTotal = (p.netTotal != null && p.netTotal !== '')
+                    ? (p.netTotal || 0)
+                    : Math.max(0, grossTotal - (p.totalAdv || 0));
+                const stHrs = p.shortTimeHrs || (shortTime > 0 ? Math.max(0, (p.totalHrsPerMonth || 0) - (p.workedHrs || 0)) : 0);
+                const otHrs = p.overTimeHrs || 0;
+                const totalWorkedActual = (p.workedHrs || 0) + otHrs;
+
+                // Dept Totals
+                deptTotals.reqHrs += (p.totalHrsPerMonth || 0);
+                deptTotals.wrkHrs += totalWorkedActual;
+                deptTotals.otHrs += otHrs;
+                deptTotals.stHrs += stHrs;
+                deptTotals.basic += (p.perMonth || 0);
+                deptTotals.ot += (p.overTime || 0);
+                deptTotals.rotti += (p.rent || 0);
+                deptTotals.nashta += (p.teaAllowance || 0);
+                deptTotals.mComm += (p.monthlyComm || 0) + (p.ugComm || 0);
+                deptTotals.wComm += (p.warehouseComm || 0);
+                deptTotals.allow += (p.natin || 0) + (p.stLateAllow || 0) + (p.otherAllow || 0);
+                deptTotals.eTotal += eTotal;
+                deptTotals.st += shortTime;
+                deptTotals.penalty += (p.penalty || 0);
+                deptTotals.food += (p.ebDeduction || 0);
+                deptTotals.sec += (p.securityDeposit || 0);
+                deptTotals.otherDed += otherDed;
+                deptTotals.wht += whtDed;
+                deptTotals.dTotal += deductionsTotal;
+                deptTotals.gross += grossTotal;
+                deptTotals.prevAdv += (p.pAAdv || 0);
+                deptTotals.currentAdv += (p.csMale || 0);
+                deptTotals.recov += (p.totalAdv || 0);
+                deptTotals.remAdv += ((p.pAAdv || 0) + (p.csMale || 0) - (p.totalAdv || 0));
+                deptTotals.net += netTotal;
+
+                // Global Totals
+                globals.reqHrs += (p.totalHrsPerMonth || 0);
+                globals.wrkHrs += totalWorkedActual;
+                globals.otHrs += otHrs;
+                globals.stHrs += stHrs;
+                globals.basic += (p.perMonth || 0);
+                globals.ot += (p.overTime || 0);
+                globals.rotti += (p.rent || 0);
+                globals.nashta += (p.teaAllowance || 0);
+                globals.mComm += (p.monthlyComm || 0) + (p.ugComm || 0);
+                globals.wComm += (p.warehouseComm || 0);
+                globals.allow += (p.natin || 0) + (p.stLateAllow || 0) + (p.otherAllow || 0);
+                globals.eTotal += eTotal;
+                globals.st += shortTime;
+                globals.penalty += (p.penalty || 0);
+                globals.food += (p.ebDeduction || 0);
+                globals.sec += (p.securityDeposit || 0);
+                globals.otherDed += otherDed;
+                globals.wht += whtDed;
+                globals.dTotal += deductionsTotal;
+                globals.gross += grossTotal;
+                globals.prevAdv += (p.pAAdv || 0);
+                globals.currentAdv += (p.csMale || 0);
+                globals.recov += (p.totalAdv || 0);
+                globals.remAdv += ((p.pAAdv || 0) + (p.csMale || 0) - (p.totalAdv || 0));
+                globals.net += netTotal;
+                globals.bankPaid += (p.bankPaid || 0);
+                globals.cashPaid += (p.cashPaid || 0);
+
+                html += `
+                        <tr>
+                            <td>${i + 1}</td>
+                            <td>${p.code || '-'}</td>
+                            <td class="emp-name-cell" style="text-align: left; min-width: 140px;">${p.employee?.name || 'N/A'}</td>
+                            <td class="text-center">${decimalToHHMM(p.totalHrsPerMonth || 0)}</td>
+                            <td class="text-center fw-bold">${decimalToHHMM(totalWorkedActual)}</td>
+                            <td class="text-end">${(p.perMonth || 0).toLocaleString()}</td>
+                            <td class="text-center" style="background-color: #f0f8ff;">${decimalToHHMM(otHrs)}</td>
+                            <td class="text-end" style="background-color: #f0f8ff;">${(p.overTime || 0).toLocaleString()}</td>
+                            <td class="text-end">${(p.rent || 0).toLocaleString()}</td>
+                            <td class="text-end">${(p.teaAllowance || 0).toLocaleString()}</td>
+                            <td class="text-end">${((p.monthlyComm || 0) + (p.ugComm || 0)).toLocaleString()}</td>
+                            <td class="text-end">${(p.warehouseComm || 0).toLocaleString()}</td>
+                            <td class="text-end">${((p.natin || 0) + (p.stLateAllow || 0) + (p.otherAllow || 0)).toLocaleString()}</td>
+                            <td class="text-end fw-bold">${(eTotal).toLocaleString()}</td>
+                            
+                            <td class="text-center" style="background-color: #fff0f0;">${decimalToHHMM(stHrs)}</td>
+                            <td class="text-end" style="background-color: #fff0f0;">${(shortTime).toLocaleString()}</td>
+                            <td class="text-end">${(p.penalty || 0).toLocaleString()}</td>
+                            <td class="text-end">${(p.ebDeduction || 0).toLocaleString()}</td>
+                            <td class="text-end">${(p.securityDeposit || 0).toLocaleString()}</td>
+                            <td class="text-end">${otherDed.toLocaleString()}</td>
+                            <td class="text-end">${whtDed.toLocaleString()}</td>
+                            <td class="text-end fw-bold">${deductionsTotal.toLocaleString()}</td>
+                            <td class="text-end fw-bold">${grossTotal.toLocaleString()}</td>
+                            <td class="text-end">${(p.pAAdv || 0).toLocaleString()}</td>
+                            <td class="text-end">${(p.csMale || 0).toLocaleString()}</td>
+                            <td class="text-end">${((p.pAAdv || 0) + (p.csMale || 0)).toLocaleString()}</td>
+                            <td class="text-end" style="color: #e15a4b;">${(p.totalAdv || 0).toLocaleString()}</td>
+                            <td class="text-end">${((p.pAAdv || 0) + (p.csMale || 0) - (p.totalAdv || 0)).toLocaleString()}</td>
+                            <td class="text-end fw-bold" style="background-color: #f9f9f9; width: 100px;">${netTotal.toLocaleString()}</td>
+                        </tr>
+                    `;
+            });
+
+            // Dept Sub-Total
+            html += `
+                    <tr class="fw-bold dept-total-row" style="background-color: #eee; font-size: 0.75rem; line-height: 1.5;">
+                        <td colspan="3">Total</td>
+                        <td class="text-center">${decimalToHHMM(deptTotals.reqHrs)}</td>
+                        <td class="text-center">${decimalToHHMM(deptTotals.wrkHrs)}</td>
+                        <td class="text-end">${deptTotals.basic.toLocaleString()}</td>
+                        <td class="text-center">${decimalToHHMM(deptTotals.otHrs)}</td>
+                        <td class="text-end">${deptTotals.ot.toLocaleString()}</td>
+                        <td class="text-end">${deptTotals.rotti.toLocaleString()}</td>
+                        <td class="text-end">${deptTotals.nashta.toLocaleString()}</td>
+                        <td class="text-end">${deptTotals.mComm.toLocaleString()}</td>
+                        <td class="text-end">${deptTotals.wComm.toLocaleString()}</td>
+                        <td class="text-end">${deptTotals.allow.toLocaleString()}</td>
+                        <td class="text-end">${deptTotals.eTotal.toLocaleString()}</td>
+                        <td class="text-center">${decimalToHHMM(deptTotals.stHrs)}</td>
+                        <td class="text-end">${deptTotals.st.toLocaleString()}</td>
+                        <td class="text-end">${deptTotals.penalty.toLocaleString()}</td>
+                        <td class="text-end">${deptTotals.food.toLocaleString()}</td>
+                        <td class="text-end">${deptTotals.sec.toLocaleString()}</td>
+                        <td class="text-end">${deptTotals.otherDed.toLocaleString()}</td>
+                        <td class="text-end">${deptTotals.wht.toLocaleString()}</td>
+                        <td class="text-end">${deptTotals.dTotal.toLocaleString()}</td>
+                        <td class="text-end">${deptTotals.gross.toLocaleString()}</td>
+                        <td class="text-end">${deptTotals.prevAdv.toLocaleString()}</td>
+                        <td class="text-end">${deptTotals.currentAdv.toLocaleString()}</td>
+                        <td class="text-end">${(deptTotals.prevAdv + deptTotals.currentAdv).toLocaleString()}</td>
+                        <td class="text-end">${deptTotals.recov.toLocaleString()}</td>
+                        <td class="text-end">${deptTotals.remAdv.toLocaleString()}</td>
+                        <td class="text-end">${deptTotals.net.toLocaleString()}</td>
+                    </tr>
+                `;
+        });
+
+        html += `
+                        </tbody>
+                        <tfoot class="grand-total-footer">
+                            <tr class="fw-bold" style="background-color: var(--ref-blue-header); color: #fff; font-size: 0.75rem; line-height: 1.5;">
+                                <td colspan="3" style="border-left: 1.5px solid #000 !important; border-top: 1.5px solid #000 !important; border-bottom: 1.5px solid #000 !important; border-right: 1px solid #fff !important;">GRAND TOTAL</td>
+                                <td class="text-center" style="border-left: 1px solid #fff !important; border-right: 1px solid #fff !important; border-top: 1.5px solid #000 !important; border-bottom: 1.5px solid #000 !important;">${decimalToHHMM(globals.reqHrs)}</td>
+                                <td class="text-center" style="border-left: 1px solid #fff !important; border-right: 1px solid #fff !important; border-top: 1.5px solid #000 !important; border-bottom: 1.5px solid #000 !important;">${decimalToHHMM(globals.wrkHrs)}</td>
+                                <td class="text-end" style="border-left: 1px solid #fff !important; border-right: 1px solid #fff !important; border-top: 1.5px solid #000 !important; border-bottom: 1.5px solid #000 !important;">${globals.basic.toLocaleString()}</td>
+                                <td class="text-center" style="border-left: 1px solid #fff !important; border-right: 1px solid #fff !important; border-top: 1.5px solid #000 !important; border-bottom: 1.5px solid #000 !important;">${decimalToHHMM(globals.otHrs)}</td>
+                                <td class="text-end" style="border-left: 1px solid #fff !important; border-right: 1px solid #fff !important; border-top: 1.5px solid #000 !important; border-bottom: 1.5px solid #000 !important;">${globals.ot.toLocaleString()}</td>
+                                <td class="text-end" style="border-left: 1px solid #fff !important; border-right: 1px solid #fff !important; border-top: 1.5px solid #000 !important; border-bottom: 1.5 solid #000 !important;">${globals.rotti.toLocaleString()}</td>
+                                <td class="text-end" style="border-left: 1px solid #fff !important; border-right: 1px solid #fff !important; border-top: 1.5px solid #000 !important; border-bottom: 1.5px solid #000 !important;">${globals.nashta.toLocaleString()}</td>
+                                <td class="text-end" style="border-left: 1px solid #fff !important; border-right: 1px solid #fff !important; border-top: 1.5px solid #000 !important; border-bottom: 1.5px solid #000 !important;">${globals.mComm.toLocaleString()}</td>
+                                <td class="text-end" style="border-left: 1px solid #fff !important; border-right: 1px solid #fff !important; border-top: 1.5px solid #000 !important; border-bottom: 1.5px solid #000 !important;">${globals.wComm.toLocaleString()}</td>
+                                <td class="text-end" style="border-left: 1px solid #fff !important; border-right: 1px solid #fff !important; border-top: 1.5px solid #000 !important; border-bottom: 1.5px solid #000 !important;">${globals.allow.toLocaleString()}</td>
+                                <td class="text-end" style="border-left: 1px solid #fff !important; border-right: 1px solid #fff !important; border-top: 1.5px solid #000 !important; border-bottom: 1.5px solid #000 !important;">${globals.eTotal.toLocaleString()}</td>
+                                <td class="text-center" style="border-left: 1px solid #fff !important; border-right: 1px solid #fff !important; border-top: 1.5px solid #000 !important; border-bottom: 1.5px solid #000 !important;">${decimalToHHMM(globals.stHrs)}</td>
+                                <td class="text-end" style="border-left: 1px solid #fff !important; border-right: 1px solid #fff !important; border-top: 1.5px solid #000 !important; border-bottom: 1.5px solid #000 !important;">${globals.st.toLocaleString()}</td>
+                                <td class="text-end" style="border-left: 1px solid #fff !important; border-right: 1px solid #fff !important; border-top: 1.5px solid #000 !important; border-bottom: 1.5px solid #000 !important;">${globals.penalty.toLocaleString()}</td>
+                                <td class="text-end" style="border-left: 1px solid #fff !important; border-right: 1px solid #fff !important; border-top: 1.5px solid #000 !important; border-bottom: 1.5px solid #000 !important;">${globals.food.toLocaleString()}</td>
+                                <td class="text-end" style="border-left: 1px solid #fff !important; border-right: 1px solid #fff !important; border-top: 1.5px solid #000 !important; border-bottom: 1.5px solid #000 !important;">${globals.sec.toLocaleString()}</td>
+                                <td class="text-end" style="border-left: 1px solid #fff !important; border-right: 1px solid #fff !important; border-top: 1.5px solid #000 !important; border-bottom: 1.5px solid #000 !important;">${globals.otherDed.toLocaleString()}</td>
+                                <td class="text-end" style="border-left: 1px solid #fff !important; border-right: 1px solid #fff !important; border-top: 1.5px solid #000 !important; border-bottom: 1.5px solid #000 !important;">${globals.wht.toLocaleString()}</td>
+                                <td class="text-end" style="border-left: 1px solid #fff !important; border-right: 1px solid #fff !important; border-top: 1.5px solid #000 !important; border-bottom: 1.5px solid #000 !important;">${globals.dTotal.toLocaleString()}</td>
+                                <td class="text-end" style="border-left: 1px solid #fff !important; border-right: 1px solid #fff !important; border-top: 1.5px solid #000 !important; border-bottom: 1.5px solid #000 !important;">${globals.gross.toLocaleString()}</td>
+                                <td class="text-end" style="border-left: 1px solid #fff !important; border-right: 1px solid #fff !important; border-top: 1.5px solid #000 !important; border-bottom: 1.5px solid #000 !important;">${globals.prevAdv.toLocaleString()}</td>
+                                <td class="text-end" style="border-left: 1px solid #fff !important; border-right: 1px solid #fff !important; border-top: 1.5px solid #000 !important; border-bottom: 1.5px solid #000 !important;">${globals.currentAdv.toLocaleString()}</td>
+                                <td class="text-end" style="border-left: 1px solid #fff !important; border-right: 1px solid #fff !important; border-top: 1.5px solid #000 !important; border-bottom: 1.5px solid #000 !important;">${(globals.prevAdv + globals.currentAdv).toLocaleString()}</td>
+                                <td class="text-end" style="border-left: 1px solid #fff !important; border-right: 1px solid #fff !important; border-top: 1.5px solid #000 !important; border-bottom: 1.5px solid #000 !important;">${globals.recov.toLocaleString()}</td>
+                                <td class="text-end" style="border-left: 1px solid #fff !important; border-right: 1px solid #fff !important; border-top: 1.5px solid #000 !important; border-bottom: 1.5px solid #000 !important;">${globals.remAdv.toLocaleString()}</td>
+                                <td class="text-end" style="border-left: 1px solid #fff !important; border: 1.5px solid #000 !important; border-left: 1px solid #fff !important; color: #fff;">${globals.net.toLocaleString()}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <div class="summary-section mt-5 px-4 mb-5">
+                    <div class="summary-card">
+                        <div class="summary-header">
+                            <i class="fas fa-file-invoice-dollar me-2"></i> PAYROLL FINAL SUMMARY
+                        </div>
+                        
+                        <div class="summary-grid">
+                            <!-- Left Column: Advances & Attendance -->
+                            <div style="border-right: 1px solid #eee;">
+                                <div class="summary-item">
+                                    <span class="summary-label"><i class="fas fa-history me-2 text-muted" style="width: 20px;"></i> Pre Balance</span>
+                                    <span class="summary-value">${globals.prevAdv.toLocaleString()}</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label"><i class="fas fa-plus-circle me-2 text-primary" style="width: 20px;"></i> Current Advance</span>
+                                    <span class="summary-value">${globals.currentAdv.toLocaleString()}</span>
+                                </div>
+                                <div class="summary-item" style="background-color: #fdfdfd;">
+                                    <span class="summary-label fw-bold"><i class="fas fa-wallet me-2 text-warning" style="width: 20px;"></i> Total Balance</span>
+                                    <span class="summary-value">${(globals.prevAdv + globals.currentAdv).toLocaleString()}</span>
+                                </div>
+                                <div class="summary-item" style="background-color: #fff9f9;">
+                                    <span class="summary-label"><i class="fas fa-minus-circle me-2 text-danger" style="width: 20px;"></i> Advance Deduction</span>
+                                    <span class="summary-value text-danger">${globals.recov.toLocaleString()}</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label fw-bold"><i class="fas fa-hand-holding-usd me-2 text-success" style="width: 20px;"></i> Rem. Balance</span>
+                                    <span class="summary-value">${globals.remAdv.toLocaleString()}</span>
+                                </div>
+                            </div>
+
+                            <!-- Right Column: Earnings & Payments -->
+                            <div>
+                                <div class="summary-item">
+                                    <span class="summary-label"><i class="fas fa-hourglass-half me-2 text-primary" style="width: 20px;"></i> Total Over Time</span>
+                                    <span class="summary-value">${globals.ot.toLocaleString()}</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label"><i class="fas fa-business-time me-2 text-danger" style="width: 20px;"></i> Short Time Amt</span>
+                                    <span class="summary-value text-danger">${globals.st.toLocaleString()}</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label"><i class="fas fa-university me-2 text-info" style="width: 20px;"></i> Bank Paid</span>
+                                    <span class="summary-value">${globals.bankPaid.toLocaleString()}</span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label"><i class="fas fa-coins me-2 text-warning" style="width: 20px;"></i> Cash Paid</span>
+                                    <span class="summary-value">${globals.cashPaid.toLocaleString()}</span>
+                                </div>
+                                <div class="summary-footer">
+                                    <span style="font-size: 1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">Net Salary (Bank & Cash)</span>
+                                    <span style="font-size: 1.3rem; font-weight: 900;">${globals.net.toLocaleString()} PKR</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-5 d-flex justify-content-between px-5 print-footer">
+                    <div class="text-center" style="width: 150px; border-top: 1px solid #000; padding-top: 5px;">Prepared By</div>
+                    <div class="text-center" style="width: 150px; border-top: 1px solid #000; padding-top: 5px;">Checked By</div>
+                    <div class="text-center" style="width: 150px; border-top: 1px solid #000; padding-top: 5px;">Approved By</div>
+                </div>
+            `;
+
+        container.innerHTML = html;
+    }
+
+    async function viewSecurityDeposit() {
+        document.body.classList.add('portrait-print');
+
+        // Inject portrait style for this report
+        if (!document.getElementById('portrait-style')) {
+            const style = document.createElement('style');
+            style.id = 'portrait-style';
+            style.innerHTML = '@media print { @page { size: portrait !important; margin: 5mm !important; } }';
+            document.head.appendChild(style);
+        }
+
+        const empId = document.getElementById('selectedEmpId').value;
+        const empName = document.getElementById('empSearch').value;
+
+        if (!empId) {
+            alert('Please select an employee to view Security Deposit report');
+            return;
+        }
+
+        const container = document.getElementById('reportContainer');
+        container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div><p class="mt-2">Loading All-Time Security Deposit Data...</p></div>';
+
+        try {
+            // Fetch all payrolls for this employee to get security deposit history (All time)
+            const res = await window.pageAccess.authenticatedFetch(`/api/v1/payrolls?employee=${empId}&allTime=true`);
+            const data = await res.json();
+
+            if (!data.success || data.data.length === 0) {
+                container.innerHTML = '<div class="alert alert-info">No security deposit records found for this employee.</div>';
+                return;
+            }
+
+            renderSecurityDepositReport(data.data, empName);
+        } catch (err) {
+            console.error(err);
+            container.innerHTML = `<div class="alert alert-danger">Error: ${err.message}</div>`;
+        }
+    }
+
+    function renderSecurityDepositReport(payrolls, empName) {
+        const container = document.getElementById('reportContainer');
+
+        // Filter payrolls that have a security deposit
+        const deposits = payrolls.filter(p => (p.securityDeposit || 0) > 0);
+
+        if (deposits.length === 0) {
+            container.innerHTML = `<div class="alert alert-info">No security deposit deductions found for ${empName}.</div>`;
+            return;
+        }
+
+        // Sort by month
+        deposits.sort((a, b) => a.monthYear.localeCompare(b.monthYear));
+
+        let totalDeposit = 0;
+        let html = `
+                <div class="print-header text-center mb-4">
+                    <h3 class="mb-1" style="color: var(--ref-blue-header); font-weight: bold;">Bilal Accounting System</h3>
+                    <p class="mb-1 text-muted">A Reliable Name of Trust</p>
+                    <h4 class="mt-3 mb-1">Employee Security Deposit Report</h4>
+                    <p class="fw-bold">Employee Name: ${empName}</p>
+                    <hr>
+                </div>
+                <div class="d-flex justify-content-end mb-3 no-print">
+                    <button class="btn btn-sm btn-primary" onclick="window.print()">
+                        <i class="fas fa-print me-2"></i>Print Report
+                    </button>
+                </div>
+                <div style="max-width: 600px; margin: 0 auto;">
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 80px;">#</th>
+                                <th>Year</th>
+                                <th>Month</th>
+                                <th class="text-end" style="width: 200px;">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+        deposits.forEach((p, i) => {
+            const [y, m] = p.monthYear.split('-');
+            const monthName = new Date(y, m - 1).toLocaleString('default', { month: 'long' });
+            totalDeposit += (p.securityDeposit || 0);
+
+            html += `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td>${y}</td>
+                        <td>${monthName}</td>
+                        <td class="text-end">${(p.securityDeposit || 0).toLocaleString()}</td>
+                    </tr>
+                `;
+        });
+
+        html += `
+                        </tbody>
+                        <tfoot>
+                            <tr class="fw-bold" style="background-color: #f2f2f2;">
+                                <td colspan="3" class="text-end">TOTAL SECURITY DEPOSIT</td>
+                                <td class="text-end" style="font-size: 1.1rem; color: #2e7d32;">${totalDeposit.toLocaleString()}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <div class="mt-5 d-flex justify-content-between px-5 print-footer">
+                    <div class="text-center" style="width: 150px; border-top: 1px solid #000; padding-top: 5px;">Prepared By</div>
+                    <div class="text-center" style="width: 150px; border-top: 1px solid #000; padding-top: 5px;">Checked By</div>
+                    <div class="text-center" style="width: 150px; border-top: 1px solid #000; padding-top: 5px;">Approved By</div>
+                </div>
+                <div class="text-center mt-5 no-print">
+                   <div class="alert alert-success d-inline-block">
+                      Total Security Accumulated: <b>${totalDeposit.toLocaleString()} PKR</b>
+                   </div>
+                </div>
+            `;
+
+        container.innerHTML = html;
+    }
+
+</script>
+</body>
+
+</html>
+

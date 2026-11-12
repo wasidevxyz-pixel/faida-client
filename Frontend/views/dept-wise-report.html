@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Department-Wise Report - Bilal Accounting System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #1e4c8c;
+            --secondary-blue: #2c5ba9;
+            --bg-slate: #f8fafc;
+            --border-color: #e2e8f0;
+            --text-main: #1e293b;
+        }
+
+        * {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            border-radius: 0 !important;
+        }
+
+        body {
+            background: #eff1f3;
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        /* Full Width Layout */
+        .report-container {
+            width: 100%;
+            padding: 1.5rem;
+            margin: 0 auto;
+        }
+
+        /* Header Styles */
+        .page-header {
+            background: var(--primary-blue);
+            color: white;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            padding: 0 1.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Filter Panel */
+        .filter-panel {
+            background: linear-gradient(135deg, #1e4c8c 0%, #173d71 100%);
+            padding: 1.5rem;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .filter-panel label {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.9);
+            display: block;
+        }
+
+        .filter-panel .form-control,
+        .filter-panel .form-select {
+            height: 42px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 1);
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        /* Action Buttons */
+        .btn-search {
+            background: #28a745;
+            color: white;
+            border: 1.5px solid white;
+            padding: 0 25px;
+            height: 42px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+
+        .btn-search:hover {
+            background: #218838;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .btn-print-trigger {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 0 15px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-print-trigger:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Summary Cards */
+        .summary-card {
+            padding: 18px 22px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            height: 90px;
+        }
+
+        .summary-card.yellow {
+            background: #f59e0b;
+        }
+
+        .summary-card.dark {
+            background: #1e293b;
+        }
+
+        .summary-card.green {
+            background: #10b981;
+        }
+
+        .summary-card .label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+            opacity: 0.9;
+        }
+
+        .summary-card .value {
+            font-size: 1.6rem;
+            font-weight: 800;
+        }
+
+        /* Data Panel */
+        .data-panel {
+            background: white;
+            border: 1px solid var(--border-color);
+            margin-bottom: 30px;
+        }
+
+        .data-header {
+            background: var(--bg-slate);
+            padding: 15px 1.5rem;
+            border-bottom: 1.5px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .data-header h5 {
+            margin: 0;
+            font-weight: 800;
+            color: var(--primary-blue);
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Custom Table */
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        .custom-table thead th {
+            background: #000 !important;
+            color: white !important;
+            padding: 12px 15px;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            border: 1px solid #333 !important;
+            text-align: center;
+        }
+
+        .custom-table td {
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        /* Group Headers */
+        .group-header {
+            background: transparent !important;
+            color: var(--primary-blue) !important;
+            font-weight: 800 !important;
+            font-size: 1.05rem !important;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-top: 1px solid #dee2e6 !important;
+            border-bottom: 2px solid var(--primary-blue) !important;
+        }
+
+        /* Subtotal Rows */
+        .subtotal-row td {
+            background: #f1f3f5 !important;
+            font-weight: 800 !important;
+            border: 1px solid #dee2e6 !important;
+        }
+
+        /* Grand Total Section */
+        .grand-total-section {
+            margin-top: 2rem;
+            border: none;
+        }
+
+        .grand-total-row td {
+            background: #0f172a !important;
+            color: white !important;
+            font-weight: 800 !important;
+            font-size: 1.1rem;
+            padding: 18px 15px !important;
+            border-right: 1.5px solid white !important;
+        }
+
+        .grand-total-row td:last-child {
+            border-right: none !important;
+        }
+
+        /* Print Specifics */
+        .print-header {
+            display: none;
+        }
+
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 0.5cm;
+            }
+
+            body {
+                background: white !important;
+                font-size: 11pt !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .filter-panel,
+            .page-header,
+            .sidebar,
+            #sidebarToggle,
+            .dropdown,
+            .data-header,
+            .btn-outline-primary,
+            .d-print-none {
+                display: none !important;
+            }
+
+            .report-container {
+                padding: 0 !important;
+            }
+
+            .main-content {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .print-header {
+                display: block !important;
+                text-align: center;
+                margin-bottom: 25px;
+                border-bottom: 2px solid var(--primary-blue);
+                padding-bottom: 15px;
+            }
+
+            .print-header h1 {
+                font-size: 24pt;
+                font-weight: 900;
+                margin-bottom: 5px;
+                color: var(--primary-blue);
+            }
+
+            .custom-table {
+                width: 100% !important;
+                table-layout: fixed !important;
+                font-size: 11pt !important;
+            }
+
+            .custom-table th,
+            .custom-table td {
+                padding: 10px 8px !important;
+                border: 0.75pt solid #000 !important;
+                word-wrap: break-word !important;
+                vertical-align: middle !important;
+            }
+
+            .custom-table thead th {
+                background: #000 !important;
+                color: white !important;
+            }
+
+            .group-header {
+                font-size: 12pt !important;
+                background: #f1f5f9 !important;
+            }
+
+            .grand-total-row td {
+                background: #000 !important;
+                color: white !important;
+                font-size: 12pt !important;
+                border-bottom: 1px solid white !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Print Header -->
+    <div class="print-header">
+        <h1>D.WATSON</h1>
+        <h4 id="pReportTitle" style="font-weight: 800; margin-bottom: 10px;">Department-Wise Sales Report</h4>
+        <div style="font-size: 11pt; color: #444; margin-bottom: 5px;">
+            <span id="printBranchName" style="font-weight: 700;">Branch Name</span> |
+            <span id="printDateRange">Date Range</span>
+        </div>
+        <div style="font-size: 9pt; color: #666;">
+            GENERATED ON: <span id="pPrintTime"></span>
+        </div>
+    </div>
+
+    <!-- Page Header -->
+    <div class="page-header d-print-none">
+        <div style="flex: 1; display: flex; align-items: center;">
+            <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1.1rem;"></i>
+            <h5 class="mb-0 fw-bold">DEPARTMENT-WISE SALES REPORT</h5>
+        </div>
+        <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
+            <button class="btn btn-success btn-sm me-3" onclick="window.print()"
+                style="border-radius: 4px; padding: 5px 15px; font-weight: 600;">
+                <i class="fas fa-print me-1"></i> Print Report
+            </button>
+            <div class="dropdown">
+                <div class="d-flex align-items-center" data-bs-toggle="dropdown" style="cursor: pointer;">
+                    <i class="fas fa-user-circle me-2" style="font-size: 1.3rem;"></i>
+                    <span id="userName" class="me-2 fw-semibold">User</span>
+                    <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                    <li><a class="dropdown-item logout-btn" href="#"><i
+                                class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="report-container">
+        <!-- Filters Panel -->
+        <div class="filter-panel d-print-none">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label><i class="fas fa-store me-2"></i>Branch</label>
+                    <select id="branchSelect" class="form-select">
+                        <option value="">All Branches</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label><i class="fas fa-layer-group me-2"></i>Department</label>
+                    <select id="deptSelect" class="form-select">
+                        <option value="">All Departments</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label><i class="fas fa-calendar-alt me-2"></i>From Date</label>
+                    <input type="date" id="fromDate" class="form-control">
+                </div>
+                <div class="col-md-2">
+                    <label><i class="fas fa-calendar-alt me-2"></i>To Date</label>
+                    <input type="date" id="toDate" class="form-control">
+                </div>
+                <div class="col-md-2 d-flex">
+                    <button class="btn btn-search w-100" onclick="generateReport()">
+                        <i class="fas fa-file-invoice-dollar me-2"></i>Generate
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Panel -->
+        <div class="data-panel shadow-sm">
+            <!-- Summary Cards -->
+            <div id="summaryCards" class="p-4 bg-light border-bottom d-print-none" style="display:none;">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="summary-card dark">
+                            <div class="label"><i class="fas fa-store me-2"></i> Active Branch</div>
+                            <div class="value" id="summaryBranchName">All Branches</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="summary-card yellow">
+                            <div class="label"><i class="fas fa-percentage me-2"></i> Total Discount</div>
+                            <div class="value" id="totalDiscount">0.00</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="summary-card green">
+                            <div class="label"><i class="fas fa-hand-holding-usd me-2"></i> Total Net Sale</div>
+                            <div class="value" id="netSale">0.00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table Container -->
+            <div class="p-4" id="reportContainer">
+                <div class="text-center py-5 text-muted">
+                    <i class="fas fa-file-invoice fa-4x mb-3 opacity-25"></i>
+                    <h4>No Data Displayed</h4>
+                    <p>Select your filters and click <strong>Generate Report</strong> to begin.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244465"></script>
+    <script src="/js/dept-wise-report.js"></script>
+</body>
+
+</html>

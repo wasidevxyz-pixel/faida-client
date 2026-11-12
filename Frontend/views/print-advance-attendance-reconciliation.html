@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advance vs Actual Attendance Audit Report - BAS ERP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 8mm 8mm 10mm 8mm;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #ffffff;
+            color: #000000;
+            font-size: 11px;
+            margin: 0;
+            padding: 10px;
+        }
+
+        .no-print {
+            background: #1e293b;
+            color: #ffffff;
+            padding: 8px 16px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                padding: 0;
+            }
+            .page-break {
+                page-break-after: always;
+            }
+        }
+
+        /* Report Header */
+        .header-section {
+            text-align: center;
+            border-bottom: 2px solid #000000;
+            padding-bottom: 6px;
+            margin-bottom: 8px;
+        }
+
+        .header-section h1 {
+            font-size: 18px;
+            font-weight: 800;
+            margin: 0 0 2px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .header-section h2 {
+            font-size: 13px;
+            font-weight: 700;
+            margin: 0 0 4px 0;
+            color: #1e3a8a;
+            text-transform: uppercase;
+        }
+
+        .meta-strip {
+            display: flex;
+            justify-content: space-between;
+            background-color: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            padding: 4px 8px;
+            font-size: 10.5px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            border-radius: 2px;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        /* Formal Tables */
+        table.report-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10px;
+            margin-bottom: 10px;
+        }
+
+        table.report-table th,
+        table.report-table td {
+            border: 1px solid #000000;
+            padding: 4px 5px;
+            vertical-align: middle;
+        }
+
+        table.report-table thead th {
+            font-weight: 700;
+            text-transform: uppercase;
+            text-align: center;
+            font-size: 9.5px;
+        }
+
+        table.report-table thead th.th-dark {
+            background-color: #0f172a !important;
+            color: #ffffff !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        table.report-table thead th.th-adv {
+            background-color: #dbeafe !important;
+            color: #1e3a8a !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        table.report-table thead th.th-act {
+            background-color: #fef3c7 !important;
+            color: #92400e !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        table.report-table thead th.th-diff {
+            background-color: #f3f4f6 !important;
+            color: #000000 !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        table.report-table tbody td.cell-adv {
+            background-color: #f0f7ff !important;
+            text-align: center;
+            font-weight: 600;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        table.report-table tbody td.cell-act {
+            background-color: #fffdf5 !important;
+            text-align: center;
+            font-weight: 600;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        table.report-table tbody td.cell-diff {
+            text-align: center;
+            font-weight: 700;
+        }
+
+        table.report-table tfoot td {
+            font-weight: 800;
+            background-color: #e2e8f0 !important;
+            border-top: 2px solid #000000;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        /* Signatures block */
+        .signature-block {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 35px;
+            padding: 0 20px;
+        }
+
+        .sig-box {
+            text-align: center;
+            width: 180px;
+            border-top: 1px solid #000000;
+            padding-top: 4px;
+            font-size: 10.5px;
+            font-weight: 700;
+        }
+
+        .diff-minus {
+            color: #b91c1c;
+            font-weight: 800;
+        }
+
+        .diff-plus {
+            color: #15803d;
+            font-weight: 800;
+        }
+
+        /* Detailed Employee Card */
+        .emp-slip-card {
+            border: 1px solid #000000;
+            padding: 6px;
+            margin-bottom: 12px;
+            background-color: #fafafa;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        .emp-meta-table {
+            width: 100%;
+            margin-bottom: 6px;
+            border-collapse: collapse;
+        }
+        .emp-meta-table td {
+            border: none;
+            padding: 2px 4px;
+            font-size: 10.5px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Floating Action Toolbar (Hidden during Print) -->
+    <div class="no-print">
+        <div class="d-flex align-items-center gap-2">
+            <i class="fas fa-print fa-lg text-info"></i>
+            <div>
+                <strong>Print Preview Mode</strong>
+                <span class="badge bg-primary ms-2" id="lblReportMode">Summary Report</span>
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-outline-light" onclick="window.close()">
+                <i class="fas fa-arrow-left me-1"></i> Back
+            </button>
+            <button class="btn btn-sm btn-light fw-bold" onclick="window.print()">
+                <i class="fas fa-print me-1"></i> Print (A4)
+            </button>
+        </div>
+    </div>
+
+    <!-- Report Container -->
+    <div id="reportContainer">
+        <div class="text-center py-5">
+            <i class="fas fa-spinner fa-spin fa-2x text-primary mb-2"></i>
+            <div>Generating printable report...</div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const from = urlParams.get('from');
+            const to = urlParams.get('to');
+            const branch = urlParams.get('branch') || '';
+            const dept = urlParams.get('department') || '';
+            const employee = urlParams.get('employee') || '';
+            const mode = urlParams.get('mode') || 'summary';
+
+            document.getElementById('lblReportMode').textContent = mode === 'summary' ? 'Summary Report' : 'Detail Audit Slips';
+
+            if (!from || !to) {
+                document.getElementById('reportContainer').innerHTML = '<div class="alert alert-danger">Missing From Date or To Date parameters.</div>';
+                return;
+            }
+
+            if (!branch) {
+                document.getElementById('reportContainer').innerHTML = '<div class="alert alert-warning text-center py-4"><i class="fas fa-exclamation-circle me-1"></i> Please select a Branch first to generate the printable report.</div>';
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('token');
+                let url = `/api/v1/attendance-reconciliation?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
+                if (branch) url += `&branch=${encodeURIComponent(branch)}`;
+                if (dept) url += `&department=${encodeURIComponent(dept)}`;
+                if (employee) url += `&employee=${encodeURIComponent(employee)}`;
+
+                const res = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+                const json = await res.json();
+
+                if (!json.success || !json.data || json.data.length === 0) {
+                    document.getElementById('reportContainer').innerHTML = '<div class="alert alert-warning text-center">No attendance reconciliation records found for this period.</div>';
+                    return;
+                }
+
+                if (mode === 'summary') {
+                    renderSummaryReport(json.data, json.period, json.summary, branch);
+                } else {
+                    renderDetailSlips(json.data, json.period, branch);
+                }
+
+            } catch (err) {
+                console.error('Error generating print view:', err);
+                document.getElementById('reportContainer').innerHTML = '<div class="alert alert-danger">Error generating print view: ' + err.message + '</div>';
+            }
+        });
+
+        function renderSummaryReport(employees, period, summary, branch) {
+            const container = document.getElementById('reportContainer');
+            const now = new Date();
+            const printDateStr = `${now.toLocaleDateString('en-GB')} ${now.toLocaleTimeString()}`;
+
+            let rowsHtml = '';
+            let grandAdvMins = 0;
+            let grandActMins = 0;
+            let grandShortMins = 0;
+            let grandOtMins = 0;
+            let grandAdjAmt = 0;
+
+            employees.forEach((emp, idx) => {
+                grandAdvMins += emp.totalAdvanceMinutes || 0;
+                grandActMins += emp.totalActualMinutes || 0;
+                grandAdjAmt += emp.estimatedAdjustmentAmount || 0;
+
+                const diffMins = emp.netDiffMinutes || 0;
+                if (diffMins < 0) grandShortMins += Math.abs(diffMins);
+                if (diffMins > 0) grandOtMins += diffMins;
+
+                const diffClass = diffMins < 0 ? 'diff-minus' : (diffMins > 0 ? 'diff-plus' : '');
+                const diffSign = diffMins < 0 ? '-' : (diffMins > 0 ? '+' : '');
+
+                rowsHtml += `
+                <tr>
+                    <td style="text-align: center;">${idx + 1}</td>
+                    <td style="text-align: center; font-weight: 700; font-family: monospace;">${emp.code}</td>
+                    <td style="font-weight: 700;">${emp.name}</td>
+                    <td style="text-align: center;">${emp.branch}</td>
+                    <td style="text-align: center;">${emp.department}</td>
+                    <td style="text-align: right; font-family: monospace;">${emp.basicSalary ? emp.basicSalary.toLocaleString() : '0'}</td>
+                    <td style="text-align: center; font-weight: 600; font-family: monospace;">${emp.dutyHrs || emp.totalHrs || 12}h</td>
+                    <td class="cell-adv" style="font-family: monospace;">${emp.totalAdvanceHoursFormatted}</td>
+                    <td class="cell-act" style="font-family: monospace;">${emp.totalActualHoursFormatted}</td>
+                    <td class="cell-diff ${diffClass}" style="font-family: monospace;">${diffSign}${emp.netDiffHoursFormatted.replace(/^[+-]/, '')}</td>
+                    <td style="text-align: right; font-weight: 700; font-family: monospace;" class="${emp.estimatedAdjustmentAmount < 0 ? 'diff-minus' : (emp.estimatedAdjustmentAmount > 0 ? 'diff-plus' : '')}">
+                        ${emp.estimatedAdjustmentAmount ? emp.estimatedAdjustmentAmount.toLocaleString() : '0'}
+                    </td>
+                    <td style="text-align: center; font-size: 9px;">${emp.allDaysSaved ? 'Audited' : 'Draft'}</td>
+                    <td style="width: 70px;"></td>
+                </tr>
+                `;
+            });
+
+            const netTotalMins = grandActMins - grandAdvMins;
+            const netSign = netTotalMins < 0 ? '-' : (netTotalMins > 0 ? '+' : '');
+
+            const html = `
+            <div class="header-section">
+                <h1>BAS ERP - ATTENDANCE & PAYROLL AUDIT</h1>
+                <h2>Advance vs Actual Attendance Reconciliation Summary</h2>
+                <div style="font-size: 11px; font-weight: 600; color: #475569;">
+                    Reconciliation Period: <u>${period.from}</u> to <u>${period.to}</u> (${period.totalDays} Days)
+                </div>
+            </div>
+
+            <div class="meta-strip">
+                <div><strong>Branch:</strong> ${branch || 'All Branches'}</div>
+                <div><strong>Total Staff:</strong> ${employees.length} Employees</div>
+                <div><strong>Printed On:</strong> ${printDateStr}</div>
+            </div>
+
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th class="th-dark" style="width: 30px;">Sr</th>
+                        <th class="th-dark" style="width: 65px;">Code</th>
+                        <th class="th-dark" style="text-align: left;">Employee Name</th>
+                        <th class="th-dark" style="width: 80px;">Branch</th>
+                        <th class="th-dark" style="width: 90px;">Dept</th>
+                        <th class="th-dark" style="width: 75px;">Basic</th>
+                        <th class="th-dark" style="width: 65px;">Duty Hrs</th>
+                        <th class="th-adv" style="width: 75px;">Adv Hrs</th>
+                        <th class="th-act" style="width: 75px;">Act Hrs</th>
+                        <th class="th-diff" style="width: 80px;">Net Diff</th>
+                        <th class="th-diff" style="width: 75px;">Est. Adj</th>
+                        <th class="th-dark" style="width: 60px;">Status</th>
+                        <th class="th-dark" style="width: 70px;">Sign</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rowsHtml}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="7" style="text-align: right; text-transform: uppercase;">Grand Totals:</td>
+                        <td style="text-align: center; font-family: monospace;">${minsToHHMM(grandAdvMins)}</td>
+                        <td style="text-align: center; font-family: monospace;">${minsToHHMM(grandActMins)}</td>
+                        <td style="text-align: center; font-family: monospace;" class="${netTotalMins < 0 ? 'diff-minus' : 'diff-plus'}">
+                            ${netSign}${minsToHHMM(Math.abs(netTotalMins))}
+                        </td>
+                        <td style="text-align: right; font-family: monospace;">${grandAdjAmt.toLocaleString()}</td>
+                        <td colspan="2"></td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <div style="background-color: #f8fafc; border: 1px dashed #64748b; padding: 6px 12px; margin-top: 10px; font-size: 10px; display: flex; justify-content: space-around;">
+                <div><strong>Net Short Time Deductions:</strong> <span class="diff-minus">-${minsToHHMM(grandShortMins)} Hrs</span></div>
+                <div><strong>Net Over Time Additions:</strong> <span class="diff-plus">+${minsToHHMM(grandOtMins)} Hrs</span></div>
+                <div><strong>Net Amount for Next Month Salary:</strong> <strong>PKR ${grandAdjAmt.toLocaleString()}</strong></div>
+            </div>
+
+            <div class="signature-block">
+                <div class="sig-box">
+                    Prepared By<br><small class="text-muted">(Attendance Officer)</small>
+                </div>
+                <div class="sig-box">
+                    Checked By<br><small class="text-muted">(Accounts / HR Manager)</small>
+                </div>
+                <div class="sig-box">
+                    Approved By<br><small class="text-muted">(Director / Boss Signature)</small>
+                </div>
+            </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        function renderDetailSlips(employees, period, branch) {
+            const container = document.getElementById('reportContainer');
+            let slipsHtml = '';
+
+            employees.forEach((emp, eIdx) => {
+                let dailyRows = '';
+                emp.days.forEach(d => {
+                    const diffMins = d.diffMinutes || 0;
+                    const diffClass = diffMins < 0 ? 'diff-minus' : (diffMins > 0 ? 'diff-plus' : '');
+                    const diffSign = diffMins < 0 ? '-' : (diffMins > 0 ? '+' : '');
+
+                    dailyRows += `
+                    <tr>
+                        <td style="text-align: center; font-family: monospace;">${d.date}</td>
+                        <td style="text-align: center; font-weight: 700;">${d.dayName}</td>
+                        <!-- Advance -->
+                        <td class="cell-adv" style="font-family: monospace;">${formatTimeAMPM(d.advanceCheckIn)}</td>
+                        <td class="cell-adv" style="font-family: monospace;">${formatTimeAMPM(d.advanceCheckOut)}</td>
+                        <td class="cell-adv" style="font-family: monospace;">${d.advanceHoursFormatted}</td>
+                        <td class="cell-adv">${d.advanceStatus}</td>
+                        <!-- Actual -->
+                        <td class="cell-act" style="font-family: monospace;">${formatTimeAMPM(d.actualCheckIn)}</td>
+                        <td class="cell-act" style="font-family: monospace;">${formatTimeAMPM(d.actualCheckOut)}</td>
+                        <td class="cell-act" style="font-family: monospace;">${d.actualHoursFormatted}</td>
+                        <td class="cell-act">${d.actualStatus}</td>
+                        <!-- Diff -->
+                        <td class="cell-diff ${diffClass}" style="font-family: monospace;">${diffSign}${minsToHHMM(Math.abs(diffMins))}</td>
+                        <td style="font-size: 9.5px;">${d.remarks || '-'}</td>
+                    </tr>
+                    `;
+                });
+
+                const netSign = emp.netDiffMinutes < 0 ? '-' : (emp.netDiffMinutes > 0 ? '+' : '');
+
+                slipsHtml += `
+                <div class="emp-slip-card ${eIdx < employees.length - 1 ? 'page-break' : ''}">
+                    <div class="header-section" style="margin-bottom: 4px; padding-bottom: 2px;">
+                        <h1 style="font-size: 15px;">BAS ERP - EMPLOYEE ATTENDANCE AUDIT SLIP</h1>
+                        <h2 style="font-size: 12px;">Advance Timing vs Actual Timing Reconciliation (${period.from} to ${period.to})</h2>
+                    </div>
+
+                    <table class="emp-meta-table">
+                        <tr>
+                            <td><strong>Employee Name:</strong> ${emp.name}</td>
+                            <td><strong>Emp Code:</strong> <span style="font-family: monospace; font-weight: 700;">${emp.code}</span></td>
+                            <td><strong>Branch:</strong> ${emp.branch}</td>
+                            <td><strong>Department:</strong> ${emp.department}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Basic Salary:</strong> PKR ${emp.basicSalary ? emp.basicSalary.toLocaleString() : '0'}</td>
+                            <td><strong>Duty Hours:</strong> ${emp.dutyHrs || emp.totalHrs || 12} Hrs</td>
+                            <td><strong>Total Adv Hrs:</strong> ${emp.totalAdvanceHoursFormatted}</td>
+                            <td><strong>Total Act Hrs:</strong> ${emp.totalActualHoursFormatted}</td>
+                        </tr>
+                    </table>
+
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th class="th-dark" style="width: 75px;">Date</th>
+                                <th class="th-dark" style="width: 40px;">Day</th>
+                                <th class="th-adv" style="width: 65px;">Adv In</th>
+                                <th class="th-adv" style="width: 65px;">Adv Out</th>
+                                <th class="th-adv" style="width: 60px;">Adv Hrs</th>
+                                <th class="th-adv" style="width: 65px;">Status</th>
+                                <th class="th-act" style="width: 65px;">Act In</th>
+                                <th class="th-act" style="width: 65px;">Act Out</th>
+                                <th class="th-act" style="width: 60px;">Act Hrs</th>
+                                <th class="th-act" style="width: 65px;">Status</th>
+                                <th class="th-diff" style="width: 65px;">Diff (+/-)</th>
+                                <th class="th-dark">Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${dailyRows}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="4" style="text-align: right;">EMPLOYEE TOTALS:</td>
+                                <td style="text-align: center; font-family: monospace;">${emp.totalAdvanceHoursFormatted}</td>
+                                <td></td>
+                                <td colspan="2"></td>
+                                <td style="text-align: center; font-family: monospace;">${emp.totalActualHoursFormatted}</td>
+                                <td></td>
+                                <td style="text-align: center; font-family: monospace;" class="${emp.netDiffMinutes < 0 ? 'diff-minus' : 'diff-plus'}">
+                                    ${netSign}${minsToHHMM(Math.abs(emp.netDiffMinutes))}
+                                </td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: #e2e8f0; padding: 4px 8px; font-weight: 700; font-size: 10px;">
+                        <div>Net Adjustment on Salary: <strong>PKR ${emp.estimatedAdjustmentAmount ? emp.estimatedAdjustmentAmount.toLocaleString() : '0'}</strong> (${emp.netDiffHoursFormatted} Hrs)</div>
+                        <div>Status: ${emp.allDaysSaved ? 'Audited & Verified' : 'Draft Entry'}</div>
+                    </div>
+
+                    <div class="signature-block" style="margin-top: 25px;">
+                        <div class="sig-box" style="width: 140px;">Employee Signature</div>
+                        <div class="sig-box" style="width: 140px;">Attendance Incharge</div>
+                        <div class="sig-box" style="width: 140px;">Boss Approval</div>
+                    </div>
+                </div>
+                `;
+            });
+
+            container.innerHTML = slipsHtml;
+        }
+
+        function minsToHHMM(mins) {
+            const abs = Math.abs(Math.round(mins || 0));
+            const h = Math.floor(abs / 60);
+            const m = abs % 60;
+            return `${h}:${String(m).padStart(2, '0')}`;
+        }
+
+        function formatTimeAMPM(timeStr) {
+            if (!timeStr) return '-';
+            const str = String(timeStr).trim();
+            if (['-', '--:--', ''].includes(str)) return '-';
+            if (str.toUpperCase().includes('AM') || str.toUpperCase().includes('PM')) return str;
+            const parts = str.split(':');
+            if (parts.length < 2) return str;
+            let hours = parseInt(parts[0], 10);
+            const minutes = String(parts[1]).padStart(2, '0');
+            if (isNaN(hours)) return str;
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12;
+            return `${hours}:${minutes} ${ampm}`;
+        }
+    </script>
+</body>
+
+</html>

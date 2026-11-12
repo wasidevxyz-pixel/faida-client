@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Bilal Accounting System (BAS)</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <style>
+        .chart-area {
+            position: relative;
+            height: 20rem;
+            width: 100%;
+        }
+
+        .chart-pie {
+            position: relative;
+            height: 15rem;
+            width: 100%;
+        }
+
+        /* Mobile Responsive Tweaks */
+        /* Mobile Responsive Tweaks */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 10px;
+                width: 100%;
+                overflow-x: hidden;
+            }
+
+            /* Zooming/Compact Effect for Mobile */
+            body {
+                font-size: 11px;
+                /* Global font reduction */
+            }
+
+            .page-header {
+                padding: 10px !important;
+                /* Ensure it stays compact but visible */
+            }
+
+            .container-fluid {
+                padding: 5px !important;
+            }
+
+            /* Compact Section Containers */
+            .section-banner {
+                padding: 10px !important;
+                font-size: 1rem !important;
+                /* Slightly larger than body */
+            }
+
+            .section-content {
+                padding: 10px !important;
+            }
+
+            /* Header Section Stack */
+            .d-flex.justify-content-between {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 10px;
+            }
+
+            /* Date Filters Compact */
+            .date-filter-pills .nav-link {
+                padding: 4px 8px;
+                font-size: 10px;
+                flex: 1;
+                /* evenly distribute */
+                text-align: center;
+            }
+
+            .bg-white.p-2.rounded.shadow-sm {
+                padding: 10px !important;
+            }
+
+            #customDateRange {
+                flex-direction: column;
+                gap: 5px;
+                margin-left: 0 !important;
+                width: 100%;
+            }
+
+            #customDateRange input,
+            #customDateRange button {
+                width: 100%;
+                margin: 0 !important;
+                font-size: 11px;
+            }
+
+            .btn-refresh {
+                width: 100%;
+                margin-top: 5px;
+                margin-left: 0 !important;
+                font-size: 11px;
+            }
+
+            /* Branch Cards Compact */
+            .branch-card {
+                margin-bottom: 10px;
+            }
+
+            .branch-card-header {
+                padding: 6px 10px;
+                font-size: 0.9rem;
+            }
+
+            .branch-card-body {
+                padding: 8px;
+            }
+
+            .stat-box {
+                padding: 5px 8px;
+                font-size: 10px;
+                /* Highly compact */
+                margin-bottom: 4px;
+            }
+
+            .stat-value {
+                font-size: 11px;
+            }
+
+            /* Table Optimizations - Zoom Out Effect */
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .custom-table th,
+            .custom-table td,
+            .table th,
+            .table td {
+                padding: 4px 4px !important;
+                /* Minimal padding */
+                font-size: 10px !important;
+                /* Tiny text to fit columns */
+                white-space: nowrap;
+                /* Prevent wrapping but might force scroll if too many cols */
+            }
+
+            /* Attempt to wrap text instead of scroll for some columns if preferred? 
+               User asked 'without scrolling'. Wrapping is better than scrolling. */
+            .custom-table th,
+            .custom-table td {
+                white-space: normal !important;
+                /* Allow wrap to avoid width overflow */
+                word-break: break-word;
+            }
+
+            .card-body {
+                padding: 10px;
+            }
+
+            /* Hide less important elements if needed or make them stack nicely */
+            .dropdown-menu {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Main Content Wrapper -->
+    <div class="main-content">
+        <!-- Standardized Page Header -->
+        <div class="page-header px-3">
+            <div style="flex: 1; display: flex; align-items: center;">
+                <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+                <h4 class="mb-0">Dashboard</h4>
+            </div>
+            <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
+                <div class="dropdown">
+                    <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown"
+                        style="cursor: pointer;">
+                        <div class="user-avatar text-white bg-primary rounded-circle d-flex align-items-center justify-content-center me-2"
+                            style="width: 35px; height: 35px;">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <span id="userName" class="me-2 d-none d-md-block">User</span>
+                        <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                        <li><a class="dropdown-item" href="/profile">Profile</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item logout-btn" href="#"><i
+                                    class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div class="container-fluid mt-4">
+            <!-- Styles for New Dashboard -->
+            <style>
+                .section-banner {
+                    padding: 15px 20px;
+                    border-radius: 8px 8px 0 0;
+                    margin-bottom: 0;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                }
+
+                .section-content {
+                    background: #f8f9fa;
+                    border: 1px solid #dee2e6;
+                    border-top: none;
+                    border-radius: 0 0 8px 8px;
+                    padding: 25px;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+                }
+
+                .branch-theme {
+                    background: linear-gradient(135deg, #2c3e50 0%, #4ca1af 100%);
+                    color: white;
+                }
+
+                .category-theme {
+                    background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+                    color: white;
+                }
+
+                .ls-1 {
+                    letter-spacing: 1px;
+                }
+
+                /* Reuse existing classes */
+                .branch-card {
+                    border: none;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                    margin-bottom: 20px;
+                    background: #fff;
+                }
+
+                .branch-card-header {
+                    color: white;
+                    padding: 10px 15px;
+                    font-weight: bold;
+                    text-align: center;
+                    border-radius: 8px 8px 0 0;
+                    text-transform: uppercase;
+                    background: linear-gradient(45deg, #FF5722, #FF9800);
+                }
+
+                .branch-card-body {
+                    padding: 15px;
+                }
+
+                .stat-box {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 8px 12px;
+                    margin-bottom: 8px;
+                    border-radius: 4px;
+                    color: white;
+                    font-weight: bold;
+                    font-size: 0.9rem;
+                }
+
+                .stat-box.red {
+                    background-color: #e74c3c;
+                }
+
+                .stat-box.blue {
+                    background-color: #3498db;
+                }
+
+                .stat-box.green {
+                    background-color: #2ecc71;
+                }
+
+                .stat-box.yellow {
+                    background-color: #f1c40f;
+                    color: black !important;
+                }
+
+                .stat-box.dark {
+                    background-color: #34495e;
+                }
+
+                .stat-box,
+                .stat-box * {
+                    color: white !important;
+                }
+
+                .stat-box.yellow,
+                .stat-box.yellow * {
+                    color: black !important;
+                }
+
+
+                .custom-table {
+                    background: white;
+                    border-radius: 8px;
+                    overflow: visible;
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                }
+
+                .custom-table thead th {
+                    background-color: #e9ecef;
+                    color: #495057;
+                    font-weight: 700;
+                    border-bottom: 2px solid #dee2e6;
+                }
+
+                .grand-total-row,
+                .grand-total-row td {
+                    background-color: #343a40 !important;
+                    color: white !important;
+                    font-weight: bold;
+                }
+
+                /* Force tables to expand fully */
+                .table-responsive,
+                .custom-table .table-responsive,
+                .category-detail-card .table-responsive {
+                    overflow-y: hidden !important;
+                    /* Never scroll vertically */
+                    overflow-x: auto;
+                    /* Allow horizontal if needed (mobile) */
+                    max-height: none !important;
+                    height: auto !important;
+                    display: block;
+                    /* Ensure it behaves as block to fill height */
+                }
+
+                .category-detail-card {
+                    background: white;
+                    border: none;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                    margin-bottom: 20px;
+                }
+
+                .category-header {
+                    background-color: #0288d1;
+                    color: white;
+                    padding: 10px 20px;
+                    font-weight: bold;
+                    text-transform: uppercase;
+                }
+
+                .chart-container-box {
+                    background: white;
+                    padding: 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                    margin-bottom: 20px;
+                }
+            </style>
+
+            <!-- Date Filter & Actions -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="dashboard-section-title mb-0">
+                    <h3><i class="fas fa-chart-pie me-2"></i>Executive Board</h3>
+                </div>
+                <div class="d-flex align-items-center bg-white p-2 rounded shadow-sm gap-2">
+                    <!-- Branch Filter -->
+                    <select id="dashboardBranchFilter" class="form-select form-select-sm" style="width: 150px;"
+                        onchange="refreshDashboard()">
+                        <option value="all">All Branches</option>
+                    </select>
+
+                    <div class="nav nav-pills date-filter-pills gap-2" role="group">
+                        <button class="nav-link btn-sm px-3 rounded-pill active" onclick="setDateFilter('today')"
+                            data-filter="today">Today</button>
+                        <button class="nav-link btn-sm px-3 rounded-pill" onclick="setDateFilter('yesterday')"
+                            data-filter="yesterday">Yesterday</button>
+                        <button class="nav-link btn-sm px-3 rounded-pill" onclick="setDateFilter('week')"
+                            data-filter="week">Week</button>
+                        <button class="nav-link btn-sm px-3 rounded-pill" onclick="setDateFilter('month')"
+                            data-filter="month">Month</button>
+                        <button class="nav-link btn-sm px-3 rounded-pill" onclick="setDateFilter('custom')"
+                            data-filter="custom">Custom</button>
+                    </div>
+                    <div id="customDateRange" class="ms-2 d-none">
+                        <input type="date" id="fromDate" class="form-control form-control-sm d-inline-block w-auto">
+                        <span class="mx-1">-</span>
+                        <input type="date" id="toDate" class="form-control form-control-sm d-inline-block w-auto">
+                        <button class="btn btn-sm btn-primary ms-1" onclick="applyCustomDateFilter()">Go</button>
+                    </div>
+                    <button class="btn btn-sm btn-outline-secondary ms-3" onclick="refreshDashboard()"><i
+                            class="fas fa-sync-alt"></i></button>
+                </div>
+            </div>
+
+            <!-- SECTION A: CATEGORY & PAYMENT ANALYTICS -->
+            <div class="mb-5">
+                <div class="section-banner category-theme">
+                    <h5 class="m-0 text-white"><i class="fas fa-cubes me-2"></i> Category & Payment Analytics</h5>
+                    <small class="text-white opacity-75 d-none d-md-block">Warehouse Category Breakdown & Vendor
+                        Payments</small>
+                </div>
+                <div class="section-content">
+                    <!-- 4. Category Cards -->
+                    <div class="d-flex align-items-center mb-3">
+                        <h6 class="text-uppercase text-primary fw-bold m-0 col-12 border-bottom pb-2">Category Overview
+                        </h6>
+                    </div>
+                    <div class="row" id="categoryCardsContainer">
+                        <div class="col-12 text-center py-3 text-muted">Loading Category Cards...</div>
+                    </div>
+
+                    <!-- 5. Category Breakdown Tables -->
+                    <div class="d-flex align-items-center mt-4 mb-3">
+                        <h6 class="text-uppercase text-primary fw-bold m-0 col-12 border-bottom pb-2">Sale Comparison by
+                            Category</h6>
+                    </div>
+                    <div id="categoryBreakdownContainer">
+                        <div class="text-center py-3 text-muted">Loading Categories...</div>
+                    </div>
+
+                    <!-- 6. Payment Details (Combined) -->
+                    <div class="mt-5 pt-3 border-top">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-white py-3">
+                                <div class="row align-items-center">
+                                    <div class="col-md-3">
+                                        <h5 class="text-dark fw-bold m-0"><i
+                                                class="fas fa-wallet text-success me-2"></i>
+                                            Payment Details</h5>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <div class="row g-2">
+                                            <div class="col-md-3">
+                                                <select id="paymentBranchFilter" class="form-select form-select-sm">
+                                                    <option value="all">All Branches</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <select id="paymentCategoryFilter" class="form-select form-select-sm">
+                                                    <option value="all">All Categories</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <select id="paymentPeriodFilter" class="form-select form-select-sm">
+                                                    <option value="current">Current Month</option>
+                                                    <option value="custom">Custom Range</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <button class="btn btn-primary btn-sm w-100"
+                                                    onclick="refreshPaymentData()">
+                                                    <i class="fas fa-sync-alt me-1"></i> Refresh
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body p-0">
+                                <!-- Payment Stats Cards -->
+                                <div class="row g-0 mb-0">
+                                    <div class="col-6 col-md-3">
+                                        <div
+                                            class="card bg-success text-white text-center p-3 shadow-sm border-0 rounded-0">
+                                            <small class="text-uppercase fw-bold opacity-75">Total Sales</small>
+                                            <h3 class="fw-bold my-2" id="payStatSale">12,755,356</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <div class="card text-white text-center p-3 shadow-sm border-0 rounded-0"
+                                            style="background-color: #00695c;">
+                                            <small class="text-uppercase fw-bold opacity-75">Total Cost</small>
+                                            <h3 class="fw-bold my-2" id="payStatCost">8,466,289</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <div class="card text-white text-center p-3 shadow-sm border-0 rounded-0"
+                                            style="background-color: #6366f1;">
+                                            <small class="text-uppercase fw-bold opacity-75">Category Payments</small>
+                                            <h3 class="fw-bold my-2" id="payStatPayment">1,879,607</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 col-md-3">
+                                        <div
+                                            class="card bg-danger text-white text-center p-3 shadow-sm border-0 rounded-0">
+                                            <small class="text-uppercase fw-bold opacity-75">Balance Payment</small>
+                                            <h3 class="fw-bold my-2" id="payStatBalance">6,586,682</h3>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Payment Detail Report -->
+                                <div class="p-3">
+                                    <div class="mb-3">
+                                        <h6 class="text-muted fw-bold">Payment Detail Report</h6>
+                                        <small class="text-muted" id="paymentReportSubtitle">Current Month (December
+                                            2025)</small>
+                                    </div>
+                                    <div id="paymentCategoryBreakdown">
+                                        <div class="text-center py-3 text-muted">Loading payment data...</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION B: BRANCH PERFORMANCE -->
+            <div class="mb-5">
+                <div class="section-banner branch-theme">
+                    <h5 class="m-0 text-white"><i class="fas fa-network-wired me-2"></i> Branch Sales Performance</h5>
+                    <small class="text-white opacity-75 d-none d-md-block">Net Sales, Returns, and Profitability
+                        Analysis</small>
+                </div>
+                <div class="section-content">
+                    <!-- 1. Branch Cards -->
+                    <div class="row" id="branchCardsContainer">
+                        <div class="col-12 text-center py-5">
+                            <div class="spinner-border text-primary" role="status"></div>
+                            <p class="mt-2 text-muted">Loading Branch Data...</p>
+                        </div>
+                    </div>
+
+                    <!-- 2. Charts & Table -->
+                    <div class="row mt-4">
+                        <!-- <div class="col-lg-12 mb-4">
+                            <h6 class="text-muted fw-bold text-uppercase mb-3">Net Sales Comparison Chart</h6>
+                            <div class="chart-container-box">
+                                <div style="height: 300px;">
+                                    <canvas id="salesChart"></canvas>
+                                </div>
+                            </div>
+                        </div> -->
+                        <div class="col-lg-12">
+                            <h6 class="text-muted fw-bold text-uppercase mb-3">Detailed Branch Report</h6>
+                            <div class="table-responsive custom-table">
+                                <table class="table table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Branch</th>
+                                            <th class="text-end">
+                                                <span class="d-md-none">Disc%</span>
+                                                <span class="d-none d-md-inline">Discount %</span>
+                                            </th>
+                                            <th class="text-end text-success">Net Sale</th>
+                                            <th class="text-end">
+                                                <span class="d-md-none">Avg</span>
+                                                <span class="d-none d-md-inline">Avg Daily Sale</span>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="branchTableBody">
+                                        <!-- Populated via JS -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION C: BRANCH WISE SALE (Detailed Department Breakdown) -->
+        <div class="mb-5">
+            <div class="section-banner" style="background: linear-gradient(45deg, #FF8008, #FFC837); color: white;">
+                <h5 class="m-0"><i class="fas fa-layer-group me-2"></i> Branch Wise Sale</h5>
+            </div>
+            <div class="section-content">
+                <div class="p-3 border-bottom">
+                    <h6 class="text-muted fw-bold m-0">Department Wise Report</h6>
+                </div>
+                <div id="branchDeptBreakdownContainer" class="p-3">
+                    <div class="text-center py-3 text-muted">Loading Branch Breakdown...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244463"></script>
+    <script src="/js/connection-monitor.js"></script>
+    <script src="/js/dashboard.js"></script>
+</body>
+
+</html>
+

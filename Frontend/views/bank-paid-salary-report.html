@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Salary Detail - Bilal Accounting System</title>
+    <!-- CSS Dependencies -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #1e4c8c 0%, #2c5ba9 100%);
+            --accent-color: #00a65a;
+            --border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        body {
+            background-color: #f8fafc;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-size: 0.85rem;
+        }
+
+        /* Two-Row Filter Panel - Coloring like Ledger Report */
+        .filter-panel {
+            background: var(--primary-gradient);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            color: white;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-row:last-child {
+            margin-bottom: 0;
+            align-items: flex-end;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group.small {
+            flex: 0.5;
+            min-width: 120px;
+        }
+
+        .filter-panel label {
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 6px;
+            display: block;
+            opacity: 0.9;
+            color: white;
+        }
+
+        .filter-panel .form-select,
+        .filter-panel .form-control {
+            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.1);
+            color: white !important;
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            border-radius: 6px;
+            height: 38px;
+            transition: all 0.3s;
+        }
+
+        .filter-panel .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .filter-panel .form-select option {
+            background: #1e4c8c;
+            color: white;
+        }
+
+        .filter-panel .form-select:focus,
+        .filter-panel .form-control:focus {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+            border-color: white;
+            outline: none;
+        }
+
+        /* Multi-Select Dropdown Styling */
+        .dropdown-menu {
+            background: white !important;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .dropdown-menu li {
+            padding: 4px 8px;
+        }
+
+        .dropdown-menu .form-check-label {
+            color: #334155 !important;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .dropdown-menu .form-check-input {
+            cursor: pointer;
+        }
+
+        .dropdown-menu li:hover {
+            background: #f8f9fa;
+        }
+
+        .dropdown-divider {
+            margin: 0.5rem 0;
+        }
+
+        /* Search Suggestions */
+        #suggestionsBox {
+            position: absolute;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-height: 250px;
+            overflow-y: auto;
+            z-index: 1100;
+            display: none;
+            margin-top: 5px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .suggestion-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+            transition: all 0.2s;
+            font-size: 0.8rem;
+        }
+
+        .suggestion-item:hover,
+        .suggestion-item.focused {
+            background: #1e4c8c;
+            color: white;
+        }
+
+        /* Report Table Styling - Matching Advance Report */
+        .data-panel {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #edf2f7;
+            /* Ensure it takes height like advance report if needed, but auto is fine for now */
+        }
+
+        .table-responsive {
+            flex: 1;
+            overflow: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+
+        .data-table thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: #f8fafc;
+        }
+
+        .data-table th,
+        .data-table td {
+            border: 1px solid #000000;
+            padding: 8px 10px;
+        }
+
+        .data-table thead th {
+            background: var(--primary-gradient);
+            color: white;
+            font-weight: 800;
+            text-transform: uppercase;
+            text-align: center;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            padding: 12px 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .print-only {
+            display: none;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+
+            .print-only {
+                display: block !important;
+            }
+
+            .data-table thead th {
+                background: #ffffff !important;
+                color: #000000 !important;
+                border: 1px solid #000000 !important;
+                font-size: 10pt !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .data-table td {
+                border: 1px solid #000000 !important;
+                font-size: 9pt !important;
+            }
+
+            .data-table tfoot tr {
+                background: #ffffff !important;
+                color: #000000 !important;
+                border-top: 2px solid #000000 !important;
+            }
+        }
+
+        .data-table tbody td {
+            vertical-align: middle;
+            color: #334155;
+        }
+
+        .amount-col {
+            text-align: right !important;
+            min-width: 90px;
+        }
+
+        /* Apply monospace only to data cells for alignment */
+        td.amount-col {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .dept-group-header {
+            background: #eff6ff;
+            color: #1e4c8c;
+            font-weight: 800;
+            padding: 10px 15px;
+            border-left: 5px solid #1e4c8c;
+            border-bottom: 1px solid #dbeafe;
+        }
+
+        .dept-group-header .dept-name {
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .dept-total-row {
+            background: #e2e8f0 !important;
+            /* Distinct Gray Background */
+            font-weight: 800;
+            color: #1e4c8c;
+            border-top: 2px solid #cbd5e1;
+        }
+
+        .grand-total-row,
+        .grand-total-row td {
+            background: var(--primary-gradient) !important;
+            color: white !important;
+            font-weight: 900;
+            font-size: 1rem;
+        }
+
+
+        /* Buttons */
+        .btn-view {
+            background: #28a745;
+            color: white;
+            border: 1.5px solid white;
+            padding: 0 25px;
+            height: 38px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-view:hover {
+            background: #218838;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn-reset {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-reset:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .btn-print {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-print:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        /* Print Styles */
+        /* Print Styles - Portrait Fit */
+        @media print {
+            @page {
+                size: portrait;
+                margin: 5mm;
+            }
+
+            .filter-panel,
+            #sidebar,
+            #sidebarToggle,
+            .sidebar-backdrop,
+            .btn-view,
+            .btn-reset,
+            .btn-print,
+            .page-header {
+                display: none !important;
+            }
+
+            .main-content {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+            }
+
+            .container-fluid {
+                padding: 0 !important;
+                width: 100% !important;
+            }
+
+            .data-panel {
+                box-shadow: none !important;
+                padding: 0 !important;
+                border: none !important;
+                border-radius: 0 !important;
+                /* Square corners for print */
+                width: 100% !important;
+            }
+
+            .table-responsive {
+                overflow: visible !important;
+                width: 100% !important;
+            }
+
+            .data-table {
+                width: 100% !important;
+                font-size: 0.5rem !important;
+                /* Reduced for Portrait Fit */
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 2px 3px !important;
+                /* Ultra compact */
+            }
+
+            /* Ensure Colors Print */
+            .data-table thead th {
+                background: #1e4c8c !important;
+                color: white !important;
+                font-weight: 600 !important;
+                /* Less Bold */
+                font-size: 0.45rem !important;
+                /* Smaller Header Font */
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .dept-group-header {
+                background: #eff6ff !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                padding: 4px 6px !important;
+            }
+
+            .dept-group-header .dept-name {
+                font-size: 0.6rem !important;
+                /* Smaller Dept Name */
+            }
+
+            .dept-total-row {
+                background: #e2e8f0 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .grand-total-row {
+                background: #334155 !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            body {
+                background: white !important;
+                font-size: 10pt;
+            }
+        }
+
+        .print-only {
+            display: none;
+        }
+
+        @media print {
+
+            /* Hide screen elements */
+            .filter-panel,
+            .page-header,
+            #sidebarToggle,
+            .no-print {
+                display: none !important;
+            }
+
+            .print-only {
+                display: block !important;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+
+            body {
+                background: white !important;
+                font-size: 9pt;
+                margin: 0;
+                padding-top: 0; 
+                padding-right: 0;
+                padding-bottom: 0;
+                padding-left: 0;
+            }
+
+            @page {
+                margin-top: 2in; 
+                margin-bottom: 10mm;
+                margin-left: 10mm;  /* Equal Left Margin */
+                margin-right: 10mm; /* Equal Right Margin */
+            }
+
+            .data-table {
+                margin: 0 auto !important; /* Centering the table horizontally */
+                width: auto !important;     /* Let it size correctly while centering */
+                min-width: 95% !important;  /* Keep it wide but centered */
+            }
+
+            /* Force all containers to white background */
+            .data-panel,
+            .container-fluid,
+            .main-content,
+            div {
+                background: white !important;
+                background-color: white !important;
+                min-height: 0 !important;
+                height: auto !important;
+            }
+
+            .data-panel {
+                box-shadow: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            /* Remove any table-responsive backgrounds */
+            .table-responsive {
+                background: white !important;
+                min-height: 0 !important;
+                height: auto !important;
+            }
+
+            /* Prevent orphans/widows */
+            table,
+            tr,
+            td,
+            th {
+                page-break-inside: avoid !important;
+            }
+
+            /* Table styling to match PDF - OVERRIDE ALL SCREEN STYLES */
+            .data-table,
+            table.data-table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+                font-size: 7pt !important;
+                margin: 0 !important;
+                background: white !important;
+            }
+
+            .data-table th,
+            .data-table thead th,
+            table.data-table th,
+            table.data-table thead th {
+                background: #ffffff !important;
+                color: #000000 !important;
+                font-weight: bold !important;
+                padding: 3px 4px !important;
+                border: 1px solid #000 !important;
+                text-align: center !important;
+                font-size: 7pt !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .data-table td,
+            .data-table tbody td,
+            table.data-table td,
+            table.data-table tbody td {
+                padding: 2px 4px !important;
+                border: 1px solid #000 !important;
+                font-size: 7pt !important;
+                background: #ffffff !important;
+                color: #000000 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* NO alternating row colors - all white */
+            .data-table tbody tr,
+            table.data-table tbody tr {
+                background: #ffffff !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* Total row - Blue background, WHITE text */
+            .data-table tfoot tr,
+            table.data-table tfoot tr,
+            .grand-total-row {
+                background: #1e4c8c !important;
+                color: #ffffff !important;
+                font-weight: bold !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .data-table tfoot td,
+            table.data-table tfoot td,
+            .grand-total-row td {
+                border: 1px solid #000 !important;
+                padding: 4px 6px !important;
+                background: #1e4c8c !important;
+                color: #ffffff !important;
+            }
+
+            /* Highlight Net Total / Amount header in blue/white too */
+            .data-table thead th.amount-header {
+                background: #1e4c8c !important;
+                color: #ffffff !important;
+            }
+
+            /* Amount column right-aligned */
+            .amount-col {
+                text-align: right !important;
+            }
+
+            /* Signature section */
+            .print-only {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main-content">
+        <!-- Page Header -->
+        <div class="page-header px-3 d-flex align-items-center justify-content-between"
+            style="height: 50px; background: white; border-bottom: 1px solid #e2e8f0;">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+                <h5 class="mb-0 fw-bold" style="color: #1e4c8c;">Employee Salary Detail</h5>
+            </div>
+            <div id="printHeaderDate" class="text-muted small"></div>
+        </div>
+
+        <div class="container-fluid p-3">
+            <!-- Filter Panel matching Image 1 -->
+            <div class="filter-panel shadow-sm">
+                <!-- Row 1 -->
+                <div class="filter-row align-items-center">
+                    <div class="filter-group">
+                        <label>Month-Year</label>
+                        <input type="month" class="form-control" id="monthYearFilter">
+                    </div>
+                    <div class="filter-group" style="flex: 2;">
+                        <label>Select Branch</label>
+                        <div class="dropdown">
+                            <button
+                                class="btn btn-light w-100 text-start d-flex justify-content-between align-items-center border"
+                                type="button" id="multiBranchDropdown" data-bs-toggle="dropdown" aria-expanded="false"
+                                style="background: rgba(255,255,255,0.1); color: white; border-color: rgba(255,255,255,0.2);">
+                                <span>Select Branch</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <ul class="dropdown-menu w-100 p-2" aria-labelledby="multiBranchDropdown"
+                                id="branchMultiSelectMenu" style="max-height: 300px; overflow-y: auto;">
+                                <li>
+                                    <input class="form-check-input" type="checkbox" id="selectAllBranches">
+                                    <label class="form-check-label ms-2" for="selectAllBranches">Select All</label>
+                                </li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <!-- Options will be injected here -->
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <label>Branch</label>
+                        <select class="form-select" id="singleBranchFilter">
+                            <option value="">Select Branch</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Row 2 -->
+                <div class="filter-row align-items-center">
+                    <div class="filter-group d-flex align-items-center pt-4">
+                        <input class="form-check-input me-2" type="checkbox" id="exportCsv">
+                        <label class="form-check-label mb-0" for="exportCsv" style="cursor: pointer;">Export as
+                            CSV</label>
+                    </div>
+                    <div class="filter-group">
+                        <label>Code</label>
+                        <input type="text" class="form-control" id="codeSearch" placeholder="Code..">
+                    </div>
+                    <div class="filter-group" style="flex: 2; position: relative;">
+                        <label>Employee</label>
+                        <input type="text" class="form-control" id="empSearch" placeholder="Select Employee">
+                        <input type="hidden" id="selectedEmpId">
+                        <div id="suggestionsBox"></div>
+                    </div>
+                </div>
+
+                <!-- Row 3: Action Buttons -->
+                <div class="filter-row mt-4 gap-3">
+                    <button class="btn btn-success fw-bold px-4" onclick="generateReport('full')">OTH BRANCH BANK
+                        SALARY</button>
+                    <button class="btn btn-success fw-bold px-4" onclick="generateReport('half')">Half Bank Paid
+                        Salary</button>
+                    <!-- <button class="btn btn-success fw-bold px-4" onclick="generateReport('lhf')">Full Bank Paid LHF Salary</button> -->
+                    <button class="btn btn-success fw-bold px-4" onclick="generateReport('branch_bank')">SAME BRANCH
+                        BANK
+                        SALARY</button>
+                </div>
+            </div>
+
+            <!-- Report Content -->
+            <div class="data-panel shadow-sm" id="reportContent">
+                <div class="text-center py-5 text-muted">
+                    <i class="fas fa-search fa-3x mb-3 opacity-25"></i>
+                    <p>Use filters above to view employee salary details.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244446"></script>
+    <script>
+        // Initialize Sidebar
+        // Sidebar auto-initializes via sidebar.js
+
+        // Global State
+        const token = localStorage.getItem('token');
+        const headers = {
+            'Authorization': `Bearer ${token}`,
+            'x-api-key': 'BAS-AUTH-KEY-2024'
+        };
+        let allEmployees = [];
+        let focusedSuggestionIndex = -1;
+
+        // Initialize Dates and Filters
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set Default Month to Current Month
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            document.getElementById('monthYearFilter').value = `${year}-${month}`;
+
+            loadFilters();
+            setupSearch();
+            setupMultiSelect();
+        });
+
+        async function loadFilters() {
+            try {
+                // 1. Load Branches (Standardized with dashboard fallback)
+                let branchRes = await window.pageAccess.authenticatedFetch('/api/v1/stores');
+                if (!branchRes.ok) {
+                    branchRes = await window.pageAccess.authenticatedFetch('/api/v1/sub-branches');
+                }
+
+                const branchData = await branchRes.json();
+
+                // Populate Multi-Select
+                const branchMenu = document.getElementById('branchMultiSelectMenu');
+                const selectAllLi = branchMenu.firstElementChild;
+                const dividerLi = branchMenu.children[1];
+                branchMenu.innerHTML = '';
+                branchMenu.appendChild(selectAllLi);
+                branchMenu.appendChild(dividerLi);
+
+                // Populate Single Select
+                const singleBranchSelect = document.getElementById('singleBranchFilter');
+                singleBranchSelect.innerHTML = '<option value="">Select Branch</option>';
+
+                if (branchData.success && branchData.data) {
+                    const rawNames = branchData.data.map(item => (item.name || item.branchName || '').trim());
+                    const uniqueBranches = [...new Set(rawNames)].filter(n => n !== '').sort();
+
+                    uniqueBranches.forEach((name, idx) => {
+                        // Multi Select Item
+                        const li = document.createElement('li');
+                        li.className = 'px-2 py-1';
+                        li.innerHTML = `
+                            <div class="form-check">
+                                <input class="form-check-input branch-checkbox" type="checkbox" value="${name}" id="branch_${idx}">
+                                <label class="form-check-label" for="branch_${idx}">${name}</label>
+                            </div>
+                        `;
+                        branchMenu.appendChild(li);
+
+                        // Single Select Option
+                        const opt = document.createElement('option');
+                        opt.value = name;
+                        opt.textContent = name;
+                        singleBranchSelect.appendChild(opt);
+                    });
+                }
+
+                // 2. Load Employees for Search Suggestions only (Include Inactive for historical reporting)
+                const empRes = await window.pageAccess.authenticatedFetch('/api/v1/employees?limit=3000&isActive=all');
+                const empData = await empRes.json();
+                if (empData.success && empData.data) {
+                    allEmployees = empData.data;
+                }
+
+            } catch (err) { console.error('Error loading filters:', err); }
+        }
+
+        function setupMultiSelect() {
+            const selectAll = document.getElementById('selectAllBranches');
+
+            selectAll.addEventListener('change', (e) => {
+                const checked = e.target.checked;
+                document.querySelectorAll('.branch-checkbox').forEach(cb => {
+                    cb.checked = checked;
+                });
+                updateMultiSelectLabel();
+            });
+
+            document.getElementById('branchMultiSelectMenu').addEventListener('change', (e) => {
+                if (e.target.classList.contains('branch-checkbox')) {
+                    updateMultiSelectLabel();
+                    // Update Select All State
+                    const all = document.querySelectorAll('.branch-checkbox');
+                    const allChecked = Array.from(all).every(c => c.checked);
+                    selectAll.checked = allChecked;
+                }
+            });
+        }
+
+        function updateMultiSelectLabel() {
+            const selected = Array.from(document.querySelectorAll('.branch-checkbox:checked')).map(cb => cb.value);
+            const btnSpan = document.querySelector('#multiBranchDropdown span');
+            if (selected.length === 0) {
+                btnSpan.textContent = 'Select Branch';
+            } else if (selected.length <= 2) {
+                btnSpan.textContent = selected.join(', ');
+            } else {
+                btnSpan.textContent = `${selected.length} Branches Selected`;
+            }
+        }
+
+        function setupSearch() {
+            const searchInput = document.getElementById('empSearch');
+            const suggestionsBox = document.getElementById('suggestionsBox');
+
+            searchInput.addEventListener('input', (e) => {
+                const val = e.target.value.toLowerCase().trim();
+                if (!val) {
+                    suggestionsBox.style.display = 'none';
+                    document.getElementById('selectedEmpId').value = '';
+                    return;
+                }
+
+                const filtered = allEmployees.filter(emp =>
+                    emp.name.toLowerCase().includes(val) ||
+                    emp.code.toLowerCase().includes(val)
+                ).slice(0, 10);
+
+                if (filtered.length > 0) {
+                    suggestionsBox.innerHTML = filtered.map((emp, idx) => `
+                        <div class="suggestion-item" data-id="${emp._id}" data-idx="${idx}">
+                            <strong>${emp.code}</strong> - ${emp.name}
+                        </div>
+                    `).join('');
+                    suggestionsBox.style.display = 'block';
+                    focusedSuggestionIndex = -1;
+                } else {
+                    suggestionsBox.style.display = 'none';
+                }
+            });
+
+            // ... (Keydown and click events remain same, just ensure they are inside this function scope correctly)
+            searchInput.addEventListener('keydown', (e) => {
+                const items = suggestionsBox.querySelectorAll('.suggestion-item');
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    focusedSuggestionIndex = Math.min(focusedSuggestionIndex + 1, items.length - 1);
+                    updateFocusedSuggestion(items);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    focusedSuggestionIndex = Math.max(focusedSuggestionIndex - 1, 0);
+                    updateFocusedSuggestion(items);
+                } else if (e.key === 'Enter' && focusedSuggestionIndex >= 0) {
+                    e.preventDefault();
+                    items[focusedSuggestionIndex].click();
+                }
+            });
+
+            suggestionsBox.addEventListener('click', (e) => {
+                const item = e.target.closest('.suggestion-item');
+                if (item) {
+                    const id = item.getAttribute('data-id');
+                    const text = item.textContent.trim();
+                    searchInput.value = text.split('-')[1].trim();
+                    document.getElementById('selectedEmpId').value = id;
+                    suggestionsBox.style.display = 'none';
+                }
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!searchInput.contains(e.target)) suggestionsBox.style.display = 'none';
+            });
+        }
+
+        function updateFocusedSuggestion(items) {
+            items.forEach((item, idx) => {
+                item.classList.toggle('focused', idx === focusedSuggestionIndex);
+                if (idx === focusedSuggestionIndex) item.scrollIntoView({ block: 'nearest' });
+            });
+        }
+
+        async function generateReport(type) {
+            const content = document.getElementById('reportContent');
+            content.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary" role="status"></div><p class="mt-2">Generating report...</p></div>';
+
+            try {
+                // Get Selected Branches
+                let selectedBranches = Array.from(document.querySelectorAll('.branch-checkbox:checked')).map(cb => cb.value);
+                const singleBranch = document.getElementById('singleBranchFilter').value;
+
+                // Fallback: If multi-select is empty but single-select has a value, use it to filter employees
+                if (selectedBranches.length === 0 && singleBranch) {
+                    selectedBranches = [singleBranch];
+                }
+
+                const params = new URLSearchParams({
+                    month: document.getElementById('monthYearFilter').value,
+                    branches: selectedBranches.join(','),
+                    singleBranch: singleBranch, // For debit account lookup
+                    code: document.getElementById('codeSearch').value,
+                    employeeId: document.getElementById('selectedEmpId').value,
+                    type: type, // 'full', 'half', 'lhf', 'branch_bank'
+                    exportCsv: document.getElementById('exportCsv').checked
+                });
+
+                if (document.getElementById('exportCsv').checked) {
+                    window.location.href = `/api/v1/salary-reports/bank-paid-export?${params}`;
+                    content.innerHTML = '<div class="alert alert-success">Export download started. Please check your downloads.</div>';
+                    return;
+                }
+
+                const res = await window.pageAccess.authenticatedFetch(`/api/v1/salary-reports/bank-paid?${params}`);
+                const data = await res.json();
+
+                if (!data.success || !data.data || Object.keys(data.data).length === 0) {
+                    content.innerHTML = '<div class="alert alert-info">No data found for the selected filters.</div>';
+                    return;
+                }
+
+                renderReport(data.data, type);
+            } catch (err) {
+                console.error(err);
+                content.innerHTML = '<div class="alert alert-danger">Error: ' + err.message + '</div>';
+            }
+        }
+
+        function renderReport(groupedData, type) {
+            const content = document.getElementById('reportContent');
+            const monthVal = document.getElementById('monthYearFilter').value;
+            const [year, month] = monthVal.split('-');
+            const dateObj = new Date(year, month - 1);
+            const monthName = dateObj.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+
+            let title = 'Employee Bank Paid Salary';
+            if (type === 'full') title = 'Employee Full Bank Paid Salary';
+            if (type === 'half') title = 'Employee Half Bank Paid Salary';
+            if (type === 'lhf') title = 'Employee Bank Paid LHF Salary';
+            if (type === 'branch_bank') title = 'Employee Branch Bank List';
+
+            let html = `
+                <div class="no-print mb-3">
+                    <button class="btn btn-primary" onclick="window.print()">
+                        <i class="fas fa-print me-2"></i>Print Report
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            ${type === 'full' ? `
+                            <tr style="background: var(--primary-gradient); color: white;">
+                                <th style="width: 50px; color: white; border: 1px solid rgba(255,255,255,0.1);">Sr No</th>
+                                <th style="color: white; border: 1px solid rgba(255,255,255,0.1);">Employee Name</th>
+                                <th style="width: 250px; color: white; border: 1px solid rgba(255,255,255,0.1);">Account #</th>
+                                <th class="amount-header" style="width: 150px; color: white; border: 1px solid rgba(255,255,255,0.1);">Net Total</th>
+                            </tr>
+                            ` : `
+                            <tr style="background: var(--primary-gradient); color: white;">
+                                <th style="width: 50px; color: white; border: 1px solid rgba(255,255,255,0.1);">Sr No</th>
+                                <th style="width: 120px; color: white; border: 1px solid rgba(255,255,255,0.1);">DEBIT ACCT.NO</th>
+                                <th style="color: white; border: 1px solid rgba(255,255,255,0.1);">ACCOUNT TITLE</th>
+                                <th style="width: 100px; color: white; border: 1px solid rgba(255,255,255,0.1);">CREDIT ACCT.NO</th>
+                                <th style="width: 60px; color: white; border: 1px solid rgba(255,255,255,0.1);">DEBIT CURRENCY</th>
+                                <th class="amount-header" style="width: 100px; color: white; border: 1px solid rgba(255,255,255,0.1);">DEBIT AMOUNT</th>
+                                <th style="width: 80px; color: white; border: 1px solid rgba(255,255,255,0.1);">MONTH</th>
+                                <th style="width: 80px; color: white; border: 1px solid rgba(255,255,255,0.1);">ORDERING BANK</th>
+                            </tr>
+                            `}
+                        </thead>
+                        <tbody>
+            `;
+
+            let srNo = 1;
+            let grandTotal = 0;
+
+            // Flatten data if it's grouped by branch, or handle simple array if backend returns flat list
+            // Assuming backend returns grouped by Branch for display if needed, but report format is flat list
+            // Let's iterate through groups if exists, or just flat if we change backend.
+            // Based on other reports, let's keep it flat list for the table but sorted/grouped logic might be needed.
+            // The screenshot shows a flat list sorted by Sr No.
+
+            // If groupedData is object (Branch -> Employees), flatten it.
+            let flatList = [];
+            if (Array.isArray(groupedData)) {
+                flatList = groupedData;
+            } else {
+                Object.values(groupedData).forEach(group => {
+                    if (group.employees) flatList.push(...group.employees);
+                });
+            }
+
+            // Sort by SrNo or Code
+            flatList.sort((a, b) => a.transactionId - b.transactionId); // Or simply by index
+
+            flatList.forEach((emp, index) => {
+                const amount = emp.amount || 0;
+                grandTotal += amount;
+
+                // Screenshot shows Month like "Jan-2026"
+                const monthStr = dateObj.toLocaleString('en-US', { month: 'short', year: 'numeric' }).replace(' ', '-');
+
+                if (type === 'full') {
+                    html += `
+                        <tr>
+                            <td class="text-center">${index + 1}</td>
+                            <td>${emp.name}</td>
+                            <td class="text-center">${emp.creditAccount || ''}</td>
+                            <td class="amount-col">${amount.toLocaleString()}</td>
+                        </tr>
+                    `;
+                } else {
+                    html += `
+                        <tr>
+                            <td class="text-center">${index + 1}</td>
+                            <td class="text-center">${emp.debitAccount || 'PK53ALFH00335001005137840'}</td>
+                            <td>${emp.name}</td>
+                            <td class="text-center">${emp.creditAccount || ''}</td>
+                            <td class="text-center">PKR</td>
+                            <td class="amount-col">${amount.toLocaleString()}</td>
+                            <td class="text-center">${monthStr}</td>
+                            <td class="text-center">${emp.orderingBank || 'BAFL'}</td>
+                        </tr>
+                    `;
+                }
+            });
+
+            html += `
+                        <tr class="grand-total-row">
+                            <td colspan="${type === 'full' ? 3 : 5}" class="text-end fw-bold">TOTAL</td>
+                            <td class="amount-col fw-bold">${grandTotal.toLocaleString()}</td>
+                            ${type === 'full' ? '' : '<td colspan="2"></td>'}
+                        </tr>
+                    </tbody>
+                    </table>
+                </div>
+                <!-- Signatures -->
+                <div class="print-only mt-5 pt-4">
+                    <div class="row">
+                        <div class="col-4">
+                            <div style="border-top: 2px solid #000; padding-top: 5px; text-align: center;">
+                                <div class="fw-bold" style="font-size: 11pt;">Authorized Signatory</div>
+                                <div style="font-size: 9pt;">D.Watson Pharmacy</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            content.innerHTML = html;
+        }
+    </script>
+</body>
+
+</html>

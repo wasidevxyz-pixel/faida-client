@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BAS Dual Biometric & Face AI Bridge (v29 Desktop)</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- SCREEN 1: OPERATOR LOGIN SCREEN (Matches Windows Form1 Login)   -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <div class="login-fullscreen-overlay" id="loginScreen">
+        <div class="login-dialog-card">
+            <!-- Left Gradient Panel (Matches Windows pnlLoginLeft) -->
+            <div class="login-card-left">
+                <div class="login-logo-circle">
+                    <span class="login-fp-icon">🖐️</span>
+                </div>
+                <h1 class="login-brand-title">Bilal<br>Attendance<br>System (BAS)</h1>
+                <p class="login-brand-subtitle">Manage your business efficiently with our comprehensive solution.</p>
+                <div class="login-brand-badge">Dual Biometric & Face AI • v29</div>
+            </div>
+
+            <!-- Right Form Panel (Matches Windows pnlLoginRight) -->
+            <div class="login-card-right">
+                <div class="login-form-header">
+                    <h2>Welcome Back</h2>
+                    <p>Please enter your details to sign in.</p>
+                </div>
+
+                <div class="form-group">
+                    <label>Login ID</label>
+                    <input type="text" id="loginEmail" placeholder="admin@gmail.com or username" autocomplete="username">
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+                </div>
+
+                <div class="form-group">
+                    <label>Select Branch Location</label>
+                    <select id="loginBranchSelect" class="styled-select">
+                        <option value="">Loading branches from database...</option>
+                    </select>
+                </div>
+
+                <div class="login-row-options">
+                    <label class="remember-checkbox">
+                        <input type="checkbox" id="chkRememberMe" checked>
+                        <span>Remember me</span>
+                    </label>
+                    <span class="forgot-link">Terminal Mode</span>
+                </div>
+
+                <div class="login-status-alert hidden" id="loginAlert"></div>
+
+                <button class="btn btn-signin" id="btnLoginSubmit">
+                    Sign In &nbsp;→
+                </button>
+
+                <div class="login-card-footer">
+                    <span>This software is designed by <strong>Bilal Shah</strong> | 📞 0348-5511763</span>
+                    <span class="server-tag">Connected to <strong id="lblLoginServer">bas.dwatson.co</strong></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- SCREEN 2: MAIN DESKTOP APPLICATION SHELL (Windows ERP Layout)  -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <div class="app-container" id="mainAppShell">
+        <!-- SIDEBAR NAVIGATION (Matches Windows pnlSidebar: #212529) -->
+        <aside class="desktop-sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-brand">
+                    <div class="brand-title">BAS BIOMETRIC</div>
+                    <div class="brand-sub">Dual-Modal AI Bridge v29</div>
+                </div>
+            </div>
+
+            <nav class="nav-menu">
+                <button class="nav-item active" data-target="view-attendance" id="navAttendance">
+                    <span class="nav-icon">🖐️</span>
+                    <span class="nav-label">Attendance Mode</span>
+                </button>
+
+                <button class="nav-item" data-target="view-biometric-register" id="navBioRegister">
+                    <span class="nav-icon">🖐️</span>
+                    <span class="nav-label">Biometric Register</span>
+                </button>
+
+                <button class="nav-item" data-target="view-face-attendance" id="navFaceAttendance">
+                    <span class="nav-icon">📸</span>
+                    <span class="nav-label">Face Attendance</span>
+                </button>
+
+                <button class="nav-item" data-target="view-face-register" id="navFaceRegister">
+                    <span class="nav-icon">👤</span>
+                    <span class="nav-label">Face AI Register</span>
+                </button>
+
+                <button class="nav-item" data-target="view-diagnostic" id="navDiagnostic">
+                    <span class="nav-icon">🔬</span>
+                    <span class="nav-label">AI Vision Diagnostic</span>
+                </button>
+
+                <button class="nav-item" data-target="view-settings" id="navSettings">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-label">System Settings</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="btn-logout" id="btnLogout">
+                    <span class="nav-icon">🚪</span>
+                    <span class="nav-label">Logout</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA (Matches Windows Content Area) -->
+        <div class="app-main-area">
+            <!-- TOP DESKTOP HEADER BAR -->
+            <header class="desktop-header">
+                <div class="header-left">
+                    <div class="active-branch-badge">
+                        <span class="branch-icon">🏢</span>
+                        <span class="branch-label-prefix">BRANCH:</span>
+                        <select id="headerBranchSelect" class="branch-header-dropdown">
+                            <option value="">(PWD-1)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="header-center">
+                    <div class="system-clock-card">
+                        <span class="clock-icon">🕒</span>
+                        <span class="clock-time" id="systemClock">--:--:--</span>
+                        <span class="clock-date" id="systemDate">---, -- ---</span>
+                    </div>
+                </div>
+
+                <div class="header-right">
+                    <div class="status-chip" id="serverStatus" title="ERP Connection">
+                        <span class="status-dot online"></span>
+                        <span class="status-label" id="serverStatusText">ERP Connected</span>
+                    </div>
+
+                    <div class="status-chip" id="camStatus" title="Camera Status">
+                        <span class="status-dot online"></span>
+                        <span class="status-label" id="camStatusText">Camera Ready</span>
+                    </div>
+
+                    <div class="user-profile-chip">
+                        <span class="user-avatar-icon">👤</span>
+                        <span class="user-name-label" id="hdrUserName">Operator</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- VIEW PANELS CONTAINER -->
+            <main class="desktop-body">
+                <!-- ═══════════════════════════════════════════════════════ -->
+                <!-- VIEW 1: DUAL BIOMETRIC ATTENDANCE (50/50 Windows Split) -->
+                <!-- ═══════════════════════════════════════════════════════ -->
+                <section class="view-panel active" id="view-attendance">
+                    <div class="attendance-split-layout">
+                        <!-- LEFT PANEL: FINGERPRINT SCANNER & HARDWARE STATUS -->
+                        <div class="attendance-left-card">
+                            <div class="split-section-bar">
+                                <span class="bar-title">🖐️ BIOMETRIC FINGERPRINT SCANNER</span>
+                                <span class="bar-status" id="lblScannerHardware">DigitalPersona Scanner: Ready</span>
+                            </div>
+
+                            <div class="fingerprint-stage">
+                                <div class="live-clock-banner">
+                                    <div class="large-time-display" id="fpLiveClock">--:--:--</div>
+                                    <div class="large-date-display" id="fpLiveDate">---, -- --- ----</div>
+                                </div>
+
+                                <div class="fingerprint-scan-box" id="fingerprintBox" title="Click to trigger Mac Touch ID Fingerprint Scan">
+                                    <div class="fingerprint-graphic">
+                                        <svg viewBox="0 0 100 100" class="fp-svg">
+                                            <path d="M50 15 C30 15, 20 30, 20 50 C20 70, 32 85, 50 85 C68 85, 80 70, 80 50 C80 30, 70 15, 50 15 Z" fill="none" stroke="#6469cd" stroke-width="3" stroke-linecap="round"/>
+                                            <path d="M50 25 C36 25, 28 36, 28 50 C28 65, 38 75, 50 75 C62 75, 72 65, 72 50 C72 36, 64 25, 50 25" fill="none" stroke="#6469cd" stroke-width="2.5" stroke-linecap="round"/>
+                                            <path d="M50 35 C42 35, 36 42, 36 50 C36 60, 42 66, 50 66 C58 66, 64 60, 64 50" fill="none" stroke="#6469cd" stroke-width="2.5" stroke-linecap="round"/>
+                                            <circle cx="50" cy="50" r="4" fill="#6469cd"/>
+                                        </svg>
+                                        <div class="scan-laser-line" id="fpLaser"></div>
+                                    </div>
+                                    <div class="fp-ready-title" id="lblFpState">Ready to Scan</div>
+                                    <div class="fp-ready-sub" id="lblFpSub">Tap Mac Touch ID or click here to scan</div>
+                                </div>
+
+                                <!-- Testing & Mac Hardware Controls -->
+                                <div class="simulation-toolbar">
+                                    <div class="sim-label">🖐️ Hardware & Biometric Controls:</div>
+                                    <div class="sim-row">
+                                        <button class="btn btn-touch-id" id="btnTouchIdScan">🍎 Scan Mac Touch ID</button>
+                                        <select id="simEmployeeSelect" class="sim-select">
+                                            <option value="">-- Choose employee to simulate --</option>
+                                        </select>
+                                        <button class="btn btn-sim-scan" id="btnSimulateScan">🖐️ Quick Punch</button>
+                                        <button class="btn btn-sim-fail" id="btnSimulateFail">❌ Reject</button>
+                                    </div>
+                                </div>
+
+                                <!-- Dual Biometric Auto-Switch Button (Matches Windows btnSwitchToFaceManual) -->
+                                <div class="switch-to-face-container">
+                                    <button class="btn btn-switch-face" id="btnSwitchToFace">
+                                        <span class="btn-icon">📸</span>
+                                        <span class="btn-text">SWITCH TO FACE AI BACKUP</span>
+                                    </button>
+                                    <small class="switch-hint">Automatic fallback activates if finger is unreadable or scanner is disconnected</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- RIGHT PANEL: ACTIVE EMPLOYEE PUNCH RESULT & ACTIVITY LOG -->
+                        <div class="attendance-right-card">
+                            <div class="split-section-bar">
+                                <span class="bar-title">📋 ATTENDANCE PUNCH RESULT</span>
+                                <span class="bar-status" id="lblPunchResultStatus">Standby</span>
+                            </div>
+
+                            <div class="punch-card-wrapper">
+                                <!-- Windows-style idle placeholder when waiting for scan -->
+                                <div class="wait-placeholder" id="lblWaitPlaceholder">Employee Details Will Appear Here</div>
+
+                                <div class="active-employee-card hidden" id="activeEmpCard">
+                                    <div class="emp-photo-container">
+                                        <img id="empResultPhoto" src="" alt="Employee Photo" class="emp-photo-img hidden">
+                                        <div class="emp-photo-placeholder" id="empPhotoPlaceholder">👤</div>
+                                    </div>
+
+                                    <div class="emp-details-column">
+                                        <div class="punch-action-badge standby" id="punchActionBadge">STANDBY</div>
+                                        <h3 class="emp-name-text" id="empResultName">Waiting for Employee...</h3>
+                                        <div class="emp-meta-text" id="empResultMeta">Code: -- • Designation: --</div>
+                                        <div class="emp-branch-text" id="empResultBranch">Branch: --</div>
+
+                                        <div class="punch-time-highlight">
+                                            <span class="time-label">Punch Time:</span>
+                                            <span class="time-val" id="empResultTime">--:--:--</span>
+                                        </div>
+                                        <div class="punch-remarks-text" id="empResultRemarks">Place finger on scanner or switch to Face AI.</div>
+                                    </div>
+                                </div>
+
+                                <!-- Today's Recent Punches Table -->
+                                <div class="recent-punches-section">
+                                    <div class="recent-punches-header">
+                                        <h4>📜 Terminal Attendance Feed</h4>
+                                        <span class="punches-count-badge">Today: <strong id="todayPunchCount">0</strong></span>
+                                    </div>
+
+                                    <div class="table-scroll-container">
+                                        <table class="desktop-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Time</th>
+                                                    <th>Code</th>
+                                                    <th>Employee Name</th>
+                                                    <th>Method</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="historyTableBody">
+                                                <tr class="empty-row">
+                                                    <td colspan="5" class="text-center">No attendance punches recorded yet in this session.</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ═══════════════════════════════════════════════════════ -->
+                <!-- VIEW 2: FACE ATTENDANCE (Matches Windows FaceAttendanceView.cs) -->
+                <!-- ═══════════════════════════════════════════════════════ -->
+                <section class="view-panel" id="view-face-attendance">
+                    <div class="face-attendance-wrapper">
+                        <!-- Top Navigation & Auto-Return Countdown Bar -->
+                        <div class="face-top-bar">
+                            <div class="face-bar-left">
+                                <span class="face-badge-pulse">⚡</span>
+                                <span class="face-bar-title">DUAL BIOMETRIC: FACE BACKUP ACTIVE</span>
+                            </div>
+                            <div class="face-bar-center">
+                                <div class="auto-return-pill" id="faceAutoReturnPill">
+                                    <span class="timer-icon">⏱️</span>
+                                    <span id="lblFaceReturnTimer">Auto-returning to Biometric Mode in 20s...</span>
+                                </div>
+                            </div>
+                            <div class="face-bar-right">
+                                <button class="btn btn-secondary btn-sm" id="btnReturnToBio">
+                                    ← Return to Biometric Mode
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Live Camera Stage -->
+                        <div class="face-stage-container">
+                            <div class="camera-viewport-card">
+                                <video id="attendanceVideo" autoplay playsinline muted></video>
+
+                                <!-- Holographic Reticle Overlay -->
+                                <div class="face-reticle-overlay">
+                                    <div class="reticle-box" id="reticleBox">
+                                        <div class="corner tl"></div>
+                                        <div class="corner tr"></div>
+                                        <div class="corner bl"></div>
+                                        <div class="corner br"></div>
+                                        <div class="oval-guideline"></div>
+                                        <div class="scan-line"></div>
+                                    </div>
+                                </div>
+
+                                <!-- HUD Feedback Banner -->
+                                <div class="hud-banner" id="hudBanner">
+                                    <span class="hud-icon">🔍</span>
+                                    <span class="hud-text">ALIGN FACE WITHIN RETICLE</span>
+                                </div>
+
+                                <!-- Diagnostic Info Overlay (Top Left of camera) -->
+                                <div class="cam-overlay-info">
+                                    <div class="info-pill">📹 <span id="lblActiveCam">FaceTime HD</span></div>
+                                    <div class="info-pill">👥 Enrolled: <span id="lblEnrolledCount">0</span></div>
+                                    <div class="info-pill">🛡️ Liveness: <span id="lblSpoofScore">--</span></div>
+                                </div>
+                            </div>
+
+                            <!-- BIG PUNCH OVERLAY MODAL (Shows 2 seconds on verified punch) -->
+                            <div class="big-punch-overlay hidden" id="bigPunchOverlay">
+                                <div class="big-punch-modal" id="bigPunchModal">
+                                    <div class="modal-icon-glow" id="bigPunchIcon">🟢</div>
+                                    <h1 class="modal-title" id="bigPunchTitle">CHECKED IN</h1>
+                                    <div class="modal-subtitle" id="bigPunchSubtitle">ATTENDANCE RECORDED</div>
+                                    <div class="modal-emp-name" id="bigPunchEmpName">MUHAMMAD BILAL</div>
+                                    <div class="modal-emp-code" id="bigPunchEmpCode">CODE: 3428 • BRANCH: (PWD-1)</div>
+                                    <div class="modal-time-badge" id="bigPunchTimeBadge">⏰ Time: 04:15 PM</div>
+                                    <div class="modal-remarks" id="bigPunchRemarks">Check-IN recorded successfully</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ═══════════════════════════════════════════════════════ -->
+                <!-- VIEW 3: BIOMETRIC REGISTER (Matches Windows Form1 & EnrollmentForm.cs) -->
+                <!-- ═══════════════════════════════════════════════════════ -->
+                <section class="view-panel" id="view-biometric-register">
+                    <div class="bio-register-container">
+                        <!-- Windows Toolbar Card (Matches Form1 viewRegister) -->
+                        <div class="windows-register-card">
+                            <div class="windows-reg-title">Step 1: Choose Branch and Employee</div>
+                            <div class="windows-reg-controls-row">
+                                <div class="reg-field-group">
+                                    <label class="windows-field-label">Branch:</label>
+                                    <select id="cmbRegBranches" class="windows-select">
+                                        <option value="ALL">ALL BRANCHES</option>
+                                    </select>
+                                </div>
+
+                                <div class="reg-field-group search-group">
+                                    <label class="windows-field-label">🔍 Search Employee (Name / Code):</label>
+                                    <div class="search-input-wrap">
+                                        <input type="text" id="txtRegSearch" class="windows-input" placeholder="Type name or code (e.g. bilal)...">
+                                        <button class="btn-clear-search" id="btnRegClearSearch">✕ Clear</button>
+                                    </div>
+                                </div>
+
+                                <div class="reg-field-group emp-group">
+                                    <label class="windows-field-label">Select Employee:</label>
+                                    <select id="cmbRegEmployees" class="windows-select">
+                                        <option value="">-- Choose employee --</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="windows-reg-action-row">
+                                <button class="btn-windows-open-enroll" id="btnOpenEnrollment">
+                                    OPEN 4-SCAN REGISTRATION POPUP
+                                </button>
+                                <div class="windows-reg-status" id="lblRegStatus">Ready to start new enrollment.</div>
+                            </div>
+                        </div>
+
+                        <!-- Embedded Quick Calibration Panel (Alternative direct on-page workflow) -->
+                        <div class="register-layout-grid" style="margin-top: 16px;">
+                            <!-- Left: Selected Employee Details -->
+                            <div class="emp-select-panel">
+                                <h3>Selected Employee Profile</h3>
+                                <div class="selected-emp-summary-card" id="bioEmpSummary">
+                                    <div class="summary-name" id="bioSummaryName">Select an Employee Above</div>
+                                    <div class="summary-sub" id="bioSummarySub">Code: -- • Branch: --</div>
+                                    <div class="summary-status" id="bioSummaryStatus">Fingerprint: Unregistered</div>
+                                </div>
+                                <div class="quick-emp-list-wrap" style="margin-top: 14px;">
+                                    <label class="windows-field-label">Quick Employee Selection:</label>
+                                    <select id="bioRegEmpSelect" class="styled-select" size="6">
+                                        <option value="">Loading staff list...</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Right: 4-Sample Fingerprint Calibration Stage -->
+                            <div class="finger-calibration-panel">
+                                <h3>2. Fingerprint Calibration (4 Samples)</h3>
+                                <p class="section-desc">Place finger on Mac Touch ID sensor 4 times to construct a high-confidence biometric template.</p>
+
+                                <div class="samples-progress-row">
+                                    <div class="sample-step" id="sampleStep1">
+                                        <div class="step-num">1</div>
+                                        <div class="step-label">Sample 1</div>
+                                    </div>
+                                    <div class="sample-step" id="sampleStep2">
+                                        <div class="step-num">2</div>
+                                        <div class="step-label">Sample 2</div>
+                                    </div>
+                                    <div class="sample-step" id="sampleStep3">
+                                        <div class="step-num">3</div>
+                                        <div class="step-label">Sample 3</div>
+                                    </div>
+                                    <div class="sample-step" id="sampleStep4">
+                                        <div class="step-num">4</div>
+                                        <div class="step-label">Sample 4</div>
+                                    </div>
+                                </div>
+
+                                <div class="fp-enrollment-box" id="onPageFpBox" title="Click to scan with Mac Touch ID">
+                                    <div class="fp-enroll-icon">🖐️</div>
+                                    <div class="fp-enroll-instruction" id="lblFpEnrollPrompt">Place finger on Mac Touch ID or click here to capture Sample 1</div>
+                                </div>
+
+                                <div class="enroll-action-bar">
+                                    <button class="btn btn-touch-id" id="btnTouchIdSample">🍎 Scan Mac Touch ID</button>
+                                    <button class="btn btn-secondary" id="btnSimulateSample">🖐️ Simulate Sample</button>
+                                    <button class="btn btn-secondary" id="btnResetBioEnroll">↺ Reset</button>
+                                    <button class="btn btn-primary" id="btnSaveBioTemplate" disabled>💾 Save Fingerprint</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ═══════════════════════════════════════════════════════ -->
+                <!-- VIEW 4: FACE AI REGISTER (Matches FaceRegisterView.cs)  -->
+                <!-- ═══════════════════════════════════════════════════════ -->
+                <section class="view-panel" id="view-face-register">
+                    <div class="face-register-container">
+                        <div class="card-page-header">
+                            <h2>👤 Face AI Biometric Enrollment</h2>
+                            <p>Calibrate 3-angle 3D facial vectors (Front, Left, Right) and sync to live MongoDB database.</p>
+                        </div>
+
+                        <div class="register-layout-grid">
+                            <!-- Left: Employee Selection & Progress -->
+                            <div class="emp-select-panel">
+                                <h3>1. Select Employee</h3>
+                                <div class="form-group">
+                                    <label>Search by Code or Name</label>
+                                    <input type="text" id="regEmpSearch" placeholder="Type code (e.g. 3428) or name...">
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Operating Branch</label>
+                                    <select id="regBranchSelect" class="styled-select">
+                                        <option value="ALL">All Branches</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Employee List</label>
+                                    <select id="regEmpSelect" class="styled-select" size="6">
+                                        <option value="">Loading staff...</option>
+                                    </select>
+                                </div>
+
+                                <div class="selected-emp-summary-card">
+                                    <div class="summary-name" id="regPreviewName">Select an employee</div>
+                                    <div class="summary-sub" id="regPreviewRole">Code: -- • Role: --</div>
+                                    <div class="summary-status" id="regPreviewStatus">Status: Unenrolled</div>
+                                </div>
+
+                                <!-- Calibration Angles Progress -->
+                                <div class="angles-status-card">
+                                    <h4>Calibration Progress</h4>
+                                    <div class="angle-thumbs-row">
+                                        <div class="angle-thumb" id="thumbFront">
+                                            <div class="thumb-title">Front</div>
+                                            <div class="thumb-status">Pending</div>
+                                        </div>
+                                        <div class="angle-thumb" id="thumbLeft">
+                                            <div class="thumb-title">Left (20°)</div>
+                                            <div class="thumb-status">Pending</div>
+                                        </div>
+                                        <div class="angle-thumb" id="thumbRight">
+                                            <div class="thumb-title">Right (20°)</div>
+                                            <div class="thumb-status">Pending</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right: Live Camera & Wizard Controls -->
+                            <div class="face-calibration-panel">
+                                <h3>2. Live Camera Calibration</h3>
+                                <div class="reg-video-stage">
+                                    <video id="registerVideo" autoplay playsinline muted></video>
+                                    <div class="oval-guideline-wrapper" id="ovalGuide">
+                                        <div class="oval-stroke"></div>
+                                    </div>
+                                    <div class="reg-instruction-pill" id="angleInstruction">
+                                        Look Straight at the Camera
+                                    </div>
+                                </div>
+
+                                <div class="reg-btn-bar">
+                                    <button class="btn btn-secondary" id="btnResetWizard">↺ Reset Wizard</button>
+                                    <button class="btn btn-primary btn-lg" id="btnCaptureStep">📸 Capture Current Angle</button>
+                                    <button class="btn btn-success btn-lg hidden" id="btnFinalizeEnroll">💾 Save to Database</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ═══════════════════════════════════════════════════════ -->
+                <!-- VIEW 5: AI VISION DIAGNOSTIC (Matches FaceDiagnosticView.cs) -->
+                <!-- ═══════════════════════════════════════════════════════ -->
+                <section class="view-panel" id="view-diagnostic">
+                    <div class="diagnostic-container">
+                        <div class="card-page-header">
+                            <h2>🔬 AI Vision & Model Diagnostics</h2>
+                            <p>Real-time telemetry of neural face detection, 68-point landmarks, liveness metrics, and latency.</p>
+                        </div>
+
+                        <div class="diagnostic-grid">
+                            <!-- Diagnostic Video Stage -->
+                            <div class="diag-video-card">
+                                <h3>Live Vision Feed</h3>
+                                <div class="diag-canvas-wrapper">
+                                    <canvas id="diagCanvas" width="640" height="480"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Diagnostic Metrics Telemetry -->
+                            <div class="diag-metrics-card">
+                                <h3>Real-Time Engine Telemetry</h3>
+                                <div class="telemetry-table">
+                                    <div class="tel-row">
+                                        <span class="tel-label">Detector Model:</span>
+                                        <span class="tel-val" id="telDetector">TinyFaceDetector (224x224)</span>
+                                    </div>
+                                    <div class="tel-row">
+                                        <span class="tel-label">Feature Extractor:</span>
+                                        <span class="tel-val" id="telRecognizer">FaceRecognitionNet (128-d ResNet)</span>
+                                    </div>
+                                    <div class="tel-row">
+                                        <span class="tel-label">Landmark Model:</span>
+                                        <span class="tel-val" id="telLandmarks">FaceLandmark68Net</span>
+                                    </div>
+                                    <div class="tel-row">
+                                        <span class="tel-label">Active FPS:</span>
+                                        <span class="tel-val text-emerald" id="telFps">-- FPS</span>
+                                    </div>
+                                    <div class="tel-row">
+                                        <span class="tel-label">Inference Latency:</span>
+                                        <span class="tel-val" id="telLatency">-- ms</span>
+                                    </div>
+                                    <div class="tel-row">
+                                        <span class="tel-label">Face Detected:</span>
+                                        <span class="tel-val" id="telFaceFound">No</span>
+                                    </div>
+                                    <div class="tel-row">
+                                        <span class="tel-label">Detector Score:</span>
+                                        <span class="tel-val" id="telScore">--</span>
+                                    </div>
+                                    <div class="tel-row">
+                                        <span class="tel-label">Liveness Composite:</span>
+                                        <span class="tel-val" id="telLiveness">--</span>
+                                    </div>
+                                    <div class="tel-row">
+                                        <span class="tel-label">Texture Variance:</span>
+                                        <span class="tel-val" id="telTexture">--</span>
+                                    </div>
+                                    <div class="tel-row">
+                                        <span class="tel-label">Enrolled in RAM:</span>
+                                        <span class="tel-val text-cyan" id="telEnrolledCount">0 templates</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ═══════════════════════════════════════════════════════ -->
+                <!-- VIEW 6: SYSTEM SETTINGS                                -->
+                <!-- ═══════════════════════════════════════════════════════ -->
+                <section class="view-panel" id="view-settings">
+                    <div class="settings-container">
+                        <div class="card-page-header">
+                            <h2>⚙️ System & Hardware Settings</h2>
+                            <p>Configure camera devices, BAS ERP server connection, secret keys, and offline queue.</p>
+                        </div>
+
+                        <div class="settings-grid">
+                            <div class="settings-card">
+                                <h3>📹 Video Input Source</h3>
+                                <div class="form-group">
+                                    <label>Active Camera Device</label>
+                                    <select id="cfgCameraSelect" class="styled-select">
+                                        <option value="">Detecting cameras...</option>
+                                    </select>
+                                    <small>Supports built-in FaceTime HD camera as well as external USB webcams.</small>
+                                </div>
+                                <button class="btn btn-secondary btn-sm" id="btnRefreshCams">↻ Rescan Video Devices</button>
+                            </div>
+
+                            <div class="settings-card">
+                                <h3>🌐 BAS ERP Server Connection</h3>
+                                <div class="form-group">
+                                    <label>Server Base URL</label>
+                                    <input type="text" id="cfgServerUrl" value="https://bas.dwatson.co">
+                                </div>
+                                <div class="form-group">
+                                    <label>Secret Key (BAS-SECRET-KEY)</label>
+                                    <input type="password" id="cfgSecretKey" value="" placeholder="Enter BAS-SECRET-KEY">
+                                </div>
+                                <div class="form-group">
+                                    <label>Default Terminal Branch</label>
+                                    <input type="text" id="cfgBranch" value="(PWD-1)">
+                                </div>
+                                <div class="btn-group">
+                                    <button class="btn btn-secondary" id="btnTestConn">Ping ERP Server</button>
+                                    <button class="btn btn-primary" id="btnSaveConfig">Save Settings</button>
+                                </div>
+                                <div class="test-result-badge" id="cfgTestResult"></div>
+                            </div>
+
+                            <div class="settings-card">
+                                <h3>📦 Offline Attendance Outbox</h3>
+                                <p class="card-desc">Punches recorded while internet connection is interrupted are queued safely to disk.</p>
+                                <div class="form-group">
+                                    <label>Queued Punches: <strong id="lblOfflineQueueCount">0</strong></label>
+                                </div>
+                                <div class="btn-group">
+                                    <button class="btn btn-secondary btn-sm" id="btnFlushOffline">↻ Retry & Sync Offline Punches</button>
+                                    <button class="btn btn-danger btn-sm" id="btnClearOffline">Clear Queue</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!-- DEDICATED 4-SCAN ENROLLMENT MODAL (Matches Windows EnrollmentForm.cs 1:1) -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <div class="modal-backdrop hidden" id="enrollmentModalBackdrop">
+        <div class="enrollment-modal-dialog">
+            <!-- Header (Matches Windows pnlHeader: BackColor = Color.FromArgb(13, 202, 240)) -->
+            <div class="enrollment-modal-header">
+                <span class="enrollment-modal-title">Register New Fingerprint</span>
+                <button class="modal-close-btn" id="btnCloseEnrollmentModal">✕</button>
+            </div>
+
+            <div class="enrollment-modal-body">
+                <!-- Subtitle / Employee Name (Matches Windows lblName) -->
+                <div class="enrollment-emp-title" id="modalEmpName">Employee: Select an Employee</div>
+
+                <!-- Status Text (Matches Windows lblStatus) -->
+                <div class="enrollment-status-text" id="modalStatusText">Please place your finger on the sensor for the first scan.</div>
+
+                <!-- 200x240 PictureBox (Matches Windows picFingerprint) -->
+                <div class="enrollment-pic-box" id="modalPicFingerprint" title="Click or tap to scan finger on Mac Touch ID">
+                    <svg viewBox="0 0 100 100" class="fp-svg-modal">
+                        <path d="M50 15 C30 15, 20 30, 20 50 C20 70, 32 85, 50 85 C68 85, 80 70, 80 50 C80 30, 70 15, 50 15 Z" fill="none" stroke="#0dcaf0" stroke-width="3.5" stroke-linecap="round"/>
+                        <path d="M50 25 C36 25, 28 36, 28 50 C28 65, 38 75, 50 75 C62 75, 72 65, 72 50 C72 36, 64 25, 50 25" fill="none" stroke="#0dcaf0" stroke-width="3" stroke-linecap="round"/>
+                        <path d="M50 35 C42 35, 36 42, 36 50 C36 60, 42 66, 50 66 C58 66, 64 60, 64 50" fill="none" stroke="#0dcaf0" stroke-width="3" stroke-linecap="round"/>
+                        <circle cx="50" cy="50" r="4.5" fill="#0dcaf0"/>
+                    </svg>
+                    <div class="modal-scan-laser" id="modalScanLaser"></div>
+                </div>
+
+                <!-- Counter: 0 / 4 (Matches Windows lblCount: Color #0d6efd) -->
+                <div class="enrollment-count-text" id="modalCountText">0 / 4</div>
+
+                <!-- Tools -->
+                <div class="modal-action-tools">
+                    <button class="btn btn-touch-id" id="btnModalTouchIdScan">🍎 Scan Mac Touch ID</button>
+                    <button class="btn btn-secondary btn-sm" id="btnModalSimulateScan">🖐️ Simulate Sample</button>
+                    <button class="btn btn-secondary btn-sm" id="btnModalResetScans">↺ Reset</button>
+                </div>
+
+                <!-- Save Button (Matches Windows btnSave: BackColor = Color.FromArgb(25, 135, 84)) -->
+                <button class="btn-windows-save-fp" id="btnModalSaveFingerprint" disabled>
+                    SAVE FINGERPRINT
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden Offscreen Canvas for Face Analysis -->
+    <canvas id="offscreenCanvas" style="display:none;"></canvas>
+
+    <!-- Scripts -->
+    <script src="node_modules/@vladmandic/face-api/dist/face-api.js"></script>
+    <script src="antiSpoof.js"></script>
+    <script src="faceEngine.js"></script>
+    <script src="renderer.js"></script>
+</body>
+</html>

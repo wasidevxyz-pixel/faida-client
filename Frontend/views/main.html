@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - D.Watson BAS Software</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+    <!-- Preconnect & DNS Prefetch for External Assets -->
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5 & FontAwesome Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+    <!-- Existing Core Stylesheets (Preserved for compatibility) -->
+    <link href="/css/style.css?v=20261021_v6" rel="stylesheet">
+    <link href="/css/desktop-style.css?v=20261021_v6" rel="stylesheet">
+    <link href="/css/sidebar.css?v=20261021_v6" rel="stylesheet">
+
+    <!-- Dedicated Isolated Modern Dashboard Stylesheet -->
+    <link href="/css/dashboard-modern.css?v=20261024_v1" rel="stylesheet">
+    <script>
+        // Instant Theme Application (Defaults to Deep Cinematic Dark)
+        try {
+            var savedTheme = localStorage.getItem('bas_dashboard_theme_v2') || 'dark';
+            if (savedTheme === 'light') {
+                document.documentElement.classList.add('bas-theme-light');
+            } else {
+                document.documentElement.classList.add('bas-theme-dark');
+            }
+        } catch(e) {}
+    </script>
+<body class="sidebar-mini">
+    <!-- Mobile Sidebar Backdrop Overlay -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <!-- Modern Dashboard Root Wrapper (Scoped theme-dark / theme-light) -->
+    <div class="bas-modern-dashboard theme-dark" id="basModernDashboardRoot">
+
+        <!-- Background Lighting Orbs & Dynamic Cursor Glow -->
+        <div class="bas-dash-canvas" aria-hidden="true">
+            <div class="bas-dash-orb bas-dash-orb-1"></div>
+            <div class="bas-dash-orb bas-dash-orb-2"></div>
+            <div class="bas-dash-orb bas-dash-orb-center"></div>
+            <div class="bas-cursor-glow" id="basDashCursorGlow"></div>
+        </div>
+
+        <!-- Modern Executive Header -->
+        <header class="bas-dash-header">
+            <div class="bas-header-left">
+                <button type="button" class="bas-menu-trigger-btn" id="dashMenuToggleBtn" title="Toggle Navigation Menu" style="color: #ffffff !important; background: rgba(255,255,255,0.18) !important; border: 1px solid rgba(255,255,255,0.3) !important;">
+                    <i class="fas fa-bars" style="color: #ffffff !important; font-size: 1.15rem;"></i>
+                </button>
+                <div class="bas-header-title-group">
+                    <h1 class="bas-header-title">Dashboard</h1>
+                    <span class="bas-header-subtitle">Your business at a glance</span>
+                </div>
+            </div>
+
+            <!-- Universal Fast Search Bar -->
+            <div class="bas-header-center">
+                <div class="bas-header-search-wrap">
+                    <i class="fas fa-search bas-header-search-icon"></i>
+                    <input
+                        type="text"
+                        class="bas-header-search-input"
+                        id="dashSearchInput"
+                        placeholder="Search screens, items, vouchers... (Press / to search)"
+                        autocomplete="off"
+                        spellcheck="false"
+                    >
+                    <span class="bas-dash-search-kbd-hint" id="dashSearchKbdHint">/</span>
+                    <button type="button" class="bas-dash-search-clear-btn" id="dashSearchClearBtn" title="Clear Search" style="display: none;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div id="dashSearchDropdown" class="bas-dash-search-dropdown" style="display: none;"></div>
+                </div>
+            </div>
+
+            <!-- Header Right Controls -->
+            <div class="bas-header-right">
+                <!-- Live Clock Pill -->
+                <div class="bas-live-clock" id="dashLiveClock" style="color: #ffffff !important; background: rgba(255,255,255,0.14) !important; border: 1px solid rgba(255,255,255,0.25) !important;">
+                    <i class="fas fa-calendar-alt" style="color: #ffffff !important;"></i> <span style="color: #ffffff !important; font-weight: 700;">Oct 21, 2026</span>
+                    <span class="mx-1" style="color: rgba(255,255,255,0.5) !important;">|</span>
+                    <i class="far fa-clock ms-1" style="color: #ffffff !important;"></i> <span style="color: #ffffff !important; font-weight: 700;">10:29 AM</span>
+                </div>
+
+                <!-- User Profile Badge & Dropdown -->
+                <div class="dropdown">
+                    <div class="bas-user-profile-badge" data-bs-toggle="dropdown" aria-expanded="false" role="button">
+                        <div class="bas-user-avatar" id="dashUserAvatar">B</div>
+                        <div class="bas-user-info">
+                            <span class="bas-user-name" id="dashUserName" style="color: #ffffff !important; font-weight: 700;">Bilal Shah</span>
+                            <span class="bas-user-role" id="dashUserRole" style="color: #00d4ff !important; font-weight: 600; font-size: 0.72rem;">Admin</span>
+                        </div>
+                        <i class="fas fa-chevron-down ms-1" style="font-size: 0.65rem; color: #ffffff !important; opacity: 0.85;"></i>
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2" style="border-radius: 14px; min-width: 210px; padding: 8px;">
+                        <li class="px-3 py-2 border-bottom mb-2">
+                            <div class="fw-bold" style="color: #0066ff;">User Account</div>
+                            <small class="text-muted">Signed into BAS Software</small>
+                        </li>
+                        <li><a class="dropdown-item py-2 rounded" href="/profile"><i class="fas fa-user-circle me-2 text-primary"></i>My Profile</a></li>
+                        <li><a class="dropdown-item py-2 rounded" href="/settings"><i class="fas fa-cog me-2 text-secondary"></i>Settings</a></li>
+                        <li><hr class="dropdown-divider my-2"></li>
+                        <li><a class="dropdown-item py-2 rounded text-danger logout-btn" href="#"><i class="fas fa-sign-out-alt me-2"></i>Sign Out</a></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Workspace Content: Pure 3D Interactive Design (No links, No data) -->
+        <main class="bas-dash-content bas-dash-3d-wrapper">
+
+            <!-- Top Floating Capsule in 3D Space -->
+            <div class="bas-3d-top-header">
+                <div class="bas-3d-welcome-pill">
+                    <i class="fas fa-brain text-primary"></i>
+                    <span>Intelligent Business Management &bull; Built for D.Watson</span>
+                </div>
+            </div>
+
+            <!-- 3D Perspective Stage Container -->
+            <div class="bas-dash-3d-stage">
+                <div class="bas-dash-3d-scene" id="basMain3dScene">
+
+                    <!-- 1. Futuristic Glowing Holographic 3D Podium -->
+                    <div class="bas-3d-podium">
+                        <div class="bas-podium-ring"></div>
+                        <div class="bas-podium-ring-outer"></div>
+                        <div class="bas-podium-badge">D.WATSON BAS SOFTWARE</div>
+                    </div>
+
+                    <!-- 2. Central 3D Enterprise Console Terminal (Most Recent User Activity Screens) -->
+                    <div class="bas-3d-terminal">
+                        <div class="bas-terminal-topbar">
+                            <span class="bas-terminal-dot r"></span>
+                            <span class="bas-terminal-dot y"></span>
+                            <span class="bas-terminal-dot g"></span>
+                            <span class="bas-terminal-title"><i class="fas fa-clock-rotate-left text-primary me-1"></i> User Workspace &bull; Recent Screens</span>
+                        </div>
+                        <div class="bas-terminal-screen">
+                            <!-- Terminal Screen Header with user personalized tag -->
+                            <div class="bas-terminal-screen-header">
+                                <div class="bas-screen-welcome">
+                                    <span class="bas-screen-badge"><i class="fas fa-bolt text-warning me-1"></i> Quick Launch</span>
+                                    <h4 class="bas-screen-heading">Recent Workspaces</h4>
+                                </div>
+                                <span class="bas-screen-user-tag"><i class="fas fa-user-circle me-1"></i> <span id="dashTerminalUserName">Bilal Shah</span></span>
+                            </div>
+
+                            <!-- 2x2 Interactive Quick Links Grid (Dynamically Populated per User) -->
+                            <div class="bas-recent-screens-grid" id="dashRecentScreensList">
+                                <!-- Populated dynamically by dashboard-modern.js -->
+                            </div>
+
+                            <!-- Live Activity Ticker -->
+                            <div class="bas-terminal-ticker">
+                                <span><i class="fas fa-network-wired me-1"></i> Real-time Activity Sync</span>
+                                <span class="bas-ticker-pill"><span class="bas-ticker-dot"></span> Live Workspace</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Floating 3D Holographic Corner Boxes (Software Modules) -->
+                    <!-- Tile 1: Top Left - Retail POS -->
+                    <div class="bas-floating-tile bas-tile-1">
+                        <div class="bas-tile-icon"><i class="fas fa-cash-register"></i></div>
+                        <div class="bas-tile-info">
+                            <div class="bas-tile-header">
+                                <span class="bas-tile-val">Retail POS</span>
+                                <span class="bas-tile-chip">Active Sync</span>
+                            </div>
+                            <span class="bas-tile-lbl">Multi-Counter Pharmacy Billing</span>
+                        </div>
+                    </div>
+
+                    <!-- Tile 2: Top Right - Warehouse -->
+                    <div class="bas-floating-tile bas-tile-2">
+                        <div class="bas-iso-cube">
+                            <div class="bas-cube-face f"></div>
+                            <div class="bas-cube-face b"></div>
+                            <div class="bas-cube-face r"></div>
+                            <div class="bas-cube-face l"></div>
+                            <div class="bas-cube-face t"></div>
+                            <div class="bas-cube-face bt"></div>
+                        </div>
+                        <div class="bas-tile-info">
+                            <div class="bas-tile-header">
+                                <span class="bas-tile-val">Central Warehouse</span>
+                                <span class="bas-tile-chip">Stock Control</span>
+                            </div>
+                            <span class="bas-tile-lbl">Multi-Store Batches &amp; Inventory</span>
+                        </div>
+                    </div>
+
+                    <!-- Tile 3: Mid Left - Wholesale B2B -->
+                    <div class="bas-floating-tile bas-tile-3">
+                        <div class="bas-tile-icon"><i class="fas fa-boxes-packing"></i></div>
+                        <div class="bas-tile-info">
+                            <div class="bas-tile-header">
+                                <span class="bas-tile-val">Wholesale B2B</span>
+                                <span class="bas-tile-chip">Distribution</span>
+                            </div>
+                            <span class="bas-tile-lbl">Bulk Orders &amp; Cargo Invoicing</span>
+                        </div>
+                    </div>
+
+                    <!-- Tile 4: Mid Right - Purchasing & AP -->
+                    <div class="bas-floating-tile bas-tile-4">
+                        <div class="bas-tile-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+                        <div class="bas-tile-info">
+                            <div class="bas-tile-header">
+                                <span class="bas-tile-val">Purchasing &amp; AP</span>
+                                <span class="bas-tile-chip">Reconciled</span>
+                            </div>
+                            <span class="bas-tile-lbl">Supplier Procurement &amp; Invoices</span>
+                        </div>
+                    </div>
+
+                    <!-- Tile 5: Bottom Left - Dual Biometrics -->
+                    <div class="bas-floating-tile bas-tile-5">
+                        <div class="bas-tile-icon"><i class="fas fa-fingerprint"></i></div>
+                        <div class="bas-tile-info">
+                            <div class="bas-tile-header">
+                                <span class="bas-tile-val">Dual Biometric</span>
+                                <span class="bas-tile-chip">AI Powered</span>
+                            </div>
+                            <span class="bas-tile-lbl">Facial Recognition &amp; Fingerprint</span>
+                        </div>
+                    </div>
+
+                    <!-- Tile 6: Bottom Right - Double-Entry Ledger -->
+                    <div class="bas-floating-tile bas-tile-6">
+                        <div class="bas-tile-icon"><i class="fas fa-scale-balanced"></i></div>
+                        <div class="bas-tile-info">
+                            <div class="bas-tile-header">
+                                <span class="bas-tile-val">Double-Entry</span>
+                                <span class="bas-tile-chip">GAAP Audit</span>
+                            </div>
+                            <span class="bas-tile-lbl">Financial Accounts &amp; Ledgers</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Bottom Floating Dock -->
+            <div class="bas-3d-bottom-dock">
+                <div class="bas-3d-action-pill">
+                    <i class="fas fa-hand-pointer text-primary me-2"></i>
+                    <span>Select any module from the sidebar to manage your daily operations with accuracy, efficiency, and real-time business insights.</span>
+                </div>
+                <div class="bas-3d-designer-badge">
+                    <i class="fas fa-paint-brush"></i>
+                    <span>Designed by <strong>Bilal Shah</strong> &bull; 0348-5511763</span>
+                </div>
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- Core Scripts (Required for Sidebar, Security, & Navigation) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js?v=20261022_v16"></script>
+    <script src="/js/sidebar.js?v=20261022_v16"></script>
+    <script src="/js/connection-monitor.js"></script>
+
+    <!-- Dedicated Isolated Modern Dashboard Controller -->
+    <script src="/js/dashboard-modern.js?v=20261024_v1"></script>
+</body>
+</html>

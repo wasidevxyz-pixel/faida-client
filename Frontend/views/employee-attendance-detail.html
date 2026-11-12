@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Registered Add/Update</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/desktop-style.css?v=101" rel="stylesheet">
+    <link href="/css/sidebar.css?v=101" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Select2 CSS for Searchable Dropdowns -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        /* Select2 Adjustments for header badge */
+        .select2-container .select2-selection--single {
+            height: 100% !important;
+            border: none !important;
+            border-radius: 0 !important;
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #1e3a8a !important;
+            padding-left: 8px !important;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 100% !important;
+        }
+
+        @media screen {
+
+            .print-grid,
+            .print-value {
+                display: none !important;
+            }
+        }
+
+        .header-controls {
+            background-color: #f8f9fa;
+            padding: 4px;
+            border: 1px solid #dee2e6;
+            margin: 0 !important;
+            border-bottom: none;
+        }
+
+        .info-bar {
+            background-color: #007bff;
+            color: white;
+            padding: 4px 8px;
+            font-size: 0.8rem;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .info-label {
+            background: white;
+            color: #007bff;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .table-container {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-top: none;
+            overflow-x: auto;
+        }
+
+        .table {
+            margin-bottom: 0;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            width: 100%;
+        }
+
+        .table thead th {
+            background-color: #000 !important;
+            color: #fff !important;
+            padding: 8px 4px !important;
+            border: 1px solid #666 !important;
+            border-right: 1px solid #bbb !important;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        .table tbody td {
+            padding: 2px 4px;
+            border: 1px solid #bbb;
+            vertical-align: middle;
+        }
+
+        .table tfoot td {
+            background-color: #1e4c8c !important;
+            color: #ffffff !important;
+            font-weight: 800 !important;
+            padding: 8px 4px !important;
+            border: 1px solid #ffffff !important;
+            font-size: 0.85rem !important;
+            text-transform: uppercase;
+        }
+
+        /* Column Widths */
+        .col-del {
+            width: 30px;
+        }
+
+        .col-sr {
+            width: 35px;
+        }
+
+        .col-date {
+            width: 100px;
+        }
+
+        .col-time {
+            width: 100px;
+        }
+
+        .col-diff-btns {
+            width: 50px;
+        }
+
+        .col-diff-box {
+            width: 90px;
+        }
+
+        .col-hrs {
+            width: 75px;
+        }
+
+        .col-status {
+            width: 100px;
+        }
+
+        .col-remarks {
+            width: 180px;
+        }
+
+        /* Force bold on all calculated hour columns */
+        .col-breakhrs,
+        .col-totaldiff,
+        .col-totalhrs,
+        .col-worked {
+            font-weight: 700 !important;
+        }
+
+        /* Screen Header Grid */
+        .header-grid {
+            display: grid;
+            grid-template-columns: 100px 180px 150px 1fr 180px 180px;
+            border: 2px solid #333;
+            margin-bottom: 20px;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-box {
+            border-right: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header-box:last-child {
+            border-right: none;
+        }
+
+        .header-label {
+            font-weight: bold;
+            font-size: 0.7rem;
+            background: #eee;
+            border-bottom: 1px solid #ddd;
+            padding: 2px 5px;
+            color: #555;
+            text-transform: uppercase;
+        }
+
+        .header-box span:not(.header-label) {
+            padding: 5px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-align: center;
+            color: #000;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .company-section-screen {
+            text-align: center;
+            padding: 5px;
+            border-right: 1px solid #ddd;
+        }
+
+        .company-section-screen h1 {
+            margin: 0;
+            font-size: 1.4rem;
+            color: #000;
+            font-family: 'Times New Roman', serif;
+        }
+
+        .company-section-screen h2 {
+            margin: 0;
+            font-size: 0.9rem;
+            text-decoration: underline;
+            font-weight: bold;
+        }
+
+        .company-section-screen p {
+            margin: 0;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .no-print {
+            display: flex;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+        }
+
+        .diff-btns {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-diff {
+            width: 24px;
+            height: 18px;
+            padding: 0;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+
+        .input-diff-box {
+            width: 100%;
+            height: 28px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            background-color: #f1f3f5;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .form-control-xs,
+        .form-select-xs {
+            height: 28px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            padding: 0 4px;
+        }
+
+        .col-remarks input {
+            text-transform: uppercase;
+        }
+
+        .row-completed td {
+            background-color: #28a745 !important;
+            /* Darker Green */
+            color: #ffffff !important;
+        }
+
+        .row-partial td {
+            background-color: #e2ec7a !important;
+            /* Yellow */
+            color: black !important;
+        }
+
+        .row-absent td {
+            background-color: #ea1c0d !important;
+            /* Darker red */
+            color: #ffffff !important;
+        }
+
+        .row-overtime td {
+            background-color: #9d8df1 !important;
+            /* Purple */
+            color: white !important;
+        }
+
+        .row-warning td {
+            background-color: #fd7e14 !important;
+            /* Orange Warning */
+            color: white !important;
+        }
+
+        .row-leave td {
+            background-color: #fff3cd !important;
+            /* Amber */
+            color: #856404 !important;
+        }
+
+        .row-completed input,
+        .row-completed select,
+        .row-partial input,
+        .row-partial select,
+        .row-absent input,
+        .row-absent select,
+        .row-overtime input,
+        .row-overtime select,
+        .row-warning input,
+        .row-warning select,
+        .row-leave input,
+        .row-leave select {
+            background-color: white !important;
+            color: black !important;
+            border: 1px solid #ced4da !important;
+        }
+
+        .row-editing td {
+            background-color: white !important;
+            color: black !important;
+            border: 1px solid #bbb !important;
+        }
+
+        .opacity-50 {
+            opacity: 0.3;
+        }
+
+        /* Professional Print Styles - Matching Ref Image 2 */
+        @media print {
+            @page {
+                size: portrait;
+                margin: 0.5cm;
+            }
+
+            .page-header,
+            .header-controls,
+            .btn,
+            .col-del,
+            .col-remarks,
+            .col-diff-btns,
+            .col-diffin,
+            .col-diffout,
+            .info-bar {
+                display: none !important;
+            }
+
+            .container-fluid {
+                padding: 0 !important;
+            }
+
+            .table-container {
+                height: auto !important;
+                overflow: visible !important;
+                border: none !important;
+                margin: 0 !important;
+            }
+
+            /* Nuclear White Reset for Rows */
+            tbody tr td,
+            tbody tr.row-completed td,
+            tbody tr.row-partial td,
+            tbody tr.row-absent td,
+            tbody tr.row-overtime td,
+            tbody tr.row-warning td,
+            tbody tr.row-leave td {
+                background-color: #fff !important;
+                color: #000 !important;
+                font-weight: bold !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+                font-family: Arial, sans-serif !important;
+                table-layout: fixed;
+                background-color: #fff !important;
+            }
+
+            th,
+            td {
+                border: 1px solid #000 !important;
+                padding: 4px 1px !important;
+                overflow: hidden;
+                line-height: 1.1 !important;
+                height: 32px !important;
+                /* Increased to fill page gap */
+                text-align: center !important;
+                /* CENTER ALL DATA */
+                vertical-align: middle !important;
+            }
+
+            th {
+                white-space: normal !important;
+                /* ALLOW WRAPPING FOR HEADERS */
+                word-wrap: break-word !important;
+            }
+
+            td {
+                white-space: nowrap !important;
+                /* KEEP DATA ON ONE LINE */
+            }
+
+            thead th {
+                background-color: #000 !important;
+                color: #fff !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                font-size: 7pt !important;
+                font-weight: bold;
+            }
+
+            /* Keep Total Row Color */
+            tfoot tr td,
+            .table tfoot td,
+            #tWorkedHrs,
+            #tBreakHrs,
+            #tDiffHrs,
+            #tFinalHrs {
+                background-color: #1e4c8c !important;
+                color: #ffffff !important;
+                font-weight: 900 !important;
+                /* EXTRA BOLD */
+                font-size: 10.5pt !important;
+                /* INCREASED SIZE */
+                border: 1px solid #000 !important;
+                border-left: 0.5pt solid #fff !important;
+                border-right: 0.5pt solid #fff !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .print-grid {
+                display: grid !important;
+                grid-template-columns: 10% 12% 12% 43% 12% 11%;
+                border: 2px solid #000;
+                margin-bottom: 5px;
+                background: #fff;
+            }
+
+            .print-box {
+                border-right: 1px solid #000;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .print-box:last-child {
+                border-right: none;
+            }
+
+            .print-label {
+                font-weight: bold;
+                font-size: 8pt;
+                background: #eee;
+                border-bottom: 1px solid #000;
+                padding: 1px;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .print-box span:not(.print-label) {
+                padding: 4px;
+                font-weight: bold;
+                font-size: 9pt;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .company-section {
+                grid-column: 4;
+                border-right: 1px solid #000;
+                text-align: center;
+                padding: 2px;
+            }
+
+            .company-section h1 {
+                margin: 0;
+                font-size: 16pt !important;
+                font-family: 'Times New Roman', serif;
+                font-weight: bold;
+            }
+
+            .company-section h2 {
+                margin: 2px 0;
+                font-size: 11pt !important;
+                text-decoration: underline;
+                font-weight: bold;
+            }
+
+            .company-section p {
+                margin: 1px 0;
+                font-size: 9pt !important;
+                font-weight: bold;
+            }
+
+            body,
+            html,
+            .table-container,
+            .container-fluid {
+                background: white !important;
+            }
+
+            /* HIDE Inputs/Selects - Show only .print-value */
+            input,
+            select,
+            .form-control,
+            .form-select,
+            .input-diff-box {
+                display: none !important;
+            }
+
+            .print-value,
+            td,
+            th,
+            span,
+            div {
+                color: #000000 !important;
+                /* FORCED DEEP BLACK */
+                font-size: 8pt !important;
+                /* UNIFORM SIZE */
+                font-weight: bold !important;
+                /* UNIFORM BOLDNESS */
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+
+            .print-value {
+                display: inline-block !important;
+            }
+        }
+
+        .print-grid {
+            display: none;
+        }
+
+        /* Lighter buttons for visibility on dark rows */
+        .row-completed .btn-success,
+        .row-partial .btn-success,
+        .row-absent .btn-success,
+        .row-overtime .btn-success,
+        .row-warning .btn-success,
+        .row-leave .btn-success {
+            background-color: #51cf66 !important;
+            border-color: #51cf66 !important;
+        }
+
+        .row-completed .btn-danger,
+        .row-partial .btn-danger,
+        .row-absent .btn-danger,
+        .row-overtime .btn-danger,
+        .row-warning .btn-danger,
+        .row-leave .btn-danger {
+            background-color: #ff6b6b !important;
+            border-color: #ff6b6b !important;
+        }
+
+        .btn-delete {
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            font-size: 10px;
+            border-radius: 4px;
+        }
+
+        .info-badge-box {
+            display: flex;
+            align-items: center;
+            background: #f1f3f5;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            overflow: hidden;
+            height: 30px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .info-badge-label {
+            background: #1e4c8c;
+            color: white;
+            padding: 0 10px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-badge-value {
+            padding: 0 12px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: #333;
+            background: white;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            min-width: 40px;
+        }
+
+        /* Color variations for boxes */
+        .box-name .info-badge-label {
+            background: #1e4c8c;
+        }
+
+        .box-code .info-badge-label {
+            background: #28a745;
+        }
+
+        .box-duty .info-badge-label {
+            background: #fd7e14;
+        }
+
+        /* DIFF Colors - More specific to override row classes */
+        td.bg-minus {
+            background-color: #ea1c0d !important;
+            color: white !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="print-grid">
+        <div class="print-box">
+            <span class="print-label">Code</span>
+            <span id="pCodeGrid">-</span>
+        </div>
+        <div class="print-box">
+            <span class="print-label">Employee</span>
+            <span id="pNameGrid">-</span>
+        </div>
+        <div class="print-box">
+            <span class="print-label">Branch</span>
+            <span id="pBranchGrid">-</span>
+        </div>
+        <div class="company-section">
+            <h1>Dwatson</h1>
+            <h2 id="pBranchHeader">Branch: -</h2>
+            <h2>Employee Attendance Sheet</h2>
+            <p id="pDateRangeGrid" style="margin:2px 0; font-weight:bold;"></p>
+        </div>
+        <div class="print-box">
+            <span class="print-label">Department</span>
+            <span id="pDeptGrid">-</span>
+        </div>
+        <div class="print-box">
+            <span class="print-label">Designation</span>
+            <span id="pDesigGrid">-</span>
+        </div>
+    </div>
+    <div class="page-header px-3">
+        <div style="flex: 1; display: flex; align-items: center;">
+            <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+            Attendance Registered Add/Update
+        </div>
+        <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
+            <div class="dropdown">
+                <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown" style="cursor: pointer;">
+                    <i class="fas fa-user-circle me-2" style="font-size: 1.2rem;"></i>
+                    <span id="userName" class="me-2">User</span>
+                    <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                    <li><a class="dropdown-item py-2 logout-btn" href="#"><i
+                                class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid p-0">
+        <div class="header-controls">
+            <div class="d-flex gap-1 align-items-center flex-wrap">
+                <label class="small fw-bold px-1">From</label>
+                <input type="date" id="fromDate" class="form-control form-control-sm" style="width: 130px;">
+
+                <label class="small fw-bold px-1">To</label>
+                <input type="date" id="toDate" class="form-control form-control-sm" style="width: 130px;">
+
+                <select id="filterBranch" class="form-select form-select-sm" style="width: 140px;" disabled>
+                    <option value="" id="filterBranchOption">-</option>
+                </select>
+
+                <div class="d-flex align-items-center gap-1">
+                    <button class="btn btn-success btn-sm px-2" onclick="loadEmployeeMonthData()"><i
+                            class="fas fa-search"></i> Search</button>
+                    <button class="btn btn-primary btn-sm px-2" onclick="saveAllVisible()"><i class="fas fa-save"></i>
+                        Save</button>
+                    <button class="btn btn-secondary btn-sm px-2" onclick="handlePrint()"><i class="fas fa-print"></i>
+                        Print</button>
+                    <button class="btn btn-danger btn-sm px-2" onclick="window.history.back()"><i
+                            class="fas fa-arrow-left"></i> Back</button>
+                    <button id="btnBulkSave" class="btn btn-warning btn-sm px-2" style="display: none !important;"
+                        onclick="bulkSaveAll()"><i class="fas fa-database"></i>
+                        Bulk Save All</button>
+                </div>
+
+                <div class="d-flex align-items-center gap-2 ms-auto">
+                    <div class="info-badge-box box-name">
+                        <div class="info-badge-label">Name</div>
+                        <div id="dispEmpName" class="info-badge-value">-</div>
+                    </div>
+
+                    <div class="info-badge-box box-code">
+                        <div class="info-badge-label">Code</div>
+                        <div id="dispEmpCode" class="info-badge-value">-</div>
+                    </div>
+
+                    <div class="info-badge-box box-duty">
+                        <div class="info-badge-label">Duty Hrs</div>
+                        <div id="dispDutyHrs" class="info-badge-value">-</div>
+                    </div>
+                    
+                    <div class="info-badge-box box-branch-emp" style="min-width: 200px;">
+                        <div class="info-badge-label" style="background-color: #17a2b8;">Branch Emp</div>
+                        <select id="branchEmpDropdown" class="form-select form-select-sm border-0" style="height: 100%; border-radius: 0; font-weight: bold; font-size: 0.8rem; cursor: pointer; background-color: white; color: black;" onchange="changeBranchEmployee(this.value)">
+                            <option value="">Select Employee...</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th class="col-del" style="width: 30px;">X</th>
+                        <th class="col-sr" style="width: 40px;">SrNo</th>
+                        <th class="col-date" style="width: 100px;">Dated</th>
+                        <th style="width: 80px;">Day</th>
+                        <th style="width: 80px;">Check In</th>
+                        <th style="width: 80px;">Check Out</th>
+                        <th style="width: 70px;">Worked Hrs</th>
+                        <th style="width: 80px;">Break Out</th>
+                        <th style="width: 80px;">Break In</th>
+                        <th style="width: 70px;">Total Brk Hrs</th>
+                        <th class="col-diff-btns" style="width: 45px;">Diff</th>
+                        <th class="col-diffin" style="width: 80px;">Time Diff In</th>
+                        <th class="col-diffout" style="width: 80px;">Time Diff Out</th>
+                        <th style="width: 70px;">Total Diff</th>
+                        <th style="width: 70px;">Total Hours</th>
+                        <th class="col-status" style="width: 70px;">Status</th>
+                        <th class="col-remarks">Remarks</th>
+                    </tr>
+                </thead>
+                <tbody id="detailRecordsBody">
+                    <!-- Dynamic Rows -->
+                </tbody>
+                <tfoot class="tfoot-bold">
+                    <tr>
+                        <td class="col-del"></td>
+                        <td colspan="5" class="text-center" style="font-weight:bold;">Total</td>
+                        <td id="tWorkedHrs" class="text-center">00:00</td>
+                        <td colspan="2"></td>
+                        <td id="tBreakHrs" class="text-center">00:00</td>
+                        <td class="col-diff-btns"></td>
+                        <td class="col-diffin"></td>
+                        <td class="col-diffout"></td>
+                        <td id="tDiffHrs" class="text-center">00:00</td>
+                        <td id="tFinalHrs" class="text-center">00:00</td>
+                        <td colspan="2"></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244470"></script>
+    <script src="/js/employee-attendance-detail.js?v=4.1"></script>
+</body>
+
+</html>

@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categorized Branch Report - Bilal Accounting System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <style>
+        .report-container {
+            padding: 15px;
+            height: calc(100vh - 60px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-panel {
+            background: linear-gradient(135deg, #1e4c8c 0%, #0d47a1 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            color: white;
+        }
+
+        .data-panel {
+            flex: 1;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .data-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .summary-cards {
+            display: flex;
+            gap: 15px;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .summary-card {
+            flex: 1;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            color: white;
+        }
+
+        .summary-card.primary { background: linear-gradient(135deg, #1e4c8c 0%, #1565c0 100%); }
+        .summary-card.success { background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%); }
+        .summary-card.warning { background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); }
+        .summary-card.danger { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); }
+
+        .table-container {
+            flex: 1;
+            overflow: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            background: #1e4c8c;
+            color: white;
+            position: sticky;
+            top: 0;
+            padding: 10px;
+            font-size: 11px;
+            text-transform: uppercase;
+            z-index: 10;
+        }
+
+        .data-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+
+        .group-header {
+            background: #e3f2fd !important;
+            font-weight: 700;
+            color: #1e4c8c;
+        }
+
+        .subgroup-header {
+            background: #f1f8ff !important;
+            font-weight: 600;
+            padding-left: 30px !important;
+        }
+
+        .total-row {
+            background: #fff3e0 !important;
+            font-weight: 700;
+        }
+
+        @media print {
+            body, html { background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; margin: 0; padding: 0; }
+            body { margin: 0; padding: 0.5cm; font-family: 'Segoe UI', Arial, sans-serif; }
+            .page-header, .filter-panel, .btn-no-print { display: none !important; }
+            .report-container { height: auto !important; padding: 0 !important; margin: 0 !important; background: white !important; }
+            .data-panel { box-shadow: none !important; border: none !important; background: white !important; }
+            
+            .print-header { display: block !important; border-bottom: 2px solid #333; margin-bottom: 20px; padding-bottom: 10px; background: white !important; }
+            .print-header h2 { margin: 0; color: #1e4c8c !important; font-size: 24px; text-transform: uppercase; }
+            .print-header h4 { margin: 5px 0; color: #555 !important; font-size: 18px; }
+            .print-header p { margin: 0; color: #777 !important; font-size: 14px; }
+
+            .summary-cards { 
+                display: flex !important; 
+                padding: 0 !important; 
+                margin-bottom: 20px !important; 
+                background: white !important; 
+                border: none !important;
+                gap: 10px !important;
+            }
+            .summary-card { 
+                border: 1px solid #1e4c8c !important; 
+                background: white !important; 
+                color: #1e4c8c !important; 
+                border-radius: 4px !important;
+                padding: 10px !important;
+                flex: 1;
+            }
+            .summary-card div { color: #1e4c8c !important; }
+            .summary-card .h4 { font-weight: bold !important; font-size: 16px !important; }
+
+            .data-table { border: 1px solid #000 !important; table-layout: fixed; width: 100% !important; background: white !important; }
+            .data-table th { 
+                background: #1e4c8c !important; 
+                color: white !important; 
+                border: 1px solid #ccc !important; 
+                font-size: 10px !important;
+                padding: 6px 4px !important;
+            }
+            .data-table td { 
+                border: 0.5px solid #ddd !important; 
+                font-size: 11px !important;
+                padding: 5px 4px !important;
+                vertical-align: middle;
+            }
+            .group-header { 
+                background: #e3f2fd !important; 
+                border-top: 1px solid #000 !important; 
+                font-size: 12px !important; 
+                color: #1e4c8c !important; 
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .total-row { 
+                background: #fff3e0 !important; 
+                font-weight: bold !important; 
+                border-top: 1px solid #999 !important; 
+                color: #000 !important; 
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .bg-dark { 
+                background: #333 !important; 
+                color: white !important; 
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            @page {
+                size: A4;
+                margin: 1cm;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="print-header" style="display:none; text-align:center; margin-bottom:20px;">
+        <h2>Bilal Accounting System</h2>
+        <h4>Branch Wise Categorized Payroll Report</h4>
+        <p id="printPeriod">-</p>
+    </div>
+
+    <div class="page-header px-3">
+        <div style="flex: 1; display: flex; align-items: center;">
+            <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+            <h4 class="mb-0">Categorized Branch Report</h4>
+        </div>
+    </div>
+
+    <div class="report-container">
+        <div class="filter-panel">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold">From Month</label>
+                    <input type="month" id="fromMonth" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold">To Month</label>
+                    <input type="month" id="toMonth" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold">Branch</label>
+                    <select id="branchFilter" class="form-select form-select-sm">
+                        <option value="all">All Branches</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end gap-2">
+                    <button class="btn btn-light btn-sm w-100" onclick="loadReport()">
+                        <i class="fas fa-search me-1"></i> Generate
+                    </button>
+                    <button class="btn btn-warning btn-sm w-100 btn-no-print" onclick="window.print()">
+                        <i class="fas fa-print me-1"></i> Print
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="summary-cards" id="summaryArea" style="display:none;">
+            <div class="summary-card primary">
+                <div class="small">TOTAL EMPLOYEES</div>
+                <div class="h4 mb-0" id="totalEmployees">0</div>
+            </div>
+            <div class="summary-card success">
+                <div class="small">GROSS SALARY</div>
+                <div class="h4 mb-0" id="sumGross">0</div>
+            </div>
+            <div class="summary-card warning">
+                <div class="small">TOTAL ADVANCES</div>
+                <div class="h4 mb-0" id="sumAdv">0</div>
+            </div>
+            <div class="summary-card danger">
+                <div class="small">NET PAYABLE</div>
+                <div class="h4 mb-0" id="sumNet">0</div>
+            </div>
+        </div>
+
+        <div class="data-panel mt-3">
+            <div class="table-container">
+                <table class="data-table">
+                    <colgroup>
+                        <col style="width: 25%;">
+                        <col style="width: 8%;">
+                        <col style="width: 11%;">
+                        <col style="width: 9%;">
+                        <col style="width: 11%;">
+                        <col style="width: 12%;">
+                        <col style="width: 11%;">
+                        <col style="width: 13%;">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>Category / Group</th>
+                            <th class="text-center">Employees</th>
+                            <th class="text-end">Basic</th>
+                            <th class="text-end">OT</th>
+                            <th class="text-end">Allow.</th>
+                            <th class="text-end">Gross</th>
+                            <th class="text-end">Adv.</th>
+                            <th class="text-end">Net Payable</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportContent">
+                        <tr>
+                            <td colspan="8" class="text-center py-5 text-muted">
+                                Select period and click Generate to view report
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244514"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const now = new Date();
+            const monthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            document.getElementById('fromMonth').value = monthStr;
+            document.getElementById('toMonth').value = monthStr;
+            loadBranches();
+        });
+
+        async function loadBranches() {
+            const token = localStorage.getItem('token');
+            try {
+                const res = await fetch('/api/v1/stores', { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await res.json();
+                if (data.success) {
+                    const select = document.getElementById('branchFilter');
+                    data.data.forEach(b => {
+                        const opt = document.createElement('option');
+                        opt.value = b.name;
+                        opt.textContent = b.name;
+                        select.appendChild(opt);
+                    });
+                }
+            } catch (e) {}
+        }
+
+        async function loadReport() {
+            const token = localStorage.getItem('token');
+            const from = document.getElementById('fromMonth').value;
+            const to = document.getElementById('toMonth').value;
+            const branch = document.getElementById('branchFilter').value;
+
+            if (!from || !to) return alert('Select date range');
+
+            document.getElementById('reportContent').innerHTML = '<tr><td colspan="8" class="text-center py-5"><div class="spinner-border text-primary"></div></td></tr>';
+
+            try {
+                const res = await fetch(`/api/v1/payrolls/report?fromMonth=${from}&toMonth=${to}&branch=${branch}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const result = await res.json();
+                if (result.success) {
+                    const fromObj = new Date(from + '-01');
+                    const toObj = new Date(to + '-01');
+                    const options = { month: 'long', year: 'numeric' };
+                    document.getElementById('printPeriod').textContent = `Period: ${fromObj.toLocaleDateString('en-US', options)} - ${toObj.toLocaleDateString('en-US', options)}`;
+                    
+                    renderReport(result.data);
+                }
+            } catch (e) {
+                alert('Err: ' + e.message);
+            }
+        }
+
+        function renderReport(data) {
+            const tbody = document.getElementById('reportContent');
+            tbody.innerHTML = '';
+            
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center py-5">No data found</td></tr>';
+                document.getElementById('summaryArea').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('summaryArea').style.display = 'flex';
+
+            let gEmployees = 0, gBasic = 0, gOT = 0, gAllow = 0, gGross = 0, gAdv = 0, gNet = 0;
+
+            // Group by branch
+            const branches = {};
+            data.forEach(row => {
+                const b = row._id.branch || 'Unknown Branch';
+                if (!branches[b]) branches[b] = [];
+                branches[b].push(row);
+            });
+
+            for (const bName in branches) {
+                let bEmployees = 0, bBasic = 0, bOT = 0, bAllow = 0, bGross = 0, bAdv = 0, bNet = 0;
+                
+                // Branch Header
+                tbody.innerHTML += `<tr class="group-header"><td colspan="8"><i class="fas fa-building me-2"></i>${bName}</td></tr>`;
+
+                branches[bName].forEach(dept => {
+                    const totalAllow = (dept.totalComm || 0) + (dept.totalWHComm || 0) + (dept.totalTea || 0) + (dept.totalRent || 0) + (dept.totalNatin || 0) + (dept.totalSTAllow || 0) + (dept.totalOther || 0);
+                    
+                    bEmployees += dept.employeeCount;
+                    bBasic += dept.totalBasic;
+                    bOT += dept.totalOT;
+                    bAllow += totalAllow;
+                    bGross += dept.totalGross;
+                    bAdv += dept.totalAdv;
+                    bNet += dept.totalNet;
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="ps-4">${dept._id.department || 'General'}</td>
+                            <td class="text-center">${dept.employeeCount || 0}</td>
+                            <td class="text-end">${(dept.totalBasic || 0).toLocaleString()}</td>
+                            <td class="text-end">${(dept.totalOT || 0).toLocaleString()}</td>
+                            <td class="text-end">${(totalAllow || 0).toLocaleString()}</td>
+                            <td class="text-end">${(dept.totalGross || 0).toLocaleString()}</td>
+                            <td class="text-end">${(dept.totalAdv || 0).toLocaleString()}</td>
+                            <td class="text-end fw-bold">${(dept.totalNet || 0).toLocaleString()}</td>
+                        </tr>
+                    `;
+                });
+
+                // Branch Total
+                tbody.innerHTML += `
+                    <tr class="total-row">
+                        <td class="text-end">Total ${bName}</td>
+                        <td class="text-center">${bEmployees || 0}</td>
+                        <td class="text-end">${(bBasic || 0).toLocaleString()}</td>
+                        <td class="text-end">${(bOT || 0).toLocaleString()}</td>
+                        <td class="text-end">${(bAllow || 0).toLocaleString()}</td>
+                        <td class="text-end">${(bGross || 0).toLocaleString()}</td>
+                        <td class="text-end">${(bAdv || 0).toLocaleString()}</td>
+                        <td class="text-end">${(bNet || 0).toLocaleString()}</td>
+                    </tr>
+                `;
+
+                gEmployees += bEmployees;
+                gBasic += bBasic;
+                gOT += bOT;
+                gAllow += bAllow;
+                gGross += bGross;
+                gAdv += bAdv;
+                gNet += bNet;
+            }
+
+            // Global Total
+            tbody.innerHTML += `
+                <tr class="bg-dark text-white fw-bold">
+                    <td class="text-end">GRAND TOTAL</td>
+                    <td class="text-center">${gEmployees || 0}</td>
+                    <td class="text-end">${(gBasic || 0).toLocaleString()}</td>
+                    <td class="text-end">${(gOT || 0).toLocaleString()}</td>
+                    <td class="text-end">${(gAllow || 0).toLocaleString()}</td>
+                    <td class="text-end">${(gGross || 0).toLocaleString()}</td>
+                    <td class="text-end">${(gAdv || 0).toLocaleString()}</td>
+                    <td class="text-end">${(gNet || 0).toLocaleString()}</td>
+                </tr>
+            `;
+
+            document.getElementById('totalEmployees').textContent = gEmployees || 0;
+            document.getElementById('sumGross').textContent = (gGross || 0).toLocaleString();
+            document.getElementById('sumAdv').textContent = (gAdv || 0).toLocaleString();
+            document.getElementById('sumNet').textContent = (gNet || 0).toLocaleString();
+        }
+    </script>
+</body>
+</html>

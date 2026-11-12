@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Salary Slip</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Mrs+Saint+Delafield&display=swap');
+
+    .signature-font {
+        font-family: 'Mrs Saint Delafield', cursive;
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #1a237e;
+        display: block;
+        line-height: 1;
+    }
+
+    body {
+        font-family: 'Times New Roman', Times, serif;
+        margin: 0; padding: 0;
+        background-color: #f5f5f5;
+    }
+
+    .no-print {
+        text-align: center;
+        padding: 20px;
+        background: #fff;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .btn {
+        padding: 10px 25px;
+        cursor: pointer;
+        border-radius: 6px;
+        border: none;
+        background: #2e7d32;
+        color: white;
+        font-weight: bold;
+    }
+
+    @media print {
+        @page { size: A4 portrait; margin: 0; }
+        body { background: white; padding: 0 !important; margin: 0 !important; }
+        .no-print { display: none; }
+        .page-wrapper {
+            margin: 0 !important;
+            box-shadow: none !important;
+            page-break-after: always;
+            break-after: page;
+            page-break-inside: avoid;
+            break-inside: avoid;
+            border: none !important;
+        }
+        .page-wrapper:last-child { 
+            page-break-after: auto; 
+            break-after: auto;
+        }
+    }
+
+    /* ── PAGE & SLIP ── */
+    .page-wrapper {
+        width: 210mm;
+        height: 297mm;
+        max-height: 297mm;
+        margin: 0 auto;
+        background: white;
+        padding: 4mm 5mm;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        overflow: hidden;
+    }
+
+    .slip-outer {
+        width: 100%;
+        height: 140mm;
+        max-height: 140mm;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        box-sizing: border-box;
+    }
+
+    .slip-container {
+        width: 100%;
+        height: 100%;
+        border: 1.5px solid #000;
+        padding: 3px 5px 2px 5px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        background: white;
+        overflow: hidden;
+    }
+
+    .cutting-line {
+        width: 100%;
+        border-top: 1.2px dashed #000;
+        margin: 1mm 0;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 4mm;
+        flex-shrink: 0;
+    }
+    .cutting-line::after {
+        content: "✂ Cut Here";
+        position: absolute;
+        background: white;
+        padding: 0 10px;
+        font-family: sans-serif;
+        font-size: 10px;
+        color: #000;
+        text-transform: uppercase;
+    }
+
+    /* ── HEADER ── */
+    .header-section {
+        text-align: center;
+        margin-bottom: 3px;
+        flex-shrink: 0;
+    }
+    .branch-title {
+        font-size: 1.2rem;
+        font-weight: 900;
+        font-family: 'Roboto', sans-serif;
+        color: #1a1a1a;
+    }
+    .slip-title {
+        font-size: 0.92rem;
+        font-weight: bold;
+        text-decoration: underline;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        color: #000;
+    }
+
+    /* ── INFO SECTION – mirrors 3-column table (40 | 20 | 40) ── */
+    .info-section {
+        display: flex;
+        margin-bottom: 3px;
+        font-size: 0.78rem;
+        flex-shrink: 0;
+    }
+    /* Left block aligns with Earnings column */
+    .info-col-left {
+        flex: 0 0 40%;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+    /* Center blank – aligns with stamp column */
+    .info-col-center {
+        flex: 0 0 20%;
+    }
+    /* Right block aligns with Deductions column */
+    .info-col-right {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+    /* Each right row: label+value | Duty Hrs fixed column */
+    .info-right-row {
+        display: flex;
+        align-items: flex-end;
+    }
+    .info-right-main {
+        display: flex;
+        align-items: flex-end;
+        flex: 1;
+        gap: 3px;
+    }
+    .info-row {
+        display: flex;
+        align-items: flex-end;
+        gap: 3px;
+    }
+    .info-label {
+        font-weight: bold;
+        color: #000;
+        white-space: nowrap;
+        min-width: 68px;
+        flex-shrink: 0;
+    }
+    /* Used on left info section (Emp Code / Date / Employee) – underlined */
+    .info-value {
+        border-bottom: 1px solid #000;
+        padding-left: 3px;
+        color: #000;
+        font-weight: bold;
+        flex: 1;
+    }
+    /* Used on right info section (Dept / Designation) – WITH underline, gap before Duty Hrs */
+    .info-value-plain {
+        border-bottom: 1px solid #000;
+        padding-left: 3px;
+        margin-right: 8px;
+        color: #000;
+        font-weight: bold;
+        flex: 1;
+    }
+    /* Duty Hrs column: bottom border line on each cell, matching reference */
+    .duty-col {
+        flex-shrink: 0;
+        width: 52px;
+        text-align: center;
+        padding: 0 4px;
+        font-weight: bold;
+        font-size: 0.78rem;
+        color: #000;
+        border-bottom: 1px solid #000;
+    }
+
+    /* ── MAIN 3-COLUMN TABLE ── */
+    .main-columns {
+        display: flex;
+        border: 1.5px solid #000;
+        flex: 1;          /* fills remaining slip height */
+        overflow: hidden;
+        min-height: 0;
+    }
+
+    /* LEFT – Earnings */
+    .col-earnings {
+        flex: 0 0 40%;
+        display: flex;
+        flex-direction: column;
+        border-right: 1.5px solid #000;
+        overflow: hidden;
+        box-sizing: border-box;
+    }
+
+    /* CENTER – Stamp/Logo */
+    .col-center {
+        flex: 0 0 20%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-right: 1.5px solid #000;
+        box-sizing: border-box;
+    }
+
+    /* RIGHT – Deductions */
+    .col-deductions {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    /* Column header */
+    .col-header {
+        background-color: #555;
+        color: white;
+        text-align: center;
+        padding: 3px 2px;
+        font-weight: bold;
+        font-size: 0.78rem;
+        border-bottom: 1.5px solid #000;
+        flex-shrink: 0;
+    }
+
+    /* ── ROWS  ── key fix: flex:1 so rows fill the column height evenly */
+    .row {
+        display: grid;
+        grid-template-columns: 1.9fr 1fr;
+        border-bottom: 1px solid #000;
+        font-size: 0.71rem;
+        align-items: stretch;
+        flex: 1;          /* ← grow to fill */
+        min-height: 0;
+    }
+    .row:last-child { border-bottom: none; }
+
+    .label {
+        padding: 0 5px;
+        border-right: 1px solid #000;
+        color: #000;
+        display: flex;
+        align-items: center;
+    }
+    .value {
+        padding: 0 5px;
+        text-align: right;
+        font-weight: bold;
+        color: #000;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+    }
+
+    /* Row colours */
+    .row-grey  { background-color: #ccc; font-weight: bold; }
+    .row-light { background-color: #e8e8e8; }
+    /* Highlighted payment – floating badge inside value cell (matches F-6 spacing) */
+    .row-paid      { background-color: transparent; font-weight: bold; }
+    .row-paid-cash { background-color: transparent; font-weight: bold; }
+    .paid-badge {
+        background-color: #d0d0d0;
+        display: block;
+        margin: 3px 4px;       /* gap top/bottom creates the floating look */
+        padding: 0 5px;
+        text-align: right;
+        font-weight: bold;
+    }
+
+    /* ── NET SALARY – inside columns, no alignment issues ── */
+    .net-earnings-cell {
+        background: #000;
+        color: white;
+        font-size: 0.95rem;
+        font-weight: 900;
+        text-align: center;
+        padding: 0 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        min-height: 26px;
+    }
+    .net-deductions-cell {
+        background: #000;
+        color: white;
+        font-size: 0.95rem;
+        font-weight: 900;
+        text-align: right;
+        padding: 0 8px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        flex-shrink: 0;
+        min-height: 26px;
+    }
+
+    /* ── STAMP – large circular like reference ── */
+    .stamp-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+    }
+    /* ── STAMP / LOGO IMAGE ── */
+    .stamp-img {
+        width: 180px;
+        height: 180px;
+        object-fit: contain;
+        opacity: 0.75;
+    }
+    .logo-img {
+        width: 180px;
+        height: 180px;
+        object-fit: contain;
+        opacity: 0.9;
+    }
+    /* CSS fallback stamps (shown when image file not found) */
+    .stamp {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        border: 6px solid;
+        border-radius: 50%;
+        width: 88px;
+        height: 88px;
+        font-size: 0.65rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        font-family: 'Arial Black', sans-serif;
+        opacity: 0.35;
+        transform: rotate(-15deg);
+        line-height: 1.3;
+        word-break: break-word;
+        padding: 6px;
+        box-sizing: border-box;
+        letter-spacing: 1px;
+    }
+    .stamp-bank { color: #1f569b; border-color: #1f569b; }
+    .stamp-cash { color: #2e7d32; border-color: #2e7d32; }
+    .stamp-adv  { color: #ed6c02; border-color: #ed6c02; }
+
+    /* ── SIGNATURE ── */
+    .signature-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        padding: 4px 20px 2px 20px;
+        flex-shrink: 0;
+    }
+    .sig-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .sig-name-area {
+        height: 34px;
+        display: flex;
+        align-items: flex-end;
+    }
+    .sig-line {
+        border-top: 1.5px solid #000;
+        width: 155px;
+        margin: 2px 0;
+    }
+    .sig-label {
+        font-size: 0.75rem;
+        font-weight: bold;
+        color: #000;
+    }
+</style>
+</head>
+<body>
+    <div class="no-print">
+        <button class="btn" onclick="window.print()">Print Slips</button>
+        <button class="btn" id="dcSlipBtn" style="background:#1565c0;margin-left:10px;" onclick="sendCurrentSlipsToDownloadCenter()">Send to Download Center</button>
+        <button class="btn" id="dlPdfBtn" style="background:#0288d1;margin-left:10px;" onclick="downloadSlipPdfDirect()">Download Slip PDF</button>
+        <button class="btn" style="background:#37474f;margin-left:10px;" onclick="window.close()">Close</button>
+    </div>
+
+    <script>
+    function getSlipMetadata() {
+        const printContainer = document.getElementById('printContent');
+        if (!printContainer || !printContainer.innerHTML.trim()) return null;
+
+        const empNameEl = document.querySelector('.info-col-left .info-row:nth-child(3) .info-value');
+        const dateEl    = document.querySelector('.info-col-left .info-row:nth-child(2) .info-value');
+        const branchEl  = document.querySelector('.branch-title');
+        const empName   = empNameEl ? empNameEl.innerText.trim() : 'Employee';
+        const dateStr   = dateEl ? dateEl.innerText.trim() : '';
+        const branchName = branchEl ? branchEl.innerText.trim() : '';
+
+        const slipContainers = printContainer.querySelectorAll('.slip-container');
+        const slipCount = slipContainers.length || 1;
+        const empCodes = new Set();
+        printContainer.querySelectorAll('.info-col-left .info-row:nth-child(1) .info-value').forEach(el => {
+            if (el.innerText.trim()) empCodes.add(el.innerText.trim());
+        });
+
+        let slipTitle = `Salary Slip - ${empName} (${dateStr || 'Current'})`;
+        if (slipCount > 1) {
+            slipTitle = `Salary Slips (${slipCount}) - ${branchName || 'Employees'} (${dateStr || 'Current'})`;
+        }
+
+        return {
+            htmlContent: printContainer.innerHTML,
+            empName,
+            dateStr,
+            branchName,
+            slipCount,
+            slipTitle
+        };
+    }
+
+    async function sendCurrentSlipsToDownloadCenter() {
+        const meta = getSlipMetadata();
+        if (!meta) {
+            alert('Please wait until the slip has finished loading on screen.');
+            return;
+        }
+
+        let targetBranches = [];
+        let slipTitle = meta.slipTitle;
+
+        if (window.downloadCenterClient && typeof window.downloadCenterClient.promptBranchSelection === 'function') {
+            const promptResult = await window.downloadCenterClient.promptBranchSelection({
+                title: meta.slipTitle,
+                defaultBranch: meta.branchName
+            });
+            if (!promptResult) {
+                return; // User canceled
+            }
+            slipTitle = promptResult.title;
+            targetBranches = promptResult.targetBranches;
+        }
+
+        const btn = document.getElementById('dcSlipBtn');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerText = 'Sending Original Slip...';
+        }
+
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch('/api/v1/download-center/send-rendered-slip', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    htmlContent: meta.htmlContent,
+                    title: slipTitle,
+                    targetBranches: targetBranches,
+                    description: meta.slipCount > 1
+                        ? `Original Salary Slips (${meta.slipCount}) for ${meta.branchName || 'Employees'}`
+                        : `Original Salary Slip for ${meta.empName}`
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                const branchText = targetBranches && targetBranches.length > 0 ? ` (${targetBranches.join(', ')})` : ' (All Branches)';
+                alert(`✓ "${slipTitle}" was sent directly to Download Center${branchText}!`);
+            } else {
+                alert('Error: ' + (data.message || 'Failed to send slip to Download Center'));
+            }
+        } catch (e) {
+            alert('Error: ' + e.message);
+        } finally {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerText = 'Send to Download Center';
+            }
+        }
+    }
+
+    async function downloadSlipPdfDirect() {
+        const btn = document.getElementById('dlPdfBtn');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerText = 'Generating PDF...';
+        }
+
+        const meta = getSlipMetadata();
+        if (!meta) {
+            alert('Please wait until the slip has finished loading on screen.');
+            if (btn) { btn.disabled = false; btn.innerText = 'Download Slip PDF'; }
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch('/api/v1/download-center/send-rendered-slip', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    htmlContent: meta.htmlContent,
+                    title: meta.slipTitle,
+                    downloadDirect: true
+                })
+            });
+
+            if (!res.ok) {
+                const errData = await res.json().catch(() => ({}));
+                throw new Error(errData.message || 'Failed to download PDF');
+            }
+
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${meta.slipTitle.replace(/[^a-zA-Z0-9_-]/g, '_')}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (e) {
+            alert('Download Error: ' + e.message);
+        } finally {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerText = 'Download Slip PDF';
+            }
+        }
+    }
+    </script>
+
+    <div id="printContent"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const params = new URLSearchParams(window.location.search);
+            const id    = params.get('id');
+            const ids   = params.get('ids');
+            const urlToken = params.get('token');
+            if (urlToken) {
+                try { localStorage.setItem('token', urlToken); } catch (_) {}
+            }
+            const token = urlToken || localStorage.getItem('token');
+
+            const container = document.getElementById('printContent');
+            if (!id && !ids) {
+                if (container) container.innerHTML = '<div style="padding:40px;text-align:center;font-family:sans-serif;color:#ef4444;"><h3>No Payroll data provided</h3><p>Please open a valid payroll record.</p></div>';
+                return;
+            }
+
+            try {
+                let payrolls = [];
+                const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+
+                if (id) {
+                    const res  = await fetch(`/api/v1/payrolls/${id}`, { headers: authHeaders });
+                    const data = await res.json();
+                    if (data.success && data.data) {
+                        payrolls.push(data.data);
+                    } else {
+                        if (container) {
+                            container.innerHTML = `<div style="padding:40px;text-align:center;font-family:sans-serif;color:#dc2626;"><h3>Access Error</h3><p>${data.message || 'Unable to load payroll record. Please login or verify your permissions.'}</p></div>`;
+                        }
+                        return;
+                    }
+                } else {
+                    for (const pid of ids.split(',')) {
+                        const res  = await fetch(`/api/v1/payrolls/${pid}`, { headers: authHeaders });
+                        const data = await res.json();
+                        if (data.success && data.data) payrolls.push(data.data);
+                    }
+                }
+
+                if (payrolls.length === 0) {
+                    if (container) {
+                        container.innerHTML = '<div style="padding:40px;text-align:center;font-family:sans-serif;color:#dc2626;"><h3>No Records Found</h3><p>Could not retrieve payroll information.</p></div>';
+                    }
+                    return;
+                }
+
+                // Sort ascending by Employee Code (chota code pehle, phir barhta hua tarteeb se)
+                payrolls.sort((a, b) => {
+                    const codeA = String(a.code || a.employee?.code || '');
+                    const codeB = String(b.code || b.employee?.code || '');
+                    return codeA.localeCompare(codeB, undefined, { numeric: true, sensitivity: 'base' });
+                });
+
+                renderPayrolls(payrolls);
+            } catch (e) {
+                console.error(e);
+                if (container) {
+                    container.innerHTML = `<div style="padding:40px;text-align:center;font-family:sans-serif;color:#dc2626;"><h3>Error loading payroll</h3><p>${e.message}</p></div>`;
+                }
+            }
+        });
+
+        function renderPayrolls(payrolls) {
+            const container = document.getElementById('printContent');
+            let pageWrapper = null;
+
+            payrolls.forEach((p, i) => {
+                if (i % 2 === 0) {
+                    pageWrapper = document.createElement('div');
+                    pageWrapper.className = 'page-wrapper';
+                    container.appendChild(pageWrapper);
+                }
+
+                const slipDiv = document.createElement('div');
+                slipDiv.className = 'slip-outer';
+                slipDiv.innerHTML = createSlipHtml(p);
+                pageWrapper.appendChild(slipDiv);
+
+                if (i % 2 === 0 && i < payrolls.length - 1) {
+                    const line = document.createElement('div');
+                    line.className = 'cutting-line';
+                    pageWrapper.appendChild(line);
+                }
+            });
+        }
+
+        function createSlipHtml(p) {
+            const monthNames = ["January","February","March","April","May","June",
+                                "July","August","September","October","November","December"];
+            const [year, month] = (p.monthYear || '2024-01').split('-');
+            const displayDate   = `${monthNames[parseInt(month) - 1]} ${year}`;
+
+            const num = v => {
+                const n = parseFloat(v);
+                return Number.isFinite(n) ? n : 0;
+            };
+
+            const earningsSub     = (p.overTime||0)+(p.monthlyComm||0)+(p.ugComm||0)+(p.warehouseComm||0)+(p.natin||0)
+                                  + (p.otherAllow||0)+(p.rent||0)+(p.teaAllowance||0)+(p.stLateAllow||0);
+            let totalEarnings   = (p.perMonth||0) + earningsSub;
+            const shortTimeAmt  = (p.shortWeek || p.shortTimeAmount || 0);
+
+            // Advance deduction: If pmAdvRec or cmAdvRec is defined, respect their sum directly (even if 0!)
+            let advanceDed = 0;
+            if (p.pmAdvRec !== undefined || p.cmAdvRec !== undefined) {
+                advanceDed = num(p.pmAdvRec) + num(p.cmAdvRec);
+            } else if (p.totalAdv !== undefined) {
+                advanceDed = num(p.totalAdv);
+            } else if (p.advanceDed !== undefined) {
+                advanceDed = num(p.advanceDed);
+            } else {
+                advanceDed = num(p.totalAdvRec);
+            }
+
+            const otherDed      = (p.penalty||0) + (p.otherDeduction||0) + (p.umrahDeduction||0) || (p.otherDedPenalty || 0);
+            const totalDeductions = shortTimeAmt + advanceDed + otherDed + (p.wht||0)
+                                  + (p.securityDeposit||0) + (p.ttw||0) + (p.fund||0) + (p.ugrm||0)
+                                  + (p.ebDeduction||0);
+
+            // Rebuild gross from saved totals when line-item earnings are missing/incomplete
+            if (!totalEarnings && p.grossTotal) {
+                totalEarnings = (p.grossTotal || 0) + shortTimeAmt + (p.ebDeduction||0) + otherDed
+                              + (p.securityDeposit||0) + (p.ttw||0) + (p.fund||0) + (p.ugrm||0);
+            }
+            const computedNet       = Math.max(0, totalEarnings - totalDeductions);
+            const bankPaidAmt       = num(p.bankPaid);
+            const cashPaidAmt       = num(p.cashPaid);
+            const storedNet         = num(p.netTotal);
+
+            // Bank paid slip: NET bar = 0 (amount shown in Bank Paid row only)
+            // Cash paid slip: NET bar = cash amount
+            let netSalaryDisplay = 0;
+            if (bankPaidAmt > 0) {
+                netSalaryDisplay = 0;
+            } else if (cashPaidAmt > 0) {
+                netSalaryDisplay = cashPaidAmt;
+            } else {
+                netSalaryDisplay = storedNet || computedNet;
+            }
+            const balance       = (p.pAAdv||0) + (p.csMale||0) - advanceDed;
+
+            /* Stamp – tries custom image first, falls back to CSS stamp */
+            let stampHtml = '';
+            if (bankPaidAmt > 0) {
+                stampHtml = `
+                    <img class="stamp-img"
+                         src="/img/payroll/stamp-bank.png"
+                         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+                         alt="Bank Paid">
+                    <div class="stamp stamp-bank" style="display:none">BANK<br>ACCOUNT</div>`;
+            } else if (p.payAdvSalary) {
+                stampHtml = `
+                    <img class="stamp-img"
+                         src="/img/payroll/stamp-advance.png"
+                         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+                         alt="Advance Paid">
+                    <div class="stamp stamp-adv" style="display:none">ADVANCE<br>PAID</div>`;
+            } else if (cashPaidAmt > 0) {
+                stampHtml = `
+                    <img class="stamp-img"
+                         src="/img/payroll/stamp-cash.png"
+                         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+                         alt="Cash Paid">
+                    <div class="stamp stamp-cash" style="display:none">CASH<br>PAID</div>`;
+            } else {
+                /* No payment type – show company logo */
+                stampHtml = `
+                    <img class="logo-img"
+                         src="/img/payroll/logo.png"
+                         onerror="this.style.display='none'"
+                         alt="Logo">`;
+            }
+
+            const fmt = v => (v || 0).toLocaleString();
+
+            return `
+            <div class="slip-container">
+
+                <!-- HEADER -->
+                <div class="header-section">
+                    <div class="branch-title">${p.branch || '(F-6)'}</div>
+                    <div class="slip-title">Salary Slip</div>
+                </div>
+
+                <!-- INFO – 3-column mirrored layout -->
+                <div class="info-section">
+                    <!-- LEFT: mirrors Earnings column -->
+                    <div class="info-col-left">
+                        <div class="info-row">
+                            <span class="info-label">Emp Code:</span>
+                            <span class="info-value">${p.code || ''}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Date:</span>
+                            <span class="info-value">${displayDate}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Employee:</span>
+                            <span class="info-value">${p.employee?.name || 'N/A'}</span>
+                        </div>
+                    </div>
+                    <!-- CENTER: blank gap mirrors stamp column -->
+                    <div class="info-col-center"></div>
+                    <!-- RIGHT: mirrors Deductions column -->
+                    <div class="info-col-right">
+                        <!-- Row 1: Department | Duty Hrs label -->
+                        <div class="info-right-row">
+                            <div class="info-right-main">
+                                <span class="info-label">Department:</span>
+                                <span class="info-value-plain">${p.department?.name || p.department || ''}</span>
+                            </div>
+                            <div class="duty-col"><strong>Duty Hrs</strong></div>
+                        </div>
+                        <!-- Row 2: Designation | Duty Hrs value -->
+                        <div class="info-right-row">
+                            <div class="info-right-main">
+                                <span class="info-label">Designation:</span>
+                                <span class="info-value-plain">${p.designation || ''}</span>
+                            </div>
+                            <div class="duty-col">${p.totalHrsPerDay || 8}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MAIN 3-COLUMN TABLE -->
+                <div class="main-columns">
+
+                    <!-- LEFT: EARNINGS -->
+                    <div class="col-earnings">
+                        <div class="col-header">Earnings</div>
+                        <div class="row"><div class="label">Basic Salary</div><div class="value">${fmt(p.perMonth)}</div></div>
+                        <div class="row row-light"><div class="label">Over Time</div><div class="value">${fmt(p.overTime)}</div></div>
+                        <div class="row"><div class="label">Allowance</div><div class="value">0</div></div>
+                        <div class="row"><div class="label">Fix Allowance</div><div class="value">${fmt(p.natin)}</div></div>
+                        <div class="row"><div class="label">Monthly Commission</div><div class="value">${fmt(p.monthlyComm)}</div></div>
+                        <div class="row"><div class="label">UG Commission</div><div class="value">${fmt(p.ugComm)}</div></div>
+                        <div class="row"><div class="label">WareHouse Comm</div><div class="value">${fmt(p.warehouseComm)}</div></div>
+                        <div class="row"><div class="label">Other Allowance</div><div class="value">${fmt(p.otherAllow)}</div></div>
+                        <div class="row"><div class="label">Breakfast &amp; Roti</div><div class="value">${fmt((p.rent || 0) + (p.teaAllowance || 0))}</div></div>
+                        <div class="row"><div class="label">ST.Less Allowance</div><div class="value">${fmt(p.stLateAllow)}</div></div>
+                        <div class="row row-grey"><div class="label">Gross Salary</div><div class="value">${fmt(totalEarnings)}</div></div>
+                        <div class="row ${bankPaidAmt > 0 ? 'row-paid' : ''}"><div class="label">Bank Paid</div><div class="value">${bankPaidAmt > 0 ? `<span class="paid-badge">${fmt(bankPaidAmt)}</span>` : fmt(bankPaidAmt)}</div></div>
+                        <!-- NET Salary inside earnings column -->
+                        <div class="net-earnings-cell">NET Salary</div>
+                    </div>
+
+                    <!-- CENTER: LOGO / STAMP -->
+                    <div class="col-center">
+                        <div class="stamp-wrap">${stampHtml}</div>
+                    </div>
+
+                    <!-- RIGHT: DEDUCTIONS -->
+                    <div class="col-deductions">
+                        <div class="col-header">Deductions</div>
+                        <div class="row"><div class="label">Short Time</div><div class="value">${fmt(shortTimeAmt)}</div></div>
+                        <div class="row"><div class="label">Mess</div><div class="value">${fmt(p.ebDeduction)}</div></div>
+                        <div class="row"><div class="label">Pre_Month_Balance</div><div class="value">${fmt(p.pAAdv)}</div></div>
+                        <div class="row"><div class="label">Current_Advance</div><div class="value">${fmt(p.csMale)}</div></div>
+                        <div class="row"><div class="label">Advance Deduction</div><div class="value">${fmt(advanceDed)}</div></div>
+                        <div class="row row-grey"><div class="label">Balance</div><div class="value">${balance.toLocaleString()}</div></div>
+                        <div class="row"><div class="label">Other Deduction</div><div class="value">${fmt(p.otherDeduction || 0)}</div></div>
+                        <div class="row"><div class="label">Penalty</div><div class="value">${fmt((p.penalty||0) + (p.umrahDeduction||0))}</div></div>
+                        <div class="row"><div class="label">Salary WHT</div><div class="value">${fmt(p.wht)}</div></div>
+                        <div class="row"><div class="label">Security Deposit</div><div class="value">${fmt(p.securityDeposit)}</div></div>
+                        <div class="row row-grey"><div class="label">Total Deduction</div><div class="value">${fmt(totalDeductions)}</div></div>
+                        <div class="row ${cashPaidAmt > 0 ? 'row-paid-cash' : ''}"><div class="label">Cash_Paid</div><div class="value">${cashPaidAmt > 0 ? `<span class="paid-badge">${fmt(cashPaidAmt)}</span>` : fmt(cashPaidAmt)}</div></div>
+                        <!-- NET value inside deductions column -->
+                        <div class="net-deductions-cell">${fmt(netSalaryDisplay)}</div>
+                    </div>
+
+                </div>
+
+                <!-- SIGNATURE -->
+                <div class="signature-section">
+                    <div class="sig-box">
+                        <div class="sig-name-area">
+                            <span class="signature-font">${p.createdBy?.name || 'M. Bilal'}</span>
+                        </div>
+                        <div class="sig-line"></div>
+                        <div class="sig-label">Prepared By</div>
+                    </div>
+                    <div class="sig-box">
+                        <div class="sig-name-area"></div>
+                        <div class="sig-line"></div>
+                        <div class="sig-label">Approved By</div>
+                    </div>
+                </div>
+
+            </div>`;
+        }
+    </script>
+</body>
+</html>

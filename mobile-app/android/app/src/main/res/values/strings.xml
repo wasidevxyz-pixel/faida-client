@@ -1,0 +1,4 @@
+<resources>
+  <string name="app_name">BAS-SOFTWARE</string>
+  <integer name="AsyncStorage_db_size_in_MB">50</integer>
+</resources>

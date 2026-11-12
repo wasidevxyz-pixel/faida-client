@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Print Employee Activity</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            background: white;
+            padding: 20px;
+        }
+
+        .report-header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .report-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 0;
+            padding: 10px 0;
+        }
+
+        .report-meta {
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            text-align: center;
+            border: 1px solid black;
+            padding: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+
+        th,
+        td {
+            border: 1px solid black;
+            padding: 4px;
+            text-align: right;
+        }
+
+        /* Align text columns left */
+        td:nth-child(2),
+        td:nth-child(3) {
+            text-align: left;
+        }
+
+        th {
+            text-align: center;
+            font-weight: bold;
+            background-color: black !important;
+            color: white !important;
+            border: 1px solid white !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        tfoot tr {
+            background-color: #bfbfbf !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        @media print {
+            .no-print {
+                display: none;
+            }
+
+            @page {
+                size: A4 portrait;
+                margin: 10mm;
+            }
+        }
+
+        .branch-header {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="no-print mb-3 text-center">
+        <button onclick="window.print()" class="btn btn-primary">Print</button>
+        <button onclick="window.close()" class="btn btn-secondary">Close</button>
+    </div>
+
+    <div class="report-header">
+        <h2 class="report-title">Employee Advance Activity</h2>
+    </div>
+
+    <!-- Meta Info: Dates -->
+    <div class="report-meta">
+        <span class="fw-bold">From</span> <span id="displayStart"></span>
+        <span class="fw-bold ms-4">To</span> <span id="displayEnd"></span>
+    </div>
+
+    <!-- Branch Name (Assuming filtered by single branch or "All") -->
+    <div class="branch-header" id="displayBranch"></div>
+
+    <table class="table-bordered">
+        <thead>
+            <tr>
+                <th style="width: 5%;">Sr #</th>
+                <th style="width: 10%;">Code</th>
+                <th style="width: 25%; text-align: left;">Employee Name</th>
+                <th style="width: 10%;">Bsc Sal</th>
+                <th style="width: 10%;">Opening Bal</th>
+                <th style="width: 10%;">Current Advance</th>
+                <th style="width: 10%;">Total Advance</th>
+                <th style="width: 10%;">Ded. From Salary</th>
+                <th style="width: 10%;">Balance</th>
+            </tr>
+        </thead>
+        <tbody id="reportBody">
+            <!-- Data -->
+        </tbody>
+        <tfoot>
+            <tr class="fw-bold">
+                <td colspan="3" class="text-end">Total:</td>
+                <td id="totalBasic" class="text-end">0</td>
+                <td id="totalOpening" class="text-end">0</td>
+                <td id="totalCurrent" class="text-end">0</td>
+                <td id="totalTotalAdv" class="text-end">0</td>
+                <td id="totalDed" class="text-end">0</td>
+                <td id="totalBalance" class="text-end">0</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const params = new URLSearchParams(window.location.search);
+            const startDate = params.get('startDate');
+            const endDate = params.get('endDate');
+            const branch = params.get('branch');
+            const employee = params.get('employee');
+            const code = params.get('code');
+
+            // Set Display Dates
+            if (startDate) document.getElementById('displayStart').textContent = formatDate(startDate);
+            if (endDate) document.getElementById('displayEnd').textContent = formatDate(endDate);
+            const displayBranch = branch ? branch : "All Branches";
+            document.getElementById('displayBranch').textContent = `Branch: ${displayBranch}`;
+
+            try {
+                const token = localStorage.getItem('token');
+                const apiUrl = `/api/v1/employee-advances/activity-report?${params.toString()}`;
+
+                const res = await fetch(apiUrl, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    renderReport(data.data);
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Error fetching report');
+            }
+        });
+
+        function renderReport(data) {
+            const tbody = document.getElementById('reportBody');
+            let sr = 1;
+
+            // Totals
+            let tBasic = 0, tOpen = 0, tCurr = 0, tTot = 0, tDed = 0, tBal = 0;
+
+            data.forEach(row => {
+                tBasic += row.basicSalary;
+                tOpen += row.openingBalance;
+                tCurr += row.currentAdvance;
+                tTot += row.totalAdvance;
+                tDed += row.dedFromSalary;
+                tBal += row.balance;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="text-center">${sr++}</td>
+                    <td class="text-center">${row.code || '-'}</td>
+                    <td>${row.name}</td>
+                    <td>${formatNum(row.basicSalary)}</td>
+                    <td>${formatNum(row.openingBalance)}</td>
+                    <td>${formatNum(row.currentAdvance)}</td>
+                    <td>${formatNum(row.totalAdvance)}</td>
+                    <td>${formatNum(row.dedFromSalary)}</td>
+                    <td>${formatNum(row.balance)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Update Footer
+            document.getElementById('totalBasic').textContent = formatNum(tBasic);
+            document.getElementById('totalOpening').textContent = formatNum(tOpen);
+            document.getElementById('totalCurrent').textContent = formatNum(tCurr);
+            document.getElementById('totalTotalAdv').textContent = formatNum(tTot);
+            document.getElementById('totalDed').textContent = formatNum(tDed);
+            document.getElementById('totalBalance').textContent = formatNum(tBal);
+        }
+
+        function formatNum(num) {
+            return num.toLocaleString('en-US'); // No decimals usually in these reports per screenshot
+        }
+
+        function formatDate(dateStr) {
+            const d = new Date(dateStr);
+            return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+    </script>
+</body>
+
+</html>
+

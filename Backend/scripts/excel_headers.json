@@ -1,0 +1,13 @@
+[
+  "S.NO",
+  "Item_Name",
+  "Item_Code",
+  "Cost_Price",
+  "Sale_Price",
+  "Retial_Price",
+  "Company_Name",
+  "Category_Name",
+  "Class_Name",
+  "SubClass_Name",
+  "Supplier_Name"
+]

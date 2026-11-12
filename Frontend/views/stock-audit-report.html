@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Audit Report - Bilal Accounting System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #1a4b84 0%, #0d2e59 100%);
+            --header-bg: #1e3a5f;
+            --accent-blue: #0284c7;
+        }
+
+        body {
+            background-color: #f1f5f9;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Compact Layout Container */
+        .report-layout {
+            padding: 10px 14px;
+            height: calc(100vh - 52px);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            box-sizing: border-box;
+        }
+
+        /* Compact Filter Toolbar */
+        .filter-toolbar {
+            background: var(--primary-gradient);
+            padding: 10px 14px;
+            border-radius: 8px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(13, 46, 89, 0.15);
+            flex-shrink: 0;
+        }
+
+        .filter-toolbar label {
+            font-weight: 600;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 3px;
+            display: block;
+            opacity: 0.95;
+            color: #e2e8f0;
+        }
+
+        .filter-toolbar .form-control,
+        .filter-toolbar .form-select {
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            background: rgba(255, 255, 255, 0.95);
+            color: #1e293b !important;
+            border-radius: 5px;
+            font-size: 12px;
+            padding: 4px 8px;
+            height: 31px;
+            font-weight: 500;
+        }
+
+        .filter-toolbar .form-control:focus,
+        .filter-toolbar .form-select:focus {
+            background: #ffffff;
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.35);
+        }
+
+        .quick-filter-pills {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-wrap: wrap;
+            margin-top: 6px;
+            padding-top: 6px;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .quick-pill {
+            background: rgba(255, 255, 255, 0.15);
+            color: #f8fafc;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+
+        .quick-pill:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        .quick-pill.active {
+            background: #38bdf8;
+            color: #0f172a;
+            border-color: #38bdf8;
+            font-weight: 700;
+        }
+
+        /* KPI Summary Ribbon */
+        .kpi-ribbon {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 7px;
+            padding: 6px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
+            border: 1px solid #e2e8f0;
+            border-left: 4px solid #64748b;
+        }
+
+        .kpi-card.total { border-left-color: #6366f1; }
+        .kpi-card.matched { border-left-color: #10b981; }
+        .kpi-card.surplus { border-left-color: #0284c7; }
+        .kpi-card.shortage { border-left-color: #ef4444; }
+        .kpi-card.variance { border-left-color: #f59e0b; }
+
+        .kpi-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: #64748b;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-value {
+            font-size: 16px;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1;
+        }
+
+        .kpi-card.total .kpi-value { color: #4338ca; }
+        .kpi-card.matched .kpi-value { color: #059669; }
+        .kpi-card.surplus .kpi-value { color: #0369a1; }
+        .kpi-card.shortage .kpi-value { color: #dc2626; }
+        .kpi-card.variance .kpi-value { color: #d97706; }
+
+        /* Max Real Estate Data Panel */
+        .data-panel {
+            flex: 1;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #cbd5e1;
+            min-height: 0;
+        }
+
+        .data-panel-header {
+            background: #f8fafc;
+            padding: 6px 14px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .table-responsive-container {
+            flex: 1;
+            overflow: auto;
+            min-height: 0;
+            position: relative;
+        }
+
+        /* Modern ERP Table */
+        .erp-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 12px;
+            margin-bottom: 0;
+        }
+
+        .erp-table thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .erp-table th {
+            background: #1e3a5f;
+            color: #ffffff;
+            padding: 8px 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 10.5px;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #0f233d;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            white-space: nowrap;
+        }
+
+        .erp-table th:last-child {
+            border-right: none;
+        }
+
+        .erp-table td {
+            padding: 6px 10px;
+            border-bottom: 1px solid #e2e8f0;
+            border-right: 1px solid #f1f5f9;
+            color: #1e293b;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+        .erp-table td:last-child {
+            border-right: none;
+        }
+
+        .erp-table tbody tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        .erp-table tbody tr:hover {
+            background-color: #e0f2fe !important;
+        }
+
+        /* Row Badges & Accents */
+        .badge-audit-no {
+            background: #e2e8f0;
+            color: #0f172a;
+            font-family: Consolas, Monaco, monospace;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid #cbd5e1;
+            font-size: 11px;
+        }
+
+        .barcode-pill {
+            font-family: Consolas, Monaco, monospace;
+            font-weight: 700;
+            color: #0369a1;
+            background: #f0f9ff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid #bae6fd;
+            font-size: 11px;
+        }
+
+        .item-name-cell {
+            font-weight: 600;
+            color: #0f172a;
+            max-width: 280px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .status-pill {
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            min-width: 65px;
+            text-align: center;
+        }
+
+        .status-pill.matched {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .status-pill.surplus {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+
+        .status-pill.shortage {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .diff-tag {
+            font-weight: 800;
+            font-size: 12px;
+        }
+        .diff-tag.surplus { color: #0284c7; }
+        .diff-tag.shortage { color: #dc2626; }
+        .diff-tag.matched { color: #64748b; }
+
+        /* Group Header */
+        .group-header-row {
+            background: #e2e8f0 !important;
+            font-weight: 700;
+        }
+        .group-header-row td {
+            padding: 6px 12px;
+            font-size: 12px;
+            color: #1e3a5f;
+            border-bottom: 2px solid #cbd5e1;
+        }
+
+        /* Footer summary */
+        .erp-table tfoot {
+            position: sticky;
+            bottom: 0;
+            z-index: 9;
+            background: #0f172a;
+            color: white;
+            font-weight: 700;
+        }
+        .erp-table tfoot td {
+            color: white !important;
+            border-top: 2px solid #334155;
+            padding: 8px 10px;
+            font-size: 11.5px;
+            background: #0f172a;
+        }
+
+        .no-data-placeholder {
+            padding: 40px 20px;
+            text-align: center;
+            color: #94a3b8;
+        }
+        .no-data-placeholder i {
+            font-size: 40px;
+            margin-bottom: 10px;
+            color: #cbd5e1;
+        }
+
+        /* Print Media */
+        @media print {
+            @page {
+                size: A4 landscape;
+                margin: 6mm;
+            }
+
+            body {
+                background: white;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .page-header,
+            .filter-toolbar,
+            .sidebar,
+            #sidebarToggle,
+            .dropdown,
+            .btn,
+            button,
+            .data-panel-header,
+            .no-print {
+                display: none !important;
+            }
+
+            .report-layout {
+                padding: 0;
+                margin: 0;
+                height: auto;
+                width: 100%;
+            }
+
+            .data-panel {
+                border: none;
+                box-shadow: none;
+            }
+
+            .table-responsive-container {
+                overflow: visible;
+            }
+
+            .print-header {
+                display: block !important;
+                border-bottom: 2px solid #1e3a5f;
+                padding-bottom: 8px;
+                margin-bottom: 12px !important;
+                text-align: center;
+            }
+
+            .kpi-ribbon {
+                display: flex !important;
+                gap: 8px;
+                margin-bottom: 12px;
+            }
+
+            .kpi-card {
+                border: 1px solid #cbd5e1;
+                flex: 1;
+            }
+
+            .erp-table th {
+                background: #1e3a5f !important;
+                color: white !important;
+                font-size: 9px;
+                padding: 4px 6px;
+            }
+
+            .erp-table td {
+                font-size: 9px;
+                padding: 3px 6px;
+                border: 1px solid #e2e8f0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Print Header -->
+    <div class="print-header" style="display:none;">
+        <h2 style="margin:0; font-size: 20px; font-weight:800; color:#1e3a5f; text-transform:uppercase;">Bilal Accounting System</h2>
+        <h4 id="printBranchName" style="margin:2px 0 0; font-size:13px; color:#475569;">All Branches</h4>
+        <h5 id="printReportTitle" style="margin:3px 0; font-size:14px; font-weight:700; color:#0f172a;">Stock Audit Report</h5>
+        <p id="printDateRange" style="margin:2px 0 0; font-size:11px; color:#64748b;">-</p>
+    </div>
+
+    <!-- Navigation Header -->
+    <div class="page-header px-3">
+        <div style="flex: 1; display: flex; align-items: center;">
+            <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+            <span style="font-weight: 700; font-size: 1.05rem;"><i class="fas fa-clipboard-check me-2 text-info"></i>Stock Audit Report</span>
+        </div>
+        <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
+            <div class="dropdown">
+                <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown" style="cursor: pointer;">
+                    <i class="fas fa-user-circle me-2" style="font-size: 1.2rem;"></i>
+                    <span id="userName" class="me-2 font-weight-bold">User</span>
+                    <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                    <li><a class="dropdown-item logout-btn" href="#"><i class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Layout -->
+    <div class="report-layout">
+        <!-- Compact Filter Toolbar -->
+        <div class="filter-toolbar">
+            <div class="row g-2 align-items-end">
+                <div class="col-xl-1 col-lg-2 col-md-3 col-sm-6">
+                    <label><i class="fas fa-calendar-alt me-1"></i>From Date</label>
+                    <input type="date" id="filterFromDate" class="form-control">
+                </div>
+                <div class="col-xl-1 col-lg-2 col-md-3 col-sm-6">
+                    <label><i class="fas fa-calendar-alt me-1"></i>To Date</label>
+                    <input type="date" id="filterToDate" class="form-control">
+                </div>
+                <div class="col-xl-2 col-lg-2 col-md-3 col-sm-6">
+                    <label><i class="fas fa-layer-group me-1"></i>Audit Source</label>
+                    <select id="filterAuditType" class="form-select" onchange="loadReport()">
+                        <option value="all">All (Shop & Warehouse)</option>
+                        <option value="wh">Warehouse Stock Audit</option>
+                        <option value="shop">Shop / Retail Stock Audit</option>
+                    </select>
+                </div>
+                <div class="col-xl-2 col-lg-2 col-md-3 col-sm-6">
+                    <label><i class="fas fa-tags me-1"></i>Item Category</label>
+                    <select id="filterCategory" class="form-select" onchange="applyLocalFilters()">
+                        <option value="">All Categories</option>
+                    </select>
+                </div>
+                <div class="col-xl-1 col-lg-2 col-md-3 col-sm-6">
+                    <label><i class="fas fa-store me-1"></i>Branch</label>
+                    <select id="filterBranch" class="form-select" onchange="loadReport()">
+                        <option value="">All</option>
+                    </select>
+                </div>
+                <div class="col-xl-1 col-lg-2 col-md-3 col-sm-6">
+                    <label><i class="fas fa-sliders-h me-1"></i>Status</label>
+                    <select id="filterStatus" class="form-select" onchange="applyLocalFilters()">
+                        <option value="">All</option>
+                        <option value="match">Match Only</option>
+                        <option value="surplus">Surplus (+)</option>
+                        <option value="shortage">Shortage (-)</option>
+                        <option value="discrepancy">Discrepancy (!= 0)</option>
+                    </select>
+                </div>
+                <div class="col-xl-1 col-lg-2 col-md-3 col-sm-6">
+                    <label><i class="fas fa-folder me-1"></i>Group By</label>
+                    <select id="filterGroupBy" class="form-select" onchange="applyLocalFilters()">
+                        <option value="none">None</option>
+                        <option value="category">Category</option>
+                        <option value="auditNo">Audit No</option>
+                        <option value="status">Status</option>
+                    </select>
+                </div>
+                <div class="col-xl-2 col-lg-2 col-md-6 col-sm-6">
+                    <label><i class="fas fa-search me-1"></i>Search Item / Barcode</label>
+                    <input type="search" id="filterSearch" class="form-control" placeholder="Item name, barcode, code..." oninput="applyLocalFilters()" onsearch="applyLocalFilters()" onkeyup="applyLocalFilters()">
+                </div>
+                <div class="col-xl-1 col-lg-2 col-md-6 col-sm-6 d-flex gap-1">
+                    <button class="btn btn-primary btn-sm flex-fill" onclick="loadReport()" title="Refresh / Search" style="height:31px; background:#0284c7; border-color:#0284c7;">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button class="btn btn-warning btn-sm flex-fill text-dark fw-bold" onclick="printReport()" title="Print" style="height:31px;">
+                        <i class="fas fa-print"></i>
+                    </button>
+                    <button class="btn btn-success btn-sm flex-fill fw-bold" onclick="exportExcel()" title="Export Excel" style="height:31px;">
+                        <i class="fas fa-file-excel"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quick Filter Pills -->
+            <div class="quick-filter-pills">
+                <span style="font-size:10.5px; opacity:0.85; margin-right:4px;"><i class="fas fa-bolt text-warning me-1"></i>Quick Ranges:</span>
+                <span class="quick-pill" onclick="setDateRange('today', this)">Today</span>
+                <span class="quick-pill" onclick="setDateRange('week', this)">This Week</span>
+                <span class="quick-pill active" onclick="setDateRange('month', this)">This Month</span>
+                <span class="quick-pill" onclick="setDateRange('lastMonth', this)">Last Month</span>
+                <span class="quick-pill" onclick="setDateRange('year', this)">This Year</span>
+                <span class="quick-pill" onclick="setDateRange('all', this)">All Time</span>
+            </div>
+        </div>
+
+        <!-- KPI Summary Ribbon -->
+        <div class="kpi-ribbon">
+            <div class="kpi-card total">
+                <div>
+                    <div class="kpi-label">Audited Items</div>
+                    <div class="kpi-value" id="kpiTotalItems">0</div>
+                </div>
+                <i class="fas fa-boxes text-indigo" style="font-size: 20px; opacity: 0.35; color:#6366f1;"></i>
+            </div>
+            <div class="kpi-card matched">
+                <div>
+                    <div class="kpi-label">Matched (0 Diff)</div>
+                    <div class="kpi-value" id="kpiMatched">0</div>
+                </div>
+                <i class="fas fa-check-circle" style="font-size: 20px; opacity: 0.35; color:#10b981;"></i>
+            </div>
+            <div class="kpi-card surplus">
+                <div>
+                    <div class="kpi-label">Surplus Items (+)</div>
+                    <div class="kpi-value" id="kpiSurplus">0</div>
+                </div>
+                <i class="fas fa-arrow-circle-up" style="font-size: 20px; opacity: 0.35; color:#0284c7;"></i>
+            </div>
+            <div class="kpi-card shortage">
+                <div>
+                    <div class="kpi-label">Shortage Items (-)</div>
+                    <div class="kpi-value" id="kpiShortage">0</div>
+                </div>
+                <i class="fas fa-arrow-circle-down" style="font-size: 20px; opacity: 0.35; color:#ef4444;"></i>
+            </div>
+            <div class="kpi-card variance">
+                <div>
+                    <div class="kpi-label">Net Diff Value</div>
+                    <div class="kpi-value" id="kpiNetDiffVal">Rs. 0</div>
+                </div>
+                <i class="fas fa-calculator" style="font-size: 20px; opacity: 0.35; color:#f59e0b;"></i>
+            </div>
+        </div>
+
+        <!-- High-Capacity Data Panel -->
+        <div class="data-panel">
+            <div class="data-panel-header">
+                <div class="d-flex align-items-center gap-2">
+                    <span style="font-weight:700; font-size:12.5px; color:#1e3a5f;">
+                        <i class="fas fa-list-check me-1 text-primary"></i>Audit Item Records
+                    </span>
+                    <span id="recordCountBadge" class="badge bg-secondary" style="font-size:10px;">0 rows</span>
+                </div>
+                <div style="font-size: 11px; color:#64748b;" id="filterSummaryText">
+                    Showing all records
+                </div>
+            </div>
+
+            <div class="table-responsive-container" id="tableContainer">
+                <table class="erp-table" id="auditReportTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 38px;" class="text-center">#</th>
+                            <th style="width: 85px;">Date</th>
+                            <th style="width: 100px;">Audit No</th>
+                            <th style="width: 115px;">Barcode</th>
+                            <th>Item Description</th>
+                            <th style="width: 110px;">Category</th>
+                            <th style="width: 90px;" class="text-end">Cost Price</th>
+                            <th style="width: 80px;" class="text-end">System Qty</th>
+                            <th style="width: 80px;" class="text-end">Physical Qty</th>
+                            <th style="width: 80px;" class="text-end">Difference</th>
+                            <th style="width: 95px;" class="text-end">Diff Value</th>
+                            <th style="width: 85px;" class="text-center">Status</th>
+                            <th style="width: 130px;">Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportTableBody">
+                        <tr>
+                            <td colspan="13" class="no-data-placeholder">
+                                <i class="fas fa-spinner fa-spin"></i>
+                                <p class="mb-0">Loading audit records...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot id="reportTableFoot" style="display:none;">
+                        <tr>
+                            <td colspan="7" class="text-end fw-bold text-uppercase">Grand Total:</td>
+                            <td class="text-end fw-bold" id="footSysQty">0</td>
+                            <td class="text-end fw-bold" id="footPhysQty">0</td>
+                            <td class="text-end fw-bold" id="footDiffQty">0</td>
+                            <td class="text-end fw-bold" id="footDiffVal">Rs. 0</td>
+                            <td colspan="2"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244530"></script>
+    <script src="/js/desktop-ui.js?v=12"></script>
+    <script>
+        // Global State
+        let allAuditRows = [];
+        let filteredRows = [];
+
+        function formatCurrency(amt) {
+            return new Intl.NumberFormat('en-PK', { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(amt || 0);
+        }
+
+        function formatDate(d) {
+            if (!d) return '-';
+            const dt = new Date(d);
+            if (isNaN(dt.getTime())) return String(d).slice(0, 10);
+            return dt.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            if (!localStorage.getItem('token')) {
+                window.location.href = 'login';
+                return;
+            }
+
+            // Set user name in header
+            try {
+                const user = JSON.parse(localStorage.getItem('user'));
+                if (user && user.name) document.getElementById('userName').textContent = user.name;
+            } catch (e) { }
+
+            // Check URL parameters (e.g., ?type=wh)
+            const urlParams = new URLSearchParams(window.location.search);
+            const typeParam = urlParams.get('type');
+            if (typeParam && document.getElementById('filterAuditType')) {
+                document.getElementById('filterAuditType').value = typeParam.toLowerCase();
+            }
+
+            setDateRange('month');
+            loadBranches();
+            loadCategories();
+            loadReport();
+        });
+
+        function setDateRange(range, pillEl) {
+            if (pillEl) {
+                document.querySelectorAll('.quick-pill').forEach(p => p.classList.remove('active'));
+                pillEl.classList.add('active');
+            }
+
+            const today = new Date();
+            let from = new Date(), to = new Date();
+
+            switch (range) {
+                case 'today':
+                    from = to = today;
+                    break;
+                case 'week':
+                    from = new Date(today);
+                    from.setDate(today.getDate() - today.getDay());
+                    to = new Date(from);
+                    to.setDate(from.getDate() + 6);
+                    break;
+                case 'month':
+                    from = new Date(today.getFullYear(), today.getMonth(), 1);
+                    to = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                    break;
+                case 'lastMonth':
+                    from = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                    to = new Date(today.getFullYear(), today.getMonth(), 0);
+                    break;
+                case 'year':
+                    from = new Date(today.getFullYear(), 0, 1);
+                    to = new Date(today.getFullYear(), 11, 31);
+                    break;
+                case 'all':
+                    from = new Date('2020-01-01');
+                    to = new Date(today.getFullYear() + 2, 11, 31);
+                    break;
+            }
+
+            document.getElementById('filterFromDate').value = from.toISOString().split('T')[0];
+            document.getElementById('filterToDate').value = to.toISOString().split('T')[0];
+            loadReport();
+        }
+
+        async function loadBranches() {
+            const token = localStorage.getItem('token');
+            try {
+                const res = await fetch('/api/v1/stores', { headers: { 'Authorization': `Bearer ${token}` } });
+                if (res.ok) {
+                    const d = await res.json();
+                    (d.data || []).forEach(s => {
+                        document.getElementById('filterBranch').innerHTML += `<option value="${s._id}">${s.name}</option>`;
+                    });
+                }
+            } catch (e) { }
+        }
+
+        async function loadCategories() {
+            const token = localStorage.getItem('token');
+            try {
+                // Fetch WH item categories
+                const res = await fetch('/api/v1/wh-item-categories', { headers: { 'Authorization': `Bearer ${token}` } });
+                if (res.ok) {
+                    const d = await res.json();
+                    const catSelect = document.getElementById('filterCategory');
+                    (d.data || []).forEach(c => {
+                        if (c && c.name) {
+                            catSelect.innerHTML += `<option value="${c.name}">${c.name}</option>`;
+                        }
+                    });
+                }
+            } catch (e) { }
+        }
+
+        function populateCategoriesFromAudits(rows) {
+            const catSelect = document.getElementById('filterCategory');
+            if (!catSelect) return;
+
+            const existingVals = new Set(Array.from(catSelect.options).map(o => o.value));
+            const distinctCategories = Array.from(new Set(rows.map(r => r.category).filter(Boolean))).sort();
+
+            distinctCategories.forEach(catName => {
+                if (!existingVals.has(catName)) {
+                    const opt = document.createElement('option');
+                    opt.value = catName;
+                    opt.textContent = catName;
+                    catSelect.appendChild(opt);
+                }
+            });
+        }
+
+        async function loadReport() {
+            const token = localStorage.getItem('token');
+            const tbody = document.getElementById('reportTableBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="13" class="no-data-placeholder">
+                        <div class="spinner-border text-primary" style="width:28px; height:28px;" role="status"></div>
+                        <p class="mt-2 text-muted mb-0">Fetching stock audit data from server...</p>
+                    </td>
+                </tr>`;
+
+            const startDate = document.getElementById('filterFromDate').value;
+            const endDate = document.getElementById('filterToDate').value;
+            const branch = document.getElementById('filterBranch').value;
+            const auditType = document.getElementById('filterAuditType').value;
+
+            // Update Print Header details
+            if (document.getElementById('printBranchName')) {
+                const branchSelect = document.getElementById('filterBranch');
+                document.getElementById('printBranchName').textContent = branchSelect.options[branchSelect.selectedIndex]?.text || 'All Branches';
+            }
+            if (document.getElementById('printDateRange')) {
+                document.getElementById('printDateRange').textContent = `Period: ${formatDate(startDate)} to ${formatDate(endDate)}`;
+            }
+
+            let query = '?limit=10000';
+            if (startDate) query += `&startDate=${startDate}`;
+            if (endDate) query += `&endDate=${endDate}`;
+            if (branch) query += `&store=${branch}`;
+
+            try {
+                let rawAuditDocs = [];
+
+                // 1. Fetch Shop Stock Audits
+                if (auditType === 'all' || auditType === 'shop') {
+                    try {
+                        const res = await fetch(`/api/v1/stock-audits${query}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                        if (res.ok) {
+                            const result = await res.json();
+                            if (result.data && Array.isArray(result.data)) {
+                                rawAuditDocs = rawAuditDocs.concat(result.data.map(d => ({ ...d, _source: 'Shop' })));
+                            }
+                        }
+                    } catch (err) {
+                        console.warn('Error fetching shop stock audits:', err);
+                    }
+                }
+
+                // 2. Fetch Warehouse Stock Audits
+                if (auditType === 'all' || auditType === 'wh') {
+                    try {
+                        const whRes = await fetch(`/api/v1/wh-stock-audits${query}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                        if (whRes.ok) {
+                            const whResult = await whRes.json();
+                            if (whResult.data && Array.isArray(whResult.data)) {
+                                rawAuditDocs = rawAuditDocs.concat(whResult.data.map(d => ({ ...d, _source: 'Warehouse' })));
+                            }
+                        }
+                    } catch (err) {
+                        console.warn('Error fetching WH stock audits:', err);
+                    }
+                }
+
+                // 3. Flatten into item rows with full data fallback resolution
+                allAuditRows = [];
+                rawAuditDocs.forEach(doc => {
+                    const auditDate = doc.date || doc.createdAt;
+                    const auditNo = doc.auditNo || 'N/A';
+                    const auditStatus = doc.status || 'draft';
+                    const source = doc._source || 'Warehouse';
+
+                    if (doc.items && Array.isArray(doc.items) && doc.items.length > 0) {
+                        doc.items.forEach(it => {
+                            // Extract populated item or direct properties
+                            const itemObj = (it.item && typeof it.item === 'object') ? it.item : null;
+
+                            const barcode = itemObj?.barcode || itemObj?.itemsCode || itemObj?.code || it.code || it.barcode || it.itemCode || '-';
+                            const itemName = itemObj?.name || it.name || it.itemName || (itemObj ? 'Item #' + (itemObj.itemsCode || itemObj._id) : '-');
+                            
+                            const costPrice = Number(it.costPrice !== undefined && it.costPrice !== null ? it.costPrice : (itemObj?.costPrice || 0));
+                            const systemQty = Number(it.systemQty || 0);
+                            const physicalQty = Number(it.physicalQty || 0);
+                            const diff = it.difference !== undefined && it.difference !== null ? Number(it.difference) : (physicalQty - systemQty);
+                            const diffVal = diff * costPrice;
+                            
+                            let categoryName = 'General';
+                            if (itemObj && itemObj.category) {
+                                categoryName = typeof itemObj.category === 'object' ? (itemObj.category.name || 'General') : itemObj.category;
+                            } else if (it.category) {
+                                categoryName = typeof it.category === 'object' ? (it.category.name || 'General') : it.category;
+                            }
+
+                            allAuditRows.push({
+                                date: auditDate,
+                                auditNo: auditNo,
+                                auditStatus: auditStatus,
+                                source: source,
+                                barcode: barcode,
+                                name: itemName,
+                                category: categoryName,
+                                costPrice: costPrice,
+                                systemQty: systemQty,
+                                physicalQty: physicalQty,
+                                difference: diff,
+                                diffValue: diffVal,
+                                remarks: it.remarks || doc.remarks || '-'
+                            });
+                        });
+                    } else {
+                        // In case flat record exists
+                        const barcode = doc.barcode || doc.code || '-';
+                        const itemName = doc.name || doc.itemName || '-';
+                        const costPrice = Number(doc.costPrice || 0);
+                        const systemQty = Number(doc.systemQty || 0);
+                        const physicalQty = Number(doc.physicalQty || 0);
+                        const diff = doc.difference !== undefined ? Number(doc.difference) : (physicalQty - systemQty);
+
+                        allAuditRows.push({
+                            date: auditDate,
+                            auditNo: auditNo,
+                            auditStatus: auditStatus,
+                            source: source,
+                            barcode: barcode,
+                            name: itemName,
+                            category: doc.category || 'General',
+                            costPrice: costPrice,
+                            systemQty: systemQty,
+                            physicalQty: physicalQty,
+                            difference: diff,
+                            diffValue: diff * costPrice,
+                            remarks: doc.remarks || '-'
+                        });
+                    }
+                });
+
+                // Populate categories dropdown dynamically from audit data
+                populateCategoriesFromAudits(allAuditRows);
+
+                // Apply filters and render
+                applyLocalFilters();
+
+            } catch (e) {
+                console.error('Audit report error:', e);
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="13" class="no-data-placeholder text-danger">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p class="mb-0">Error loading audit records: ${e.message}</p>
+                        </td>
+                    </tr>`;
+            }
+        }
+
+        function applyLocalFilters() {
+            const statusFilter = document.getElementById('filterStatus').value;
+            const categoryFilter = (document.getElementById('filterCategory')?.value || '').trim();
+            const groupBy = document.getElementById('filterGroupBy').value;
+            const searchRaw = (document.getElementById('filterSearch').value || '').trim().toLowerCase();
+            const searchWords = searchRaw ? searchRaw.split(/\s+/).filter(Boolean) : [];
+
+            filteredRows = allAuditRows.filter(row => {
+                // 1. Status Filter
+                if (statusFilter === 'match' && row.difference !== 0) return false;
+                if (statusFilter === 'surplus' && row.difference <= 0) return false;
+                if (statusFilter === 'shortage' && row.difference >= 0) return false;
+                if (statusFilter === 'discrepancy' && row.difference === 0) return false;
+
+                // 2. Category Filter
+                if (categoryFilter && row.category !== categoryFilter) {
+                    return false;
+                }
+
+                // 3. Multi-word item name, barcode, auditNo, category search
+                if (searchWords.length > 0) {
+                    const rowText = `${row.name || ''} ${row.barcode || ''} ${row.auditNo || ''} ${row.category || ''} ${row.remarks || ''}`.toLowerCase();
+                    const isMatch = searchWords.every(word => rowText.includes(word));
+                    if (!isMatch) return false;
+                }
+
+                return true;
+            });
+
+            // Update KPI Ribbon
+            updateKPICards(filteredRows);
+
+            // Render Table
+            renderTable(filteredRows, groupBy);
+        }
+
+        function updateKPICards(rows) {
+            let total = rows.length;
+            let matched = 0, surplus = 0, shortage = 0;
+            let netDiffValue = 0;
+
+            rows.forEach(r => {
+                if (r.difference === 0) matched++;
+                else if (r.difference > 0) surplus++;
+                else shortage++;
+
+                netDiffValue += (r.diffValue || 0);
+            });
+
+            document.getElementById('kpiTotalItems').textContent = total;
+            document.getElementById('kpiMatched').textContent = matched;
+            document.getElementById('kpiSurplus').textContent = surplus;
+            document.getElementById('kpiShortage').textContent = shortage;
+            
+            const netEl = document.getElementById('kpiNetDiffVal');
+            netEl.textContent = (netDiffValue < 0 ? '-' : '') + 'Rs. ' + formatCurrency(Math.abs(netDiffValue));
+            netEl.style.color = netDiffValue > 0 ? '#0284c7' : (netDiffValue < 0 ? '#dc2626' : '#64748b');
+
+            document.getElementById('recordCountBadge').textContent = `${total} items`;
+            document.getElementById('filterSummaryText').textContent = `Showing ${total} of ${allAuditRows.length} audited items`;
+        }
+
+        function getStatusInfo(diff) {
+            if (diff === 0) return { label: 'Match', class: 'matched' };
+            if (diff > 0) return { label: 'Surplus', class: 'surplus' };
+            return { label: 'Shortage', class: 'shortage' };
+        }
+
+        function renderTable(rows, groupBy) {
+            const tbody = document.getElementById('reportTableBody');
+            const tfoot = document.getElementById('reportTableFoot');
+
+            if (rows.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="13" class="no-data-placeholder">
+                            <i class="fas fa-inbox"></i>
+                            <p class="mb-0">No matching audit records found for the selected criteria.</p>
+                        </td>
+                    </tr>`;
+                tfoot.style.display = 'none';
+                return;
+            }
+
+            tfoot.style.display = 'table-footer-group';
+
+            let totSysQty = 0;
+            let totPhysQty = 0;
+            let totDiffQty = 0;
+            let totDiffVal = 0;
+
+            rows.forEach(r => {
+                totSysQty += (r.systemQty || 0);
+                totPhysQty += (r.physicalQty || 0);
+                totDiffQty += (r.difference || 0);
+                totDiffVal += (r.diffValue || 0);
+            });
+
+            document.getElementById('footSysQty').textContent = formatCurrency(totSysQty);
+            document.getElementById('footPhysQty').textContent = formatCurrency(totPhysQty);
+            document.getElementById('footDiffQty').textContent = (totDiffQty > 0 ? '+' : '') + formatCurrency(totDiffQty);
+            document.getElementById('footDiffQty').style.color = totDiffQty > 0 ? '#38bdf8' : (totDiffQty < 0 ? '#f87171' : '#ffffff');
+            document.getElementById('footDiffVal').textContent = (totDiffVal < 0 ? '-' : '') + 'Rs. ' + formatCurrency(Math.abs(totDiffVal));
+
+            if (groupBy && groupBy !== 'none') {
+                renderGroupedRows(rows, groupBy, tbody);
+            } else {
+                renderFlatRows(rows, tbody);
+            }
+        }
+
+        function renderFlatRows(rows, tbody) {
+            let html = '';
+            rows.forEach((r, idx) => {
+                const status = getStatusInfo(r.difference);
+                const diffClass = r.difference > 0 ? 'surplus' : (r.difference < 0 ? 'shortage' : 'matched');
+                const diffSign = r.difference > 0 ? '+' : '';
+
+                html += `
+                    <tr>
+                        <td class="text-center text-muted" style="font-size:11px;">${idx + 1}</td>
+                        <td>${formatDate(r.date)}</td>
+                        <td><span class="badge-audit-no">${r.auditNo}</span></td>
+                        <td><span class="barcode-pill">${r.barcode}</span></td>
+                        <td class="item-name-cell" title="${r.name}">${r.name}</td>
+                        <td><span class="badge bg-light text-dark border" style="font-size:10.5px; font-weight:600;">${r.category || 'General'}</span></td>
+                        <td class="text-end fw-semibold">${formatCurrency(r.costPrice)}</td>
+                        <td class="text-end">${formatCurrency(r.systemQty)}</td>
+                        <td class="text-end fw-bold">${formatCurrency(r.physicalQty)}</td>
+                        <td class="text-end"><span class="diff-tag ${diffClass}">${diffSign}${formatCurrency(r.difference)}</span></td>
+                        <td class="text-end fw-semibold ${diffClass}">${diffSign}${formatCurrency(r.diffValue)}</td>
+                        <td class="text-center"><span class="status-pill ${status.class}">${status.label}</span></td>
+                        <td class="text-muted" style="font-size:11.5px;" title="${r.remarks}">${r.remarks}</td>
+                    </tr>`;
+            });
+            tbody.innerHTML = html;
+        }
+
+        function renderGroupedRows(rows, groupField, tbody) {
+            const groups = {};
+            rows.forEach(r => {
+                let key = 'Other';
+                if (groupField === 'category') key = `Category: ${r.category || 'General'}`;
+                else if (groupField === 'auditNo') key = `Audit No: ${r.auditNo} (${formatDate(r.date)})`;
+                else if (groupField === 'status') key = `Status: ${getStatusInfo(r.difference).label}`;
+
+                if (!groups[key]) groups[key] = [];
+                groups[key].push(r);
+            });
+
+            let html = '';
+            let globalIndex = 1;
+
+            Object.keys(groups).sort().forEach(groupKey => {
+                const groupItems = groups[groupKey];
+                let grpSys = 0, grpPhys = 0, grpDiff = 0, grpVal = 0;
+                groupItems.forEach(g => {
+                    grpSys += g.systemQty;
+                    grpPhys += g.physicalQty;
+                    grpDiff += g.difference;
+                    grpVal += g.diffValue;
+                });
+
+                html += `
+                    <tr class="group-header-row">
+                        <td colspan="7"><i class="fas fa-folder-open text-primary me-2"></i><strong>${groupKey}</strong> <span class="badge bg-dark ms-2">${groupItems.length} items</span></td>
+                        <td class="text-end fw-bold">${formatCurrency(grpSys)}</td>
+                        <td class="text-end fw-bold">${formatCurrency(grpPhys)}</td>
+                        <td class="text-end fw-bold">${(grpDiff > 0 ? '+' : '') + formatCurrency(grpDiff)}</td>
+                        <td class="text-end fw-bold">${formatCurrency(grpVal)}</td>
+                        <td colspan="2"></td>
+                    </tr>`;
+
+                groupItems.forEach(r => {
+                    const status = getStatusInfo(r.difference);
+                    const diffClass = r.difference > 0 ? 'surplus' : (r.difference < 0 ? 'shortage' : 'matched');
+                    const diffSign = r.difference > 0 ? '+' : '';
+
+                    html += `
+                        <tr>
+                            <td class="text-center text-muted" style="font-size:11px;">${globalIndex++}</td>
+                            <td>${formatDate(r.date)}</td>
+                            <td><span class="badge-audit-no">${r.auditNo}</span></td>
+                            <td><span class="barcode-pill">${r.barcode}</span></td>
+                            <td class="item-name-cell" title="${r.name}">${r.name}</td>
+                            <td><span class="badge bg-light text-dark border" style="font-size:10.5px; font-weight:600;">${r.category || 'General'}</span></td>
+                            <td class="text-end fw-semibold">${formatCurrency(r.costPrice)}</td>
+                            <td class="text-end">${formatCurrency(r.systemQty)}</td>
+                            <td class="text-end fw-bold">${formatCurrency(r.physicalQty)}</td>
+                            <td class="text-end"><span class="diff-tag ${diffClass}">${diffSign}${formatCurrency(r.difference)}</span></td>
+                            <td class="text-end fw-semibold ${diffClass}">${diffSign}${formatCurrency(r.diffValue)}</td>
+                            <td class="text-center"><span class="status-pill ${status.class}">${status.label}</span></td>
+                            <td class="text-muted" style="font-size:11.5px;" title="${r.remarks}">${r.remarks}</td>
+                        </tr>`;
+                });
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        function exportExcel() {
+            if (!filteredRows || filteredRows.length === 0) {
+                alert('No audit data available to export.');
+                return;
+            }
+
+            const exportData = filteredRows.map((r, idx) => ({
+                '#': idx + 1,
+                'Date': formatDate(r.date),
+                'Audit No': r.auditNo,
+                'Barcode': r.barcode,
+                'Item Description': r.name,
+                'Category': r.category,
+                'Cost Price': r.costPrice,
+                'System Qty': r.systemQty,
+                'Physical Qty': r.physicalQty,
+                'Difference': r.difference,
+                'Diff Value': r.diffValue,
+                'Status': getStatusInfo(r.difference).label,
+                'Remarks': r.remarks
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(exportData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Stock Audit Report');
+
+            const dateStr = new Date().toISOString().split('T')[0];
+            XLSX.writeFile(wb, `Stock_Audit_Report_${dateStr}.xlsx`);
+        }
+    </script>
+</body>
+
+</html>

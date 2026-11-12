@@ -1,0 +1,96 @@
+@media print {
+    * {
+        box-sizing: border-box !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    html,
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+        width: 100% !important;
+        height: 100% !important;
+        overflow: hidden !important;
+    }
+
+    /* Hide everything else */
+    body>*:not(#printZone) {
+        display: none !important;
+    }
+
+    #printZone {
+        display: block !important;
+        visibility: visible !important;
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    .print-row {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: flex-start !important;
+        align-items: center !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        height: 100% !important;
+        /* Force content to stay within label height */
+    }
+
+    .barcode-label {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        overflow: hidden !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+        color: black !important;
+    }
+
+    .company-name {
+        font-family: Arial, sans-serif !important;
+        font-weight: normal !important;
+        text-transform: uppercase !important;
+        margin-bottom: 1px !important;
+        color: #555 !important;
+        line-height: 1.0;
+        width: 100% !important;
+        overflow: hidden !important;
+        white-space: nowrap !important;
+    }
+
+    .item-name {
+        font-family: Arial, sans-serif !important;
+        font-weight: bold !important;
+        text-transform: uppercase !important;
+        margin-bottom: 1px !important;
+        white-space: normal !important;
+        word-break: break-all !important;
+        overflow: hidden !important;
+        width: 100% !important;
+        color: black !important;
+        line-height: 0.90;
+        max-height: 1.8em;
+    }
+
+    .barcode-svg {
+        max-width: 98% !important;
+        max-height: 55% !important;
+        /* Strictly limit height */
+        height: auto !important;
+        display: block !important;
+        margin: 0 auto !important;
+    }
+
+    .item-price {
+        font-family: Arial, sans-serif !important;
+        font-weight: 900 !important;
+        margin-top: 1px !important;
+        color: black !important;
+        line-height: 1.0;
+    }
+}

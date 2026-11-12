@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Print Bank Ledger</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #0056b3;
+            --secondary-color: #28a745;
+            --danger-color: #dc3545;
+            --border-color: #000;
+        }
+
+        @page {
+            size: landscape;
+            margin: 10mm;
+        }
+
+        body {
+            background: #f5f5f5;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+            margin: 0;
+            padding: 0;
+        }
+
+        .page-container {
+            background: white;
+            margin: 0 auto;
+            padding: 20px;
+            width: 100%;
+            max-width: 297mm; /* A4 Landscape width */
+        }
+
+        .report-header {
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .company-logo {
+            max-width: 120px;
+            max-height: 60px;
+            object-fit: contain;
+        }
+
+        .report-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-align: center;
+            text-transform: uppercase;
+            margin: 0;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .summary-item {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .summary-label {
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #444;
+            margin-bottom: 2px;
+        }
+
+        .summary-value {
+            font-size: 1.1rem;
+            font-weight: 800;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 9pt;
+        }
+
+        .data-table th {
+            background: #f0f0f0 !important;
+            color: #000 !important;
+            border: 1px solid #000;
+            padding: 6px 4px;
+            text-transform: uppercase;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .data-table td {
+            border: 1px solid #000;
+            padding: 5px 4px;
+            vertical-align: middle;
+        }
+
+        .text-end { text-align: right !important; }
+        .text-center { text-align: center !important; }
+
+        .fw-bold { font-weight: 700 !important; }
+
+        .total-row {
+            background: #eee !important;
+            font-weight: 800;
+        }
+
+        .print-controls {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            z-index: 9999;
+        }
+
+        @media print {
+            .print-controls { display: none; }
+            body { background: white; }
+            .page-container { 
+                margin: 0;
+                padding: 0;
+                width: 100% !important;
+                max-width: none !important;
+                box-shadow: none;
+            }
+        }
+
+        /* Value Colors */
+        .deposit { color: #28a745 !important; }
+        .withdrawal { color: #dc3545 !important; }
+        .balance { font-weight: bold; }
+    </style>
+</head>
+
+<body>
+
+    <!-- Print Controls -->
+    <div class="print-controls no-print">
+        <div class="btn-group mb-2">
+            <button class="btn btn-primary" onclick="window.print()">
+                <i class="fas fa-print me-1"></i> Print
+            </button>
+            <button class="btn btn-secondary" onclick="window.close()">
+                <i class="fas fa-times me-1"></i> Close
+            </button>
+        </div>
+        <hr class="my-2">
+        <select class="form-select form-select-sm" id="formatSelect" onchange="changeFormat(this.value)">
+            <option value="a4">A4 Format</option>
+            <option value="a3">A3 Format</option>
+        </select>
+    </div>
+
+    <!-- Bank Ledger Container -->
+    <div id="bankLedgerContent" class="page-container format-a4">
+        <!-- Content loaded dynamically -->
+        <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3">Generating Bank Ledger...</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const bankId = urlParams.get('bankId');
+            const branchId = urlParams.get('branchId');
+            const startDate = urlParams.get('startDate') || new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
+            const endDate = urlParams.get('endDate') || new Date().toISOString().split('T')[0];
+            const format = urlParams.get('format') || 'a4';
+
+            // Set initial format
+            document.getElementById('formatSelect').value = format;
+            changeFormat(format);
+
+            try {
+                const token = localStorage.getItem('token');
+
+                // Load Company Settings
+                const companyResponse = await fetch('/api/v1/settings/company-info', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const companyData = await companyResponse.json();
+                const company = companyData.data || {};
+
+                // Build query params
+                let queryParams = `?startDate=${startDate}&endDate=${endDate}`;
+                if (bankId) queryParams += `&bankId=${bankId}`;
+                if (branchId) queryParams += `&branchId=${branchId}`;
+
+                // Load Bank Ledger Data
+                const ledgerResponse = await fetch(`/api/v1/bank-ledger${queryParams}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!ledgerResponse.ok) throw new Error('Failed to fetch bank ledger data');
+
+                const ledgerData = await ledgerResponse.json();
+                const data = ledgerData.data || {};
+
+                renderBankLedger(data, company, startDate, endDate);
+
+            } catch (error) {
+                console.error('Print error:', error);
+                showError(error.message);
+            }
+        });
+
+        function changeFormat(format) {
+            const container = document.getElementById('bankLedgerContent');
+            container.classList.remove('format-a4', 'format-a3');
+            container.classList.add(`format-${format}`);
+        }
+
+        function showError(msg) {
+            document.getElementById('bankLedgerContent').innerHTML = `
+                <div class="alert alert-danger m-5">
+                    <h4 class="alert-heading">Error</h4>
+                    <p>${msg}</p>
+                </div>
+            `;
+        }
+
+        function renderBankLedger(data, company, startDate, endDate) {
+            const formattedStartDate = new Date(startDate).toLocaleDateString('en-US', {
+                year: 'numeric', month: 'short', day: 'numeric'
+            });
+            const formattedEndDate = new Date(endDate).toLocaleDateString('en-US', {
+                year: 'numeric', month: 'short', day: 'numeric'
+            });
+
+            // Calculate Totals for Summary
+            let totalDeposit = 0;
+            let totalWithdrawal = 0;
+            data.transactions.forEach(txn => {
+                totalDeposit += txn.type === 'deposit' || txn.type === 'credit' ? (txn.amount || 0) : 0;
+                totalWithdrawal += txn.type === 'withdrawal' || txn.type === 'debit' ? (txn.amount || 0) : 0;
+            });
+
+            const html = `
+                <!-- Header -->
+                <div class="report-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div style="flex: 1;">
+                            ${company.logo ? `<img src="${company.logo}" class="company-logo" alt="Logo">` : ''}
+                        </div>
+                        <div style="flex: 2; text-align: center;">
+                            <h1 class="report-title">${company.companyName || 'D.WATSON'}</h1>
+                            <div class="fw-bold mt-1">BANK LEDGER - ${data.bankName}</div>
+                            <div class="small text-muted">${formattedStartDate} to ${formattedEndDate}</div>
+                        </div>
+                        <div style="flex: 1; text-align: right;">
+                            <div class="small text-muted">Generated: ${new Date().toLocaleString()}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Summary Grid -->
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <div class="summary-label">Opening Balance</div>
+                        <div class="summary-value">${data.openingBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+                    </div>
+                    <div class="summary-item" style="border-bottom: 3px solid var(--secondary-color);">
+                        <div class="summary-label">Total Received</div>
+                        <div class="summary-value deposit">${totalDeposit.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+                    </div>
+                    <div class="summary-item" style="border-bottom: 3px solid var(--danger-color);">
+                        <div class="summary-label">Total Paid</div>
+                        <div class="summary-value withdrawal">${totalWithdrawal.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+                    </div>
+                    <div class="summary-item" style="background: #f8f9fa;">
+                        <div class="summary-label">Closing Balance</div>
+                        <div class="summary-value balance">${data.closingBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 80px;">Date</th>
+                            <th style="width: 350px;">Narration / Description</th>
+                            <th style="width: 100px;">Type</th>
+                            <th style="width: 120px;">Batch/Inv No</th>
+                            <th style="width: 90px;">Inv Date</th>
+                            <th style="width: 150px;">Dept/Branch</th>
+                            <th class="text-end" style="width: 110px;">Debit (+)</th>
+                            <th class="text-end" style="width: 110px;">Credit (-)</th>
+                            <th class="text-end" style="width: 120px;">Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${renderTransactionRows(data.transactions || [], data.openingBalance || 0)}
+                    </tbody>
+                </table>
+
+                <!-- Footer -->
+                <div class="row mt-5">
+                    <div class="col-4 text-center">
+                        <div class="border-top border-dark pt-2 mx-5 fw-bold">Prepared By</div>
+                    </div>
+                    <div class="col-4 text-center">
+                        <div class="border-top border-dark pt-2 mx-5 fw-bold">Accounts Manager</div>
+                    </div>
+                    <div class="col-4 text-center">
+                        <div class="border-top border-dark pt-2 mx-5 fw-bold">Authorized Signature</div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('bankLedgerContent').innerHTML = html;
+        }
+
+        function renderTransactionRows(transactions, openingBalance) {
+            let runningBalance = openingBalance;
+            let totalD = 0;
+            let totalW = 0;
+
+            // Opening row
+            let rows = `
+                <tr style="background: #fafafa;">
+                    <td class="text-center fw-bold">${new Date().toISOString().split('T')[0]}</td>
+                    <td class="fw-bold">Opening Balance Brought Forward</td>
+                    <td class="text-center">-</td>
+                    <td class="text-center">-</td>
+                    <td class="text-center">-</td>
+                    <td class="text-center">-</td>
+                    <td class="text-end">-</td>
+                    <td class="text-end">-</td>
+                    <td class="text-end fw-bold">${runningBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                </tr>
+            `;
+
+            transactions.forEach(txn => {
+                const deposit = txn.type === 'deposit' || txn.type === 'credit' ? (txn.amount || 0) : 0;
+                const withdrawal = txn.type === 'withdrawal' || txn.type === 'debit' ? (txn.amount || 0) : 0;
+                
+                totalD += deposit;
+                totalW += withdrawal;
+                runningBalance += (deposit - withdrawal);
+
+                const date = txn.date ? new Date(txn.date).toLocaleDateString('en-GB') : '-';
+                const invDate = txn.invoiceDate ? new Date(txn.invoiceDate).toLocaleDateString('en-GB') : '-';
+
+                rows += `
+                    <tr>
+                        <td class="text-center">${date}</td>
+                        <td style="font-size: 8.5pt;">${txn.description || txn.remarks || '-'}</td>
+                        <td class="text-center">${txn.type === 'deposit' || txn.type === 'credit' ? 'DEPOSIT' : 'PAYMENT'}</td>
+                        <td class="text-center">${txn.batchNo || txn.invoiceNo || txn.voucherNo || '-'}</td>
+                        <td class="text-center">${invDate}</td>
+                        <td class="text-center">${txn.departmentName || txn.branch || '-'}</td>
+                        <td class="text-end">${deposit > 0 ? deposit.toLocaleString(undefined, { minimumFractionDigits: 2 }) : '-'}</td>
+                        <td class="text-end">${withdrawal > 0 ? withdrawal.toLocaleString(undefined, { minimumFractionDigits: 2 }) : '-'}</td>
+                        <td class="text-end fw-bold">${runningBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                    </tr>
+                `;
+            });
+
+            // Total row
+            rows += `
+                <tr class="total-row">
+                    <td colspan="6" class="text-end">PERIOD TOTALS</td>
+                    <td class="text-end">${totalD.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                    <td class="text-end">${totalW.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                    <td class="text-end">${runningBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                </tr>
+            `;
+
+            return rows;
+        }
+
+        function renderBranchSummary(branchSummary) {
+            return `
+                <div class="section-title page-break">
+                    <i class="fas fa-code-branch me-2"></i>Branch-wise Summary
+                </div>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Branch Name</th>
+                            <th class="text-end">Opening Balance</th>
+                            <th class="text-end">Total Deposits</th>
+                            <th class="text-end">Total Withdrawals</th>
+                            <th class="text-end">Closing Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${branchSummary.map(branch => `
+                            <tr>
+                                <td>${branch.branchName || 'N/A'}</td>
+                                <td class="text-end">${formatCurrency(branch.openingBalance || 0)}</td>
+                                <td class="text-end debit-amount">${formatCurrency(branch.totalDeposits || 0)}</td>
+                                <td class="text-end credit-amount">${formatCurrency(branch.totalWithdrawals || 0)}</td>
+                                <td class="text-end ${(branch.closingBalance || 0) >= 0 ? 'balance-positive' : 'balance-negative'}">
+                                    ${formatCurrency(branch.closingBalance || 0)}
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function formatCurrency(amount) {
+            return parseFloat(amount || 0).toFixed(2);
+        }
+    </script>
+</body>
+
+</html>
+

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exemption Invoices Report - Bilal Accounting System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <style>
+        .report-container {
+            padding: 15px;
+            height: calc(100vh - 60px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-panel {
+            background: linear-gradient(135deg, #1a5f7a 0%, #0288d1 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            color: white;
+        }
+
+        .filter-panel label {
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .data-panel {
+            flex: 1;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .data-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .data-header h5 {
+            margin: 0;
+            color: #1a5f7a;
+        }
+
+        .table-container {
+            flex: 1;
+            overflow: auto;
+            padding: 20px;
+        }
+
+        table.table-bordered {
+            border: 1px solid black !important;
+        }
+
+        table.table-bordered th,
+        table.table-bordered td {
+            border: 1px solid black !important;
+            vertical-align: middle;
+            font-size: 0.85rem;
+            padding: 4px 8px;
+        }
+
+        tr.total-row td,
+        .total-row td {
+            background-color: #2980b9 !important;
+            color: white !important;
+        }
+
+        tr.bg-light td {
+            background-color: #f0f0f0 !important;
+        }
+
+        tfoot tr td {
+            background-color: black !important;
+            color: white !important;
+            border-right: 1px solid white !important;
+        }
+
+        @media print {
+
+            .filter-panel,
+            .page-header,
+            .sidebar,
+            .data-header {
+                display: none !important;
+            }
+
+            .report-container {
+                height: auto;
+                padding: 0;
+                overflow: visible;
+            }
+
+            .table-container {
+                overflow: visible;
+                padding: 0;
+            }
+
+            .print-header {
+                display: block !important;
+            }
+
+            thead th {
+                background-color: #2c3e50 !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            tr.bg-light td {
+                background-color: #f0f0f0 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            tr.total-row td {
+                background-color: #2980b9 !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            tfoot tr td {
+                background-color: black !important;
+                color: white !important;
+                border: 1px solid black;
+                border-right: 1px solid white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="print-header" style="display:none; text-align:center; margin-bottom:20px;">
+        <h2 id="printReportTitle"
+            style="margin:0; text-transform:uppercase; letter-spacing:1px; text-decoration: underline;">Exemption
+            Invoices Report</h2>
+        <h4 id="printBranchName" style="margin:5px 0 0; color:#000; font-weight: bold;"></h4>
+        <h5 id="printSubtitle" style="margin:5px 0; text-transform: uppercase;">Invoice Exemption Detail</h5>
+        <p id="printDateRange" style="margin:5px 0 0; font-weight: bold; font-size:14px; color:#000;"></p>
+    </div>
+
+    <div class="page-header px-3">
+        <div style="flex: 1; display: flex; align-items: center;">
+            <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+            <i class="fas fa-file-invoice me-2"></i> Exemption Invoices Report
+        </div>
+        <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
+            <div class="dropdown">
+                <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown" style="cursor: pointer;">
+                    <i class="fas fa-user-circle me-2" style="font-size: 1.2rem;"></i>
+                    <span id="userName" class="me-2">User</span>
+                    <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                    <li><a class="dropdown-item logout-btn" href="#"><i
+                                class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="report-container">
+        <div class="filter-panel">
+            <div class="row g-2 align-items-end">
+                <div class="col">
+                    <label>Sheet From</label>
+                    <input type="date" id="filterFromDate" class="form-control form-control-sm">
+                </div>
+                <div class="col">
+                    <label>Sheet To</label>
+                    <input type="date" id="filterToDate" class="form-control form-control-sm">
+                </div>
+                <div class="col">
+                    <label>Inv From</label>
+                    <input type="date" id="filterInvFromDate" class="form-control form-control-sm">
+                </div>
+                <div class="col">
+                    <label>Inv To</label>
+                    <input type="date" id="filterInvToDate" class="form-control form-control-sm">
+                </div>
+                <div class="col">
+                    <label>Branch</label>
+                    <select id="filterBranch" class="form-select form-select-sm">
+                        <option value="">All Branches</option>
+                    </select>
+                </div>
+                <div class="col" style="min-width: 200px; flex-grow: 2;">
+                    <label>Supplier</label>
+                    <select id="filterSupplier" class="form-select form-select-sm">
+                        <option value="">All Suppliers</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <label>Type</label>
+                    <select id="reportType" class="form-select form-select-sm">
+                        <option value="detailed">Detailed</option>
+                        <option value="summary">Summary</option>
+                    </select>
+                </div>
+                <div class="col-auto d-flex gap-1" style="padding-bottom: 2px;">
+                    <button class="btn btn-light" onclick="loadReport()"><i class="fas fa-search"></i></button>
+                    <button class="btn btn-success" onclick="exportToExcel()"><i class="fas fa-file-excel"></i></button>
+                    <button class="btn btn-warning" onclick="window.print()"><i class="fas fa-print"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="data-panel">
+            <div class="data-header">
+                <h5><i class="fas fa-list me-2"></i>Exemption Details</h5>
+            </div>
+            <div class="table-container" id="reportContainer">
+                <div class="no-data p-5 text-center">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">Select filters and click "Search"</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244483"></script>
+    <script src="/js/exemption-invoices-report.js"></script>
+</body>
+
+</html>
+

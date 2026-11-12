@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whole Sale Entry - Bilal Accounting System (BAS)</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Desktop Style -->
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <style>
+        :root {
+            --app-bg: #d9e2ec;
+            /* Light grayish-blue background from image */
+            --panel-bg: #f0f4f8;
+            /* Subtle panel background */
+            --primary-accent: #1565c0;
+            /* Deep blue for header */
+            --secondary-accent: #2196f3;
+            /* Brighter blue for buttons/headers */
+            --success-color: #2e7d32;
+            --danger-color: #d32f2f;
+            --warning-color: #ed6c02;
+            --text-main: #1a1a1a;
+            /* Darker labels like image */
+            --text-light: #4a5568;
+            --border-color: #b0bec5;
+            --calc-bg: #e1f5fe;
+            /* Light blue for calculated fields */
+            --header-gradient: linear-gradient(180deg, #1976d2 0%, #1565c0 100%);
+            --transition-speed: 0.2s;
+        }
+
+        body {
+            background-color: var(--app-bg);
+            color: var(--text-main);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            margin-bottom: 60px;
+        }
+
+        /* page-header styles removed to align with standard theme */
+
+        .page-header div {
+            font-size: 1.1rem !important;
+            font-weight: 600 !important;
+            color: #fff !important;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .desktop-container {
+            padding: 10px 15px !important;
+            /* Tighter layout like image */
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        .card-panel {
+            background: var(--panel-bg);
+            border-radius: 4px;
+            /* Sharper corners like legacy apps */
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+
+        .section-title {
+            font-size: 0.85rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--primary-accent);
+            margin-bottom: 12px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Form Controls */
+        .form-row {
+            display: flex;
+            gap: 10px !important;
+            margin-bottom: 8px !important;
+            align-items: flex-end;
+        }
+
+        .form-field label {
+            font-size: 0.8rem !important;
+            font-weight: 700 !important;
+            color: #333 !important;
+            margin-bottom: 2px !important;
+        }
+
+        .form-field input,
+        .form-field select {
+            height: 28px !important;
+            padding: 2px 8px !important;
+            font-size: 0.85rem !important;
+            border: 1px solid var(--border-color) !important;
+            border-radius: 2px !important;
+            background-color: #ffffff !important;
+        }
+
+        .form-field input:focus,
+        .form-field select:focus {
+            border-color: var(--secondary-accent) !important;
+            background-color: #fff !important;
+            outline: none;
+            box-shadow: 0 0 3px rgba(33, 150, 243, 0.3);
+        }
+
+        /* Calculated/Read-only fields from image */
+        .form-field input:read-only,
+        .form-field.calc-field-light input {
+            background-color: var(--calc-bg) !important;
+            color: #0d47a1 !important;
+            font-weight: 600 !important;
+        }
+
+        /* Item Entry Section Inner */
+        .item-entry-section {
+            background: #e3f2fd !important;
+            /* Slightly distinct blue tint for entry area */
+            border: 1px solid #bbdefb !important;
+            padding: 10px !important;
+            border-radius: 4px !important;
+            margin-bottom: 10px !important;
+        }
+
+        /* Table Design from Image */
+        .items-table-container {
+            height: auto !important;
+            max-height: calc(100vh - 460px) !important;
+            border-radius: 2px;
+            overflow: auto;
+            border: 1px solid var(--border-color);
+            background: #fff;
+        }
+
+        .data-table {
+            border: none !important;
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table thead {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+        }
+
+        .data-table thead th {
+            background: #0288d1 !important;
+            /* Brighter blue table header from image */
+            color: #ffffff !important;
+            font-size: 0.8rem !important;
+            padding: 8px 6px !important;
+            border: 1px solid #0277bd !important;
+            font-weight: 700 !important;
+            text-transform: uppercase;
+        }
+
+        .data-table tbody td {
+            font-size: 0.85rem !important;
+            padding: 5px 6px !important;
+            vertical-align: middle !important;
+            border: 1px solid #e0e0e0 !important;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: #f5f5f5 !important;
+        }
+
+        .data-table tfoot tr {
+            background-color: #eceff1 !important;
+            /* Footer background from image */
+            font-weight: 700;
+        }
+
+        /* Totals Panel Styling */
+        .totals-panel {
+            padding: 0 !important;
+            position: sticky !important;
+            top: 10px !important;
+        }
+
+        .totals-card {
+            background: #ffffff;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .totals-header {
+            background: #455a64;
+            /* Dark gray-blue header for totals from image */
+            color: #fff;
+            padding: 10px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .totals-body {
+            padding: 12px;
+        }
+
+        .totals-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px !important;
+        }
+
+        .totals-row label {
+            font-size: 0.85rem !important;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .totals-row input {
+            width: 110px !important;
+            height: 26px !important;
+            text-align: right !important;
+            font-weight: 700 !important;
+            border: 1px solid var(--border-color) !important;
+            border-radius: 2px !important;
+            background: #ffffff !important;
+        }
+
+        .totals-row.grand-total {
+            margin-top: 8px !important;
+            padding: 8px 4px !important;
+            background: #e1f5fe;
+            /* NET TOTAL highlight like image */
+            border: 1px solid #b3e5fc;
+            border-radius: 4px;
+        }
+
+        .totals-row.grand-total label {
+            color: #0d47a1;
+        }
+
+        .totals-row.grand-total input {
+            background: #0288d1 !important;
+            color: #fff !important;
+            height: 32px !important;
+            border: none !important;
+        }
+
+        /* Action Bar */
+        .action-bar {
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            background: #f8f9fa !important;
+            padding: 8px 20px !important;
+            border-top: 2px solid #cfd8dc !important;
+            display: flex !important;
+            justify-content: center !important;
+            gap: 15px !important;
+            height: 55px !important;
+            z-index: 1000;
+        }
+
+        .action-bar .btn {
+            height: 35px !important;
+            padding: 0 20px !important;
+            font-weight: 700 !important;
+            border-radius: 2px !important;
+            text-transform: uppercase;
+        }
+
+        .sales-layout {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 15px;
+            align-items: start;
+        }
+
+        /* Autocomplete Suggestions */
+        #itemSuggestions {
+            position: absolute;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: auto;
+            min-width: 300px;
+        }
+
+        .suggestion-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .suggestion-item:hover,
+        .suggestion-item.active {
+            background: #e3f2fd;
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Page Header -->
+    <div class="page-header px-3">
+        <div style="flex: 1; display: flex; align-items: center;">
+            <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+            <i class="fas fa-shopping-cart me-2"></i> Whole Sale Entry
+        </div>
+        <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
+            <div class="dropdown">
+                <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown" style="cursor: pointer;">
+                    <i class="fas fa-user-circle me-2" style="font-size: 1.2rem;"></i>
+                    <span id="userName" class="me-2">User</span>
+                    <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                    <li><a class="dropdown-item logout-btn" href="#"><i
+                                class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="desktop-container">
+        <div class="content-wrapper">
+            <form id="saleForm">
+                <input type="hidden" id="saleId">
+
+                <div class="sales-layout">
+                    <!-- Left Section -->
+                    <div class="sales-left">
+                        <div class="card-panel">
+                            <div class="section-title"><i class="fas fa-info-circle"></i> Invoice & Customer Details
+                            </div>
+                            <div class="form-row">
+                                <div class="form-field w-150">
+                                    <label>Inv No</label>
+                                    <input type="text" id="invoiceNo" readonly>
+                                </div>
+                                <div class="form-field flex-2">
+                                    <label class="required">Customer</label>
+                                    <div class="input-group">
+                                        <select id="customer" required>
+                                            <option value="">-- Select Customer --</option>
+                                        </select>
+                                        <button type="button" class="btn-add-new" onclick="openCustomerModal()"><i
+                                                class="fas fa-plus"></i></button>
+                                        <button type="button" class="btn-add-new" style="background: #007BFF;"
+                                            onclick="showCustomerList()"><i class="fas fa-list"></i></button>
+                                    </div>
+                                </div>
+                                <div class="form-field w-200">
+                                    <label>Contact</label>
+                                    <input type="text" id="customerContact" readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-field w-150">
+                                    <label class="required">Date</label>
+                                    <input type="date" id="saleDate" required>
+                                </div>
+                                <div class="form-field flex-1">
+                                    <label>Remarks</label>
+                                    <input type="text" id="remarks">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-panel">
+                            <div class="section-title"><i class="fas fa-shopping-cart"></i> Item Entry & Selection</div>
+                            <div class="item-entry-section">
+                                <div class="form-row">
+                                    <div class="form-field w-150">
+                                        <label>Category</label>
+                                        <select id="categoryFilter">
+                                            <option value="">All Categories</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-field w-150">
+                                        <label>Code</label>
+                                        <input type="text" id="itemCode">
+                                    </div>
+                                    <div class="form-field flex-2">
+                                        <label>Name</label>
+                                        <div class="input-group" style="position: relative;">
+                                            <input type="text" id="itemName" placeholder="Type to search item...">
+                                            <input type="hidden" id="itemSelect">
+                                            <div id="itemSuggestions"></div>
+                                            <button type="button" class="btn-add-new" onclick="openItemModal()"><i
+                                                    class="fas fa-plus"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-field w-100">
+                                        <label>Pack</label>
+                                        <input type="number" id="pack" value="1">
+                                    </div>
+                                    <div class="form-field w-150">
+                                        <label>Store</label>
+                                        <select id="store">
+                                            <option value="Shop" selected>Shop</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-field w-100 calc-field-light">
+                                        <label>Stock</label>
+                                        <input type="number" id="stock" readonly>
+                                    </div>
+                                    <div class="form-field w-100">
+                                        <label>Tax %</label>
+                                        <input type="number" id="taxPercent" step="0.01" value="0">
+                                    </div>
+                                    <div class="form-field w-100 calc-field-light">
+                                        <label>Tax Rs</label>
+                                        <input type="number" id="taxRs" readonly>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-field w-150">
+                                        <label>Retail Price</label>
+                                        <input type="number" id="retailPrice" step="0.01">
+                                    </div>
+                                    <div class="form-field w-150">
+                                        <label>Sale Price</label>
+                                        <input type="number" id="salePrice" step="0.01">
+                                    </div>
+                                    <div class="form-field w-100">
+                                        <label>Qty</label>
+                                        <input type="number" id="quantity" value="1">
+                                    </div>
+                                    <div class="form-field w-150 calc-field-light">
+                                        <label>Total</label>
+                                        <input type="number" id="itemTotal" readonly>
+                                    </div>
+                                    <div class="form-field flex-1">
+                                        <label>&nbsp;</label>
+                                        <button type="button" class="btn btn-primary w-100" onclick="addItemToSale()"
+                                            style="height: 28px !important; font-size: 0.8rem;">
+                                            <i class="fas fa-plus"></i> Add
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="items-table-container">
+                                <table class="data-table" id="saleItemsTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Sr</th>
+                                            <th>Code</th>
+                                            <th>Name</th>
+                                            <th>Pack</th>
+                                            <th class="text-right">Price</th>
+                                            <th class="text-right">Qty</th>
+                                            <th class="text-right">Total</th>
+                                            <th class="text-center">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="saleItemsBody"></tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="6" class="text-right"><strong>Total</strong></td>
+                                            <td class="text-right" id="footerTotal">0.00</td>
+                                            <td></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Section - Totals -->
+                    <div class="sales-right">
+                        <div class="totals-panel">
+                            <div class="totals-card">
+                                <div class="totals-header">INVOICE SUMMARY</div>
+                                <div class="totals-body">
+                                    <div class="totals-row">
+                                        <label>Total:</label>
+                                        <input type="number" id="totalAmount" readonly>
+                                    </div>
+                                    <div class="totals-row">
+                                        <label>Disc %:</label>
+                                        <input type="number" id="discountPercent" step="0.01" value="0">
+                                    </div>
+                                    <div class="totals-row">
+                                        <label>Disc Rs:</label>
+                                        <input type="number" id="discountRs" step="0.01" value="0">
+                                    </div>
+                                    <div class="totals-row">
+                                        <label>Tax %:</label>
+                                        <input type="number" id="totalTaxPercent" step="0.01" value="0">
+                                    </div>
+                                    <div class="totals-row">
+                                        <label>Tax Rs:</label>
+                                        <input type="number" id="totalTaxRs" readonly>
+                                    </div>
+                                    <div class="totals-row">
+                                        <label>Misc:</label>
+                                        <input type="number" id="misc" step="0.01" value="0">
+                                    </div>
+                                    <div class="totals-row">
+                                        <label>Freight:</label>
+                                        <input type="number" id="freight" step="0.01" value="0">
+                                    </div>
+                                    <div class="totals-row grand-total">
+                                        <label>Net Total:</label>
+                                        <input type="number" id="netTotal" readonly>
+                                    </div>
+                                    <div class="totals-row">
+                                        <label>Paid:</label>
+                                        <input type="number" id="paid" step="0.01" value="0">
+                                    </div>
+                                    <div class="totals-row">
+                                        <label>Balance:</label>
+                                        <input type="number" id="balance" readonly>
+                                    </div>
+                                    <div class="totals-row">
+                                        <label>Pay Mode:</label>
+                                        <select id="paymentMode"
+                                            style="width: 110px; height: 26px !important; font-size: 0.8rem;">
+                                            <option value="cash">Cash</option>
+                                            <option value="credit">Credit</option>
+                                            <option value="bank">Bank</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Action Bar -->
+    <div class="action-bar">
+        <button class="btn btn-danger" onclick="clearForm()"><i class="fas fa-times"></i> Clear</button>
+        <button class="btn btn-warning" onclick="holdInvoice()"><i class="fas fa-pause"></i> Hold</button>
+        <button class="btn btn-success" onclick="saveSale()"><i class="fas fa-save"></i> Save</button>
+        <button class="btn btn-primary" onclick="showSalesList()"><i class="fas fa-list"></i> List</button>
+        <button class="btn btn-secondary" onclick="printInvoice()"><i class="fas fa-print"></i> Print</button>
+    </div>
+
+    <!-- List Modal -->
+    <div class="list-modal-overlay" id="listModalOverlay" onclick="hideList()"></div>
+    <div class="list-modal" id="listModal"
+        style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 1000px; height: 80vh; background: white; z-index: 1001; display: none; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.2); flex-direction: column;">
+        <div class="list-modal-header"
+            style="padding: 15px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; background: #455a64; color: white;">
+            <h5 class="m-0">Sales List</h5>
+            <button class="btn-close btn-close-white" onclick="hideList()"></button>
+        </div>
+        <div class="list-modal-filters"
+            style="padding: 15px; border-bottom: 1px solid #ddd; background: #f8f9fa; display: flex; gap: 10px; flex-wrap: wrap;">
+            <input type="text" id="searchInput" class="form-control form-control-sm"
+                placeholder="Search Invoice/Customer..." style="width: 200px;">
+            <input type="date" id="startDate" class="form-control form-control-sm" style="width: 150px;">
+            <input type="date" id="endDate" class="form-control form-control-sm" style="width: 150px;">
+            <select id="statusFilter" class="form-select form-select-sm" style="width: 150px;">
+                <option value="">All Status</option>
+                <option value="final">Final</option>
+                <option value="draft">Draft</option>
+            </select>
+            <button class="btn btn-sm btn-secondary" onclick="resetFilters()">Reset</button>
+        </div>
+        <div class="list-modal-content" style="flex: 1; overflow: auto; padding: 15px;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Action</th>
+                        <th>Inv No</th>
+                        <th>Date</th>
+                        <th>Customer</th>
+                        <th>Items</th>
+                        <th class="text-right">Total</th>
+                        <th>Payment</th>
+                        <th>Status</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+                <tbody id="salesTableBody"></tbody>
+            </table>
+        </div>
+        <div class="list-modal-footer" style="padding: 10px; border-top: 1px solid #ddd; background: #f8f9fa;">
+            <div id="pagination"></div>
+        </div>
+    </div>
+
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244528"></script>
+    <script src="/js/desktop-ui.js"></script>
+    <script src="/js/sales.js"></script>
+</body>
+
+</html>
+

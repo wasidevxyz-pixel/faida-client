@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Logs | Administrator</title>
+    <!-- CSS Dependencies -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono&display=swap"
+        rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --bas-blue: #2c5ba9;
+            --bas-green: #00a65a;
+            --bas-light-blue: #f4f7fa;
+            --bas-border: #d2d6de;
+            --error: #ff3d00;
+            --warning: #ffab00;
+            --info: #00b0ff;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bas-light-blue);
+            color: #2d3436;
+            font-size: 0.85rem;
+        }
+
+        .main-content {
+            margin-left: 0 !important;
+            padding-top: 0 !important;
+        }
+
+        .bas-container {
+            padding: 15px;
+        }
+
+        .page-header {
+            background-color: var(--bas-blue);
+            color: white;
+            padding: 8px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        .section-box {
+            background: white;
+            border: 1px solid var(--bas-border);
+            border-radius: 3px;
+            margin-bottom: 15px;
+            padding: 15px;
+        }
+
+        /* Stats Cards - Standardized */
+        .stat-card {
+            background: white;
+            border-radius: 4px;
+            padding: 1rem;
+            border-left: 4px solid var(--bas-blue);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1rem;
+        }
+
+        .stat-card.error {
+            border-left-color: var(--error);
+        }
+
+        .stat-card.warning {
+            border-left-color: var(--warning);
+        }
+
+        .stat-card.info {
+            border-left-color: var(--info);
+        }
+
+        /* Table Standardized */
+        .table-bas {
+            font-size: 0.8rem;
+            width: 100%;
+            background: white;
+            border: 1px solid var(--bas-border);
+        }
+
+        .table-bas thead th {
+            background-color: var(--bas-blue);
+            color: white;
+            position: sticky;
+            top: 0;
+            font-weight: normal;
+            padding: 8px 10px;
+        }
+
+        .table-bas tbody tr {
+            cursor: pointer;
+            border-bottom: 1px solid #f1f1f1;
+        }
+
+        .table-bas tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .table-bas tbody td {
+            padding: 6px 10px;
+        }
+
+        .btn-bas-save {
+            background-color: var(--bas-green);
+            color: white;
+            border: none;
+            padding: 4px 15px;
+            font-size: 0.8rem;
+        }
+
+        .btn-bas-delete {
+            background-color: #dd4b39;
+            color: white;
+            border: none;
+            padding: 4px 15px;
+            font-size: 0.8rem;
+        }
+
+        .log-level {
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .level-error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .level-warn {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .level-info {
+            background: #e0f2fe;
+            color: #075985;
+        }
+
+        .solution-box {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        /* Professional Pagination */
+        .pagination-bas .page-item {
+            margin: 0 3px;
+        }
+
+        .pagination-bas .page-link {
+            border: 1px solid var(--bas-border);
+            color: var(--bas-blue);
+            font-size: 0.75rem;
+            padding: 4px 12px;
+            border-radius: 3px !important;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .pagination-bas .page-item.active .page-link {
+            background-color: var(--bas-blue) !important;
+            border-color: var(--bas-blue) !important;
+            color: white !important;
+            font-weight: bold;
+        }
+
+        .pagination-bas .page-link:hover {
+            background-color: #f8fafc;
+            border-color: var(--bas-blue);
+            color: var(--bas-blue);
+        }
+
+        .pagination-bas .page-item.disabled .page-link {
+            background-color: #eee;
+            color: #999;
+            border-color: #ddd;
+        }
+
+        /* AI Advisor Styles */
+        .ai-advisor-box {
+            display: none;
+            background: #fdfcf4;
+            border: 2px solid #f1e0a9;
+            border-radius: 8px;
+            padding: 1.2rem;
+            margin-top: 1rem;
+            position: relative;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .ai-advisor-tag {
+            position: absolute;
+            top: -12px;
+            right: 20px;
+            background: #8b5cf6;
+            color: white;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .ai-loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main-content">
+        <!-- Standardized Page Header -->
+        <div class="page-header px-3">
+            <div style="flex: 1; display: flex; align-items: center;">
+                <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+                <h4 class="mb-0">System Activity Logs</h4>
+            </div>
+            <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
+                <button class="btn btn-bas-save btn-sm me-2" onclick="refreshLogs()">
+                    <i class="fas fa-sync-alt me-1"></i> Refresh
+                </button>
+                <button class="btn btn-bas-delete btn-sm me-3" onclick="showClearLogsModal()">
+                    <i class="fas fa-trash-alt me-1"></i> Clear Logs
+                </button>
+
+                <div class="dropdown">
+                    <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown"
+                        style="cursor: pointer;">
+                        <div class="avatar-circle me-2 bg-primary text-white d-flex align-items-center justify-content-center"
+                            style="width: 35px; height: 35px; border-radius: 50%; font-weight: bold;">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <span id="userName" class="me-2">Admin</span>
+                        <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                        <li><a class="dropdown-item logout-btn" href="#"><i
+                                    class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="bas-container">
+            <!-- Stats Overview -->
+            <div class="row g-3 mb-3" id="statsOverview">
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <div class="text-muted small fw-bold">TOTAL EVENTS</div>
+                        <div class="h4 fw-bold mb-0" id="statTotal">-</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card error">
+                        <div class="text-muted small fw-bold">ERRORS</div>
+                        <div class="h4 fw-bold mb-0 text-danger" id="statErrors">-</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card warning">
+                        <div class="text-muted small fw-bold">WARNINGS</div>
+                        <div class="h4 fw-bold mb-0 text-warning" id="statWarnings">-</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card info">
+                        <div class="text-muted small fw-bold">INFO & API</div>
+                        <div class="h4 fw-bold mb-0 text-info" id="statInfo">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters Section -->
+            <div class="section-box">
+                <div class="row g-2 align-items-center">
+                    <div class="col-md-3">
+                        <input type="text" class="form-control form-control-sm" id="searchLog"
+                            placeholder="Search message, URL, or user...">
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select form-select-sm" id="filterLevel">
+                            <option value="">All Levels</option>
+                            <option value="error">Errors Only</option>
+                            <option value="warn">Warnings</option>
+                            <option value="info">Info</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select form-select-sm" id="filterType">
+                            <option value="">All Activities</option>
+                            <option value="screen_usage">Screen Usage (Tracking)</option>
+                            <option value="api">Backend API Calls</option>
+                            <option value="auth">User Login/Logout</option>
+                            <option value="system">System Errors</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-check form-switch pt-1">
+                            <input class="form-check-input" type="checkbox" id="checkOnlyErrors">
+                            <label class="form-check-label fw-bold text-danger" for="checkOnlyErrors">Only Error
+                                Mode</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table Section -->
+            <div class="section-box p-0 overflow-hidden">
+                <div class="table-responsive" style="max-height: calc(100vh - 350px);">
+                    <table class="table-bas" id="logsTable">
+                        <thead>
+                            <tr>
+                                <th>TIME</th>
+                                <th>LEVEL</th>
+                                <th>ACTIVITY</th>
+                                <th>MESSAGE / URL</th>
+                                <th>USER</th>
+                                <th>IP ADDRESS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logsTableBody">
+                            <!-- Loaded via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <div class="text-muted small" id="paginationInfo">Showing 0 logs</div>
+                <nav>
+                    <ul class="pagination pagination-bas mb-0" id="pagination"></ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Log Detail Modal -->
+    <div class="modal fade" id="logDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 4px; border: none;">
+                <div class="modal-header py-2" style="background: var(--bas-blue); color: white;">
+                    <h6 class="modal-title fw-bold" id="detailTitle">Log Event Detail</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        style="font-size: 0.7rem;"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">TIMESTAMP</label>
+                            <div id="v-timestamp" class="fw-bold">-</div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label text-muted small">LEVEL</label>
+                            <div id="v-level">-</div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label text-muted small">TYPE</label>
+                            <div id="v-type" class="text-uppercase fw-bold">-</div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <label class="form-label text-muted small">URL / ACTION</label>
+                        <div id="v-url" class="p-2 border bg-light font-monospace"
+                            style="font-size: 0.8rem; border-radius: 4px;">-</div>
+                    </div>
+
+                    <div class="mt-4">
+                        <label class="form-label text-muted small">MESSAGE</label>
+                        <div id="v-message" class="h6 fw-bold">-</div>
+                    </div>
+
+                    <div class="row g-4 mt-2">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">USER</label>
+                            <div id="v-user" class="fw-bold">-</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small">IP ADDRESS</label>
+                            <div id="v-ip" class="font-monospace">-</div>
+                        </div>
+                    </div>
+
+                    <!-- Suggested Solution Section -->
+                    <div id="solutionBox" class="solution-box">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="d-flex">
+                                <i class="fas fa-lightbulb text-success me-3 mt-1" style="font-size: 1.2rem;"></i>
+                                <div>
+                                    <div class="fw-bold text-success mb-1">Standard Solution</div>
+                                    <div id="v-solution" class="small text-dark"></div>
+                                </div>
+                            </div>
+                            <button class="btn btn-outline-primary btn-sm rounded-pill px-3 ms-3" id="diagnoseBtn"
+                                onclick="diagnoseLog()">
+                                <i class="fas fa-robot me-1"></i> Diagnose with AI
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- AI Advisor Result -->
+                    <div id="aiAdvisorBox" class="ai-advisor-box">
+                        <div class="ai-advisor-tag"><i class="fas fa-shield-alt me-1"></i> Professional Advisor</div>
+
+                        <div id="aiLoading" class="ai-loading-spinner">
+                            <div class="spinner-grow spinner-grow-sm text-primary" role="status"></div>
+                            <div class="mt-2 small text-muted">Analyzing system logs for a safe resolution...</div>
+                        </div>
+
+                        <div id="aiContent" style="display: none;">
+                            <div class="mb-3">
+                                <label class="text-primary fw-bold small mb-1">ANALYSIS</label>
+                                <div id="aiAnalysis" class="small text-dark"></div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="text-danger fw-bold small mb-1">ROOT CAUSE</label>
+                                <div id="aiRootCause" class="small text-dark"></div>
+                            </div>
+                            <div>
+                                <label class="text-success fw-bold small mb-1">RESOLUTION STEPS (SAFE)</label>
+                                <ul id="aiSteps" class="small text-dark ps-3 mb-0"></ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="stack-section" class="mt-4" style="display:none;">
+                        <label class="form-label text-danger small fw-bold">TECHNICAL ERROR DETAILS (STACK
+                            TRACE)</label>
+                        <div id="v-stack" class="p-3 bg-dark text-light rounded font-monospace"
+                            style="font-size: 0.75rem; max-height: 250px; overflow-y: auto;"></div>
+                    </div>
+
+                    <div class="mt-4">
+                        <label class="form-label text-muted small">RAW METADATA (JSON)</label>
+                        <pre id="v-json" class="p-3 bg-light border rounded small mb-0"
+                            style="font-size: 0.75rem; max-height: 200px; overflow-y: auto;"></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244543"></script>
+    <script src="/js/system-logs.js"></script>
+</body>
+
+</html>

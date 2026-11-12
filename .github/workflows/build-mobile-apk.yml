@@ -1,0 +1,106 @@
+name: 📱 Build Mobile Android APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'Build Type (release = optimized APK, debug = fast test APK)'
+        required: true
+        default: 'release'
+        type: choice
+        options:
+          - release
+          - debug
+  push:
+    branches:
+      - main
+    paths:
+      - 'mobile-app/**'
+      - '.github/workflows/build-mobile-apk.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-apk:
+    name: 🔨 Build Android APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ☕ Set up Java (JDK 17)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: 🐘 Setup Gradle & Cache
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
+
+      - name: 🟢 Set up Node.js (v20)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: 'mobile-app/package-lock.json'
+
+      - name: 📦 Install Mobile Dependencies
+        working-directory: mobile-app
+        run: |
+          npm ci || npm install
+
+      - name: 🏗️ Run Expo Prebuild (Generate Native Android Project)
+        working-directory: mobile-app
+        run: |
+          npx expo prebuild --platform android --clean --no-install
+
+      - name: 🤖 Build Android APK with Gradle
+        working-directory: mobile-app/android
+        run: |
+          chmod +x gradlew
+          BUILD_TYPE="${{ github.event.inputs.build_type || 'release' }}"
+          echo "Building Android APK with type: $BUILD_TYPE"
+          
+          if [ "$BUILD_TYPE" = "debug" ]; then
+            ./gradlew assembleDebug \
+              -Dorg.gradle.jvmargs="-Xmx4096m -XX:MaxMetaspaceSize=1024m" \
+              -PreactNativeArchitectures=arm64-v8a,armeabi-v7a \
+              --no-daemon --stacktrace
+          else
+            ./gradlew assembleRelease \
+              -Dorg.gradle.jvmargs="-Xmx4096m -XX:MaxMetaspaceSize=1024m" \
+              -PreactNativeArchitectures=arm64-v8a,armeabi-v7a \
+              --no-daemon --stacktrace
+          fi
+
+      - name: 🔍 Find & Prepare APK
+        id: find_apk
+        run: |
+          echo "Looking for generated APK files..."
+          find mobile-app/android/app/build/outputs/apk -name "*.apk" || true
+          
+          APK_PATH=$(find mobile-app/android/app/build/outputs/apk -name "*.apk" | head -n 1)
+          if [ -z "$APK_PATH" ]; then
+            echo "❌ No APK found in build output!"
+            exit 1
+          fi
+          
+          echo "✅ Found APK at: $APK_PATH"
+          mkdir -p build-output
+          cp "$APK_PATH" build-output/BAS-Mobile-App.apk
+          ls -lh build-output/BAS-Mobile-App.apk
+          echo "apk_path=build-output/BAS-Mobile-App.apk" >> $GITHUB_OUTPUT
+
+      - name: 📤 Upload APK Artifact to GitHub
+        uses: actions/upload-artifact@v4
+        with:
+          name: BAS-Mobile-App-APK
+          path: build-output/BAS-Mobile-App.apk
+          retention-days: 30
+

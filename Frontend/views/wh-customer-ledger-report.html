@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WH Customer Ledger - BAS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #1e4c8c 0%, #2c5ba9 100%);
+        }
+
+        .report-container {
+            padding: 15px;
+            height: calc(100vh - 60px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-panel {
+            background: var(--primary-gradient);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            color: white;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-panel label {
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 6px;
+            display: block;
+            opacity: 0.9;
+        }
+
+        .filter-panel .form-control,
+        .filter-panel .form-select {
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: white !important;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .filter-panel .form-control:focus,
+        .filter-panel .form-select:focus {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+            border-color: white;
+        }
+
+        .filter-panel .form-select option {
+            color: #333;
+        }
+
+        .data-panel {
+            flex: 1;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #edf2f7;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            padding: 20px;
+            background: #f8fafc;
+            border-bottom: 1px solid #edf2f7;
+        }
+
+        .summary-card {
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(0, 0, 0, 0.03);
+        }
+
+        .summary-card.opening {
+            background: #eff6ff;
+            color: #1e40af;
+        }
+
+        .summary-card.debit {
+            background: #fff1f2;
+            color: #9f1239;
+        }
+
+        .summary-card.credit {
+            background: #f0fdf4;
+            color: #166534;
+        }
+
+        .summary-card.closing {
+            background: #1e3a8a;
+            color: white;
+        }
+
+        .summary-card .label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-bottom: 4px;
+            opacity: 0.8;
+            display: block;
+        }
+
+        .summary-card .value {
+            font-size: 1.2rem;
+            font-weight: 800;
+        }
+
+        .table-container {
+            flex: 1;
+            overflow: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .data-table thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .data-table th {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 12px 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .data-table td {
+            padding: 12px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.85rem;
+        }
+
+        .debit-amount {
+            color: #dc2626;
+            font-weight: 600;
+        }
+
+        .credit-amount {
+            color: #16a34a;
+            font-weight: 600;
+        }
+
+        .print-header {
+            display: none;
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px double #333;
+            padding-bottom: 15px;
+        }
+
+        @media (max-width: 992px) {
+            .summary-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .report-container {
+                padding: 10px;
+                height: auto;
+            }
+
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-panel .btn {
+                width: 100%;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 10px;
+                font-size: 0.75rem;
+            }
+        }
+
+        @media print {
+
+            .page-header,
+            .filter-panel,
+            #sidebar-container {
+                display: none !important;
+            }
+
+            .main-content {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .report-container {
+                padding: 0;
+                height: auto;
+                display: block;
+            }
+
+            .print-header {
+                display: block;
+            }
+
+            .summary-cards {
+                grid-template-columns: repeat(4, 1fr);
+                background: white;
+                margin-bottom: 20px;
+                border: 1px solid #eee;
+            }
+
+            .summary-card.closing {
+                color: black !important;
+                background: #eee !important;
+                border: 1px solid #333;
+            }
+        }
+
+        #customerSuggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: white;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            display: none;
+        }
+
+        .list-group-item-action {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .list-group-item-action:hover,
+        .list-group-item-action.active {
+            background-color: #1e4c8c;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="sidebar-container"></div>
+
+    <div class="main-content">
+        <div class="page-header px-3">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer;"></i>
+                <h6 class="mb-0 fw-bold"><i class="fas fa-file-invoice me-2"></i>WH CUSTOMER LEDGER</h6>
+            </div>
+        </div>
+
+        <div class="report-container">
+            <!-- Print Header -->
+            <div class="print-header">
+                <h2 class="fw-bold mb-1">BILAL ACCOUNTING SOFTWARE</h2>
+                <h4 class="text-uppercase mb-2">Warehouse Customer Ledger</h4>
+                <div class="d-flex justify-content-between px-4 mt-3">
+                    <span id="printCustomerName">Customer: ________________</span>
+                    <span>Date Range: <span id="printDateRange">__/__/____ to __/__/____</span></span>
+                </div>
+            </div>
+
+            <div class="filter-panel">
+                <div class="row g-3 align-items-end">
+                    <div class="col-lg-3 col-md-6">
+                        <label>Customer</label>
+                        <div class="position-relative">
+                            <input type="text" class="form-control" id="customerSearch" placeholder="Search Customer..."
+                                oninput="filterCustomers(this)" onkeydown="onCustomerSearchKeydown(event)">
+                            <input type="hidden" id="filterCustomer">
+                            <div class="list-group position-absolute w-100" id="customerSuggestions"
+                                style="z-index: 1050; display:none; max-height: 250px; overflow-y: auto; top: 100%;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-3 col-6">
+                        <label>From Date</label>
+                        <input type="date" id="filterFrom" class="form-control">
+                    </div>
+                    <div class="col-lg-2 col-md-3 col-6">
+                        <label>To Date</label>
+                        <input type="date" id="filterTo" class="form-control">
+                    </div>
+                    <div class="col-lg-5 col-md-12">
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-light flex-fill fw-bold shadow-sm" onclick="generateReport()">
+                                <i class="fas fa-sync-alt me-1"></i>GENERATE
+                            </button>
+                            <button class="btn btn-warning text-white fw-bold shadow-sm" style="min-width: 120px;"
+                                onclick="handlePrint()">
+                                <i class="fas fa-print me-1"></i>PRINT
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="data-panel">
+                <div class="summary-cards">
+                    <div class="summary-card opening">
+                        <span class="label">Opening Balance</span>
+                        <div class="value" id="openingBalance">0.00</div>
+                    </div>
+                    <div class="summary-card debit">
+                        <span class="label">Total Debit (+)</span>
+                        <div class="value" id="totalDebit">0.00</div>
+                    </div>
+                    <div class="summary-card credit">
+                        <span class="label">Total Credit (-)</span>
+                        <div class="value" id="totalCredit">0.00</div>
+                    </div>
+                    <div class="summary-card closing">
+                        <span class="label">Closing Balance</span>
+                        <div class="value" id="closingBalance">0.00</div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 100px">Date</th>
+                                <th style="width: 100px">Ref #</th>
+                                <th>Description</th>
+                                <th style="width: 120px" class="text-end">Debit</th>
+                                <th style="width: 120px" class="text-end">Credit</th>
+                                <th style="width: 120px" class="text-end">Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reportContent">
+                            <tr>
+                                <td colspan="6" class="text-center py-5 text-muted">Select customer and click Generate
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244552"></script>
+    <script>
+        const token = localStorage.getItem('token');
+
+        let customersList = [];
+        let searchIndex = -1;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const today = new Date().toISOString().split('T')[0];
+            const lastDec31 = new Date(new Date().getFullYear() - 1, 11, 31).toISOString().split('T')[0];
+            document.getElementById('filterFrom').value = today;
+            document.getElementById('filterTo').value = today;
+
+            await loadCustomers();
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const customerId = urlParams.get('id');
+            if (customerId) {
+                const customer = customersList.find(c => c._id === customerId);
+                if (customer) {
+                    selectCustomer(customer);
+                    generateReport();
+                }
+            }
+        });
+
+        // Close suggestions on outside click
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.position-relative')) {
+                document.getElementById('customerSuggestions').style.display = 'none';
+            }
+        });
+
+        async function loadCustomers() {
+            try {
+                const res = await fetch('/api/v1/wh-customers', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    customersList = data.data;
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        function filterCustomers(input) {
+            const term = input.value.toLowerCase();
+            const suggestions = document.getElementById('customerSuggestions');
+
+            if (!term) {
+                suggestions.style.display = 'none';
+                return;
+            }
+
+            const filtered = customersList.filter(c =>
+                (c.customerName && c.customerName.toLowerCase().includes(term)) ||
+                (c.code && c.code.toLowerCase().includes(term))
+            ).slice(0, 15);
+
+            if (filtered.length > 0) {
+                renderSuggestions(filtered);
+                suggestions.style.display = 'block';
+            } else {
+                suggestions.style.display = 'none';
+            }
+        }
+
+        function renderSuggestions(list) {
+            const suggestions = document.getElementById('customerSuggestions');
+            suggestions.innerHTML = '';
+            searchIndex = -1;
+
+            list.forEach((c, index) => {
+                const item = document.createElement('a');
+                item.className = 'list-group-item list-group-item-action p-2 small';
+                item.innerHTML = `<strong>${c.customerName}</strong> <span class="text-muted float-end">${c.code || ''}</span>`;
+                item.onclick = () => selectCustomer(c);
+                suggestions.appendChild(item);
+            });
+        }
+
+        function onCustomerSearchKeydown(e) {
+            const suggestions = document.getElementById('customerSuggestions');
+            const items = suggestions.querySelectorAll('.list-group-item');
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                searchIndex = Math.min(searchIndex + 1, items.length - 1);
+                updateSearchFocus(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                searchIndex = Math.max(searchIndex - 1, 0);
+                updateSearchFocus(items);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (searchIndex > -1) {
+                    items[searchIndex].click();
+                } else if (items.length > 0) {
+                    items[0].click();
+                }
+            } else if (e.key === 'Escape') {
+                suggestions.style.display = 'none';
+            }
+        }
+
+        function updateSearchFocus(items) {
+            items.forEach((item, index) => {
+                if (index === searchIndex) {
+                    item.classList.add('active');
+                    item.scrollIntoView({ block: 'nearest' });
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        function selectCustomer(c) {
+            document.getElementById('customerSearch').value = c.customerName;
+            document.getElementById('filterCustomer').value = c._id;
+            document.getElementById('customerSuggestions').style.display = 'none';
+            document.getElementById('printCustomerName').textContent = 'Customer: ' + c.customerName;
+        }
+
+        async function generateReport() {
+            const customerId = document.getElementById('filterCustomer').value;
+            const from = document.getElementById('filterFrom').value;
+            const to = document.getElementById('filterTo').value;
+
+            if (!customerId) return alert('Please select a customer');
+
+            const content = document.getElementById('reportContent');
+            content.innerHTML = '<tr><td colspan="6" class="text-center py-5"><div class="spinner-border text-primary"></div></td></tr>';
+
+            try {
+                const res = await fetch(`/api/v1/wh-ledger/report?customer=${customerId}&from=${from}&to=${to}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (!data.success) throw new Error(data.error);
+
+                let html = '';
+                let runningBalance = data.data.openingBalance;
+                let totalDebit = 0;
+                let totalCredit = 0;
+
+                // Opening Row
+                html += `
+                    <tr class="table-light">
+                        <td colspan="3" class="text-end fw-bold">Opening Balance</td>
+                        <td class="text-end">-</td>
+                        <td class="text-end">-</td>
+                        <td class="text-end fw-bold">${runningBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                    </tr>
+                `;
+
+                data.data.entries.forEach(e => {
+                    runningBalance += (e.debit || 0) - (e.credit || 0);
+                    totalDebit += (e.debit || 0);
+                    totalCredit += (e.credit || 0);
+
+                    html += `
+                        <tr>
+                            <td>${new Date(e.date).toLocaleDateString('en-GB')}</td>
+                            <td><small class="fw-bold">${e.refId ? e.refId.substring(e.refId.length - 6) : '-'}</small></td>
+                            <td>${e.description}</td>
+                            <td class="text-end debit-amount">${e.debit > 0 ? e.debit.toLocaleString(undefined, { minimumFractionDigits: 2 }) : ''}</td>
+                            <td class="text-end credit-amount">${e.credit > 0 ? e.credit.toLocaleString(undefined, { minimumFractionDigits: 2 }) : ''}</td>
+                            <td class="text-end fw-bold">${runningBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                        </tr>
+                    `;
+                });
+
+                document.getElementById('openingBalance').textContent = data.data.openingBalance.toLocaleString(undefined, { minimumFractionDigits: 2 });
+                document.getElementById('totalDebit').textContent = totalDebit.toLocaleString(undefined, { minimumFractionDigits: 2 });
+                document.getElementById('totalCredit').textContent = totalCredit.toLocaleString(undefined, { minimumFractionDigits: 2 });
+                document.getElementById('closingBalance').textContent = runningBalance.toLocaleString(undefined, { minimumFractionDigits: 2 });
+
+                content.innerHTML = html || '<tr><td colspan="6" class="text-center py-5">No transactions found</td></tr>';
+
+                // Set print info
+                const customerName = document.getElementById('customerSearch').value;
+                document.getElementById('printCustomerName').textContent = 'Customer: ' + customerName;
+                document.getElementById('printDateRange').textContent = `${from} to ${to}`;
+
+            } catch (err) {
+                content.innerHTML = `<tr><td colspan="6" class="text-center py-5 text-danger">${err.message}</td></tr>`;
+            }
+        }
+
+        function handlePrint() {
+            window.print();
+        }
+    </script>
+</body>
+
+</html>

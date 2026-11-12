@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Employees Salary Status Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+            margin: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .title {
+            background: black;
+            color: white;
+            padding: 5px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .month {
+            font-size: 14px;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+
+        .info {
+            margin-bottom: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th,
+        td {
+            border: 1px solid black;
+            padding: 4px;
+            text-align: left;
+        }
+
+        th {
+            background: #f0f0f0;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .dept-header {
+            background: #f9f9f9;
+            font-weight: bold;
+        }
+
+        .footer {
+            margin-top: 20px;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        @media print {
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div id="printDate" style="position: absolute; left: 0;"></div>
+        <div class="title">Employees Salary Status Details</div>
+        <div id="monthDisplay" class="month"></div>
+        <div id="branchDisplay" class="info"></div>
+    </div>
+
+    <table id="reportTable">
+        <thead>
+            <tr>
+                <th>Sr.No</th>
+                <th>Code</th>
+                <th>Employee Name</th>
+                <th>Designation</th>
+                <th>Payment Mode</th>
+                <th>Net Salary</th>
+                <th>Joining Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="reportContent">
+            <!-- Data will be injected here -->
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="5" style="text-align: right; font-weight: bold;">Net Total:</td>
+                <td id="grandTotal" style="text-align: right; font-weight: bold;"></td>
+                <td colspan="2"></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <script>
+        window.onload = async function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const monthYear = urlParams.get('Month_Year');
+            const status = urlParams.get('Status');
+            const branch = urlParams.get('Branch_ID');
+            const department = urlParams.get('Department_ID');
+            const employeeId = urlParams.get('Employee_ID');
+
+            document.getElementById('printDate').textContent = new Date().toLocaleDateString();
+            document.getElementById('monthDisplay').textContent = monthYear; // Format if needed
+
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch(`/api/v1/salary-reports/emp-payroll-status?monthYear=${monthYear}&status=${status}&branch=${branch}&department=${department}&employeeId=${employeeId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    renderPrint(data.data);
+                }
+            } catch (err) { console.error(err); }
+        };
+
+        function renderPrint(data) {
+            const container = document.getElementById('reportContent');
+            const grouped = {};
+            data.forEach(item => {
+                if (!grouped[item.department]) grouped[item.department] = [];
+                grouped[item.department].push(item);
+            });
+
+            let html = '';
+            let srNo = 1;
+            let totalNet = 0;
+
+            for (const dept in grouped) {
+                html += `<tr class="dept-header"><td colspan="8" class="text-center">${dept}</td></tr>`;
+                grouped[dept].forEach(item => {
+                    totalNet += item.netSalary;
+                    html += `
+                        <tr>
+                            <td class="text-center">${srNo++}</td>
+                            <td class="text-center">${item.code}</td>
+                            <td>${item.name}</td>
+                            <td>${item.designation}</td>
+                            <td class="text-center">${item.paymentMode}</td>
+                            <td class="text-right">${item.netSalary.toLocaleString()}</td>
+                            <td class="text-center">${item.joiningDate ? new Date(item.joiningDate).toLocaleDateString() : '-'}</td>
+                            <td class="text-center">${item.status}</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            container.innerHTML = html;
+            document.getElementById('grandTotal').textContent = totalNet.toLocaleString();
+
+            // Auto-trigger print if requested
+            if (new URLSearchParams(window.location.search).get('autoprint') === 'true') {
+                setTimeout(() => window.print(), 1000);
+            }
+        }
+    </script>
+</body>
+
+</html>
+

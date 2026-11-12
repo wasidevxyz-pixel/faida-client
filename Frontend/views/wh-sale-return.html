@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sale Return Entry - BAS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <style>
+        body {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .form-label {
+            font-weight: 600;
+            font-size: 0.75rem;
+            margin-bottom: 0.1rem;
+            color: #495057;
+        }
+
+        .form-control,
+        .form-select {
+            font-size: 0.8rem;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+        }
+
+        .card-header-custom {
+            background: #dc3545;
+            /* Red for Return */
+            color: white;
+            padding: 0.4rem 0.8rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .table-custom th {
+            background-color: #dc3545 !important;
+            /* Red for Return */
+            color: white !important;
+            text-align: center;
+            font-weight: 500;
+            white-space: nowrap;
+            padding: 4px;
+            font-size: 0.75rem;
+        }
+
+        .table-custom td {
+            vertical-align: middle;
+            padding: 2px 4px;
+            font-size: 0.75rem;
+        }
+
+        .summary-card {
+            background-color: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            height: auto;
+            color: #2d3748;
+        }
+
+        .summary-column-bg {
+            background-color: #fef2f2;
+            /* Light red bg */
+            border-left: 2px solid #fed7d7;
+            height: calc(100vh - 65px);
+            overflow-y: auto;
+            padding: 10px !important;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .summary-label {
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #742a2a;
+            /* Darker red */
+            margin-bottom: 2px;
+            display: block;
+        }
+
+        .summary-value {
+            font-weight: 700;
+            text-align: right;
+            border: 1px solid #cbd5e0;
+            background-color: #ffffff !important;
+            color: #1e293b !important;
+            font-size: 1rem;
+            border-radius: 4px;
+            height: 32px !important;
+        }
+
+        /* Specific section highlights */
+        .summary-section-total {
+            background-color: #fefcbf;
+            padding: 6px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border: 1px solid #faf089;
+        }
+
+        .summary-section-balance {
+            background-color: #fff5f5;
+            padding: 6px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border: 1px solid #fed7d7;
+        }
+
+        .summary-section-newbal {
+            background-color: #ebf8ff;
+            padding: 6px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border: 1px solid #bee3f8;
+        }
+
+        .summary-value:focus {
+            border-color: #fc8181;
+            box-shadow: 0 0 0 3px rgba(252, 129, 129, 0.2);
+        }
+
+        .summary-divider {
+            height: 1px;
+            background: #cbd5e0;
+            margin: 0.5rem 0;
+        }
+
+        .net-total-box {
+            background-color: #c53030 !important;
+            /* Dark Red */
+            color: white !important;
+            font-size: 1.3rem !important;
+            height: 45px !important;
+            border: none !important;
+            border-radius: 6px !important;
+        }
+
+        .btn-bottom {
+            min-width: 100px;
+        }
+
+        .input-row-card {
+            background-color: #fff5f5;
+            /* Light red tint */
+        }
+
+        /* Search suggestions styling */
+        #itemSuggestions {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            overflow-x: hidden;
+        }
+
+        #itemSuggestions .list-group-item {
+            border: none;
+            border-bottom: 1px solid #f1f3f5;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        #itemSuggestions .list-group-item:hover,
+        .list-group-item-action:hover {
+            background-color: #0d6efd !important;
+            color: white !important;
+        }
+
+        #itemSuggestions .list-group-item.active,
+        .list-group-item-action.active {
+            background-color: #c53030 !important;
+            border-color: #c53030 !important;
+            color: white !important;
+        }
+
+        #itemSuggestions .list-group-item:hover .text-muted,
+        #itemSuggestions .list-group-item.active .text-muted,
+        .list-group-item-action:hover .text-muted,
+        .list-group-item-action.active .text-muted {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        #itemSuggestions::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #itemSuggestions::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 3px;
+        }
+
+        .table-responsive {
+            height: calc(100vh - 460px);
+            overflow-y: auto;
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .form-label {
+            font-weight: 600;
+            font-size: 0.75rem;
+            margin-bottom: 0.1rem;
+            color: #495057;
+        }
+
+        .form-control,
+        .form-select {
+            font-size: 0.8rem;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+        }
+
+        .card-header-custom {
+            background: #dc3545;
+            /* Red for Return */
+            color: white;
+            padding: 0.4rem 0.8rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .table-custom th {
+            background-color: #dc3545 !important;
+            /* Red for Return */
+            color: white !important;
+            text-align: center;
+            font-weight: 500;
+            white-space: nowrap;
+            padding: 4px;
+            font-size: 0.75rem;
+        }
+
+        .table-custom td {
+            vertical-align: middle;
+            padding: 2px 4px;
+            font-size: 0.75rem;
+        }
+
+        .summary-card {
+            background-color: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            height: auto;
+            color: #2d3748;
+        }
+
+        .summary-column-bg {
+            background-color: #fef2f2;
+            /* Light red bg */
+            border-left: 2px solid #fed7d7;
+            height: calc(100vh - 65px);
+            overflow-y: auto;
+            padding: 10px !important;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .summary-label {
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #742a2a;
+            /* Darker red */
+            margin-bottom: 2px;
+            display: block;
+        }
+
+        .summary-value {
+            font-weight: 700;
+            text-align: right;
+            border: 1px solid #cbd5e0;
+            background-color: #ffffff !important;
+            color: #1e293b !important;
+            font-size: 1rem;
+            border-radius: 4px;
+            height: 32px !important;
+        }
+
+        /* Specific section highlights */
+        .summary-section-total {
+            background-color: #fefcbf;
+            padding: 6px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border: 1px solid #faf089;
+        }
+
+        .summary-section-balance {
+            background-color: #fff5f5;
+            padding: 6px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border: 1px solid #fed7d7;
+        }
+
+        .summary-section-newbal {
+            background-color: #ebf8ff;
+            padding: 6px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border: 1px solid #bee3f8;
+        }
+
+        .summary-value:focus {
+            border-color: #fc8181;
+            box-shadow: 0 0 0 3px rgba(252, 129, 129, 0.2);
+        }
+
+        .summary-divider {
+            height: 1px;
+            background: #cbd5e0;
+            margin: 0.5rem 0;
+        }
+
+        .net-total-box {
+            background-color: #c53030 !important;
+            /* Dark Red */
+            color: white !important;
+            font-size: 1.3rem !important;
+            height: 45px !important;
+            border: none !important;
+            border-radius: 6px !important;
+        }
+
+        .btn-bottom {
+            min-width: 100px;
+        }
+
+        .input-row-card {
+            background-color: #fff5f5;
+            /* Light red tint */
+        }
+
+        /* Search suggestions styling */
+        #itemSuggestions {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            overflow-x: hidden;
+        }
+
+        #itemSuggestions .list-group-item {
+            border: none;
+            border-bottom: 1px solid #f1f3f5;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        #itemSuggestions .list-group-item:hover,
+        .list-group-item-action:hover {
+            background-color: #0d6efd !important;
+            color: white !important;
+        }
+
+        #itemSuggestions .list-group-item.active,
+        .list-group-item-action.active {
+            background-color: #c53030 !important;
+            border-color: #c53030 !important;
+            color: white !important;
+        }
+
+        #itemSuggestions .list-group-item:hover .text-muted,
+        #itemSuggestions .list-group-item.active .text-muted,
+        .list-group-item-action:hover .text-muted,
+        .list-group-item-action.active .text-muted {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        #itemSuggestions::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #itemSuggestions::-webkit-scrollbar-thumb {
+            background: #cbd5e0;
+            border-radius: 3px;
+        }
+
+        .table-responsive {
+            height: calc(100vh - 460px);
+            overflow-y: auto;
+        }
+
+        /* Professional Mobile Enhancements */
+        @media (max-width: 768px) {
+            body {
+                overflow: auto !important;
+            }
+
+            .page-header {
+                padding: 0.5rem 1rem !important;
+                background-color: #dc3545 !important;
+            }
+
+            .page-header #userName,
+            .page-header .fa-chevron-down {
+                display: none;
+            }
+
+            .container-fluid {
+                padding: 10px !important;
+                padding-bottom: 80px !important;
+            }
+
+            .col-md-9,
+            .col-md-3 {
+                width: 100% !important;
+                display: block !important;
+            }
+
+            .row.g-0>div:nth-child(1) .card:nth-child(1),
+            /* Invoice Info Card */
+            .row.g-0>div:nth-child(1) .card:nth-child(2)
+
+            /* Item Entry Card */
+                {
+                display: block !important;
+            }
+
+            .table-responsive {
+                display: none !important;
+                /* Managed by toggle */
+                height: 400px !important;
+            }
+
+            .summary-column-bg {
+                display: none !important;
+                /* Managed by toggle */
+                height: auto !important;
+                position: static !important;
+                border: none !important;
+                padding: 10px !important;
+            }
+
+            .card {
+                border-radius: 12px !important;
+                border: none !important;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
+                margin-bottom: 12px !important;
+            }
+
+            .form-label {
+                font-size: 0.7rem !important;
+                color: #64748b !important;
+            }
+
+            .form-control,
+            .form-select {
+                height: 36px !important;
+                font-size: 0.85rem !important;
+                border-radius: 8px !important;
+            }
+
+            /* Bottom Action Bar */
+            .action-bar-mobile {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: white;
+                display: flex !important;
+                justify-content: space-around;
+                padding: 8px 5px;
+                box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.1);
+                z-index: 1050;
+                border-top: 1px solid #e2e8f0;
+                height: 65px;
+            }
+
+            .action-btn-mobile {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                background: none;
+                border: none;
+                color: #64748b;
+                font-size: 0.65rem;
+                font-weight: 600;
+                flex: 1;
+                transition: all 0.2s;
+            }
+
+            .action-btn-mobile i {
+                font-size: 1.25rem;
+                margin-bottom: 3px;
+            }
+
+            .action-btn-mobile:active {
+                color: #dc3545;
+            }
+
+            .action-btn-mobile.btn-save i {
+                color: #10b981;
+            }
+
+            .action-btn-mobile.btn-print i {
+                color: #3b82f6;
+            }
+
+            .action-btn-mobile.btn-list i {
+                color: #f59e0b;
+            }
+
+            .action-btn-mobile.btn-toggle i {
+                color: #6366f1;
+            }
+
+            .d-flex.gap-2.mt-2 {
+                display: none !important;
+                /* Hide desktop buttons */
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="sidebar-container"></div>
+
+    <div class="main-content">
+        <div
+            class="page-header px-3 py-2 d-flex justify-content-between align-items-center bg-danger text-white shadow-sm mb-2">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-bars me-3 text-white" id="sidebarToggle"
+                    style="cursor:pointer; font-size: 1.2rem;"></i>
+                <h5 class="mb-0 text-white">Sale Return Entry</h5>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span id="userName" class="me-2">User</span>
+                <i class="fas fa-user-circle fs-5"></i>
+            </div>
+        </div>
+
+        <div class="container-fluid px-2">
+            <div class="row g-2">
+                <!-- Left Section: Header, Input Row, Table -->
+                <div class="col-md-9">
+                    <!-- Header Card -->
+                    <div class="card shadow-sm mb-2 border-0">
+                        <div class="card-body p-2 bg-light">
+                            <div class="row g-2">
+                                <div class="col-6 col-md-2">
+                                    <label class="form-label">Return No</label>
+                                    <input type="text" class="form-control" id="returnNo" placeholder="Auto">
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label">Customer</label>
+                                    <div class="input-group input-group-sm position-relative">
+                                        <input type="text" class="form-control" id="customerSearch"
+                                            placeholder="Search Customer..." oninput="filterCustomers(this)"
+                                            onkeydown="handleCustomerSearchKeydown(event)">
+                                        <input type="hidden" id="customerSelect">
+                                        <button class="btn btn-warning text-white" type="button" tabindex="-1"
+                                            onclick="refreshCustomers()"><i class="fas fa-sync-alt"></i></button>
+                                        <button class="btn btn-info text-white" type="button" tabindex="-1"
+                                            onclick="showCustomerLookup()">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                        <div class="list-group position-absolute w-100" id="customerSuggestions"
+                                            style="z-index: 1050; display:none; max-height: 250px; overflow-y: auto; top: 100%;">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-2">
+                                    <label class="form-label">Phone</label>
+                                    <input type="text" class="form-control bg-light" id="customerPhone" readonly>
+                                </div>
+                                <div class="col-6 col-md-2">
+                                    <label class="form-label">Date</label>
+                                    <input type="date" class="form-control" id="returnDate">
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label">Remarks</label>
+                                    <input type="text" class="form-control" id="remarks">
+                                </div>
+                            </div>
+                            <div class="row g-2 mt-1">
+                                <div class="col-6 col-md-2">
+                                    <label class="form-label">DC No</label>
+                                    <input type="text" class="form-control" id="dcNo">
+                                </div>
+                                <div class="col-6 col-md-2">
+                                    <label class="form-label">Bilty No</label>
+                                    <input type="text" class="form-control" id="biltyNo">
+                                </div>
+                                <div class="col-12 col-md-3">
+                                    <label class="form-label">Transporter</label>
+                                    <select class="form-select" id="transporterSelect">
+                                        <option value="">Select Transporter</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Input Row Card -->
+                    <div class="card shadow-sm mb-2 border-0 input-row-card">
+                        <div class="card-body p-2">
+                            <div class="row g-2 align-items-end">
+                                <div class="col-5 col-md-2">
+                                    <label class="form-label">Code</label>
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" class="form-control" id="itemCode" placeholder="Barcode">
+                                        <button class="btn btn-secondary" type="button" tabindex="-1"><i
+                                                class="fas fa-barcode"></i></button>
+                                    </div>
+                                </div>
+                                <div class="col-7 col-md-4">
+                                    <label class="form-label">Name Search</label>
+                                    <div class="input-group input-group-sm position-relative">
+                                        <input type="text" class="form-control" id="itemSearch"
+                                            placeholder="Type name..." oninput="filterItems(this)"
+                                            onkeydown="handleItemSearchKeydown(event)">
+                                        <input type="hidden" id="itemSelect"> <!-- For storing selected ID -->
+                                        <button class="btn btn-warning text-white" type="button" tabindex="-1"
+                                            onclick="refreshItems()"><i class="fas fa-sync-alt"></i></button>
+                                        <button class="btn btn-info text-white" type="button" tabindex="-1"
+                                            onclick="showItemLookup()"><i class="fas fa-search"></i> List</button>
+
+                                        <div class="list-group position-absolute w-100" id="itemSuggestions"
+                                            style="z-index: 1050; display:none; max-height: 250px; overflow-y: auto; top: 100%;">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <label class="form-label">Category</label>
+                                    <div class="input-group input-group-sm">
+                                        <select class="form-select" id="categorySelect">
+                                            <option value="">Select Category</option>
+                                        </select>
+                                        <button class="btn btn-warning text-white" type="button" tabindex="-1"
+                                            onclick="refreshCategories()"><i class="fas fa-sync-alt"></i></button>
+                                    </div>
+                                </div>
+                                <div class="col-3 col-md-1">
+                                    <label class="form-label">Stock</label>
+                                    <input type="text" class="form-control bg-light text-center fw-bold text-danger"
+                                        id="itemStock" readonly value="0">
+                                </div>
+                                <div class="col-3 col-md-2">
+                                    <label class="form-label">Store</label>
+                                    <select class="form-select" id="itemStore">
+                                        <option value="Shop">Shop</option>
+                                        <option value="Warehouse">Warehouse</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- Second Row of Input -->
+                            <div class="row g-2 mt-1 align-items-end">
+                                <div class="col-3 col-md-1">
+                                    <label class="form-label">Pack</label>
+                                    <input type="number" class="form-control" id="itemPack" value="1">
+                                </div>
+                                <div class="col-3 col-md-1">
+                                    <label class="form-label">Cost Price</label>
+                                    <input type="number" class="form-control" id="itemPrice" value="0">
+                                </div>
+                                <div class="col-3 col-md-1">
+                                    <label class="form-label">Retail</label>
+                                    <input type="number" class="form-control bg-light" id="itemRetailPrice" readonly
+                                        value="0">
+                                </div>
+                                <div class="col-3 col-md-1">
+                                    <label class="form-label">Total</label>
+                                    <input type="text" class="form-control bg-light" id="itemRowTotal" readonly
+                                        value="0">
+                                </div>
+                                <div class="col-3 col-md-1">
+                                    <label class="form-label">Tax %</label>
+                                    <input type="number" class="form-control" id="itemTaxPercent" value="0">
+                                </div>
+                                <div class="col-3 col-md-1">
+                                    <label class="form-label">Tax Rs</label>
+                                    <input type="text" class="form-control bg-light" id="itemTaxRs" readonly value="0">
+                                </div>
+                                <div class="col-3 col-md-1">
+                                    <label class="form-label">Total</label>
+                                    <input type="text" class="form-control bg-light" id="itemTotalWithTax" readonly
+                                        value="0">
+                                </div>
+                                <div class="col-3 col-md-1">
+                                    <label class="form-label">Incentive</label>
+                                    <input type="number" class="form-control" id="itemIncentive" value="0">
+                                </div>
+                                <div class="col-3 col-md-1">
+                                    <label class="form-label">Dis%</label>
+                                    <input type="number" class="form-control" id="itemDiscPercent" value="0">
+                                </div>
+                                <div class="col-3 col-md-1">
+                                    <label class="form-label">Rs</label>
+                                    <input type="text" class="form-control bg-light" id="itemDiscRs" readonly value="0">
+                                </div>
+                                <div class="col-3 col-md-1">
+                                    <label class="form-label">NetTotal</label>
+                                    <input type="text" class="form-control bg-light fw-bold" id="itemNetTotal" readonly
+                                        value="0">
+                                </div>
+                                <div class="col-3 col-md-1 d-flex align-items-end">
+                                    <button class="btn btn-danger w-100" id="btnAddRow"
+                                        onclick="addItemToTable()">Add</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Table Card -->
+                    <div class="card shadow-sm border-0 table-card-container">
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-custom table-hover mb-0" id="returnTable">
+                                    <thead style="position: sticky; top: 0; z-index: 10;">
+                                        <tr>
+                                            <th style="width: 40px;">Sr.No</th>
+                                            <th style="width: 100px;">Code</th>
+                                            <th style="width: 200px;">Name</th>
+                                            <th style="width: 60px;">Pack</th>
+                                            <th style="width: 80px;">Pcs Cost</th>
+                                            <th style="width: 80px;">Retail</th>
+                                            <th style="width: 90px;">Sub_Total</th>
+                                            <th style="width: 60px;">Tax %</th>
+                                            <th style="width: 70px;">Tax Rs</th>
+                                            <th style="width: 80px;">Total</th>
+                                            <th style="width: 70px;">Incentive</th>
+                                            <th style="width: 60px;">Dis %</th>
+                                            <th style="width: 70px;">Dis Rs</th>
+                                            <th style="width: 90px;">Net Total</th>
+                                            <th style="width: 70px;">Store</th>
+                                            <th style="width: 50px;"><i class="fas fa-trash"></i></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="returnTableBody">
+                                        <!-- Rows will be added here -->
+                                    </tbody>
+                                    <tfoot class="fw-bold" style="background-color: #fff5f5 !important;">
+                                        <tr>
+                                            <td colspan="3" class="text-end">Total</td>
+                                            <td id="footerTotalPack" class="text-end">0</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td id="footerTotalSub" class="text-end">0</td>
+                                            <td></td>
+                                            <td id="footerTotalTax" class="text-end">0</td>
+                                            <td id="footerTotal" class="text-end">0</td>
+                                            <td id="footerTotalIncentive" class="text-end">0</td>
+                                            <td></td>
+                                            <td id="footerTotalDisc" class="text-end">0</td>
+                                            <td id="footerTotalNet" class="text-end">0</td>
+                                            <td colspan="2"></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Current Stock Footer -->
+                    <div class="card shadow-sm border-0 mb-2">
+                        <div
+                            class="card-body p-2 bg-light d-flex align-items-center justify-content-between border rounded">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-boxes me-2 text-muted"></i>
+                                <span class="fw-bold text-muted text-uppercase small"
+                                    style="letter-spacing: 0.5px;">Current Stock (Selected Item)</span>
+                            </div>
+                            <span class="fs-4 fw-bold text-dark" id="footerCurrentStock">0</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-2">
+                        <button class="btn btn-primary btn-bottom" onclick="syncData()" id="syncBtn">
+                            <i class="fas fa-sync-alt me-1"></i> Sync Items
+                        </button>
+                        <button class="btn btn-success btn-bottom" onclick="saveReturn('Posted')"><i
+                                class="fas fa-save me-1"></i> Save</button>
+                        <button class="btn btn-secondary btn-bottom" onclick="printInvoice(editingId)"><i
+                                class="fas fa-print me-1"></i> Print</button>
+                        <button class="btn btn-primary btn-bottom" onclick="saveAndPrint()"><i
+                                class="fas fa-print me-1"></i> Save & Print</button>
+                        <button class="btn btn-dark btn-bottom" onclick="switchToList()"><i
+                                class="fas fa-list me-1"></i> List</button>
+                        <button class="btn btn-danger btn-bottom" onclick="resetForm()"><i
+                                class="fas fa-trash me-1"></i> Reset</button>
+                    </div>
+                </div>
+
+                <!-- Right Summary Column -->
+                <div class="col-md-3 summary-column-bg">
+                    <div class="summary-card">
+                        <div class="card-body p-0">
+                            <!-- Total Section -->
+                            <div class="summary-section-total">
+                                <label class="summary-label">Total Amount</label>
+                                <input type="text" class="form-control summary-value" id="summaryTotal" readonly
+                                    value="0">
+                            </div>
+
+                            <div class="row g-2 mb-1">
+                                <div class="col-6">
+                                    <label class="summary-label">Discount %</label>
+                                    <input type="number" class="form-control summary-value" id="summaryDiscPercent"
+                                        value="0">
+                                </div>
+                                <div class="col-6">
+                                    <label class="summary-label">Disc Rs</label>
+                                    <input type="text" class="form-control summary-value" id="summaryDiscRs" value="0">
+                                </div>
+                            </div>
+
+                            <div class="row g-2 mb-1">
+                                <div class="col-6">
+                                    <label class="summary-label">Tax %</label>
+                                    <input type="number" class="form-control summary-value" id="summaryTaxPercent"
+                                        value="0">
+                                </div>
+                                <div class="col-6">
+                                    <label class="summary-label">Tax Rs</label>
+                                    <input type="text" class="form-control summary-value" id="summaryTaxRs" value="0">
+                                </div>
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="summary-label">Misc Charges</label>
+                                <input type="number" class="form-control summary-value" id="summaryMisc" value="0">
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="summary-label">Freight Charges</label>
+                                <input type="number" class="form-control summary-value" id="summaryFreight" value="0">
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="summary-label">Net Total</label>
+                                <input type="text" class="form-control summary-value net-total-box" id="summaryNetTotal"
+                                    readonly value="0">
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="summary-label">Paid Amount</label>
+                                <input type="number" class="form-control summary-value" id="summaryPaid" value="0"
+                                    style="border: 2px solid #cbd5e0 !important;">
+                            </div>
+
+                            <!-- Invoice Balance Section -->
+                            <div class="summary-section-balance">
+                                <label class="summary-label" style="color: #c53030;">Return Balance</label>
+                                <input type="text" class="form-control summary-value fw-bold"
+                                    style="color: #c53030 !important; border-color: #feb2b2;" id="summaryInvBalance"
+                                    readonly value="0">
+                            </div>
+
+                            <!-- Customer Balance Section -->
+                            <div class="summary-section-newbal">
+                                <div class="mb-1">
+                                    <label class="summary-label">Customer Pre-Balance</label>
+                                    <input type="text" class="form-control summary-value" id="summaryPreBalance"
+                                        readonly value="0">
+                                </div>
+                                <div>
+                                    <label class="summary-label" style="color: #2b6cb0;">Total New Balance</label>
+                                    <input type="text" class="form-control summary-value fw-bold"
+                                        style="color: #2b6cb0 !important; border-color: #90cdf4;" id="summaryNewBalance"
+                                        readonly value="0">
+                                </div>
+                            </div>
+                            <div class="summary-divider"></div>
+                            <div class="mb-2">
+                                <label class="summary-label">Print Size</label>
+                                <select class="form-select" id="printSize">
+                                    <option value="A4">A4</option>
+                                    <option value="A5">A5</option>
+                                    <option value="Thermal">Thermal</option>
+                                </select>
+                            </div>
+                            <div class="mb-3 border-bottom pb-2">
+                                <label class="summary-label">Pay Mode</label>
+                                <select class="form-select" id="payMode">
+                                    <option value="Credit">Credit</option>
+                                    <option value="Cash">Cash</option>
+                                    <option value="Bank">Bank</option>
+                                </select>
+                            </div>
+
+                            <div class="mt-3 text-center">
+                                <span class="text-danger fw-bold cursor-pointer" onclick="openInvoiceSearch()">Search
+                                    Return (Alt+X)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- List View (Hidden by default) -->
+        <div id="listViewContainer" style="display: none;" class="p-3">
+            <!-- Filter Section -->
+            <div class="card shadow-sm border-0 mb-2">
+                <div class="card-header bg-dark text-white p-2">
+                    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2">
+                        <div class="d-flex flex-column flex-md-row align-items-md-center gap-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-nowrap">Sale Return List</span>
+                                <button class="btn btn-sm btn-light d-md-none" onclick="switchToDetail()">Back</button>
+                            </div>
+
+                            <div class="d-flex flex-column flex-md-row align-items-md-center gap-2">
+                                <div class="d-flex align-items-center gap-1">
+                                    <input type="date" id="listFromDate" class="form-control form-control-sm"
+                                        style="width: 135px;">
+                                    <span class="text-white small">to</span>
+                                    <input type="date" id="listToDate" class="form-control form-control-sm"
+                                        style="width: 135px;">
+                                </div>
+                                <div class="input-group input-group-sm mb-0"
+                                    style="width: 100%; min-width: 250px; max-width: 350px;">
+                                    <input type="text" id="listSearch" class="form-control"
+                                        placeholder="Return No, Customer, Remarks..."
+                                        onkeydown="if(event.key==='Enter') loadReturnList()">
+                                    <button class="btn btn-primary" onclick="loadReturnList()">
+                                        <i class="fas fa-search me-1"></i> Search
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-none d-md-block">
+                            <button class="btn btn-sm btn-light fw-bold" onclick="switchToDetail()">Back to
+                                Entry</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover mb-0" id="returnListTable">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Return #</th>
+                                    <th>Date</th>
+                                    <th>Customer</th>
+                                    <th>Net Total</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="returnListBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Lookup Modal -->
+    <div class="modal fade" id="customerListModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white py-2">
+                    <h5 class="modal-title fs-6">Customer Lookup</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="p-2 bg-light border-bottom">
+                        <input type="text" class="form-control" id="customerLookupSearch"
+                            placeholder="Search by name, phone, code...">
+                    </div>
+                    <div class="table-responsive" style="max-height: 400px;">
+                        <table class="table table-bordered table-sm mb-0">
+                            <thead class="bg-danger text-white sticky-top">
+                                <tr>
+                                    <th>Action</th>
+                                    <th>Code</th>
+                                    <th>Name</th>
+                                    <th>Phone</th>
+                                    <th>Balance</th>
+                                    <th>Category</th>
+                                </tr>
+                            </thead>
+                            <tbody id="customerLookupBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Item Lookup Modal -->
+    <div class="modal fade" id="itemListModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white py-2">
+                    <h5 class="modal-title fs-6">Item Lookup</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0 d-flex flex-column">
+                    <div class="p-2 bg-light border-bottom">
+                        <input type="text" class="form-control" id="itemLookupSearch"
+                            placeholder="Search by name, barcode, code...">
+                    </div>
+                    <div class="table-responsive flex-grow-1">
+                        <table class="table table-bordered table-sm mb-0">
+                            <thead class="bg-danger text-white sticky-top">
+                                <tr>
+                                    <th>Action</th>
+                                    <th>Barcode</th>
+                                    <th>Item Name</th>
+                                    <th>Retail Price</th>
+                                    <th>Cost Price</th>
+                                    <th>Stock</th>
+                                    <th>Category</th>
+                                    <th>Supplier</th>
+                                </tr>
+                            </thead>
+                            <tbody id="itemLookupBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- Mobile Bottom Action Bar -->
+    <div class="action-bar-mobile d-none">
+        <button type="button" class="action-btn-mobile btn-toggle" id="mobileToggleBtn" onclick="toggleMobileView()">
+            <i class="fas fa-table"></i>
+            <span id="toggleText">View Table</span>
+        </button>
+        <button type="button" class="action-btn-mobile btn-save" onclick="saveReturn('Posted')">
+            <i class="fas fa-save"></i>
+            <span>Save</span>
+        </button>
+        <button type="button" class="action-btn-mobile btn-print" onclick="window.print()">
+            <i class="fas fa-print"></i>
+            <span>Print</span>
+        </button>
+        <button type="button" class="action-btn-mobile btn-list" onclick="switchToList()">
+            <i class="fas fa-history"></i>
+            <span>List</span>
+        </button>
+    </div>
+
+    <script>
+        let currentMobileView = 'entry'; // entry, table, summary
+
+        function toggleMobileView() {
+            const entryCards = document.querySelectorAll('.col-md-9 > .card');
+            const tableRes = document.querySelector('.table-responsive');
+            const summaryCol = document.querySelector('.summary-column-bg');
+            const toggleText = document.getElementById('toggleText');
+            const toggleIcon = document.querySelector('#mobileToggleBtn i');
+
+            // entryCards[0] = Heading Info
+            // entryCards[1] = Input Row
+            // entryCards[2] = Table Container
+            // entryCards[3] = Current Stock (footer of input section) -- Wait, let's check structure.
+
+            /* 
+            Structure check from lines 553+:
+            Col-9
+             Card 1: Header (ReturnNo, Customer...)
+             Card 2: Input Row
+             Card 3: Table Card
+             Card 4: Current Stock Footer
+             Button Row (Div, not card)
+            */
+
+            if (currentMobileView === 'entry') {
+                // To Table View
+                if (entryCards[0]) entryCards[0].style.setProperty('display', 'none', 'important');
+                if (entryCards[1]) entryCards[1].style.setProperty('display', 'none', 'important');
+                if (entryCards[3]) entryCards[3].style.setProperty('display', 'none', 'important'); // Hide Stock footer
+
+                if (entryCards[2]) entryCards[2].style.setProperty('display', 'block', 'important');
+                tableRes.style.setProperty('display', 'block', 'important');
+
+                summaryCol.style.setProperty('display', 'none', 'important');
+                toggleText.innerText = 'View Summary';
+                toggleIcon.className = 'fas fa-chart-pie';
+                currentMobileView = 'table';
+            } else if (currentMobileView === 'table') {
+                // To Summary View
+                entryCards.forEach(c => c.style.setProperty('display', 'none', 'important'));
+
+                summaryCol.style.setProperty('display', 'block', 'important');
+
+                toggleText.innerText = 'View Entry';
+                toggleIcon.className = 'fas fa-edit';
+                currentMobileView = 'summary';
+            } else {
+                // To Entry View
+                if (entryCards[0]) entryCards[0].style.setProperty('display', 'block', 'important');
+                if (entryCards[1]) entryCards[1].style.setProperty('display', 'block', 'important');
+                if (entryCards[3]) entryCards[3].style.setProperty('display', 'block', 'important');
+
+                // Hide table card to save space? Default CSS says cards are block.
+                // We want input focused. Let's hide table card.
+                if (entryCards[2]) entryCards[2].style.setProperty('display', 'none', 'important');
+
+                tableRes.style.setProperty('display', 'none', 'important');
+                summaryCol.style.setProperty('display', 'none', 'important');
+
+                toggleText.innerText = 'View Table';
+                toggleIcon.className = 'fas fa-table';
+                currentMobileView = 'entry';
+            }
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/sidebar.js?v=1789486244563"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/wh-sale-return.js?v=20260130221400"></script>
+</body>
+
+</html>
+

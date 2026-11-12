@@ -1,0 +1,3124 @@
+@import url('/css/responsive-global.css?v=20261022_v2');
+
+/* ============================================
+   Desktop Application Style - Professional UI
+   ============================================ */
+
+:root {
+    /* Color Palette - Updated to match Purchase/Sales Entry */
+    --primary-blue: #1565c0;
+    --primary-blue-dark: #0d47a1;
+    --form-beige: #f0f4f8;
+    --calc-blue: #e1f5fe;
+    --calc-blue-light: #b3e5fc;
+    --success-green: #2e7d32;
+    --danger-red: #d32f2f;
+    --info-blue: #2196f3;
+    --warning-orange: #ed6c02;
+    --light-gray: #d9e2ec;
+    --border-gray: #b0bec5;
+    --text-dark: #1a1a1a;
+    --text-muted: #4a5568;
+
+    /* Spacing */
+    --spacing-xs: 5px;
+    --spacing-sm: 10px;
+    --spacing-md: 15px;
+    --spacing-lg: 20px;
+
+    /* Font Sizes */
+    --font-xs: 11px;
+    --font-sm: 12px;
+    --font-md: 13px;
+    --font-lg: 14px;
+    --font-xl: 16px;
+    --font-xxl: 20px;
+}
+
+/* ============================================
+   Global Resets
+   ============================================ */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: var(--font-md);
+    color: var(--text-dark);
+    background: #d9e2ec;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+/* Hide Number Input Arrows (Spinners) Globally */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none !important;
+    display: none !important;
+    margin: 0 !important;
+}
+
+input[type=number] {
+    -moz-appearance: textfield !important;
+    appearance: textfield !important;
+}
+
+/* Firefox pseudo-elements */
+input[type=number]::-moz-number-spin-box,
+input[type=number]::-moz-number-spin-inner,
+input[type=number]::-moz-number-spin-up-button,
+input[type=number]::-moz-number-spin-down-button {
+    display: none !important;
+}
+
+/* ============================================
+   Page Header
+   ============================================ */
+
+.page-header {
+    background: #1e4c8c;
+    color: white;
+    padding: 0 15px;
+    height: 40px;
+    font-size: var(--font-lg);
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-bottom: 2px solid #0d47a1;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.page-header .user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: var(--font-md);
+}
+
+.page-header .user-avatar {
+    width: 32px;
+    height: 32px;
+    background: white;
+    color: var(--primary-blue);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+/* ============================================
+   Container & Layout
+   ============================================ */
+
+.desktop-container {
+    padding: var(--spacing-md);
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.content-wrapper {
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+/* ============================================
+   Form Sections
+   ============================================ */
+
+.form-section {
+    background: var(--form-beige);
+    padding: var(--spacing-md);
+    border-bottom: 2px solid var(--border-gray);
+}
+
+.form-section.white {
+    background: white;
+}
+
+.form-row {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.form-row.no-wrap {
+    flex-wrap: nowrap;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.form-field.flex-1 {
+    flex: 1;
+}
+
+.form-field.flex-2 {
+    flex: 2;
+}
+
+.form-field.flex-3 {
+    flex: 3;
+}
+
+.form-field.w-100 {
+    width: 100px;
+}
+
+.form-field.w-150 {
+    width: 150px;
+}
+
+.form-field.w-200 {
+    width: 200px;
+}
+
+.form-field.w-250 {
+    width: 250px;
+}
+
+.form-field.w-300 {
+    width: 300px;
+}
+
+.form-field label {
+    font-size: var(--font-sm);
+    margin-bottom: 3px;
+    font-weight: 600;
+    color: var(--text-dark);
+    white-space: nowrap;
+}
+
+.form-field label.required::after {
+    content: ' *';
+    color: var(--danger-red);
+}
+
+.form-field input,
+.form-field select,
+.form-field textarea {
+    padding: 6px 10px;
+    border: 1px solid #CCC;
+    border-radius: 3px;
+    font-size: var(--font-md);
+    font-family: inherit;
+    background: white;
+    transition: border-color 0.2s;
+}
+
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus {
+    outline: none;
+    border-color: var(--info-blue);
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+.form-field input:disabled,
+.form-field select:disabled,
+.form-field textarea:disabled {
+    background: #E9ECEF;
+    cursor: not-allowed;
+}
+
+.form-field input[type="checkbox"] {
+    width: auto;
+    margin-right: 5px;
+}
+
+.form-field.calc-field input {
+    background: var(--calc-blue);
+    font-weight: bold;
+    color: var(--text-dark);
+}
+
+.form-field.calc-field-light input {
+    background: var(--calc-blue-light);
+    font-weight: 600;
+}
+
+/* Input Groups (Input + Button) */
+.input-group {
+    display: flex;
+    gap: 5px;
+    align-items: stretch;
+}
+
+.input-group input,
+.input-group select {
+    flex: 1;
+}
+
+/* ============================================
+   Buttons
+   ============================================ */
+
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    font-size: var(--font-md);
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.btn-success {
+    background: var(--success-green);
+    color: white;
+}
+
+.btn-success:hover {
+    background: #218838;
+}
+
+.btn-danger {
+    background: var(--danger-red);
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #C82333;
+}
+
+.btn-primary {
+    background: var(--info-blue);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #0056B3;
+}
+
+.btn-warning {
+    background: var(--warning-orange);
+    color: white;
+}
+
+.btn-warning:hover {
+    background: #E96A00;
+}
+
+.btn-secondary {
+    background: #6C757D;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #545B62;
+}
+
+.btn-sm {
+    padding: 5px 10px;
+    font-size: var(--font-sm);
+}
+
+.btn-xs {
+    padding: 3px 8px;
+    font-size: var(--font-xs);
+}
+
+.btn-add-new {
+    background: var(--warning-orange);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: var(--font-md);
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.btn-add-new:hover {
+    background: #E96A00;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 8px;
+    font-size: var(--font-lg);
+    color: var(--info-blue);
+    transition: color 0.2s;
+}
+
+.icon-btn:hover {
+    color: var(--primary-blue);
+}
+
+.icon-btn.danger {
+    color: var(--danger-red);
+}
+
+.icon-btn.danger:hover {
+    color: #C82333;
+}
+
+/* ============================================
+   Action Bar (Bottom Fixed)
+   ============================================ */
+
+.action-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--light-gray);
+    padding: 12px 20px;
+    border-top: 2px solid var(--border-gray);
+    display: flex;
+    gap: var(--spacing-sm);
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 99;
+}
+
+/* Sidebar Integration */
+body.sidebar-full .action-bar {
+    left: 280px;
+    /* Matches --sidebar-width-full in sidebar.css */
+}
+
+body.sidebar-mini .action-bar {
+    left: 60px;
+    /* Matches --sidebar-width-mini in sidebar.css */
+}
+
+/* Fallback / Legacy */
+.action-bar.with-sidebar {
+    left: 280px;
+}
+
+/* ============================================
+   Data Tables
+   ============================================ */
+
+.table-container {
+    overflow-x: auto;
+    margin: var(--spacing-md);
+    margin-bottom: 80px;
+    /* Space for action bar */
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--font-md);
+    background: white;
+}
+
+.data-table thead {
+    background: #0288d1;
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.data-table thead th {
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 700;
+    font-size: var(--font-md);
+    border: 1px solid #0277bd;
+    white-space: nowrap;
+    text-transform: uppercase;
+}
+
+.data-table thead th.text-center {
+    text-align: center;
+}
+
+.data-table thead th.text-right {
+    text-align: right;
+}
+
+.data-table tbody td {
+    padding: 8px 12px;
+    border: 1px solid var(--border-gray);
+    font-size: var(--font-md);
+}
+
+.data-table tbody tr:nth-child(even) {
+    background: #F8F9FA;
+}
+
+.data-table tbody tr:hover {
+    background: #E9ECEF;
+}
+
+.data-table tbody tr.total-row {
+    background: var(--calc-blue);
+    font-weight: bold;
+}
+
+.data-table tbody tr.total-row td {
+    border-top: 2px solid var(--primary-blue);
+}
+
+.data-table .text-center {
+    text-align: center;
+}
+
+.data-table .text-right {
+    text-align: right;
+}
+
+.data-table .text-nowrap {
+    white-space: nowrap;
+}
+
+/* Embedded Tables (inside forms) */
+.embedded-table {
+    margin-top: var(--spacing-sm);
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.embedded-table .data-table {
+    font-size: var(--font-sm);
+}
+
+.embedded-table .data-table thead th {
+    padding: 6px 8px;
+    font-size: var(--font-sm);
+}
+
+.embedded-table .data-table tbody td {
+    padding: 5px 8px;
+    font-size: var(--font-sm);
+}
+
+/* ============================================
+   Search Bar
+   ============================================ */
+
+.search-bar {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: white;
+    border-bottom: 1px solid var(--border-gray);
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: center;
+}
+
+.search-input {
+    flex: 1;
+    max-width: 400px;
+    padding: 8px 12px;
+    border: 1px solid var(--border-gray);
+    border-radius: 4px;
+    font-size: var(--font-md);
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--info-blue);
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+/* ============================================
+   Badges & Status
+   ============================================ */
+
+.badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: var(--font-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.badge-success {
+    background: #D4EDDA;
+    color: #155724;
+}
+
+.badge-danger {
+    background: #F8D7DA;
+    color: #721C24;
+}
+
+.badge-warning {
+    background: #FFF3CD;
+    color: #856404;
+}
+
+.badge-info {
+    background: #D1ECF1;
+    color: #0C5460;
+}
+
+/* ============================================
+   Sidebar Panel (for totals, etc.)
+   ============================================ */
+
+.sidebar-panel {
+    background: var(--form-beige);
+    padding: var(--spacing-md);
+    border-left: 2px solid var(--border-gray);
+    min-width: 250px;
+}
+
+.sidebar-panel .panel-title {
+    font-size: var(--font-lg);
+    font-weight: bold;
+    margin-bottom: var(--spacing-sm);
+    color: var(--primary-blue);
+}
+
+.sidebar-panel .panel-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid #DDD;
+}
+
+.sidebar-panel .panel-row.total {
+    font-weight: bold;
+    font-size: var(--font-lg);
+    border-top: 2px solid var(--primary-blue);
+    border-bottom: 2px solid var(--primary-blue);
+    margin-top: var(--spacing-sm);
+    padding-top: var(--spacing-sm);
+}
+
+/* ============================================
+   Utility Classes
+   ============================================ */
+
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-bold {
+    font-weight: bold;
+}
+
+.text-muted {
+    color: var(--text-muted);
+}
+
+.mb-0 {
+    margin-bottom: 0;
+}
+
+.mb-1 {
+    margin-bottom: var(--spacing-xs);
+}
+
+.mb-2 {
+    margin-bottom: var(--spacing-sm);
+}
+
+.mb-3 {
+    margin-bottom: var(--spacing-md);
+}
+
+.mb-4 {
+    margin-bottom: var(--spacing-lg);
+}
+
+.mt-0 {
+    margin-top: 0;
+}
+
+.mt-1 {
+    margin-top: var(--spacing-xs);
+}
+
+.mt-2 {
+    margin-top: var(--spacing-sm);
+}
+
+.mt-3 {
+    margin-top: var(--spacing-md);
+}
+
+/* Square Action Buttons */
+.btn-square-sm {
+    width: 28px !important;
+    height: 28px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 4px;
+}
+
+.btn-square-sm i {
+    margin: 0 !important;
+    font-size: 0.8rem;
+}
+
+.p-0 {
+    padding: 0;
+}
+
+.p-1 {
+    padding: var(--spacing-xs);
+}
+
+.p-2 {
+    padding: var(--spacing-sm);
+}
+
+.p-3 {
+    padding: var(--spacing-md);
+}
+
+.p-4 {
+    padding: var(--spacing-lg);
+}
+
+.d-flex {
+    display: flex;
+}
+
+.flex-column {
+    flex-direction: column;
+}
+
+.align-items-center {
+    align-items: center;
+}
+
+.justify-content-between {
+    justify-content: space-between;
+}
+
+.gap-1 {
+    gap: var(--spacing-xs);
+}
+
+.gap-2 {
+    gap: var(--spacing-sm);
+}
+
+.gap-3 {
+    gap: var(--spacing-md);
+}
+
+.w-100 {
+    width: 100%;
+}
+
+.hidden {
+    display: none;
+}
+
+/* ============================================
+   Loading Overlay
+   ============================================ */
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.loading-spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid var(--primary-blue);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+
+@media (max-width: 1200px) {
+    .form-row {
+        flex-wrap: wrap;
+    }
+
+    .sidebar-panel {
+        min-width: 200px;
+    }
+}
+
+@media (max-width: 768px) {
+    .page-header {
+        font-size: var(--font-xl);
+        padding: 10px 15px;
+        height: auto;
+        min-height: 60px;
+    }
+
+    .desktop-container {
+        padding: var(--spacing-sm);
+        padding-left: 0 !important;
+        margin-left: 0 !important;
+    }
+
+    .form-section {
+        padding: var(--spacing-sm);
+    }
+
+    /* Force all form fields to full width on mobile */
+    .form-field,
+    .form-field.w-100,
+    .form-field.w-150,
+    .form-field.w-200,
+    .form-field.w-250,
+    .form-field.w-300,
+    .form-field.flex-1,
+    .form-field.flex-2,
+    .form-field.flex-3 {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 100% !important;
+        flex: 1 1 100% !important;
+    }
+
+    .form-row {
+        flex-direction: column;
+    }
+
+    .action-bar {
+        padding: 10px 15px;
+        flex-wrap: wrap;
+        left: 0 !important;
+    }
+
+    .action-bar.with-sidebar {
+        left: 0 !important;
+    }
+
+    .btn {
+        padding: 6px 12px;
+        font-size: var(--font-sm);
+    }
+
+    /* Ensure body doesn't have left padding for sidebar on mobile */
+    body.sidebar-full,
+    body.sidebar-mini {
+        padding-left: 0 !important;
+    }
+}
+
+/* ============================================
+   Print Styles
+   ============================================ */
+
+@media print {
+
+    .page-header,
+    .action-bar,
+    .search-bar,
+    .btn,
+    .icon-btn,
+    #dw-ai-launcher,
+    .dw-ai-panel,
+    .dw-ai-pet,
+    [id*="dw-ai"],
+    [class*="dw-ai"] {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+    }
+
+    .content-wrapper {
+        box-shadow: none;
+    }
+
+    .data-table {
+        font-size: 10px;
+    }
+}
+
+/* List Modal Styles */
+.suggestions-box {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: white;
+    border: 1px solid var(--border-gray);
+    border-top: none;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 0 0 4px 4px;
+}
+
+.suggestion-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: var(--font-md);
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-item:hover,
+.suggestion-item.active {
+    background-color: #f8f9fa;
+    color: var(--primary-blue);
+}
+
+.suggestion-item strong {
+    font-weight: 600;
+}
+
+.list-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9998;
+    display: none;
+}
+
+.list-modal-overlay.active {
+    display: block;
+}
+
+.list-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60vh;
+    background: white;
+    z-index: 9999;
+    display: none;
+    flex-direction: column;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.list-modal.active {
+    display: flex;
+}
+
+.list-modal-header {
+    background: var(--primary-blue);
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #0056b3;
+}
+
+.list-modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.list-modal-close {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 3px;
+    transition: background 0.3s;
+}
+
+.list-modal-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.list-modal-filters {
+    background: #f8f9fa;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-gray);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.list-modal-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.list-modal-content .data-table {
+    margin: 0;
+}
+
+.list-modal-footer {
+    padding: 15px 20px;
+    border-top: 1px solid var(--border-gray);
+    background: #f8f9fa;
+    display: flex;
+    justify-content: center;
+}
+
+/* Global: Hide number input spinners (up/down arrows) */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button,
+.form-control::-webkit-outer-spin-button,
+.form-control::-webkit-inner-spin-button,
+.form-control-sm::-webkit-outer-spin-button,
+.form-control-sm::-webkit-inner-spin-button,
+.form-control-xs::-webkit-outer-spin-button,
+.form-control-xs::-webkit-inner-spin-button {
+    -webkit-appearance: none !important;
+    margin: 0 !important;
+}
+
+input[type=number],
+.form-control[type=number],
+.form-control-sm[type=number],
+.form-control-xs[type=number] {
+    -moz-appearance: textfield !important;
+    appearance: none !important;
+}
+
+/* Universal ERP Modern Header System (Deep Navy Blue matching Login & Desktop UI) */
+
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   UNIVERSAL DEEP NAVY BLUE HEADER (MATCHING LOGIN SCREEN THEME)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+body.theme-light .page-header,
+body.bas-dash-theme-light .page-header,
+html.bas-theme-light .page-header,
+body.theme-dark .page-header,
+body.bas-dash-theme-dark .page-header,
+html.bas-theme-dark .page-header,
+body.theme-light header.page-header,
+body.bas-dash-theme-light header.page-header,
+body.theme-dark header.page-header,
+body.bas-dash-theme-dark header.page-header,
+.page-header {
+    background: linear-gradient(135deg, #07132b 0%, #0d2149 50%, #102a5c 100%) !important;
+    background-color: #0d2149 !important;
+    border-bottom: 2px solid rgba(0, 212, 255, 0.35) !important;
+    box-shadow: 0 4px 20px rgba(7, 19, 43, 0.35) !important;
+    color: #ffffff !important;
+}
+
+body .page-header #globalHeaderTitle,
+body .page-header .header-title-text,
+body .page-header h1,
+body .page-header h2,
+body .page-header h3,
+body .page-header h4,
+body .page-header h5,
+body .page-header span {
+    color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+}
+
+body .page-header #sidebarToggleBtnHeader,
+#sidebarToggleBtnHeader {
+    background: rgba(255, 255, 255, 0.12) !important;
+    border: 1px solid rgba(255, 255, 255, 0.25) !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+}
+
+body .page-header #sidebarToggleBtnHeader:hover,
+#sidebarToggleBtnHeader:hover {
+    background: #0066ff !important;
+    color: #ffffff !important;
+    border-color: #00d4ff !important;
+    box-shadow: 0 0 12px rgba(0, 212, 255, 0.4) !important;
+}
+
+body .page-header .profile-trigger {
+    background: rgba(255, 255, 255, 0.12) !important;
+    border: 1px solid rgba(255, 255, 255, 0.22) !important;
+    color: #ffffff !important;
+}
+
+body .page-header .profile-trigger #standardUserName,
+body .page-header .profile-trigger #userName {
+    color: #ffffff !important;
+}
+
+body .page-header .profile-trigger .user-avatar-circle-header {
+    background: #0066ff !important;
+}
+
+body .page-header .profile-trigger .user-avatar-circle-header i {
+    color: #ffffff !important;
+}
+
+body .page-header #globalThemeToggle {
+    background: rgba(4, 10, 22, 0.6) !important;
+    border: 1px solid rgba(0, 212, 255, 0.3) !important;
+}
+
+body .page-header #header-action-zone .btn {
+    background: rgba(255, 255, 255, 0.14) !important;
+    border: 1px solid rgba(255, 255, 255, 0.28) !important;
+    color: #ffffff !important;
+}
+
+body .page-header #header-action-zone .btn:hover {
+    background: #0066ff !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 10px rgba(0, 212, 255, 0.35) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   REPORTS CATEGORY HEADERS (EXECUTIVE NAVY BLUE WITH WHITE TEXT - LIKE LOGIN)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+.report-category-card .card-header,
+.report-category-card .card-header.bg-primary,
+.report-category-card .card-header.bg-info,
+.report-category-card .card-header.bg-dark {
+    background: linear-gradient(135deg, #07132b 0%, #0d2149 100%) !important;
+    background-color: #0d2149 !important;
+    color: #ffffff !important;
+    border-bottom: 2px solid rgba(0, 212, 255, 0.35) !important;
+    box-shadow: 0 2px 8px rgba(7, 19, 43, 0.15) !important;
+}
+
+.report-category-card .card-header h6,
+.report-category-card .card-header h5,
+.report-category-card .card-header span,
+.report-category-card .card-header i {
+    color: #ffffff !important;
+}
+
+/* Category Banners across screens */
+.blue-header,
+.bas-header {
+    background: linear-gradient(135deg, #07132b 0%, #0d2149 100%) !important;
+    background-color: #0d2149 !important;
+    color: #ffffff !important;
+    border-bottom: 2px solid rgba(0, 212, 255, 0.35) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   CLOSING SHEET, DAILY CASH, CASH COUNTER & ZAKAT LOCKED CELLS SUPPORT
+   ═══════════════════════════════════════════════════════════════════════════════ */
+/* Closing Sheet Totals & Indicators */
+.green-total,
+input.green-total,
+.bg-success.text-white,
+input.bg-success.text-white,
+input#closing02Total,
+input#closing02GrandTotal,
+input#totalC02,
+input#totalClosing02 {
+    background-color: #28a745 !important;
+    background: #28a745 !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    border: 1px solid #1e7e34 !important;
+}
+
+.red-total,
+input.red-total {
+    background-color: #dc3545 !important;
+    background: #dc3545 !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    border: 1px solid #bd2130 !important;
+}
+
+.bg-info.text-white,
+input.bg-info.text-white,
+input#counterClosing,
+input#bankTotal,
+input#receivedCashC02 {
+    background-color: #17a2b8 !important;
+    background: #17a2b8 !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    border: 1px solid #117a8b !important;
+}
+
+/* Daily Cash & Cash Counter Totals */
+.denom-total,
+input.denom-total,
+.gray-bg,
+input.gray-bg,
+.total-row {
+    background-color: #edf2f7 !important;
+    background: #edf2f7 !important;
+    color: #1e293b !important;
+    font-weight: 700 !important;
+    border: 1px solid #cbd5e1 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   PRESERVE & ENHANCE FUNCTIONAL SECTION & CELL COLORING (PAYROLL, ETC.)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+.section-header.header-green,
+.bg-profile {
+    background-color: #00b050 !important;
+    color: #ffffff !important;
+}
+
+.section-header.header-blue,
+.bg-fix {
+    background-color: #1f84c1 !important;
+    color: #ffffff !important;
+}
+
+.section-header.header-red,
+.bg-duty {
+    background-color: #e15a4b !important;
+    color: #ffffff !important;
+}
+
+.section-header.header-purple,
+.bg-access {
+    background-color: #6b5ea5 !important;
+    color: #ffffff !important;
+}
+
+.bg-bank {
+    background-color: #16a085 !important;
+    color: #ffffff !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   LOCKED & CALCULATED CELLS SYSTEM (EXACT MATCHING WITH OLD PRODUCTION DESIGN)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* 1. Green Locked / Calculated Cells (Profile, Days, Advances) */
+.bg-green-input,
+input.bg-green-input,
+input[type="text"].bg-green-input,
+input[type="number"].bg-green-input,
+body.theme-light input.bg-green-input,
+body.theme-light input[type="text"].bg-green-input,
+body.theme-light input[type="number"].bg-green-input,
+body.bas-dash-theme-light input.bg-green-input,
+body.bas-dash-theme-light input[type="text"].bg-green-input,
+body.bas-dash-theme-light input[type="number"].bg-green-input,
+body.theme-dark input.bg-green-input,
+body.theme-dark input[type="text"].bg-green-input,
+body.theme-dark input[type="number"].bg-green-input,
+body.bas-dash-theme-dark input.bg-green-input,
+body.bas-dash-theme-dark input[type="text"].bg-green-input,
+body.bas-dash-theme-dark input[type="number"].bg-green-input {
+    background-color: #00b050 !important;
+    background: #00b050 !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    border: 1px solid #009142 !important;
+    cursor: default !important;
+}
+
+/* 2. Blue Locked / Calculated Cells (Earnings, Deductions, Branch Bank) */
+.bg-blue-input,
+input.bg-blue-input,
+input[type="text"].bg-blue-input,
+input[type="number"].bg-blue-input,
+body.theme-light input.bg-blue-input,
+body.theme-light input[type="text"].bg-blue-input,
+body.theme-light input[type="number"].bg-blue-input,
+body.bas-dash-theme-light input.bg-blue-input,
+body.bas-dash-theme-light input[type="text"].bg-blue-input,
+body.bas-dash-theme-light input[type="number"].bg-blue-input,
+body.theme-dark input.bg-blue-input,
+body.theme-dark input[type="text"].bg-blue-input,
+body.theme-dark input[type="number"].bg-blue-input,
+body.bas-dash-theme-dark input.bg-blue-input,
+body.bas-dash-theme-dark input[type="text"].bg-blue-input,
+body.bas-dash-theme-dark input[type="number"].bg-blue-input {
+    background-color: #1f84c1 !important;
+    background: #1f84c1 !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    border: 1px solid #1971a6 !important;
+    cursor: default !important;
+}
+
+/* 3. Red Locked / Calculated Cells (GrossTotal, NetTotal, CashPaid, Balance) */
+.bg-red-input,
+input.bg-red-input,
+input[type="text"].bg-red-input,
+input[type="number"].bg-red-input,
+body.theme-light input.bg-red-input,
+body.theme-light input[type="text"].bg-red-input,
+body.theme-light input[type="number"].bg-red-input,
+body.bas-dash-theme-light input.bg-red-input,
+body.bas-dash-theme-light input[type="text"].bg-red-input,
+body.bas-dash-theme-light input[type="number"].bg-red-input,
+body.theme-dark input.bg-red-input,
+body.theme-dark input[type="text"].bg-red-input,
+body.theme-dark input[type="number"].bg-red-input,
+body.bas-dash-theme-dark input.bg-red-input,
+body.bas-dash-theme-dark input[type="text"].bg-red-input,
+body.bas-dash-theme-dark input[type="number"].bg-red-input {
+    background-color: #e15a4b !important;
+    background: #e15a4b !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    border: 1px solid #c94638 !important;
+    cursor: default !important;
+}
+
+/* 4. Purple Locked / Calculated Cells (BankAmt, WHT, BankPaid) */
+.bg-purple-input,
+input.bg-purple-input,
+input[type="text"].bg-purple-input,
+input[type="number"].bg-purple-input,
+body.theme-light input.bg-purple-input,
+body.theme-light input[type="text"].bg-purple-input,
+body.theme-light input[type="number"].bg-purple-input,
+body.bas-dash-theme-light input.bg-purple-input,
+body.bas-dash-theme-light input[type="text"].bg-purple-input,
+body.bas-dash-theme-light input[type="number"].bg-purple-input,
+body.theme-dark input.bg-purple-input,
+body.theme-dark input[type="text"].bg-purple-input,
+body.theme-dark input[type="number"].bg-purple-input,
+body.bas-dash-theme-dark input.bg-purple-input,
+body.bas-dash-theme-dark input[type="text"].bg-purple-input,
+body.bas-dash-theme-dark input[type="number"].bg-purple-input {
+    background-color: #6b5ea5 !important;
+    background: #6b5ea5 !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    border: 1px solid #574b88 !important;
+    cursor: default !important;
+}
+
+/* 5. General Locked / Readonly Cells Across ALL Other Screens */
+body.theme-light input[readonly]:not(.bg-green-input):not(.bg-blue-input):not(.bg-red-input):not(.bg-purple-input),
+body.theme-light input:disabled:not(.bg-green-input):not(.bg-blue-input):not(.bg-red-input):not(.bg-purple-input),
+body.theme-light select:disabled,
+body.theme-light textarea[readonly],
+body.theme-light textarea:disabled,
+body.theme-light .form-control[readonly]:not(.bg-green-input):not(.bg-blue-input):not(.bg-red-input):not(.bg-purple-input),
+body.theme-light .form-control:disabled:not(.bg-green-input):not(.bg-blue-input):not(.bg-red-input):not(.bg-purple-input),
+body.bas-dash-theme-light input[readonly]:not(.bg-green-input):not(.bg-blue-input):not(.bg-red-input):not(.bg-purple-input),
+body.bas-dash-theme-light input:disabled:not(.bg-green-input):not(.bg-blue-input):not(.bg-red-input):not(.bg-purple-input),
+body.bas-dash-theme-light select:disabled,
+body.bas-dash-theme-light textarea[readonly],
+body.bas-dash-theme-light textarea:disabled,
+body.bas-dash-theme-light .form-control[readonly]:not(.bg-green-input):not(.bg-blue-input):not(.bg-red-input):not(.bg-purple-input),
+body.bas-dash-theme-light .form-control:disabled:not(.bg-green-input):not(.bg-blue-input):not(.bg-red-input):not(.bg-purple-input) {
+    background-color: #edf2f7 !important;
+    color: #1e293b !important;
+    border: 1px solid #cbd5e1 !important;
+    font-weight: 600 !important;
+    cursor: not-allowed !important;
+}
+
+/* 6. Pure White for Active Editable Inputs */
+body.theme-light input:not([type="checkbox"]):not([type="radio"]):not([readonly]):not(:disabled):not(.bg-green-input):not(.bg-blue-input):not(.bg-red-input):not(.bg-purple-input),
+body.bas-dash-theme-light input:not([type="checkbox"]):not([type="radio"]):not([readonly]):not(:disabled):not(.bg-green-input):not(.bg-blue-input):not(.bg-red-input):not(.bg-purple-input) {
+
+    color: #0b192c !important;
+    border: 1px solid #cbd5e1 !important;
+    cursor: text !important;
+}
+
+body.theme-light,
+body.bas-dash-theme-light,
+html.bas-theme-light body {
+    --app-bg: #f1f5fb !important;
+    --panel-bg: #ffffff !important;
+    --card-bg: #ffffff !important;
+    --text-main: #0b192c !important;
+    --text-dark: #0b192c !important;
+    --text-muted: #475a77 !important;
+    --text-light: #475a77 !important;
+    --border-color: #e2e8f0 !important;
+    --border-gray: #e2e8f0 !important;
+    --input-bg: #ffffff !important;
+    --calc-bg: #e0f2fe !important;
+    --calc-blue: #e0f2fe !important;
+    --calc-blue-light: #bae6fd !important;
+    --primary-accent: #0052d4 !important;
+    --secondary-accent: #0066ff !important;
+    background-color: #f1f5fb !important;
+    color: #0b192c !important;
+}
+
+
+
+/* Light Theme Containers & Panels */
+body.theme-light .desktop-container,
+body.theme-light .grid-container,
+body.theme-light .form-panel,
+body.theme-light .list-panel,
+body.theme-light .card,
+body.theme-light .card-custom,
+body.theme-light .section-container,
+body.theme-light .search-card,
+body.theme-light .table-container,
+body.theme-light .archive-header,
+body.theme-light .list-modal-filters,
+body.theme-light .list-modal-footer,
+body.bas-dash-theme-light .desktop-container,
+body.bas-dash-theme-light .grid-container,
+body.bas-dash-theme-light .form-panel,
+body.bas-dash-theme-light .list-panel,
+body.bas-dash-theme-light .card,
+body.bas-dash-theme-light .card-custom,
+body.bas-dash-theme-light .section-container,
+body.bas-dash-theme-light .search-card,
+body.bas-dash-theme-light .table-container,
+body.bas-dash-theme-light .archive-header,
+body.bas-dash-theme-light .list-modal-filters,
+body.bas-dash-theme-light .list-modal-footer {
+    background-color: #ffffff !important;
+    color: #0b192c !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 4px 15px rgba(16, 42, 86, 0.05) !important;
+}
+
+/* Light Theme Form Labels (Scoped strictly to form fields, never touching dark headers or bold titles) */
+body.theme-light .form-label,
+body.theme-light .form-label-compact,
+body.theme-light .form-field > label,
+body.theme-light label:not(.filter-panel label):not(.report-filter-panel label):not(.filter-section label):not(.text-white):not([class*="text-white"]):not(.btn *):not(.card-header *):not(.page-header *):not([class*="bg-dark"] *),
+body.bas-dash-theme-light .form-label,
+body.bas-dash-theme-light .form-label-compact,
+body.bas-dash-theme-light .form-field > label,
+body.bas-dash-theme-light label:not(.filter-panel label):not(.report-filter-panel label):not(.filter-section label):not(.text-white):not([class*="text-white"]):not(.btn *):not(.card-header *):not(.page-header *):not([class*="bg-dark"] *) {
+    color: #334155 !important;
+}
+
+/* Ensure all text inside dark containers, headers, and text-white elements remains crisp white (excluding dropdowns and suggestion popups) */
+.text-white,
+.text-white *:not(.btn):not(.btn *):not(.form-control):not(.form-select):not(input):not(select):not(textarea):not([id*="Suggestions"]):not([id*="Suggestions"] *):not([id*="suggestions"]):not([id*="suggestions"] *):not(.suggestions-box):not(.suggestions-box *):not(.suggestion-item):not(.suggestion-item *):not(.autocomplete-suggestions):not(.autocomplete-suggestions *):not(.dropdown-menu):not(.dropdown-menu *):not(.select2-dropdown):not(.select2-dropdown *),
+.bg-dark,
+.bg-dark *:not(.btn):not(.btn *):not(.form-control):not(.form-select):not(input):not(select):not(textarea):not([id*="Suggestions"]):not([id*="Suggestions"] *):not([id*="suggestions"]):not([id*="suggestions"] *):not(.suggestions-box):not(.suggestions-box *):not(.suggestion-item):not(.suggestion-item *):not(.autocomplete-suggestions):not(.autocomplete-suggestions *):not(.dropdown-menu):not(.dropdown-menu *):not(.select2-dropdown):not(.select2-dropdown *),
+.card-header.bg-dark,
+.card-header.bg-dark *:not(.btn):not(.btn *):not(.form-control):not(.form-select):not(input):not(select):not(textarea):not([id*="Suggestions"]):not([id*="Suggestions"] *):not([id*="suggestions"]):not([id*="suggestions"] *):not(.suggestions-box):not(.suggestions-box *):not(.suggestion-item):not(.suggestion-item *):not(.autocomplete-suggestions):not(.autocomplete-suggestions *):not(.dropdown-menu):not(.dropdown-menu *):not(.select2-dropdown):not(.select2-dropdown *),
+.card-header-custom,
+.card-header-custom *:not(.btn):not(.btn *):not(.form-control):not(.form-select):not(input):not(select):not(textarea):not([id*="Suggestions"]):not([id*="Suggestions"] *):not([id*="suggestions"]):not([id*="suggestions"] *):not(.suggestions-box):not(.suggestions-box *):not(.suggestion-item):not(.suggestion-item *):not(.autocomplete-suggestions):not(.autocomplete-suggestions *):not(.dropdown-menu):not(.dropdown-menu *):not(.select2-dropdown):not(.select2-dropdown *) {
+    color: #ffffff !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   GLOBAL AUTOCOMPLETE & SEARCH SUGGESTIONS DROPDOWNS (ALL SCREENS & REPORTS)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+#itemSuggestions,
+#customerSuggestions,
+#supplierSuggestions,
+#partySuggestions,
+#quickSearchSuggestions,
+#inputRowSuggestions,
+[id*="Suggestions"],
+[id*="suggestions"],
+.suggestions-box,
+.autocomplete-suggestions,
+.autocomplete-items,
+.suggestion-box,
+.dropdown-menu,
+.select2-dropdown {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 6px !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.22) !important;
+    z-index: 99999 !important;
+}
+
+/* Base text color for all items inside suggestion dropdowns */
+#itemSuggestions,
+#itemSuggestions *:not(.active):not(.active *):not(:hover):not(:hover *),
+#customerSuggestions,
+#customerSuggestions *:not(.active):not(.active *):not(:hover):not(:hover *),
+#supplierSuggestions,
+#supplierSuggestions *:not(.active):not(.active *):not(:hover):not(:hover *),
+#partySuggestions,
+#partySuggestions *:not(.active):not(.active *):not(:hover):not(:hover *),
+#quickSearchSuggestions,
+#quickSearchSuggestions *:not(.active):not(.active *):not(:hover):not(:hover *),
+#inputRowSuggestions,
+#inputRowSuggestions *:not(.active):not(.active *):not(:hover):not(:hover *),
+[id*="Suggestions"]:not(.btn),
+[id*="Suggestions"] *:not(.btn):not(.btn *):not(.active):not(.active *):not(:hover):not(:hover *),
+[id*="suggestions"]:not(.btn),
+[id*="suggestions"] *:not(.btn):not(.btn *):not(.active):not(.active *):not(:hover):not(:hover *),
+.suggestions-box,
+.suggestions-box *:not(.active):not(.active *):not(:hover):not(:hover *),
+.autocomplete-suggestions,
+.autocomplete-suggestions *:not(.active):not(.active *):not(:hover):not(:hover *),
+.autocomplete-items,
+.autocomplete-items *:not(.active):not(.active *):not(:hover):not(:hover *),
+.suggestion-item,
+/* ==========================================================================
+   GLOBAL AUTOCOMPLETE & SEARCH DROPDOWN SUGGESTIONS (ACROSS ALL PAGES)
+   ========================================================================== */
+
+/* Universal Reset: NEVER allow text-shadow or unwanted margin inside suggestions */
+[id*="Suggestions"],
+[id*="suggestions"],
+[id*="Suggestions"] *,
+[id*="suggestions"] *,
+[class*="suggestions"],
+[class*="suggestions"] *,
+[class*="Suggestions"],
+[class*="Suggestions"] *,
+.suggestion-item,
+.suggestion-item *,
+.suggestions-box,
+.suggestions-box *,
+.autocomplete-suggestions,
+.autocomplete-suggestions *,
+.list-group-item,
+.list-group-item * {
+    text-shadow: none !important;
+}
+
+/* Suggestion Container Box */
+[id*="Suggestions"],
+[id*="suggestions"],
+.suggestions-box,
+.autocomplete-suggestions {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15) !important;
+    border-radius: 0 0 8px 8px !important;
+    overflow-y: auto !important;
+    z-index: 1050 !important;
+}
+
+/* Suggestion Row Items (Normal State) */
+.suggestion-item,
+[id*="Suggestions"] .list-group-item,
+[id*="suggestions"] .list-group-item,
+.suggestions-box .list-group-item,
+.autocomplete-suggestions .list-group-item {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    padding: 8px 12px !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    cursor: pointer !important;
+    text-align: left !important;
+    text-shadow: none !important;
+    transition: background-color 0.12s ease !important;
+}
+
+/* Row internal layout */
+.suggestion-item > div:first-child,
+[id*="Suggestions"] .list-group-item > div:first-child,
+[id*="suggestions"] .list-group-item > div:first-child,
+.suggestions-box .list-group-item > div:first-child {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+    width: 100% !important;
+}
+
+/* Primary text (Product / Customer / Supplier Name) */
+.suggestion-item .fw-bold,
+.suggestion-item strong,
+.suggestion-item span:first-child,
+[id*="Suggestions"] .fw-bold,
+[id*="Suggestions"] strong,
+[id*="suggestions"] .fw-bold,
+[id*="suggestions"] strong,
+.suggestions-box .fw-bold,
+.suggestions-box strong,
+.autocomplete-suggestions .fw-bold,
+.autocomplete-suggestions strong {
+    color: #0f172a !important;
+    font-weight: 600 !important;
+    font-size: 0.85rem !important;
+    line-height: 1.3 !important;
+    text-shadow: none !important;
+    margin-bottom: 0 !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    word-break: break-word !important;
+}
+
+/* Secondary Meta Text (Barcode, Code, SKU, Phone) */
+.suggestion-item .text-muted,
+[id*="Suggestions"] .text-muted,
+[id*="suggestions"] .text-muted,
+.suggestions-box .text-muted,
+.autocomplete-suggestions .text-muted {
+    color: #64748b !important;
+    font-size: 0.76rem !important;
+    font-weight: 400 !important;
+    line-height: 1.3 !important;
+    text-shadow: none !important;
+    margin-bottom: 0 !important;
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+}
+
+/* Hover & Active Keyboard Selection State (Deep Blue Background) */
+.suggestion-item:hover,
+.suggestion-item.active,
+[id*="Suggestions"] .list-group-item:hover,
+[id*="Suggestions"] .list-group-item.active,
+[id*="suggestions"] .list-group-item:hover,
+[id*="suggestions"] .list-group-item.active,
+.suggestions-box .list-group-item:hover,
+.suggestions-box .list-group-item.active,
+.autocomplete-suggestions .list-group-item:hover,
+.autocomplete-suggestions .list-group-item.active {
+    background: #0052d4 !important;
+    background-color: #0052d4 !important;
+    color: #ffffff !important;
+    text-shadow: none !important;
+}
+
+/* CRITICAL: Guarantee crisp, clean pure white on selected / hovered text */
+.suggestion-item:hover *,
+.suggestion-item.active *,
+.suggestion-item:hover .fw-bold,
+.suggestion-item.active .fw-bold,
+.suggestion-item:hover strong,
+.suggestion-item.active strong,
+.suggestion-item:hover span,
+.suggestion-item.active span,
+.suggestion-item:hover div,
+.suggestion-item.active div,
+[id*="Suggestions"] .list-group-item:hover *,
+[id*="Suggestions"] .list-group-item.active *,
+[id*="Suggestions"] .list-group-item:hover .fw-bold,
+[id*="Suggestions"] .list-group-item.active .fw-bold,
+[id*="suggestions"] .list-group-item:hover *,
+[id*="suggestions"] .list-group-item.active *,
+[id*="suggestions"] .list-group-item:hover .fw-bold,
+[id*="suggestions"] .list-group-item.active .fw-bold,
+.suggestions-box .list-group-item:hover *,
+.suggestions-box .list-group-item.active *,
+.suggestions-box .list-group-item:hover .fw-bold,
+.suggestions-box .list-group-item.active .fw-bold,
+.autocomplete-suggestions .list-group-item:hover *,
+.autocomplete-suggestions .list-group-item.active * {
+    color: #ffffff !important;
+    text-shadow: none !important;
+}
+
+/* Slightly softened white for secondary code/barcode on blue hover */
+.suggestion-item:hover .text-muted,
+.suggestion-item.active .text-muted,
+[id*="Suggestions"] .list-group-item:hover .text-muted,
+[id*="Suggestions"] .list-group-item.active .text-muted,
+[id*="suggestions"] .list-group-item:hover .text-muted,
+[id*="suggestions"] .list-group-item.active .text-muted,
+.suggestions-box .list-group-item:hover .text-muted,
+.suggestions-box .list-group-item.active .text-muted,
+.autocomplete-suggestions .list-group-item:hover .text-muted,
+.autocomplete-suggestions .list-group-item.active .text-muted {
+    color: rgba(255, 255, 255, 0.88) !important;
+    text-shadow: none !important;
+}
+
+
+/* Light Theme Active Editable Inputs */
+body.theme-light .form-control:not([readonly]):not(:disabled):not([class*="bg-"]):not(.denom-total):not(.gray-bg):not(.green-total):not(.red-total):not(.summary-section-total):not(.summary-section-balance):not(.summary-section-newbal),
+body.theme-light .form-select:not(:disabled),
+body.theme-light .form-control-sm:not([readonly]):not(:disabled):not([class*="bg-"]):not(.denom-total):not(.gray-bg):not(.green-total):not(.red-total):not(.summary-section-total):not(.summary-section-balance):not(.summary-section-newbal),
+body.theme-light .form-select-sm:not(:disabled),
+body.theme-light .form-control-xs:not([readonly]):not(:disabled):not([class*="bg-"]):not(.denom-total):not(.gray-bg):not(.green-total):not(.red-total):not(.summary-section-total):not(.summary-section-balance):not(.summary-section-newbal),
+body.theme-light input[type="text"]:not([readonly]):not(:disabled):not([class*="bg-"]):not(.denom-total):not(.gray-bg):not(.green-total):not(.red-total):not(.summary-section-total):not(.summary-section-balance):not(.summary-section-newbal),
+body.theme-light input[type="number"]:not([readonly]):not(:disabled):not([class*="bg-"]):not(.denom-total):not(.gray-bg):not(.green-total):not(.red-total):not(.summary-section-total):not(.summary-section-balance):not(.summary-section-newbal),
+body.theme-light input[type="date"]:not([readonly]):not(:disabled),
+body.theme-light input[type="search"]:not([readonly]):not(:disabled),
+body.theme-light select:not(:disabled),
+body.theme-light textarea:not([readonly]):not(:disabled),
+body.bas-dash-theme-light .form-control:not([readonly]):not(:disabled):not([class*="bg-"]):not(.denom-total):not(.gray-bg):not(.green-total):not(.red-total):not(.summary-section-total):not(.summary-section-balance):not(.summary-section-newbal),
+body.bas-dash-theme-light .form-select:not(:disabled),
+body.bas-dash-theme-light .form-control-sm:not([readonly]):not(:disabled):not([class*="bg-"]):not(.denom-total):not(.gray-bg):not(.green-total):not(.red-total):not(.summary-section-total):not(.summary-section-balance):not(.summary-section-newbal),
+body.bas-dash-theme-light .form-select-sm:not(:disabled),
+body.bas-dash-theme-light .form-control-xs:not([readonly]):not(:disabled):not([class*="bg-"]):not(.denom-total):not(.gray-bg):not(.green-total):not(.red-total):not(.summary-section-total):not(.summary-section-balance):not(.summary-section-newbal),
+body.bas-dash-theme-light input[type="text"]:not([readonly]):not(:disabled):not([class*="bg-"]):not(.denom-total):not(.gray-bg):not(.green-total):not(.red-total):not(.summary-section-total):not(.summary-section-balance):not(.summary-section-newbal),
+body.bas-dash-theme-light input[type="number"]:not([readonly]):not(:disabled):not([class*="bg-"]):not(.denom-total):not(.gray-bg):not(.green-total):not(.red-total):not(.summary-section-total):not(.summary-section-balance):not(.summary-section-newbal),
+body.bas-dash-theme-light input[type="date"]:not([readonly]):not(:disabled),
+body.bas-dash-theme-light input[type="search"]:not([readonly]):not(:disabled),
+body.bas-dash-theme-light select:not(:disabled),
+body.bas-dash-theme-light textarea:not([readonly]):not(:disabled) {
+    background-color: #ffffff !important;
+    color: #0b192c !important;
+    border: 1px solid #cbd5e1 !important;
+    cursor: text;
+}
+
+body.theme-light .form-control:focus,
+body.theme-light .form-select:focus,
+body.bas-dash-theme-light .form-control:focus,
+body.bas-dash-theme-light .form-select:focus {
+    border-color: #0066ff !important;
+    box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.16) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   LOCKED / CALCULATED / READONLY CELL COLORING (RESTORED FROM ORIGINAL BAS ERP)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* 1. Generic Readonly & Disabled Fields (Clear Locked Visual Distinction) */
+body.theme-light input[readonly]:not([class*="bg-"]):not(.denom-total):not(.gray-bg):not(.green-total):not(.red-total):not(.summary-section-total):not(.summary-section-balance):not(.summary-section-newbal):not(.calc-field input):not(.calc-field-light input),
+body.theme-light input:disabled:not([class*="bg-"]):not(.denom-total):not(.gray-bg):not(.green-total):not(.red-total):not(.summary-section-total):not(.summary-section-balance):not(.summary-section-newbal):not(.calc-field input):not(.calc-field-light input),
+body.theme-light select:disabled,
+body.theme-light textarea[readonly],
+body.theme-light textarea:disabled,
+body.theme-light .form-control[readonly]:not([class*="bg-"]):not(.denom-total):not(.gray-bg):not(.green-total):not(.red-total):not(.summary-section-total):not(.summary-section-balance):not(.summary-section-newbal):not(.calc-field input):not(.calc-field-light input),
+body.theme-light .form-control:disabled:not([class*="bg-"]):not(.denom-total):not(.gray-bg):not(.green-total):not(.red-total):not(.summary-section-total):not(.summary-section-balance):not(.summary-section-newbal):not(.calc-field input):not(.calc-field-light input),
+body.bas-dash-theme-light input[readonly]:not([class*="bg-"]):not(.denom-total):not(.gray-bg):not(.green-total):not(.red-total):not(.summary-section-total):not(.summary-section-balance):not(.summary-section-newbal):not(.calc-field input):not(.calc-field-light input),
+body.bas-dash-theme-light input:disabled:not([class*="bg-"]):not(.denom-total):not(.gray-bg):not(.green-total):not(.red-total):not(.summary-section-total):not(.summary-section-balance):not(.summary-section-newbal):not(.calc-field input):not(.calc-field-light input),
+body.bas-dash-theme-light select:disabled,
+body.bas-dash-theme-light textarea[readonly],
+body.bas-dash-theme-light textarea:disabled,
+body.bas-dash-theme-light .form-control[readonly]:not([class*="bg-"]):not(.denom-total):not(.gray-bg):not(.green-total):not(.red-total):not(.summary-section-total):not(.summary-section-balance):not(.summary-section-newbal):not(.calc-field input):not(.calc-field-light input),
+body.bas-dash-theme-light .form-control:disabled:not([class*="bg-"]):not(.denom-total):not(.gray-bg):not(.green-total):not(.red-total):not(.summary-section-total):not(.summary-section-balance):not(.summary-section-newbal):not(.calc-field input):not(.calc-field-light input) {
+    background-color: #edf2f7 !important;
+    color: #1e293b !important;
+    border: 1px solid #cbd5e1 !important;
+    font-weight: 600 !important;
+    cursor: not-allowed !important;
+}
+
+/* 2. Calculated / Auto-Computed Locked Fields (ONLY for readonly/disabled) */
+.form-field.calc-field input[readonly],
+.form-field.calc-field input:read-only,
+.form-field.calc-field-light input[readonly],
+.form-field.calc-field-light input:read-only,
+.form-field input:read-only,
+.form-field input[readonly],
+.calc-field input[readonly],
+.calc-field-light input[readonly],
+input.calc-input[readonly],
+input.calc-input:read-only,
+.table-custom input[readonly],
+.table-custom input:read-only,
+body.theme-light .form-field.calc-field input[readonly],
+body.theme-light .form-field.calc-field-light input[readonly],
+body.theme-light .form-field input:read-only,
+body.bas-dash-theme-light .form-field.calc-field input[readonly],
+body.bas-dash-theme-light .form-field.calc-field-light input[readonly],
+body.bas-dash-theme-light .form-field input:read-only {
+    background-color: #edf2f7 !important;
+    color: #0b192c !important;
+    border: 1px solid #cbd5e1 !important;
+    font-weight: 700 !important;
+    cursor: not-allowed !important;
+}
+
+/* Ensure active editable calc inputs (Qty, Cost, Disc%, Tax%, etc.) are clean white */
+.table-custom input:not([type="checkbox"]):not([type="radio"]):not([readonly]):not(:disabled),
+input.calc-input:not([type="checkbox"]):not([type="radio"]):not([readonly]):not(:disabled),
+body.theme-light input.calc-input:not([type="checkbox"]):not([type="radio"]):not([readonly]):not(:disabled),
+body.bas-dash-theme-light input.calc-input:not([type="checkbox"]):not([type="radio"]):not([readonly]):not(:disabled) {
+    background-color: #ffffff !important;
+    color: #0b192c !important;
+    border: 1px solid #cbd5e1 !important;
+    font-weight: normal !important;
+    cursor: text !important;
+}
+
+/* 3. Payroll 4-Color Coded Locked Cells (Exact Original Reference Colors) */
+.bg-green-input,
+body.theme-light .bg-green-input,
+body.bas-dash-theme-light .bg-green-input {
+    background-color: #00b050 !important;
+    color: #ffffff !important;
+    border: 1px solid #009040 !important;
+    font-weight: 700 !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+}
+
+.bg-blue-input,
+body.theme-light .bg-blue-input,
+body.bas-dash-theme-light .bg-blue-input {
+    background-color: #1f84c1 !important;
+    color: #ffffff !important;
+    border: 1px solid #186b9c !important;
+    font-weight: 700 !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+}
+
+.bg-red-input,
+body.theme-light .bg-red-input,
+body.bas-dash-theme-light .bg-red-input {
+    background-color: #e15a4b !important;
+    color: #ffffff !important;
+    border: 1px solid #be473a !important;
+    font-weight: 700 !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+}
+
+.bg-purple-input,
+body.theme-light .bg-purple-input,
+body.bas-dash-theme-light .bg-purple-input {
+    background-color: #6b5ea5 !important;
+    color: #ffffff !important;
+    border: 1px solid #554a86 !important;
+    font-weight: 700 !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Payroll Locked Inputs vs Editable TSW */
+input[readonly].bg-green-input,
+input[readonly].bg-blue-input,
+input[readonly].bg-red-input,
+input[readonly].bg-purple-input {
+    cursor: not-allowed !important;
+    user-select: none !important;
+}
+
+#shortWeekDays:not([readonly]) {
+    cursor: text !important;
+    border: 2px solid #38bdf8 !important;
+}
+
+#shortWeekDays:not([readonly]):focus {
+    outline: none !important;
+    border-color: #0284c7 !important;
+    box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.4) !important;
+}
+
+/* 4. Cash & Closing Screens (Daily Cash, Cash Counter, Closing Sheet) */
+.denom-total,
+.gray-bg,
+input.denom-total,
+input.gray-bg,
+body.theme-light .denom-total,
+body.theme-light .gray-bg,
+body.bas-dash-theme-light .denom-total,
+body.bas-dash-theme-light .gray-bg {
+    background-color: #e9ecef !important;
+    color: #1e293b !important;
+    font-weight: 700 !important;
+    border: 1px solid #ced4da !important;
+    cursor: not-allowed !important;
+}
+
+.green-total,
+input.green-total,
+body.theme-light .green-total,
+body.bas-dash-theme-light .green-total {
+    background-color: #28a745 !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    border: 1px solid #218838 !important;
+}
+
+.red-total,
+input.red-total,
+body.theme-light .red-total,
+body.bas-dash-theme-light .red-total {
+    background-color: #dc3545 !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    border: 1px solid #c82333 !important;
+}
+
+/* 5. Wholesale & Invoicing System (Highlights & Balances) */
+.summary-section-total,
+body.theme-light .summary-section-total,
+body.bas-dash-theme-light .summary-section-total {
+    background-color: #fefcbf !important;
+    color: #744210 !important;
+    border: 1px solid #ecc94b !important;
+}
+
+.summary-section-balance,
+body.theme-light .summary-section-balance,
+body.bas-dash-theme-light .summary-section-balance {
+    background-color: #fff5f5 !important;
+    color: #c53030 !important;
+    border: 1px solid #feb2b2 !important;
+}
+
+.summary-section-newbal,
+body.theme-light .summary-section-newbal,
+body.bas-dash-theme-light .summary-section-newbal {
+    background-color: #ebf8ff !important;
+    color: #2b6cb0 !important;
+    border: 1px solid #90cdf4 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   LIGHT THEME DATA TABLES & REPORT TOTAL ROWS PRESERVATION
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+body.theme-light .table,
+body.bas-dash-theme-light .table {
+    color: #0b192c !important;
+    border-color: #e2e8f0 !important;
+}
+
+/* Executive Dark Navy Table Header (Harmonized with Sidebar, Crisp White Text & Vertical Borders) */
+body.theme-light .table thead th,
+body.bas-dash-theme-light .table thead th,
+.table thead th,
+.custom-grid thead th,
+.data-table thead th,
+#bankDetailsTable thead th {
+    background: linear-gradient(180deg, #132b55 0%, #0b1c3a 100%) !important;
+    background-color: #0f244a !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    font-size: 0.85rem !important;
+    letter-spacing: 0.35px !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-bottom: 2px solid #0052d4 !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.22) !important;
+    border-left: 1px solid rgba(0, 0, 0, 0.2) !important;
+    vertical-align: middle !important;
+    padding: 7px 10px !important;
+}
+
+body.theme-light .table thead th *,
+body.bas-dash-theme-light .table thead th *,
+.table thead th *,
+.custom-grid thead th * {
+    color: #ffffff !important;
+}
+
+body.theme-light .table thead th:last-child,
+body.bas-dash-theme-light .table thead th:last-child,
+.table thead th:last-child,
+.custom-grid thead th:last-child {
+    border-right: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Ordinary table data rows (White) - Excludes #bankDetailsTable */
+body.theme-light .table:not(#bankDetailsTable) tbody tr:not(.total-row):not(.grand-total):not(.grand-total-row):not(.group-total):not(.branch-total-row):not(.category-total-row):not(.dept-total-row):not(.bg-dark):not(.bg-primary):not(.bg-success):not(.bg-info):not(.bg-danger):not(.total-purchase):not(.total-adj):not(.total-payments):not(.total-vouchers):not(.total-items):not(.row-completed):not(.row-partial):not(.row-warning):not(.row-overtime):not(.row-absent):not(.row-leave):not(.row-missed-in) td,
+body.bas-dash-theme-light .table:not(#bankDetailsTable) tbody tr:not(.total-row):not(.grand-total):not(.grand-total-row):not(.group-total):not(.branch-total-row):not(.category-total-row):not(.dept-total-row):not(.bg-dark):not(.bg-primary):not(.bg-success):not(.bg-info):not(.bg-danger):not(.total-purchase):not(.total-adj):not(.total-payments):not(.total-vouchers):not(.total-items):not(.row-completed):not(.row-partial):not(.row-warning):not(.row-overtime):not(.row-absent):not(.row-leave):not(.row-missed-in) td {
+    background-color: #ffffff !important;
+    color: #0b192c !important;
+    border-color: #e2e8f0 !important;
+}
+
+/* Ordinary striped rows - Excludes #bankDetailsTable */
+body.theme-light .table-striped:not(#bankDetailsTable) tbody tr:nth-of-type(odd):not(.total-row):not(.grand-total):not(.grand-total-row):not(.group-total):not(.branch-total-row):not(.category-total-row):not(.dept-total-row):not(.bg-dark):not(.bg-primary):not(.bg-success):not(.bg-info):not(.bg-danger):not(.total-purchase):not(.total-adj):not(.total-payments):not(.total-vouchers):not(.total-items):not(.row-completed):not(.row-partial):not(.row-warning):not(.row-overtime):not(.row-absent):not(.row-leave):not(.row-missed-in) td,
+body.bas-dash-theme-light .table-striped:not(#bankDetailsTable) tbody tr:nth-of-type(odd):not(.total-row):not(.grand-total):not(.grand-total-row):not(.group-total):not(.branch-total-row):not(.category-total-row):not(.dept-total-row):not(.bg-dark):not(.bg-primary):not(.bg-success):not(.bg-info):not(.bg-danger):not(.total-purchase):not(.total-adj):not(.total-payments):not(.total-vouchers):not(.total-items):not(.row-completed):not(.row-partial):not(.row-warning):not(.row-overtime):not(.row-absent):not(.row-leave):not(.row-missed-in) td {
+    background-color: #f8fafc !important;
+}
+
+body.theme-light .table-hover tbody tr:hover:not(.total-row):not(.grand-total):not(.grand-total-row):not(.group-total):not(.branch-total-row):not(.category-total-row):not(.dept-total-row):not(.row-completed):not(.row-partial):not(.row-warning):not(.row-overtime):not(.row-absent):not(.row-leave):not(.row-missed-in) td,
+body.bas-dash-theme-light .table-hover tbody tr:hover:not(.total-row):not(.grand-total):not(.grand-total-row):not(.group-total):not(.branch-total-row):not(.category-total-row):not(.dept-total-row):not(.row-completed):not(.row-partial):not(.row-warning):not(.row-overtime):not(.row-absent):not(.row-leave):not(.row-missed-in) td {
+    background-color: rgba(0, 102, 255, 0.04) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   PRESERVE & ENHANCE ALL 51 REPORT TOTAL & GRAND TOTAL ROWS
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* Grand Totals & Tfoot - Deep Executive Navy with White Bold Text */
+.table tr.grand-total,
+.table tr.grand-total-row,
+.table tfoot tr,
+.table tr.total-purchase,
+.table tr.total-adj,
+.table tr.total-payments,
+.table tr.total-vouchers,
+.table tr.total-items,
+body.theme-light .table tr.grand-total td,
+body.theme-light .table tr.grand-total-row td,
+body.theme-light .table tfoot td,
+body.theme-light .table tr.total-purchase td,
+body.theme-light .table tr.total-adj td,
+body.theme-light .table tr.total-payments td,
+body.theme-light .table tr.total-vouchers td,
+body.theme-light .table tr.total-items td,
+body.bas-dash-theme-light .table tr.grand-total td,
+body.bas-dash-theme-light .table tr.grand-total-row td,
+body.bas-dash-theme-light .table tfoot td,
+body.bas-dash-theme-light .table tr.total-purchase td,
+body.bas-dash-theme-light .table tr.total-adj td,
+body.bas-dash-theme-light .table tr.total-payments td,
+body.bas-dash-theme-light .table tr.total-vouchers td,
+body.bas-dash-theme-light .table tr.total-items td {
+    background: linear-gradient(135deg, #07132b 0%, #102a5c 100%) !important;
+    color: #ffffff !important;
+    font-weight: 800 !important;
+    border-top: 2px solid #00d4ff !important;
+    border-bottom: 2px solid #07132b !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Subtotals & Group Total Rows - Distinct Highlighted Slate/Blue Contrast */
+.table tr.total-row:not(.grand-total):not(.grand-total-row),
+.table tr.group-total,
+.table tr.branch-total-row,
+.table tr.category-total-row,
+.table tr.dept-total-row,
+body.theme-light .table tr.total-row:not(.grand-total):not(.grand-total-row) td,
+body.theme-light .table tr.group-total td,
+body.theme-light .table tr.branch-total-row td,
+body.theme-light .table tr.category-total-row td,
+body.theme-light .table tr.dept-total-row td,
+body.bas-dash-theme-light .table tr.total-row:not(.grand-total):not(.grand-total-row) td,
+body.bas-dash-theme-light .table tr.group-total td,
+body.bas-dash-theme-light .table tr.branch-total-row td,
+body.bas-dash-theme-light .table tr.category-total-row td,
+body.bas-dash-theme-light .table tr.dept-total-row td {
+    background-color: #e9eff8 !important;
+    color: #07132b !important;
+    font-weight: 700 !important;
+    border-top: 1.5px solid #0052d4 !important;
+    border-bottom: 1.5px solid #cbd5e1 !important;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   BANK MANAGEMENT - RESTORE RED FOR PENDING & GREEN FOR CLEARED (EXACT OLD ERP)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* Unverified / Pending Rows: Solid Vibrant Red with Pure White Text */
+#bankDetailsTable tbody tr.row-unverified,
+#bankDetailsTable tbody tr.row-unverified td,
+#bankDetailsTable tbody tr.bg-danger,
+#bankDetailsTable tbody tr.bg-danger td,
+#bankDetailsTable tbody tr.row-red,
+#bankDetailsTable tbody tr.row-red td,
+body.theme-light #bankDetailsTable tbody tr.row-unverified td,
+body.theme-light #bankDetailsTable tbody tr.bg-danger td,
+body.theme-light #bankDetailsTable tbody tr.row-red td,
+body.bas-dash-theme-light #bankDetailsTable tbody tr.row-unverified td,
+body.bas-dash-theme-light #bankDetailsTable tbody tr.bg-danger td,
+body.bas-dash-theme-light #bankDetailsTable tbody tr.row-red td {
+    background-color: #dc3545 !important;
+    background: #dc3545 !important;
+    color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Verified / Cleared Rows: Solid Vibrant Green with Pure White Text */
+#bankDetailsTable tbody tr.row-verified,
+#bankDetailsTable tbody tr.row-verified td,
+#bankDetailsTable tbody tr.bg-success,
+#bankDetailsTable tbody tr.bg-success td,
+#bankDetailsTable tbody tr.row-green,
+#bankDetailsTable tbody tr.row-green td,
+body.theme-light #bankDetailsTable tbody tr.row-verified td,
+body.theme-light #bankDetailsTable tbody tr.bg-success td,
+body.theme-light #bankDetailsTable tbody tr.row-green td,
+body.bas-dash-theme-light #bankDetailsTable tbody tr.row-verified td,
+body.bas-dash-theme-light #bankDetailsTable tbody tr.bg-success td,
+body.bas-dash-theme-light #bankDetailsTable tbody tr.row-green td {
+    background-color: #28a745 !important;
+    background: #28a745 !important;
+    color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Seamless Date & Text Inputs Inside Colored Bank Rows */
+#bankDetailsTable tbody tr input[type="date"],
+#bankDetailsTable tbody tr input.batch-date-input,
+body.theme-light #bankDetailsTable tbody tr input[type="date"],
+body.theme-light #bankDetailsTable tbody tr input.batch-date-input,
+body.bas-dash-theme-light #bankDetailsTable tbody tr input[type="date"],
+body.bas-dash-theme-light #bankDetailsTable tbody tr input.batch-date-input {
+    background-color: transparent !important;
+    background: transparent !important;
+    color: #ffffff !important;
+    border: none !important;
+    box-shadow: none !important;
+    font-weight: 500 !important;
+    width: 100% !important;
+}
+
+/* Bank Summary KPI Cards */
+.kpi-card.bg-kpi-green,
+.bg-kpi-green,
+body.theme-light .kpi-card.bg-kpi-green,
+body.bas-dash-theme-light .kpi-card.bg-kpi-green {
+    background-color: #28a745 !important;
+    background: #28a745 !important;
+    color: #ffffff !important;
+}
+
+.kpi-card.bg-kpi-blue,
+.bg-kpi-blue,
+body.theme-light .kpi-card.bg-kpi-blue,
+body.bas-dash-theme-light .kpi-card.bg-kpi-blue {
+    background-color: #0d6efd !important;
+    background: #0d6efd !important;
+    color: #ffffff !important;
+}
+
+.kpi-card.bg-kpi-red,
+.bg-kpi-red,
+body.theme-light .kpi-card.bg-kpi-red,
+body.bas-dash-theme-light .kpi-card.bg-kpi-red {
+    background-color: #dc3545 !important;
+    background: #dc3545 !important;
+    color: #ffffff !important;
+}
+
+.kpi-card.bg-kpi-dark,
+.bg-kpi-dark,
+body.theme-light .kpi-card.bg-kpi-dark,
+body.bas-dash-theme-light .kpi-card.bg-kpi-dark {
+    background-color: #343a40 !important;
+    background: #343a40 !important;
+    color: #00ff00 !important;
+}
+
+/* Pending Cheque Tab Amount Highlight Boxes */
+.amount-input.bg-amount-green,
+#pending-chq .bg-amount-green,
+body.theme-light #pending-chq .bg-amount-green,
+body.bas-dash-theme-light #pending-chq .bg-amount-green {
+    background-color: #ecfdf5 !important;
+    color: #00b96b !important;
+    border: 1.5px solid #10b981 !important;
+    font-weight: 700 !important;
+}
+
+.amount-input.bg-amount-blue,
+#pending-chq .bg-amount-blue,
+body.theme-light #pending-chq .bg-amount-blue,
+body.bas-dash-theme-light #pending-chq .bg-amount-blue {
+    background-color: #eff6ff !important;
+    color: #4361ee !important;
+    border: 1.5px solid #3b82f6 !important;
+    font-weight: 700 !important;
+}
+
+.amount-input.bg-amount-red,
+#pending-chq .bg-amount-red,
+body.theme-light #pending-chq .bg-amount-red,
+body.bas-dash-theme-light #pending-chq .bg-amount-red {
+    background-color: #fef2f2 !important;
+    color: #ef476f !important;
+    border: 1.5px solid #ef4444 !important;
+    font-weight: 700 !important;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   EXECUTIVE THEME-HARMONIZED BUTTON SYSTEM (ACROSS ALL ERP SCREENS)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* Base button styling */
+.btn,
+button.btn,
+a.btn,
+input[type="button"].btn,
+input[type="submit"].btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    font-weight: 600 !important;
+    font-size: 0.82rem !important;
+    letter-spacing: 0.3px !important;
+    border-radius: 6px !important;
+    padding: 6px 14px !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+}
+
+.btn:hover,
+button.btn:hover,
+a.btn:hover {
+    transform: translateY(-1.5px) !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2) !important;
+}
+
+.btn:active,
+button.btn:active {
+    transform: translateY(0) !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15) !important;
+}
+
+.btn:disabled,
+button.btn:disabled {
+    opacity: 0.55 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* 1. Primary Action Buttons (Save & Print, Add Row, Search, Confirm, Sync) */
+.btn-primary,
+button.btn-primary,
+a.btn-primary {
+    background: linear-gradient(135deg, #0052d4 0%, #1e40af 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid #0041a8 !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+}
+
+.btn-primary:hover,
+button.btn-primary:hover,
+a.btn-primary:hover {
+    background: linear-gradient(135deg, #0066ff 0%, #1d4ed8 100%) !important;
+    color: #ffffff !important;
+    border-color: #00d4ff !important;
+    box-shadow: 0 4px 14px rgba(0, 82, 212, 0.4) !important;
+}
+
+/* 2. Success Buttons (Save, Clear, Post, Verified, Update) */
+.btn-success,
+button.btn-success,
+a.btn-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid #047857 !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+}
+
+.btn-success:hover,
+button.btn-success:hover,
+a.btn-success:hover {
+    background: linear-gradient(135deg, #34d399 0%, #059669 100%) !important;
+    color: #ffffff !important;
+    border-color: #10b981 !important;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4) !important;
+}
+
+/* 3. Danger / Delete Buttons (Delete, Cancel, Reject, Void) */
+.btn-danger,
+button.btn-danger,
+a.btn-danger {
+    background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid #991b1b !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+}
+
+.btn-danger:hover,
+button.btn-danger:hover,
+a.btn-danger:hover {
+    background: linear-gradient(135deg, #f87171 0%, #dc2626 100%) !important;
+    color: #ffffff !important;
+    border-color: #ef4444 !important;
+    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4) !important;
+}
+
+/* 4. Secondary & Navigation (List, Switch, Back, Refresh) */
+.btn-secondary,
+.btn-dark,
+button.btn-secondary,
+button.btn-dark,
+a.btn-secondary,
+a.btn-dark {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid #334155 !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4) !important;
+}
+
+.btn-secondary:hover,
+.btn-dark:hover,
+button.btn-secondary:hover,
+button.btn-dark:hover,
+a.btn-secondary:hover,
+a.btn-dark:hover {
+    background: linear-gradient(135deg, #334155 0%, #1e293b 100%) !important;
+    color: #00d4ff !important;
+    border-color: #00d4ff !important;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.5) !important;
+}
+
+/* 5. Info / Utility & Print Buttons (Print, Download, Order) */
+.btn-info,
+button.btn-info,
+a.btn-info {
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid #075985 !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+}
+
+.btn-info:hover,
+button.btn-info:hover,
+a.btn-info:hover {
+    background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%) !important;
+    color: #ffffff !important;
+    border-color: #38bdf8 !important;
+    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4) !important;
+}
+
+/* 6. Warning / Draft / Reset (Clear, Draft, Pending, Reset) */
+.btn-warning,
+button.btn-warning,
+a.btn-warning {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid #b45309 !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+}
+
+.btn-warning:hover,
+button.btn-warning:hover,
+a.btn-warning:hover {
+    background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%) !important;
+    color: #ffffff !important;
+    border-color: #fbbf24 !important;
+    box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4) !important;
+}
+
+/* 7. Light & White Buttons (e.g. Back, Back to Entry, Cancel, Navigation) */
+.btn-light,
+button.btn-light,
+a.btn-light,
+.btn-white,
+button.btn-white,
+a.btn-white {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    border: 1px solid #cbd5e1 !important;
+    text-shadow: none !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+}
+
+.btn-light:hover,
+button.btn-light:hover,
+a.btn-light:hover,
+.btn-white:hover,
+button.btn-white:hover,
+a.btn-white:hover {
+    background: #f1f5f9 !important;
+    background-color: #f1f5f9 !important;
+    color: #0052d4 !important;
+    border-color: #94a3b8 !important;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15) !important;
+}
+
+/* Ensure .btn-light inside dark headers or bars (e.g. Whole Sale List header, Topbar) stays crystal clear */
+.card-header .btn-light,
+.card-header.bg-dark .btn-light,
+.page-header .btn-light,
+header .btn-light,
+.bg-dark .btn-light {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    border: 1px solid #cbd5e1 !important;
+    font-weight: 700 !important;
+}
+
+.card-header .btn-light:hover,
+.card-header.bg-dark .btn-light:hover,
+.page-header .btn-light:hover,
+header .btn-light:hover,
+.bg-dark .btn-light:hover {
+    background: #f8fafc !important;
+    background-color: #f8fafc !important;
+    color: #0052d4 !important;
+    border-color: #0052d4 !important;
+}
+
+/* 8. Outline Warning Buttons (e.g. Un-Audit List, Draft List) */
+.btn-outline-warning,
+button.btn-outline-warning,
+a.btn-outline-warning {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #b45309 !important;
+    border: 1.5px solid #d97706 !important;
+    text-shadow: none !important;
+    font-weight: 600 !important;
+    box-shadow: 0 1px 3px rgba(217, 119, 6, 0.1) !important;
+}
+
+.btn-outline-warning:hover,
+button.btn-outline-warning:hover,
+a.btn-outline-warning:hover {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+    background-color: #d97706 !important;
+    color: #ffffff !important;
+    border-color: #b45309 !important;
+    box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3) !important;
+}
+
+/* 9. Outline Success Buttons (e.g. Post Stock Audit List, Approved List) */
+.btn-outline-success,
+button.btn-outline-success,
+a.btn-outline-success {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #047857 !important;
+    border: 1.5px solid #059669 !important;
+    text-shadow: none !important;
+    font-weight: 600 !important;
+    box-shadow: 0 1px 3px rgba(5, 150, 105, 0.1) !important;
+}
+
+.btn-outline-success:hover,
+button.btn-outline-success:hover,
+a.btn-outline-success:hover {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    background-color: #059669 !important;
+    color: #ffffff !important;
+    border-color: #047857 !important;
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3) !important;
+}
+
+/* 10. Outline Primary Buttons (e.g. Filters, Export, View) */
+.btn-outline-primary,
+button.btn-outline-primary,
+a.btn-outline-primary {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #0052d4 !important;
+    border: 1.5px solid #0052d4 !important;
+    text-shadow: none !important;
+    font-weight: 600 !important;
+    box-shadow: 0 1px 3px rgba(0, 82, 212, 0.1) !important;
+}
+
+.btn-outline-primary:hover,
+button.btn-outline-primary:hover,
+a.btn-outline-primary:hover {
+    background: linear-gradient(135deg, #0052d4 0%, #1e40af 100%) !important;
+    background-color: #0052d4 !important;
+    color: #ffffff !important;
+    border-color: #0041a8 !important;
+    box-shadow: 0 4px 12px rgba(0, 82, 212, 0.3) !important;
+}
+
+/* 11. Outline Danger Buttons (e.g. Delete, Void, Remove) */
+.btn-outline-danger,
+button.btn-outline-danger,
+a.btn-outline-danger {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #b91c1c !important;
+    border: 1.5px solid #dc2626 !important;
+    text-shadow: none !important;
+    font-weight: 600 !important;
+    box-shadow: 0 1px 3px rgba(220, 38, 38, 0.1) !important;
+}
+
+.btn-outline-danger:hover,
+button.btn-outline-danger:hover,
+a.btn-outline-danger:hover {
+    background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%) !important;
+    background-color: #b91c1c !important;
+    color: #ffffff !important;
+    border-color: #991b1b !important;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3) !important;
+}
+
+/* 12. Outline Secondary & Dark Buttons */
+.btn-outline-secondary,
+.btn-outline-dark,
+button.btn-outline-secondary,
+button.btn-outline-dark,
+a.btn-outline-secondary,
+a.btn-outline-dark {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #1e293b !important;
+    border: 1.5px solid #64748b !important;
+    text-shadow: none !important;
+    font-weight: 600 !important;
+}
+
+.btn-outline-secondary:hover,
+.btn-outline-dark:hover,
+button.btn-outline-secondary:hover,
+button.btn-outline-dark:hover,
+a.btn-outline-secondary:hover,
+a.btn-outline-dark:hover {
+    background: #1e293b !important;
+    background-color: #1e293b !important;
+    color: #ffffff !important;
+    border-color: #0f172a !important;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25) !important;
+}
+
+/* 13. Outline Info Buttons */
+.btn-outline-info,
+button.btn-outline-info,
+a.btn-outline-info {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #0369a1 !important;
+    border: 1.5px solid #0284c7 !important;
+    text-shadow: none !important;
+    font-weight: 600 !important;
+}
+
+.btn-outline-info:hover,
+button.btn-outline-info:hover,
+a.btn-outline-info:hover {
+    background: #0284c7 !important;
+    background-color: #0284c7 !important;
+    color: #ffffff !important;
+    border-color: #0369a1 !important;
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3) !important;
+}
+
+/* 14. Outline Light (when placed on dark navigation bars) */
+.btn-outline-light,
+button.btn-outline-light,
+a.btn-outline-light {
+    background: rgba(255, 255, 255, 0.12) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.35) !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+}
+
+.btn-outline-light:hover,
+button.btn-outline-light:hover,
+a.btn-outline-light:hover {
+    background: rgba(255, 255, 255, 0.25) !important;
+    color: #ffffff !important;
+    border-color: #ffffff !important;
+}
+
+/* 15. Link Buttons (.btn-link) */
+.btn-link,
+button.btn-link,
+a.btn-link {
+    background: transparent !important;
+    color: #0052d4 !important;
+    border: none !important;
+    box-shadow: none !important;
+    text-decoration: underline !important;
+    font-weight: 600 !important;
+}
+
+.btn-link:hover,
+button.btn-link:hover,
+a.btn-link:hover {
+    color: #0066ff !important;
+    text-decoration: underline !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* Ensure icons inside all buttons inherit crisp color */
+.btn i,
+button.btn i,
+a.btn i {
+    color: inherit !important;
+}
+
+
+/* ----------------- THERMAL & A4 PRINTING PROTECTION ----------------- */
+@media print {
+
+    body,
+    .desktop-container,
+    .grid-container,
+    .form-panel,
+    .list-panel,
+    .card,
+    .card-custom,
+    .table-container,
+    .table,
+    .table thead th,
+    .table tbody td,
+    .page-header {
+        background-color: #ffffff !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+        box-shadow: none !important;
+        border-color: #cccccc !important;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   REPORT CATEGORY CARD HEADERS - 100% CRISP WHITE TEXT & ICONS
+   ═══════════════════════════════════════════════════════════════════════════════ */
+.report-category-card .card-header,
+.report-category-card .card-header *,
+.report-category-card .card-header h6,
+.report-category-card .card-header .fw-bold,
+.report-category-card .card-header h6.fw-bold,
+.report-category-card .card-header i,
+.report-category-card .card-header span,
+body.theme-light .report-category-card .card-header *,
+body.theme-light .report-category-card .card-header h6,
+body.theme-light .report-category-card .card-header .fw-bold,
+body.bas-dash-theme-light .report-category-card .card-header *,
+body.bas-dash-theme-light .report-category-card .card-header h6,
+body.bas-dash-theme-light .report-category-card .card-header .fw-bold {
+    color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   GLOBAL BUTTON TEXT & ICON VISIBILITY IMMUNITY (Applies across all 146+ screens)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+.btn-primary,
+.btn-primary *,
+.btn-success,
+.btn-success *,
+.btn-danger,
+.btn-danger *,
+.btn-info,
+.btn-info *,
+.btn-dark,
+.btn-dark *,
+.btn-secondary,
+.btn-secondary *,
+.btn.btn-primary,
+.btn.btn-primary *,
+.btn.btn-success,
+.btn.btn-success *,
+.btn.btn-danger,
+.btn.btn-danger *,
+.btn.btn-info,
+.btn.btn-info *,
+.btn.btn-dark,
+.btn.btn-dark *,
+.btn.btn-secondary,
+.btn.btn-secondary *,
+body.theme-light .btn-primary,
+body.theme-light .btn-primary *,
+body.theme-light .btn-success,
+body.theme-light .btn-success *,
+body.theme-light .btn-danger,
+body.theme-light .btn-danger *,
+body.theme-light .btn-info,
+body.theme-light .btn-info *,
+body.theme-light .btn-dark,
+body.theme-light .btn-dark *,
+body.theme-light .btn-secondary,
+body.theme-light .btn-secondary *,
+body.bas-dash-theme-light .btn-primary,
+body.bas-dash-theme-light .btn-primary *,
+body.bas-dash-theme-light .btn-success,
+body.bas-dash-theme-light .btn-success *,
+body.bas-dash-theme-light .btn-danger,
+body.bas-dash-theme-light .btn-danger *,
+body.bas-dash-theme-light .btn-info,
+body.bas-dash-theme-light .btn-info *,
+body.bas-dash-theme-light .btn-dark,
+body.bas-dash-theme-light .btn-dark *,
+body.bas-dash-theme-light .btn-secondary,
+body.bas-dash-theme-light .btn-secondary *,
+.btn.text-white,
+.btn.text-white *,
+.btn[style*="6a1b9a"],
+.btn[style*="6a1b9a"] *,
+#btnBulkSave,
+#btnBulkSave * {
+    color: #ffffff !important;
+}
+
+/* Warning buttons with text-white class stay crisp white */
+.btn-warning.text-white,
+.btn-warning.text-white *,
+.btn-warning.text-white i,
+body.theme-light .btn-warning.text-white,
+body.theme-light .btn-warning.text-white *,
+body.bas-dash-theme-light .btn-warning.text-white,
+body.bas-dash-theme-light .btn-warning.text-white * {
+    color: #ffffff !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* Ensure icons inside all buttons always inherit matching crisp colors */
+.btn i,
+.btn span,
+.btn svg {
+    color: inherit !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   REPORT FILTER PANELS - EXECUTIVE DEEP NAVY THEME & 100% VISIBLE LABELS
+   ═══════════════════════════════════════════════════════════════════════════════ */
+.filter-panel,
+.report-filter-panel,
+.filter-section,
+.report-shell .filter-panel {
+    background: linear-gradient(135deg, #07132b 0%, #0d2149 50%, #102a5c 100%) !important;
+    border: 1px solid rgba(0, 212, 255, 0.28) !important;
+    box-shadow: 0 4px 20px rgba(7, 19, 43, 0.3) !important;
+    border-radius: 8px !important;
+    color: #ffffff !important;
+}
+
+.filter-panel label,
+.filter-panel .form-label,
+.filter-panel span:not(.badge):not(.btn *):not([id*="uggestion"] *):not([class*="uggestion"] *):not(.suggestion-item):not(.suggestion-item *):not(.list-group-item):not(.list-group-item *),
+.report-filter-panel label,
+.report-filter-panel .form-label,
+.report-filter-panel span:not(.badge):not(.btn *):not([id*="uggestion"] *):not([class*="uggestion"] *):not(.suggestion-item):not(.suggestion-item *):not(.list-group-item):not(.list-group-item *),
+.filter-section label,
+.filter-section .form-label {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    font-size: 0.82rem !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6) !important;
+    margin-bottom: 4px !important;
+}
+
+.filter-panel .form-control,
+.filter-panel .form-select,
+.report-filter-panel .form-control,
+.report-filter-panel .form-select {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    border: 1px solid #94a3b8 !important;
+    font-weight: 500 !important;
+}
+
+.filter-panel .form-control:focus,
+.filter-panel .form-select:focus,
+.report-filter-panel .form-control:focus,
+.report-filter-panel .form-select:focus {
+    border-color: #00d4ff !important;
+    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.25) !important;
+}
+
+/* Ensure filter panel buttons never wrap onto multiple lines */
+.filter-panel .btn,
+.report-filter-panel .btn {
+    white-space: nowrap !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   SEND TO DOWNLOAD CENTER - STATE-OF-THE-ART NON-INTRUSIVE BUTTON STYLES
+   ═══════════════════════════════════════════════════════════════════════════════ */
+.btn-dc-header {
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+    border: 1px solid rgba(0, 212, 255, 0.45) !important;
+    color: #ffffff !important;
+    font-size: 0.82rem !important;
+    font-weight: 600 !important;
+    padding: 5px 12px !important;
+    border-radius: 6px !important;
+    box-shadow: 0 2px 8px rgba(2, 132, 199, 0.35) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    white-space: nowrap !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+.btn-dc-header:hover {
+    background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%) !important;
+    border-color: #00d4ff !important;
+    box-shadow: 0 4px 14px rgba(0, 212, 255, 0.45) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Floating Dock for screens without standard header */
+.dc-floating-dock {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 99990;
+    display: flex;
+    align-items: center;
+}
+
+.dc-floating-btn {
+    background: linear-gradient(135deg, #07132b 0%, #0d2149 50%, #102a5c 100%) !important;
+    border: 1.5px solid #00d4ff !important;
+    color: #ffffff !important;
+    padding: 8px 16px !important;
+    border-radius: 50px !important;
+    font-size: 0.82rem !important;
+    font-weight: 700 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    cursor: pointer !important;
+    box-shadow: 0 6px 20px rgba(7, 19, 43, 0.4), 0 0 12px rgba(0, 212, 255, 0.35) !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    white-space: nowrap !important;
+    user-select: none !important;
+}
+
+.dc-floating-btn:hover {
+    transform: translateY(-2px) scale(1.03) !important;
+    box-shadow: 0 8px 25px rgba(7, 19, 43, 0.5), 0 0 18px rgba(0, 212, 255, 0.6) !important;
+    border-color: #38bdf8 !important;
+}
+
+.dc-floating-btn i {
+    color: #00d4ff !important;
+}
+
+@media print {
+
+    .btn-dc-header,
+    .dc-floating-dock,
+    #btnSendToDownloadCenter,
+    #dcFloatingDock {
+        display: none !important;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   THEME SWITCHER RESTRICTION (ONLY ON LOGIN PAGE)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+body:not(.page-login) #globalThemeToggle,
+body:not(.page-login) .bas-dash-theme-toggle {
+    display: none !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   UNIVERSAL HIGH-VISIBILITY CHECKBOX SYSTEM (ALL SCREENS & MODULES)
+   Guarantees 100% visible checkboxes and crystal clear checkmarks in light & dark mode
+   ═══════════════════════════════════════════════════════════════════════════════ */
+input[type="checkbox"],
+.form-check-input,
+.form-check-input[type="checkbox"] {
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    width: 17px !important;
+    height: 17px !important;
+    min-width: 17px !important;
+    min-height: 17px !important;
+    max-width: 17px !important;
+    max-height: 17px !important;
+    padding: 0 !important;
+    margin: 0 6px 0 0 !important;
+    vertical-align: middle !important;
+    display: inline-block !important;
+    position: relative !important;
+    border-radius: 3px !important;
+    cursor: pointer !important;
+    outline: none !important;
+    flex-shrink: 0 !important;
+    box-sizing: border-box !important;
+    line-height: 1 !important;
+    transition: all 0.15s ease-in-out !important;
+}
+
+/* 1. LIGHT THEME UNCHECKED: Crisp Slate Border on White Background */
+body.theme-light input[type="checkbox"]:not(:checked),
+body.bas-dash-theme-light input[type="checkbox"]:not(:checked),
+body:not(.theme-dark):not(.bas-dash-theme-dark) input[type="checkbox"]:not(:checked),
+body.theme-light .form-check-input:not(:checked),
+body.bas-dash-theme-light .form-check-input:not(:checked),
+body:not(.theme-dark):not(.bas-dash-theme-dark) .form-check-input:not(:checked) {
+    background-color: #ffffff !important;
+    background-image: none !important;
+    border: 2px solid #64748b !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* 2. LIGHT THEME HOVER */
+body.theme-light input[type="checkbox"]:not(:checked):hover,
+body.bas-dash-theme-light input[type="checkbox"]:not(:checked):hover,
+body:not(.theme-dark):not(.bas-dash-theme-dark) input[type="checkbox"]:not(:checked):hover,
+body.theme-light .form-check-input:not(:checked):hover,
+body.bas-dash-theme-light .form-check-input:not(:checked):hover,
+body:not(.theme-dark):not(.bas-dash-theme-dark) .form-check-input:not(:checked):hover {
+    border-color: #0284c7 !important;
+    background-color: #f0f9ff !important;
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.18) !important;
+}
+
+/* 3. LIGHT THEME CHECKED (ACTIVE): VIBRANT OCEAN BLUE WITH BOLD PURE WHITE CHECKMARK */
+body.theme-light input[type="checkbox"]:checked,
+body.bas-dash-theme-light input[type="checkbox"]:checked,
+body:not(.theme-dark):not(.bas-dash-theme-dark) input[type="checkbox"]:checked,
+body.theme-light .form-check-input:checked,
+body.bas-dash-theme-light .form-check-input:checked,
+body:not(.theme-dark):not(.bas-dash-theme-dark) .form-check-input:checked {
+    background-color: #0284c7 !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23ffffff' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round' d='M2.8 8.2l3.6 3.6 6.8-7.6'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-size: 80% 80% !important;
+    border: 2px solid #0369a1 !important;
+    box-shadow: 0 1px 4px rgba(2, 132, 199, 0.4) !important;
+}
+
+/* 4. LIGHT THEME INDETERMINATE (PARTIAL) */
+body.theme-light input[type="checkbox"]:indeterminate,
+body.bas-dash-theme-light input[type="checkbox"]:indeterminate,
+body:not(.theme-dark):not(.bas-dash-theme-dark) input[type="checkbox"]:indeterminate,
+body.theme-light .form-check-input:indeterminate,
+body.bas-dash-theme-light .form-check-input:indeterminate,
+body:not(.theme-dark):not(.bas-dash-theme-dark) .form-check-input:indeterminate {
+    background-color: #0284c7 !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23ffffff' stroke-width='3.2' stroke-linecap='round' d='M3.5 8h9'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-size: 80% 80% !important;
+    border: 2px solid #0369a1 !important;
+}
+
+/* 5. DARK THEME UNCHECKED */
+body.theme-dark input[type="checkbox"]:not(:checked),
+body.bas-dash-theme-dark input[type="checkbox"]:not(:checked),
+body.theme-dark .form-check-input:not(:checked),
+body.bas-dash-theme-dark .form-check-input:not(:checked) {
+    background-color: #0d1e38 !important;
+    background-image: none !important;
+    border: 2px solid #475569 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* 6. DARK THEME CHECKED (ACTIVE) */
+body.theme-dark input[type="checkbox"]:checked,
+body.bas-dash-theme-dark input[type="checkbox"]:checked,
+body.theme-dark .form-check-input:checked,
+body.bas-dash-theme-dark .form-check-input:checked {
+    background-color: #00d4ff !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%2307132b' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round' d='M2.8 8.2l3.6 3.6 6.8-7.6'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-size: 80% 80% !important;
+    border: 2px solid #00b4d8 !important;
+    box-shadow: 0 0 12px rgba(0, 212, 255, 0.5) !important;
+}
+
+/* 7. Focus outline */
+input[type="checkbox"]:focus,
+.form-check-input:focus {
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.3) !important;
+}
+
+/* 8. STANDARD CHECKBOX WRAPPER: Normal form-check rows */
+.form-check {
+    display: flex !important;
+    align-items: center !important;
+    cursor: pointer !important;
+    user-select: none !important;
+    margin-bottom: 5px !important;
+}
+
+.form-check-label {
+    cursor: pointer !important;
+    font-size: 0.86rem !important;
+    margin-left: 2px !important;
+    vertical-align: middle !important;
+}
+
+/* 9. PRESERVE PERMISSIONS TREE EXACT VERTICAL CATEGORY HIERARCHY */
+#permissionsTree ul {
+    list-style: none !important;
+    padding-left: 22px !important;
+    margin-bottom: 4px !important;
+    display: block !important;
+}
+
+#permissionsTree>ul {
+    padding-left: 0 !important;
+}
+
+#permissionsTree li {
+    display: block !important;
+    margin: 4px 0 !important;
+    position: relative !important;
+    clear: both !important;
+    white-space: nowrap !important;
+}
+
+#permissionsTree .form-check-input,
+#permissionsTree input[type="checkbox"] {
+    vertical-align: middle !important;
+    display: inline-block !important;
+    margin-top: 0 !important;
+    margin-right: 6px !important;
+}
+
+#permissionsTree .checkbox-label {
+    cursor: pointer !important;
+    font-size: 0.85rem !important;
+    vertical-align: middle !important;
+    display: inline !important;
+    margin-left: 2px !important;
+    user-select: none !important;
+}
+
+#permissionsTree .fw-bold-label {
+    font-weight: 700 !important;
+    color: inherit !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   10. UNIVERSAL STRICT CURSOR POINTER FOR ALL CHECKBOXES & RADIOS (PREVENTS "I" CURSOR)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+input[type="checkbox"],
+input[type="radio"],
+.form-check-input,
+.form-check,
+.form-check-label,
+.table-custom input[type="checkbox"],
+.table-custom input[type="radio"],
+table input[type="checkbox"],
+table input[type="radio"],
+.custom-grid input[type="checkbox"],
+.custom-grid input[type="radio"],
+#permissionsTree input[type="checkbox"],
+#permissionsTree label,
+#selectAllBatches,
+label:has(input[type="checkbox"]),
+label:has(input[type="radio"]) {
+    cursor: pointer !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   11. UNIVERSAL RESPONSIVE CONTROLS & ZOOM RESILIENCE (Zoom 110% - 150% & Laptops)
+   Prevents action buttons (Save, List, Search, New, Print) from being cut off or hidden.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+.sub-header,
+.filter-bar,
+.filter-row,
+.card-header,
+.action-bar-desktop {
+    overflow-x: visible !important;
+}
+
+/* Ensure flex containers wrap gracefully so buttons never push outside viewport */
+.sub-header .row,
+.filter-bar .row,
+.filter-row .row,
+.card-header .row {
+    align-items: flex-end !important;
+    flex-wrap: wrap !important;
+}
+
+/* Action button containers across all screens */
+.sub-header .d-flex,
+.filter-bar .d-flex,
+.filter-row .d-flex,
+.action-button-group,
+[class*="col-"].d-flex.align-items-end,
+[class*="col-"].d-flex.align-items-center {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+    min-width: fit-content !important;
+}
+
+/* Prevent buttons from getting crushed or truncated */
+.sub-header .btn,
+.filter-bar .btn,
+.filter-row .btn,
+.action-button-group .btn,
+[class*="col-"].d-flex.align-items-end .btn,
+[class*="col-"].d-flex.align-items-center .btn {
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+}
+
+/* Responsive table search inputs inside button groups */
+.sub-header input[type="text"],
+.filter-bar input[type="text"],
+[class*="col-"].d-flex.align-items-end input[type="text"] {
+    flex: 1 1 120px !important;
+    min-width: 100px !important;
+    max-width: 160px !important;
+}
+
+/* Zoom support for small/scaled viewports (<= 1440px / zoom >= 125%) */
+@media (max-width: 1440px) {
+
+    .sub-header .col-md-2,
+    .filter-bar .col-md-2 {
+        flex: 1 1 180px !important;
+        max-width: 100% !important;
+    }
+
+    .sub-header [class*="col-"].d-flex,
+    .filter-bar [class*="col-"].d-flex {
+        flex: 1 1 auto !important;
+        max-width: 100% !important;
+        margin-top: 6px;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   UNIVERSAL DARK THEME TEXT & TABLE LEGIBILITY FIX
+   ═══════════════════════════════════════════════════════════════ */
+body.dark-theme .table:not(#bankDetailsTable) tbody td,
+body.theme-dark .table:not(#bankDetailsTable) tbody td,
+body.bas-theme-dark .table:not(#bankDetailsTable) tbody td,
+body.bas-dash-theme-dark .table:not(#bankDetailsTable) tbody td,
+html[data-theme="dark"] .table:not(#bankDetailsTable) tbody td,
+html[data-bs-theme="dark"] .table:not(#bankDetailsTable) tbody td,
+body[data-theme="dark"] .table:not(#bankDetailsTable) tbody td,
+body[data-bs-theme="dark"] .table:not(#bankDetailsTable) tbody td {
+    color: #f1f5f9 !important;
+}
+
+body.dark-theme .page-title,
+body.theme-dark .page-title,
+body.bas-theme-dark .page-title,
+html[data-theme="dark"] .page-title,
+html[data-bs-theme="dark"] .page-title {
+    color: #ffffff !important;
+}
+
+body.dark-theme .text-muted,
+body.theme-dark .text-muted,
+body.bas-theme-dark .text-muted,
+html[data-theme="dark"] .text-muted,
+html[data-bs-theme="dark"] .text-muted {
+    color: #94a3b8 !important;
+}

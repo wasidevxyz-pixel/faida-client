@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="BAS ERP Download Center - Centralized file sharing hub for multi-branch operations">
+    <title>Download Center - BAS Software</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/desktop-style.css">
+    <link rel="stylesheet" href="/css/sidebar.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ═══════════════════════════════════════════════════════════════ */
+        /* DOWNLOAD CENTER — PREMIUM STYLES                              */
+        /* ═══════════════════════════════════════════════════════════════ */
+        .dc-container {
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Cleanup Countdown Banner */
+        .dc-countdown-banner {
+            background: linear-gradient(135deg, #1a237e 0%, #283593 50%, #1565c0 100%);
+            border-radius: 12px;
+            padding: 16px 24px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(26, 35, 126, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .dc-countdown-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        .dc-countdown-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 1;
+        }
+        .dc-countdown-left i {
+            font-size: 1.5rem;
+            animation: pulse-icon 2s infinite;
+        }
+        @keyframes pulse-icon {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+        }
+        .dc-countdown-label {
+            font-size: 0.85rem;
+            opacity: 0.85;
+        }
+        .dc-countdown-timer {
+            font-size: 1.4rem;
+            font-weight: 700;
+            font-family: 'Consolas', 'Courier New', monospace;
+            letter-spacing: 2px;
+            z-index: 1;
+        }
+        .dc-countdown-info {
+            font-size: 0.75rem;
+            opacity: 0.65;
+            z-index: 1;
+        }
+
+        /* Stats Cards */
+        .dc-stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .dc-stat-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 18px 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border-left: 4px solid #1565c0;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .dc-stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        .dc-stat-card:nth-child(2) { border-left-color: #2e7d32; }
+        .dc-stat-card:nth-child(3) { border-left-color: #e65100; }
+        .dc-stat-card:nth-child(4) { border-left-color: #6a1b9a; }
+        .dc-stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        .dc-stat-icon.files { background: linear-gradient(135deg, #1565c0, #1976d2); }
+        .dc-stat-icon.size { background: linear-gradient(135deg, #2e7d32, #43a047); }
+        .dc-stat-icon.recent { background: linear-gradient(135deg, #e65100, #ef6c00); }
+        .dc-stat-icon.expiry { background: linear-gradient(135deg, #6a1b9a, #8e24aa); }
+        .dc-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a237e;
+            line-height: 1;
+        }
+        .dc-stat-label {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        /* Toolbar */
+        .dc-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .dc-search-box {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+        }
+        .dc-search-box input {
+            width: 100%;
+            padding: 10px 14px 10px 38px;
+            border: 1px solid #ccd;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: border-color 0.2s;
+        }
+        .dc-search-box input:focus {
+            outline: none;
+            border-color: #1565c0;
+            box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.1);
+        }
+        .dc-search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+        .dc-filter-select {
+            padding: 10px 14px;
+            border: 1px solid #ccd;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background: #fff;
+            cursor: pointer;
+            min-width: 150px;
+        }
+        .dc-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .dc-btn-primary {
+            background: linear-gradient(135deg, #1565c0, #1976d2);
+            color: #fff;
+        }
+        .dc-btn-primary:hover {
+            background: linear-gradient(135deg, #0d47a1, #1565c0);
+            box-shadow: 0 4px 12px rgba(21, 101, 192, 0.3);
+            transform: translateY(-1px);
+        }
+        .dc-btn-outline {
+            background: #fff;
+            color: #1565c0;
+            border: 1.5px solid #1565c0;
+        }
+        .dc-btn-outline:hover {
+            background: #e3f2fd;
+        }
+
+        /* File Cards Grid */
+        .dc-file-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .dc-file-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 18px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border: 1px solid #eef;
+            transition: all 0.25s;
+            position: relative;
+        }
+        .dc-file-card:hover {
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+            border-color: #bbdefb;
+        }
+        .dc-file-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .dc-file-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        .dc-file-icon.pdf { background: linear-gradient(135deg, #d32f2f, #e53935); }
+        .dc-file-icon.doc { background: linear-gradient(135deg, #1565c0, #1976d2); }
+        .dc-file-icon.xls { background: linear-gradient(135deg, #2e7d32, #43a047); }
+        .dc-file-icon.ppt { background: linear-gradient(135deg, #e65100, #ef6c00); }
+        .dc-file-icon.other { background: linear-gradient(135deg, #546e7a, #78909c); }
+        .dc-file-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #1a237e;
+            word-break: break-word;
+            line-height: 1.3;
+        }
+        .dc-file-desc {
+            font-size: 0.82rem;
+            color: #666;
+            margin-top: 3px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .dc-file-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #f0f0f5;
+            font-size: 0.78rem;
+            color: #888;
+        }
+        .dc-file-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .dc-file-meta-item i {
+            font-size: 0.75rem;
+            color: #aaa;
+        }
+        .dc-file-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .dc-file-btn {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
+        }
+        .dc-file-btn-download {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .dc-file-btn-download:hover {
+            background: #c8e6c9;
+        }
+        .dc-file-btn-delete {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .dc-file-btn-delete:hover {
+            background: #ffcdd2;
+        }
+        .dc-file-btn-rename {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        .dc-file-btn-rename:hover {
+            background: #bbdefb;
+        }
+
+        /* Expiry Badge */
+        .dc-expiry-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+        .dc-expiry-badge.green {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .dc-expiry-badge.yellow {
+            background: #fff8e1;
+            color: #f57f17;
+        }
+        .dc-expiry-badge.red {
+            background: #ffebee;
+            color: #c62828;
+            animation: pulse-badge 1.5s infinite;
+        }
+        @keyframes pulse-badge {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Auto-sent badge */
+        .dc-auto-badge {
+            background: #ede7f6;
+            color: #4a148c;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        /* Upload Modal */
+        .dc-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+        .dc-modal-overlay.active {
+            display: flex;
+        }
+        .dc-modal {
+            background: #fff;
+            border-radius: 14px;
+            width: 90%;
+            max-width: 560px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            animation: modal-in 0.3s ease-out;
+        }
+        @keyframes modal-in {
+            from { opacity: 0; transform: translateY(20px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .dc-modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #eef;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .dc-modal-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: #1a237e;
+        }
+        .dc-modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: #f5f5f5;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .dc-modal-close:hover {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .dc-modal-body {
+            padding: 24px;
+        }
+        .dc-form-group {
+            margin-bottom: 16px;
+        }
+        .dc-form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 6px;
+        }
+        .dc-form-group input,
+        .dc-form-group textarea,
+        .dc-form-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ccd;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+        .dc-form-group input:focus,
+        .dc-form-group textarea:focus,
+        .dc-form-group select:focus {
+            outline: none;
+            border-color: #1565c0;
+            box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.1);
+        }
+
+        /* Drag & Drop Zone */
+        .dc-dropzone {
+            border: 2px dashed #bbdefb;
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8faff;
+        }
+        .dc-dropzone:hover,
+        .dc-dropzone.dragover {
+            border-color: #1565c0;
+            background: #e3f2fd;
+        }
+        .dc-dropzone i {
+            font-size: 2.5rem;
+            color: #90caf9;
+            margin-bottom: 10px;
+        }
+        .dc-dropzone p {
+            font-size: 0.9rem;
+            color: #666;
+            margin: 6px 0 0;
+        }
+        .dc-dropzone .dc-drop-hint {
+            font-size: 0.78rem;
+            color: #999;
+            margin-top: 4px;
+        }
+        .dc-dropzone.has-file {
+            border-color: #2e7d32;
+            background: #e8f5e9;
+        }
+        .dc-dropzone.has-file i {
+            color: #2e7d32;
+        }
+        .dc-selected-file {
+            margin-top: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #2e7d32;
+        }
+
+        /* Progress Bar */
+        .dc-progress-wrap {
+            display: none;
+            margin-top: 16px;
+        }
+        .dc-progress-wrap.active {
+            display: block;
+        }
+        .dc-progress-bar {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .dc-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #1565c0, #42a5f5);
+            border-radius: 4px;
+            transition: width 0.3s;
+            width: 0%;
+        }
+        .dc-progress-text {
+            font-size: 0.78rem;
+            color: #666;
+            margin-top: 4px;
+            text-align: center;
+        }
+
+        /* Empty State */
+        .dc-empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        .dc-empty-state i {
+            font-size: 4rem;
+            color: #ddd;
+            margin-bottom: 16px;
+        }
+        .dc-empty-state h3 {
+            color: #666;
+            margin: 0 0 8px;
+        }
+
+        .dc-notifications {
+            display: none;
+            margin-bottom: 20px;
+            padding: 16px;
+            background: #fff;
+            border: 1px solid #dbe3ed;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(30, 58, 95, 0.08);
+        }
+        .dc-notifications-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        .dc-notifications-header h2 {
+            margin: 0;
+            font-size: 1rem;
+            color: #1e3a5f;
+        }
+        .dc-notifications-list {
+            display: grid;
+            gap: 8px;
+        }
+        .dc-notification {
+            display: block;
+            padding: 10px 12px;
+            border-left: 3px solid #1565c0;
+            background: #f5f9ff;
+            color: #334155;
+            text-decoration: none;
+        }
+        .dc-notification strong {
+            display: block;
+            color: #1e3a5f;
+            font-size: 0.88rem;
+        }
+        .dc-notification span {
+            display: block;
+            margin-top: 3px;
+            font-size: 0.8rem;
+        }
+
+        /* Pagination */
+        .dc-pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+        }
+        .dc-pagination button {
+            padding: 8px 14px;
+            border: 1px solid #ccd;
+            border-radius: 6px;
+            background: #fff;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .dc-pagination button:hover:not(:disabled) {
+            background: #e3f2fd;
+            border-color: #1565c0;
+        }
+        .dc-pagination button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .dc-pagination button.active {
+            background: #1565c0;
+            color: #fff;
+            border-color: #1565c0;
+        }
+        .dc-pagination-info {
+            font-size: 0.82rem;
+            color: #888;
+        }
+
+        /* Toast Notification */
+        .dc-toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 14px 22px;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 0.9rem;
+            font-weight: 500;
+            z-index: 99999;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .dc-toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .dc-toast.success { background: linear-gradient(135deg, #2e7d32, #43a047); }
+        .dc-toast.error { background: linear-gradient(135deg, #c62828, #e53935); }
+        .dc-toast.info { background: linear-gradient(135deg, #1565c0, #1976d2); }
+
+        /* Target branch tags */
+        .dc-branch-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 4px;
+        }
+        .dc-branch-tag {
+            background: #e3f2fd;
+            color: #1565c0;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        /* Page Title */
+        .dc-page-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .dc-page-title h1 {
+            font-size: 1.5rem;
+            color: #1a237e;
+            margin: 0;
+            font-weight: 700;
+        }
+        .dc-page-title .dc-temp-badge {
+            background: #fff3e0;
+            color: #e65100;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div id="sidebar-container"></div>
+
+    <!-- Main Content Wrapper -->
+    <div class="main-content" id="mainContent">
+        <!-- Page Header -->
+        <div class="page-header px-3">
+            <div style="flex: 1; display: flex; align-items: center;">
+                <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+                <h4 class="mb-0 text-white" style="font-weight: 600; font-size: 1.15rem;">
+                    <i class="fas fa-cloud-download-alt me-2"></i>Download Center
+                </h4>
+            </div>
+            <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
+                <div class="dropdown">
+                    <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown" style="cursor: pointer;">
+                        <i class="fas fa-user-circle me-2" style="font-size: 1.25rem;"></i>
+                        <span id="userName" class="me-2 text-white" style="font-weight: 500;">User</span>
+                        <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                        <li><a class="dropdown-item" href="/profile"><i class="fas fa-id-card me-2 text-primary"></i>Profile</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item logout-btn" href="#" id="logoutBtn"><i class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="dc-container">
+            <!-- Unread Documents / Notifications Alert Box -->
+            <div class="dc-notifications" id="dcNotificationsBox" style="display: none;">
+                <div class="dc-notifications-header">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fas fa-bell text-primary" style="font-size: 1.1rem;"></i>
+                        <h2 style="font-size: 1rem; font-weight: 700; color: #1e3a5f; margin: 0;">New Documents & Messages Received</h2>
+                        <span class="badge bg-danger rounded-pill ms-2" id="dcNotificationCountBadge">0</span>
+                    </div>
+                    <button class="btn btn-sm btn-outline-secondary py-1 px-2" id="dcMarkAllReadBtn" style="font-size: 0.8rem;">
+                        <i class="fas fa-check-double me-1"></i> Mark All as Read
+                    </button>
+                </div>
+                <div class="dc-notifications-list" id="dcNotificationsList"></div>
+            </div>
+
+            <!-- Countdown Banner -->
+            <div class="dc-countdown-banner" id="dcCountdownBanner">
+                <div class="dc-countdown-left">
+                    <i class="fas fa-hourglass-half"></i>
+                    <div>
+                        <div class="dc-countdown-label">Next cleanup in</div>
+                    </div>
+                </div>
+                <div class="dc-countdown-timer" id="dcCountdownTimer">--:--:--</div>
+                <div class="dc-countdown-info">All files will be removed automatically</div>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="dc-stats-row" id="dcStatsRow">
+                <div class="dc-stat-card">
+                    <div class="dc-stat-icon files"><i class="fas fa-file-alt"></i></div>
+                    <div>
+                        <div class="dc-stat-value" id="statTotalFiles">0</div>
+                        <div class="dc-stat-label">Total Files</div>
+                    </div>
+                </div>
+                <div class="dc-stat-card">
+                    <div class="dc-stat-icon size"><i class="fas fa-database"></i></div>
+                    <div>
+                        <div class="dc-stat-value" id="statTotalSize">0 MB</div>
+                        <div class="dc-stat-label">Storage Used</div>
+                    </div>
+                </div>
+                <div class="dc-stat-card">
+                    <div class="dc-stat-icon recent"><i class="fas fa-bolt"></i></div>
+                    <div>
+                        <div class="dc-stat-value" id="statRecentUploads">0</div>
+                        <div class="dc-stat-label">Recent Uploads (1h)</div>
+                    </div>
+                </div>
+                <div class="dc-stat-card">
+                    <div class="dc-stat-icon expiry"><i class="fas fa-stopwatch"></i></div>
+                    <div>
+                        <div class="dc-stat-value" id="statNextCleanup">--:--</div>
+                        <div class="dc-stat-label">Next Cleanup</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Toolbar -->
+            <div class="dc-toolbar">
+                <div class="dc-search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="dcSearchInput" placeholder="Search files by name, description, or report...">
+                </div>
+                <select class="dc-filter-select" id="dcCategoryFilter">
+                    <option value="all">All Categories</option>
+                    <option value="report">Reports</option>
+                    <option value="document">Documents</option>
+                    <option value="spreadsheet">Spreadsheets</option>
+                    <option value="presentation">Presentations</option>
+                    <option value="other">Other</option>
+                </select>
+                <select class="dc-filter-select" id="dcBranchFilter">
+                    <option value="">All Branches</option>
+                </select>
+                <button class="dc-btn dc-btn-primary" id="dcUploadBtn" onclick="openUploadModal()">
+                    <i class="fas fa-cloud-upload-alt"></i> Upload File
+                </button>
+            </div>
+
+            <!-- File Grid -->
+            <div class="dc-file-grid" id="dcFileGrid">
+                <!-- Files dynamically inserted here -->
+            </div>
+
+            <!-- Empty State -->
+            <div class="dc-empty-state" id="dcEmptyState" style="display: none;">
+                <i class="fas fa-cloud-download-alt"></i>
+                <h3>No Files Available</h3>
+                <p>Upload a file or send a report to the Download Center to get started.</p>
+            </div>
+
+            <!-- Pagination -->
+            <div class="dc-pagination" id="dcPagination" style="display: none;">
+                <button id="dcPrevPage" onclick="changePage(-1)"><i class="fas fa-chevron-left"></i> Previous</button>
+                <span class="dc-pagination-info" id="dcPaginationInfo">Page 1 of 1</span>
+                <button id="dcNextPage" onclick="changePage(1)">Next <i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Modal -->
+    <div class="dc-modal-overlay" id="dcUploadModal">
+        <div class="dc-modal" style="max-width: 520px;">
+            <div class="dc-modal-header">
+                <h3><i class="fas fa-cloud-upload-alt"></i> Upload Files</h3>
+                <button class="dc-modal-close" onclick="closeUploadModal()">&times;</button>
+            </div>
+            <div class="dc-modal-body">
+                <!-- Dropzone -->
+                <div class="dc-dropzone" id="dcDropzone">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Drag & drop files here, or click to browse</p>
+                    <p class="dc-drop-hint">PDF, DOC, DOCX, XLS, XLSX, CSV, TXT, RTF, PPT, PPTX — Max 30MB each</p>
+                </div>
+                <input type="file" id="dcFileInput" multiple style="display: none;" accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.rtf,.ppt,.pptx">
+
+                <!-- Selected Files List Container -->
+                <div id="dcSelectedFilesContainer" style="display: none; margin-top: 12px; max-height: 150px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; background: #f8fafc;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 6px; border-bottom: 1px solid #e2e8f0; margin-bottom: 6px;">
+                        <span style="font-size: 0.82rem; font-weight: 700; color: #334155;" id="dcSelectedFilesCount">0 Files Selected</span>
+                        <button type="button" onclick="clearAllSelectedFiles()" style="border: none; background: none; color: #ef4444; font-size: 0.78rem; font-weight: 600; cursor: pointer;">Clear All</button>
+                    </div>
+                    <div id="dcSelectedFilesList" style="display: flex; flex-direction: column; gap: 6px;"></div>
+                </div>
+
+                <!-- Form Fields -->
+                <div class="dc-form-group" style="margin-top: 16px;">
+                    <label for="dcFileTitle">Title (Optional)</label>
+                    <input type="text" id="dcFileTitle" placeholder="Custom title (or keep original file names)" maxlength="200">
+                    <div style="font-size: 0.75rem; color: #64748b; margin-top: 4px;">Leave blank to use file name(s), or enter a title prefix.</div>
+                </div>
+                <div class="dc-form-group">
+                    <label for="dcFileDesc">Description (Optional)</label>
+                    <textarea id="dcFileDesc" rows="2" placeholder="Optional description" maxlength="500"></textarea>
+                </div>
+
+                <!-- Branch Selection -->
+                <div style="margin-top: 16px; margin-bottom: 16px;">
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 8px;">Who can view these files?</label>
+                    
+                    <label style="display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer; margin-bottom: 8px; background: #f8fafc;">
+                        <input type="radio" name="dcUploadAudience" id="dcUploadAudienceAll" value="all" checked style="margin-top: 3px; cursor: pointer;" onchange="toggleUploadBranchSelect()" />
+                        <div>
+                            <div style="font-weight: 600; color: #1e293b; font-size: 0.9rem;">🌐 All Branches</div>
+                            <div style="font-size: 0.78rem; color: #64748b;">Shared with all branches in the company.</div>
+                        </div>
+                    </label>
+
+                    <label style="display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; cursor: pointer; background: #f8fafc;">
+                        <input type="radio" name="dcUploadAudience" id="dcUploadAudienceSpecific" value="specific" style="margin-top: 3px; cursor: pointer;" onchange="toggleUploadBranchSelect()" />
+                        <div>
+                            <div style="font-weight: 600; color: #1e293b; font-size: 0.9rem;">🏢 Specific Branch</div>
+                            <div style="font-size: 0.78rem; color: #64748b;">Only users attached to this branch can view and download.</div>
+                        </div>
+                    </label>
+
+                    <div id="dcUploadBranchDropdownWrap" style="display: none; margin-top: 10px; padding-left: 26px;">
+                        <select id="dcUploadBranchSelect" style="width: 100%; box-sizing: border-box; padding: 8px 12px; font-size: 0.88rem; border: 1px solid #3b82f6; border-radius: 6px; background: #fff; outline: none;">
+                            <option value="">-- Select Target Branch --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Instant Notification Banner -->
+                <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 10px 12px; font-size: 0.8rem; color: #1e40af; display: flex; align-items: center; gap: 8px; margin-bottom: 14px;">
+                    <i class="fas fa-bell" style="color: #2563eb; font-size: 0.95rem;"></i>
+                    <span>Users of the selected branch will automatically receive an instant notification on their screen.</span>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="dc-progress-wrap" id="dcProgressWrap">
+                    <div class="dc-progress-bar">
+                        <div class="dc-progress-fill" id="dcProgressFill"></div>
+                    </div>
+                    <div class="dc-progress-text" id="dcProgressText">Uploading... 0%</div>
+                </div>
+
+                <!-- Submit Button -->
+                <button class="dc-btn dc-btn-primary" id="dcSubmitUpload" onclick="submitUpload()" style="width: 100%; margin-top: 16px; justify-content: center;">
+                    <i class="fas fa-cloud-upload-alt"></i> Upload Files
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="dc-toast" id="dcToast"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244437"></script>
+    <script src="/js/download-center.js"></script>
+</body>
+</html>

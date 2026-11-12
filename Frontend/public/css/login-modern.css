@@ -1,0 +1,1421 @@
+/**
+ * D.Watson BAS Software - Modern 3D Animated Login Stylesheet
+ * Strictly scoped under .bas-modern-login to prevent any global bleeding.
+ * Supports Dark Mode (default) & Light Mode with instant toggle.
+ * Special designer credit for Bilal Shah.
+ */
+
+/* ==========================================================================
+   Design Tokens & CSS Variables (Scoped to .bas-modern-login)
+   ========================================================================== */
+.bas-modern-login {
+  --bas-primary: #0066ff;
+  --bas-primary-rgb: 0, 102, 255;
+  --bas-electric: #0052d4;
+  --bas-cyan: #00d4ff;
+  --bas-cyan-rgb: 0, 212, 255;
+  --bas-accent: #4364f7;
+  --bas-glow: rgba(0, 212, 255, 0.35);
+
+  --bas-font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --bas-radius-sm: 8px;
+  --bas-radius-md: 14px;
+  --bas-radius-lg: 22px;
+  --bas-radius-xl: 30px;
+  --bas-transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  --bas-bounce: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ----------------- DARK THEME (Default) ----------------- */
+.bas-modern-login.theme-dark {
+  --bas-bg-base: #060b18;
+  --bas-bg-gradient: radial-gradient(circle at 20% 30%, #0d1e44 0%, #080f24 45%, #050814 100%);
+  --bas-card-bg: rgba(10, 21, 46, 0.72);
+  --bas-card-border: rgba(0, 212, 255, 0.18);
+  --bas-card-glow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(0, 102, 255, 0.15);
+  --bas-text-main: #f0f6fc;
+  --bas-text-muted: #8b9bb4;
+  --bas-text-sub: #5c7092;
+  --bas-input-bg: rgba(6, 14, 32, 0.65);
+  --bas-input-border: rgba(67, 100, 247, 0.28);
+  --bas-input-focus-border: #00d4ff;
+  --bas-input-focus-glow: 0 0 0 3px rgba(0, 212, 255, 0.22), 0 0 20px rgba(0, 102, 255, 0.35);
+  --bas-tile-bg: rgba(14, 27, 58, 0.65);
+  --bas-tile-border: rgba(0, 212, 255, 0.25);
+  --bas-podium-top: #0e224e;
+  --bas-podium-side: #081533;
+  --bas-podium-glow: rgba(0, 212, 255, 0.45);
+  --bas-screen-bg: #071126;
+  --bas-toggle-bg: rgba(14, 26, 52, 0.7);
+  --bas-toggle-active: #0066ff;
+  --bas-toggle-text: #ffffff;
+  --bas-alert-bg: rgba(239, 68, 68, 0.15);
+  --bas-alert-border: rgba(239, 68, 68, 0.4);
+  --bas-alert-text: #fca5a5;
+}
+
+/* ----------------- LIGHT THEME ----------------- */
+.bas-modern-login.theme-light {
+  --bas-bg-base: #f1f5fb;
+  --bas-bg-gradient: radial-gradient(circle at 20% 30%, #e2eefe 0%, #edf3fc 45%, #e6edf7 100%);
+  --bas-card-bg: rgba(255, 255, 255, 0.84);
+  --bas-card-border: rgba(0, 102, 255, 0.2);
+  --bas-card-glow: 0 25px 60px rgba(16, 42, 86, 0.12), 0 4px 16px rgba(0, 102, 255, 0.08);
+  --bas-text-main: #0b192c;
+  --bas-text-muted: #475a77;
+  --bas-text-sub: #788ca5;
+  --bas-input-bg: rgba(245, 248, 253, 0.9);
+  --bas-input-border: rgba(0, 102, 255, 0.22);
+  --bas-input-focus-border: #0066ff;
+  --bas-input-focus-glow: 0 0 0 3px rgba(0, 102, 255, 0.16), 0 0 15px rgba(0, 102, 255, 0.2);
+  --bas-tile-bg: rgba(255, 255, 255, 0.88);
+  --bas-tile-border: rgba(0, 102, 255, 0.25);
+  --bas-podium-top: #dae8fc;
+  --bas-podium-side: #bfd5f5;
+  --bas-podium-glow: rgba(0, 102, 255, 0.25);
+  --bas-screen-bg: #111d38;
+  --bas-toggle-bg: rgba(225, 235, 248, 0.9);
+  --bas-toggle-active: #ffffff;
+  --bas-toggle-text: #0b192c;
+  --bas-alert-bg: rgba(239, 68, 68, 0.1);
+  --bas-alert-border: rgba(239, 68, 68, 0.35);
+  --bas-alert-text: #b91c1c;
+}
+
+/* ==========================================================================
+   Root Layout & Background
+   ========================================================================== */
+.bas-modern-login {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--bas-bg-base);
+  background-image: var(--bas-bg-gradient);
+  font-family: var(--bas-font-main);
+  color: var(--bas-text-main);
+  overflow-x: hidden;
+  box-sizing: border-box;
+  transition: background 0.4s ease, color 0.3s ease;
+}
+
+.bas-modern-login *,
+.bas-modern-login *::before,
+.bas-modern-login *::after {
+  box-sizing: border-box;
+}
+
+/* Ambient Radial Glow Lighting */
+.bas-modern-login .bas-bg-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
+  contain: strict;
+  transform: translateZ(0);
+}
+
+.bas-modern-login .bas-bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(45px);
+  opacity: 0.55;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  pointer-events: none;
+}
+
+.bas-modern-login .bas-bg-orb-1 {
+  width: 650px;
+  height: 650px;
+  background: radial-gradient(circle, rgba(0, 102, 255, 0.5) 0%, rgba(0, 82, 212, 0) 70%);
+  top: -150px;
+  left: -100px;
+  animation: basOrbFloat1 18s ease-in-out infinite alternate;
+}
+
+.bas-modern-login .bas-bg-orb-2 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(0, 212, 255, 0.35) 0%, rgba(0, 212, 255, 0) 70%);
+  bottom: -100px;
+  left: 30%;
+  animation: basOrbFloat2 15s ease-in-out infinite alternate;
+}
+
+.bas-modern-login .bas-bg-orb-3 {
+  width: 550px;
+  height: 550px;
+  background: radial-gradient(circle, rgba(67, 100, 247, 0.35) 0%, rgba(67, 100, 247, 0) 70%);
+  top: 20%;
+  right: -150px;
+  animation: basOrbFloat3 22s ease-in-out infinite alternate;
+}
+
+/* Interactive Cursor Glow */
+.bas-modern-login .bas-cursor-glow {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 212, 255, 0.14) 0%, rgba(0, 102, 255, 0) 65%);
+  filter: blur(50px);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.3s ease;
+  z-index: 1;
+  opacity: 0;
+}
+
+.bas-modern-login.theme-light .bas-cursor-glow {
+  background: radial-gradient(circle, rgba(0, 102, 255, 0.09) 0%, rgba(0, 102, 255, 0) 65%);
+}
+
+/* Cyber Grid Horizon Lines in Background */
+.bas-modern-login .bas-bg-grid {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 45%;
+  background-image: 
+    linear-gradient(to right, rgba(0, 102, 255, 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 102, 255, 0.07) 1px, transparent 1px);
+  background-size: 50px 50px;
+  transform: perspective(600px) rotateX(65deg) translateY(60px);
+  transform-origin: bottom center;
+  mask-image: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 85%);
+  -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 85%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ==========================================================================
+   Header / Top Navigation Bar
+   ========================================================================== */
+.bas-modern-login .bas-login-topbar {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 48px 0 48px;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.bas-modern-login .bas-brand-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.bas-modern-login .bas-brand-logo-mark {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0052d4 0%, #4364f7 50%, #00d4ff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 18px rgba(0, 102, 255, 0.45);
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.bas-modern-login .bas-brand-logo-mark::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.4) 50%, transparent 60%);
+  animation: basLogoShine 4s infinite;
+}
+
+.bas-modern-login .bas-brand-logo-mark svg {
+  width: 24px;
+  height: 24px;
+  fill: #ffffff;
+}
+
+.bas-modern-login .bas-brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.bas-modern-login .bas-brand-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--bas-text-main);
+}
+
+.bas-modern-login .bas-brand-subtitle {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #00d4ff;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.bas-modern-login.theme-light .bas-brand-subtitle {
+  color: #0052d4;
+}
+
+/* Theme Toggle Button */
+.bas-modern-login .bas-theme-toggle {
+  display: flex;
+  align-items: center;
+  background: var(--bas-toggle-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--bas-card-border);
+  border-radius: 30px;
+  padding: 4px;
+  cursor: pointer;
+  position: relative;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  transition: var(--bas-transition);
+}
+
+.bas-modern-login .bas-theme-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: none;
+  background: transparent;
+  color: var(--bas-text-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--bas-transition);
+  outline: none;
+}
+
+.bas-modern-login .bas-theme-toggle-btn.active {
+  background: var(--bas-toggle-active);
+  color: var(--bas-toggle-text);
+  box-shadow: 0 2px 10px rgba(0, 102, 255, 0.3);
+}
+
+.bas-modern-login .bas-theme-toggle-btn i {
+  font-size: 0.85rem;
+}
+
+/* ==========================================================================
+   Main Content Layout (Hero + Card)
+   ========================================================================== */
+.bas-modern-login .bas-login-container {
+  position: relative;
+  z-index: 5;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 24px 48px;
+  gap: 60px;
+}
+
+/* ==========================================================================
+   Left Column: 3D Animated Hero Experience
+   ========================================================================== */
+.bas-modern-login .bas-login-hero {
+  flex: 1.15;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  max-width: 660px;
+}
+
+/* 3D Perspective Stage */
+.bas-modern-login .bas-3d-stage {
+  perspective: 1200px;
+  transform-style: preserve-3d;
+  width: 100%;
+  height: 420px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.bas-modern-login .bas-3d-scene {
+  position: relative;
+  width: 480px;
+  height: 380px;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* 1. The Glowing Podium */
+.bas-modern-login .bas-3d-podium {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) rotateX(60deg);
+  width: 380px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, var(--bas-podium-top) 0%, var(--bas-podium-side) 75%);
+  border: 2px solid var(--bas-cyan);
+  box-shadow: 
+    0 0 35px var(--bas-podium-glow),
+    inset 0 0 25px rgba(0, 212, 255, 0.35);
+  animation: basPodiumPulse 5s ease-in-out infinite alternate;
+  transform-style: preserve-3d;
+}
+
+.bas-modern-login .bas-podium-ring {
+  position: absolute;
+  inset: -14px;
+  border-radius: 50%;
+  border: 1px dashed rgba(0, 212, 255, 0.5);
+  animation: basRingRotate 25s linear infinite;
+}
+
+.bas-modern-login .bas-podium-badge {
+  position: absolute;
+  bottom: -22px;
+  left: 50%;
+  transform: translateX(-50%) rotateX(-60deg);
+  background: linear-gradient(135deg, #0052d4, #00d4ff);
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  padding: 4px 22px;
+  border-radius: 12px;
+  box-shadow: 0 4px 18px rgba(0, 212, 255, 0.5);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  z-index: 5;
+}
+
+/* 2. Central Terminal / Dashboard Display */
+.bas-modern-login .bas-3d-terminal {
+  position: absolute;
+  top: 40px;
+  left: 50%;
+  width: 320px;
+  height: 215px;
+  transform: translateX(-50%) translateZ(40px) rotateX(8deg);
+  background: var(--bas-screen-bg);
+  border-radius: 16px;
+  border: 2px solid rgba(0, 212, 255, 0.4);
+  box-shadow: 
+    0 20px 50px rgba(0, 0, 0, 0.6),
+    0 0 35px rgba(0, 102, 255, 0.35),
+    inset 0 0 20px rgba(0, 212, 255, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: basTerminalFloat 6s ease-in-out infinite alternate;
+  transform-style: preserve-3d;
+}
+
+.bas-modern-login .bas-terminal-topbar {
+  height: 24px;
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  gap: 6px;
+}
+
+.bas-modern-login .bas-terminal-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+.bas-modern-login .bas-terminal-dot.r { background: #ff5f56; }
+.bas-modern-login .bas-terminal-dot.y { background: #ffbd2e; }
+.bas-modern-login .bas-terminal-dot.g { background: #27c93f; }
+
+.bas-modern-login .bas-terminal-title {
+  margin-left: 6px;
+  font-size: 0.65rem;
+  color: #7b94b8;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.bas-modern-login .bas-terminal-screen {
+  flex: 1;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: linear-gradient(180deg, rgba(7, 17, 38, 0.9) 0%, rgba(12, 26, 56, 0.95) 100%);
+}
+
+.bas-modern-login .bas-screen-metrics {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.bas-modern-login .bas-mini-stat {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(0, 212, 255, 0.15);
+  border-radius: 8px;
+  padding: 5px 8px;
+}
+
+.bas-modern-login .bas-mini-stat-label {
+  font-size: 0.58rem;
+  color: #8da4c4;
+  text-transform: uppercase;
+}
+
+.bas-modern-login .bas-mini-stat-val {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #00d4ff;
+}
+
+/* Animated SVG Vector Chart inside terminal */
+.bas-modern-login .bas-terminal-chart {
+  width: 100%;
+  height: 70px;
+  margin: 6px 0;
+}
+
+.bas-modern-login .bas-chart-line {
+  fill: none;
+  stroke: url(#basChartGrad);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 400;
+  stroke-dashoffset: 400;
+  animation: basChartDraw 3.5s ease-in-out infinite alternate;
+}
+
+.bas-modern-login .bas-chart-area {
+  fill: url(#basChartFill);
+}
+
+.bas-modern-login .bas-terminal-ticker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.62rem;
+  color: #728aa8;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding-top: 5px;
+}
+
+.bas-modern-login .bas-ticker-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(0, 212, 255, 0.15);
+  color: #00d4ff;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.bas-modern-login .bas-ticker-dot {
+  width: 5px;
+  height: 5px;
+  background: #00d4ff;
+  border-radius: 50%;
+  animation: basDotBlink 1.5s infinite;
+}
+
+/* 3. Floating 3D Holographic Badges & Tiles */
+.bas-modern-login .bas-floating-tile {
+  position: absolute;
+  background: var(--bas-tile-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--bas-tile-border);
+  border-radius: 16px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 
+    0 12px 30px rgba(0, 0, 0, 0.35),
+    0 0 20px rgba(0, 102, 255, 0.2);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* Tile 1: Top Left - Revenue Growth Card */
+.bas-modern-login .bas-tile-1 {
+  top: 15px;
+  left: 0;
+  transform: translateZ(80px);
+  animation: basTileFloat1 7s ease-in-out infinite alternate;
+}
+
+/* Tile 2: Top Right - 3D Isometric Inventory Cube */
+.bas-modern-login .bas-tile-2 {
+  top: 25px;
+  right: 15px;
+  transform: translateZ(65px);
+  padding: 14px;
+  animation: basTileFloat2 8.5s ease-in-out infinite alternate;
+}
+
+/* Tile 3: Middle Left - Dual Biometrics Verified */
+.bas-modern-login .bas-tile-3 {
+  bottom: 95px;
+  left: -20px;
+  transform: translateZ(95px);
+  animation: basTileFloat3 6.8s ease-in-out infinite alternate;
+}
+
+/* Tile 4: Bottom Right - Live POS Sync Badge */
+.bas-modern-login .bas-tile-4 {
+  bottom: 80px;
+  right: 0px;
+  transform: translateZ(75px);
+  animation: basTileFloat4 7.6s ease-in-out infinite alternate;
+}
+
+.bas-modern-login .bas-tile-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(0, 102, 255, 0.3) 0%, rgba(0, 212, 255, 0.4) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #00d4ff;
+  font-size: 1.1rem;
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  flex-shrink: 0;
+}
+
+.bas-modern-login.theme-light .bas-tile-icon {
+  color: #0052d4;
+  background: linear-gradient(135deg, rgba(0, 102, 255, 0.15) 0%, rgba(0, 212, 255, 0.2) 100%);
+}
+
+.bas-modern-login .bas-tile-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.bas-modern-login .bas-tile-val {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--bas-text-main);
+  line-height: 1.2;
+}
+
+.bas-modern-login .bas-tile-lbl {
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--bas-text-muted);
+}
+
+/* Isometric 3D Cube Graphic */
+.bas-modern-login .bas-iso-cube {
+  width: 34px;
+  height: 34px;
+  position: relative;
+  transform-style: preserve-3d;
+  animation: basCubeSpin 14s linear infinite;
+}
+
+.bas-modern-login .bas-cube-face {
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  background: rgba(0, 102, 255, 0.4);
+  border: 1.5px solid #00d4ff;
+  border-radius: 4px;
+  box-shadow: inset 0 0 10px rgba(0, 212, 255, 0.3);
+}
+
+.bas-modern-login .bas-cube-face.f { transform: translateZ(17px); }
+.bas-modern-login .bas-cube-face.b { transform: rotateY(180deg) translateZ(17px); }
+.bas-modern-login .bas-cube-face.r { transform: rotateY(90deg) translateZ(17px); }
+.bas-modern-login .bas-cube-face.l { transform: rotateY(-90deg) translateZ(17px); }
+.bas-modern-login .bas-cube-face.t { transform: rotateX(90deg) translateZ(17px); }
+.bas-modern-login .bas-cube-face.bt { transform: rotateX(-90deg) translateZ(17px); }
+
+/* Hero Text */
+.bas-modern-login .bas-login-hero-text {
+  margin-top: 10px;
+}
+
+.bas-modern-login .bas-hero-heading {
+  font-size: 2.35rem;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+  color: var(--bas-text-main);
+  margin: 0 0 14px 0;
+}
+
+.bas-modern-login .bas-gradient-text {
+  background: linear-gradient(135deg, #00d4ff 0%, #4364f7 60%, #0052d4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+.bas-modern-login.theme-light .bas-gradient-text {
+  background: linear-gradient(135deg, #0052d4 0%, #0066ff 60%, #00a8ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.bas-modern-login .bas-hero-desc {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--bas-text-muted);
+  margin: 0;
+  max-width: 520px;
+}
+
+/* ==========================================================================
+   Right Column: Premium Glassmorphism Login Card
+   ========================================================================== */
+.bas-modern-login .bas-login-card-wrapper {
+  flex: 0.95;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  max-width: 470px;
+  width: 100%;
+}
+
+.bas-modern-login .bas-login-card {
+  width: 100%;
+  background: var(--bas-card-bg);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid var(--bas-card-border);
+  border-radius: var(--bas-radius-xl);
+  box-shadow: var(--bas-card-glow);
+  padding: 40px 36px 32px 36px;
+  position: relative;
+  transition: var(--bas-transition);
+  animation: basCardEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+/* Neon Top Border Accent */
+.bas-modern-login .bas-login-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 20%;
+  right: 20%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, #00d4ff 50%, transparent 100%);
+  border-radius: 2px;
+}
+
+/* Card Header */
+.bas-modern-login .bas-card-header {
+  text-align: center;
+  margin-bottom: 26px;
+}
+
+.bas-modern-login .bas-card-brand-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(0, 102, 255, 0.12);
+  border: 1px solid rgba(0, 212, 255, 0.25);
+  border-radius: 30px;
+  padding: 5px 16px 5px 6px;
+  margin-bottom: 14px;
+}
+
+.bas-modern-login .bas-card-brand-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0052d4, #00d4ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bas-modern-login .bas-card-brand-icon svg {
+  width: 15px;
+  height: 15px;
+  fill: #ffffff;
+}
+
+.bas-modern-login .bas-card-brand-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--bas-text-main);
+}
+
+.bas-modern-login .bas-card-brand-label span {
+  color: #00d4ff;
+  font-weight: 500;
+}
+
+.bas-modern-login.theme-light .bas-card-brand-label span {
+  color: #0052d4;
+}
+
+.bas-modern-login .bas-card-title {
+  font-size: 1.85rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 0 0 6px 0;
+  color: var(--bas-text-main);
+}
+
+.bas-modern-login .bas-card-subtitle {
+  font-size: 0.92rem;
+  color: var(--bas-text-muted);
+  margin: 0;
+}
+
+/* Alert Box */
+.bas-modern-login .bas-login-alert {
+  display: none;
+  background: var(--bas-alert-bg);
+  border: 1px solid var(--bas-alert-border);
+  color: var(--bas-alert-text);
+  border-radius: var(--bas-radius-md);
+  padding: 12px 16px;
+  font-size: 0.88rem;
+  margin-bottom: 20px;
+  align-items: center;
+  gap: 10px;
+  animation: basAlertShake 0.4s ease;
+}
+
+.bas-modern-login .bas-login-alert.show {
+  display: flex;
+}
+
+.bas-modern-login .bas-login-alert.info {
+  background: rgba(0, 102, 255, 0.12);
+  border-color: rgba(0, 212, 255, 0.35);
+  color: #38bdf8;
+}
+
+.bas-modern-login.theme-light .bas-login-alert.info {
+  background: rgba(0, 102, 255, 0.08);
+  border-color: rgba(0, 102, 255, 0.3);
+  color: #0369a1;
+}
+
+.bas-modern-login .bas-login-alert.warning {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.4);
+  color: #fcd34d;
+}
+
+.bas-modern-login.theme-light .bas-login-alert.warning {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.35);
+  color: #b45309;
+}
+
+/* Input Fields */
+.bas-modern-login .bas-form-group {
+  margin-bottom: 20px;
+}
+
+.bas-modern-login .bas-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.bas-modern-login .bas-input-icon {
+  position: absolute;
+  left: 16px;
+  color: var(--bas-text-sub);
+  font-size: 1rem;
+  pointer-events: none;
+  transition: var(--bas-transition);
+  z-index: 2;
+}
+
+.bas-modern-login .bas-login-input {
+  width: 100%;
+  height: 52px;
+  background: var(--bas-input-bg);
+  border: 1px solid var(--bas-input-border);
+  border-radius: var(--bas-radius-md);
+  padding: 0 46px 0 46px;
+  color: var(--bas-text-main);
+  font-family: var(--bas-font-main);
+  font-size: 0.95rem;
+  font-weight: 500;
+  outline: none;
+  transition: var(--bas-transition);
+}
+
+.bas-modern-login .bas-login-input::placeholder {
+  color: var(--bas-text-sub);
+  opacity: 0.85;
+}
+
+.bas-modern-login .bas-login-input:focus {
+  border-color: var(--bas-input-focus-border);
+  box-shadow: var(--bas-input-focus-glow);
+  background: var(--bas-card-bg);
+}
+
+.bas-modern-login .bas-input-wrapper:focus-within .bas-input-icon {
+  color: #00d4ff;
+}
+
+.bas-modern-login.theme-light .bas-input-wrapper:focus-within .bas-input-icon {
+  color: #0066ff;
+}
+
+/* Password Toggle Visibility Button */
+.bas-modern-login .bas-pwd-toggle-btn {
+  position: absolute;
+  right: 14px;
+  background: transparent;
+  border: none;
+  color: var(--bas-text-sub);
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  border-radius: 6px;
+  transition: var(--bas-transition);
+  outline: none;
+}
+
+.bas-modern-login .bas-pwd-toggle-btn:hover {
+  color: var(--bas-text-main);
+}
+
+/* Options Row (Remember Me & Forgot Password) */
+.bas-modern-login .bas-form-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+  font-size: 0.88rem;
+}
+
+.bas-modern-login .bas-remember-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+  user-select: none;
+  color: var(--bas-text-muted);
+  font-weight: 500;
+}
+
+.bas-modern-login .bas-remember-wrapper input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.bas-modern-login .bas-checkbox-custom {
+  width: 19px;
+  height: 19px;
+  border: 1.5px solid var(--bas-input-border);
+  border-radius: 6px;
+  background: var(--bas-input-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--bas-transition);
+  flex-shrink: 0;
+}
+
+.bas-modern-login .bas-remember-wrapper:hover .bas-checkbox-custom {
+  border-color: #00d4ff;
+}
+
+.bas-modern-login .bas-remember-wrapper input[type="checkbox"]:checked + .bas-checkbox-custom {
+  background: linear-gradient(135deg, #0052d4, #00d4ff);
+  border-color: #00d4ff;
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.4);
+}
+
+.bas-modern-login .bas-checkbox-custom svg {
+  width: 11px;
+  height: 11px;
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: var(--bas-bounce);
+}
+
+.bas-modern-login .bas-remember-wrapper input[type="checkbox"]:checked + .bas-checkbox-custom svg {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.bas-modern-login .bas-forgot-link {
+  color: #00d4ff;
+  text-decoration: none;
+  font-weight: 600;
+  transition: var(--bas-transition);
+}
+
+.bas-modern-login.theme-light .bas-forgot-link {
+  color: #0066ff;
+}
+
+.bas-modern-login .bas-forgot-link:hover {
+  text-decoration: underline;
+  opacity: 0.9;
+}
+
+/* Primary Sign In Button */
+.bas-modern-login .bas-login-btn {
+  width: 100%;
+  height: 52px;
+  border: none;
+  border-radius: var(--bas-radius-md);
+  background: linear-gradient(135deg, #0052d4 0%, #0066ff 50%, #00d4ff 100%);
+  background-size: 200% 100%;
+  color: #ffffff;
+  font-family: var(--bas-font-main);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 8px 24px rgba(0, 102, 255, 0.45);
+  transition: var(--bas-transition);
+  position: relative;
+  overflow: hidden;
+  outline: none;
+}
+
+.bas-modern-login .bas-login-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.25) 50%, transparent 100%);
+  transition: 0.6s ease;
+}
+
+.bas-modern-login .bas-login-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0, 102, 255, 0.6), 0 0 20px rgba(0, 212, 255, 0.4);
+  background-position: 100% 0;
+}
+
+.bas-modern-login .bas-login-btn:hover::before {
+  left: 100%;
+}
+
+.bas-modern-login .bas-login-btn:active {
+  transform: translateY(0);
+}
+
+.bas-modern-login .bas-login-btn:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.bas-modern-login .bas-btn-arrow {
+  transition: transform 0.25s ease;
+}
+
+.bas-modern-login .bas-login-btn:hover .bas-btn-arrow {
+  transform: translateX(4px);
+}
+
+/* Spinner during authentication */
+.bas-modern-login .bas-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: basSpin 0.7s linear infinite;
+  display: inline-block;
+}
+
+/* Trust Indicators */
+.bas-modern-login .bas-trust-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid var(--bas-input-border);
+}
+
+.bas-modern-login .bas-trust-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.78rem;
+  color: var(--bas-text-sub);
+  font-weight: 600;
+}
+
+.bas-modern-login .bas-trust-item i {
+  color: #00d4ff;
+  font-size: 0.9rem;
+}
+
+.bas-modern-login.theme-light .bas-trust-item i {
+  color: #0066ff;
+}
+
+/* Designer Credit & Branding */
+.bas-modern-login .bas-designer-credit {
+  margin-top: 18px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.bas-modern-login .bas-designer-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  background: rgba(0, 102, 255, 0.08);
+  border: 1px solid rgba(0, 212, 255, 0.22);
+  color: var(--bas-text-muted);
+  font-size: 0.82rem;
+  font-weight: 500;
+  transition: var(--bas-transition);
+}
+
+.bas-modern-login .bas-designer-badge strong {
+  color: #00d4ff;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.bas-modern-login.theme-light .bas-designer-badge strong {
+  color: #0052d4;
+}
+
+.bas-modern-login .bas-credit-divider {
+  color: var(--bas-text-sub);
+  opacity: 0.6;
+}
+
+.bas-modern-login .bas-designer-phone {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--bas-text-main);
+  text-decoration: none;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 12px;
+  background: rgba(0, 212, 255, 0.12);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  transition: var(--bas-transition);
+}
+
+.bas-modern-login.theme-light .bas-designer-phone {
+  background: rgba(0, 102, 255, 0.1);
+  border-color: rgba(0, 102, 255, 0.25);
+  color: #0052d4;
+}
+
+.bas-modern-login .bas-designer-phone:hover {
+  background: linear-gradient(135deg, #0052d4, #00d4ff);
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(0, 212, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+.bas-modern-login .bas-designer-phone i {
+  font-size: 0.75rem;
+  color: #00d4ff;
+}
+
+.bas-modern-login .bas-designer-phone:hover i {
+  color: #ffffff;
+}
+
+.bas-modern-login.theme-light .bas-designer-phone i {
+  color: #0052d4;
+}
+
+.bas-modern-login .bas-company-sub {
+  font-size: 0.74rem;
+  color: var(--bas-text-sub);
+  letter-spacing: 0.02em;
+}
+
+/* ==========================================================================
+   Keyframe Animations
+   ========================================================================== */
+@keyframes basOrbFloat1 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(60px, 80px) scale(1.1); }
+  100% { transform: translate(-40px, 40px) scale(0.95); }
+}
+
+@keyframes basOrbFloat2 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-80px, -60px) scale(1.15); }
+  100% { transform: translate(50px, -30px) scale(0.9); }
+}
+
+@keyframes basOrbFloat3 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-50px, 50px) scale(1.08); }
+  100% { transform: translate(40px, -60px) scale(0.92); }
+}
+
+@keyframes basPodiumPulse {
+  0% { box-shadow: 0 0 25px var(--bas-podium-glow), inset 0 0 20px rgba(0, 212, 255, 0.25); }
+  100% { box-shadow: 0 0 50px var(--bas-podium-glow), inset 0 0 35px rgba(0, 212, 255, 0.45); }
+}
+
+@keyframes basRingRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes basTerminalFloat {
+  0% { transform: translateX(-50%) translateZ(40px) rotateX(8deg) translateY(0); }
+  100% { transform: translateX(-50%) translateZ(40px) rotateX(8deg) translateY(-14px); }
+}
+
+@keyframes basTileFloat1 {
+  0% { transform: translateZ(80px) translateY(0) rotate(0deg); }
+  100% { transform: translateZ(80px) translateY(-12px) rotate(1.5deg); }
+}
+
+@keyframes basTileFloat2 {
+  0% { transform: translateZ(65px) translateY(0) rotate(0deg); }
+  100% { transform: translateZ(65px) translateY(-15px) rotate(-2deg); }
+}
+
+@keyframes basTileFloat3 {
+  0% { transform: translateZ(95px) translateY(0); }
+  100% { transform: translateZ(95px) translateY(-10px); }
+}
+
+@keyframes basTileFloat4 {
+  0% { transform: translateZ(75px) translateY(0); }
+  100% { transform: translateZ(75px) translateY(-13px); }
+}
+
+@keyframes basCubeSpin {
+  0% { transform: rotateX(15deg) rotateY(0deg); }
+  100% { transform: rotateX(15deg) rotateY(360deg); }
+}
+
+@keyframes basChartDraw {
+  0% { stroke-dashoffset: 400; }
+  100% { stroke-dashoffset: 0; }
+}
+
+@keyframes basDotBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+@keyframes basLogoShine {
+  0% { transform: translate(-100%, -100%) rotate(45deg); }
+  25%, 100% { transform: translate(100%, 100%) rotate(45deg); }
+}
+
+@keyframes basCardEntrance {
+  0% { opacity: 0; transform: translateY(30px) scale(0.96); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes basAlertShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+@keyframes basSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   Responsive Breakpoints
+   ========================================================================== */
+@media (max-width: 1100px) {
+  .bas-modern-login .bas-login-topbar {
+    padding: 20px 28px 0 28px;
+  }
+
+  .bas-modern-login .bas-login-container {
+    padding: 20px 28px;
+    gap: 36px;
+  }
+
+  .bas-modern-login .bas-hero-heading {
+    font-size: 2rem;
+  }
+
+  .bas-modern-login .bas-3d-stage {
+    height: 360px;
+  }
+
+  .bas-modern-login .bas-3d-scene {
+    transform: scale(0.85);
+  }
+}
+
+@media (max-width: 900px) {
+  .bas-modern-login .bas-login-container {
+    flex-direction: column;
+    padding: 20px 20px 40px 20px;
+    gap: 24px;
+  }
+
+  .bas-modern-login .bas-login-hero {
+    max-width: 100%;
+    align-items: center;
+    text-align: center;
+  }
+
+  .bas-modern-login .bas-3d-stage {
+    height: 280px;
+    margin-bottom: 5px;
+  }
+
+  .bas-modern-login .bas-3d-scene {
+    transform: scale(0.7);
+  }
+
+  .bas-modern-login .bas-hero-heading {
+    font-size: 1.7rem;
+  }
+
+  .bas-modern-login .bas-hero-desc {
+    font-size: 0.95rem;
+  }
+
+  .bas-modern-login .bas-login-card-wrapper {
+    max-width: 440px;
+  }
+
+  .bas-modern-login .bas-login-card {
+    padding: 34px 26px;
+  }
+}
+
+@media (max-width: 480px) {
+  .bas-modern-login .bas-login-topbar {
+    padding: 16px 18px 0 18px;
+  }
+
+  .bas-modern-login .bas-brand-title {
+    font-size: 1.15rem;
+  }
+
+  .bas-modern-login .bas-brand-subtitle {
+    font-size: 0.72rem;
+  }
+
+  .bas-modern-login .bas-theme-toggle-btn span {
+    display: none;
+  }
+
+  .bas-modern-login .bas-theme-toggle-btn {
+    padding: 6px 10px;
+  }
+
+  /* Optimize 3D stage on very small mobile screens */
+  .bas-modern-login .bas-3d-stage {
+    display: none;
+  }
+
+  .bas-modern-login .bas-login-hero {
+    margin-bottom: 8px;
+  }
+
+  .bas-modern-login .bas-hero-heading {
+    font-size: 1.45rem;
+  }
+
+  .bas-modern-login .bas-hero-desc {
+    display: none;
+  }
+
+  .bas-modern-login .bas-login-card {
+    padding: 28px 20px;
+    border-radius: var(--bas-radius-lg);
+  }
+
+  .bas-modern-login .bas-card-title {
+    font-size: 1.55rem;
+  }
+
+  .bas-modern-login .bas-form-options {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
+
+/* ==========================================================================
+   Reduced Motion Accessibility Preference
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .bas-modern-login .bas-bg-orb,
+  .bas-modern-login .bas-podium-ring,
+  .bas-modern-login .bas-3d-terminal,
+  .bas-modern-login .bas-floating-tile,
+  .bas-modern-login .bas-iso-cube,
+  .bas-modern-login .bas-chart-line,
+  .bas-modern-login .bas-brand-logo-mark::before,
+  .bas-modern-login .bas-ticker-dot {
+    animation: none !important;
+  }
+
+  .bas-modern-login .bas-3d-scene {
+    transition: none !important;
+  }
+}

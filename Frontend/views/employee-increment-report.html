@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Increment Report - Bilal Accounting System</title>
+    <!-- CSS Dependencies -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #1e4c8c 0%, #2c5ba9 100%);
+            --accent-color: #00a65a;
+            --border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        body {
+            background-color: #f8fafc;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-size: 0.85rem;
+        }
+
+        .filter-panel {
+            background: var(--primary-gradient);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            color: white;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-row:last-child {
+            margin-bottom: 0;
+            align-items: flex-end;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group.small {
+            flex: 0.5;
+            min-width: 120px;
+        }
+
+        .filter-panel label {
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 6px;
+            display: block;
+            opacity: 0.9;
+            color: white;
+        }
+
+        .filter-panel .form-select,
+        .filter-panel .form-control {
+            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.1);
+            color: white !important;
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            border-radius: 6px;
+            height: 38px;
+            transition: all 0.3s;
+        }
+
+        .filter-panel .form-select option {
+            background: #1e4c8c;
+            color: white;
+        }
+
+        .filter-panel .form-select:focus,
+        .filter-panel .form-control:focus {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+            border-color: white;
+            outline: none;
+        }
+
+        /* Search Suggestions */
+        #suggestionsBox {
+            position: absolute;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-height: 250px;
+            overflow-y: auto;
+            z-index: 1100;
+            display: none;
+            margin-top: 5px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .suggestion-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f5f9;
+            color: #334155;
+            transition: all 0.2s;
+            font-size: 0.8rem;
+        }
+
+        .suggestion-item:hover,
+        .suggestion-item.focused {
+            background: #1e4c8c;
+            color: white;
+        }
+
+        /* Report Table Styling */
+        .data-panel {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #edf2f7;
+        }
+
+        .table-responsive {
+            flex: 1;
+            overflow: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .data-table thead th {
+            background: #1e4c8c;
+            color: white !important;
+            font-weight: 800;
+            text-transform: uppercase;
+            text-align: center;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            padding: 16px 10px;
+            border: 1px solid white;
+        }
+
+        .code-col {
+            width: 6%;
+            text-align: center;
+        }
+
+        .name-col {
+            width: 22%;
+            text-align: left;
+        }
+
+        .service-col {
+            width: 14%;
+            text-align: center;
+        }
+
+        .amount-col {
+            width: 11%;
+            text-align: right !important;
+        }
+
+        .date-col {
+            width: 11%;
+            text-align: center !important;
+        }
+
+        .data-table tbody td {
+            vertical-align: middle;
+            color: #334155;
+            border: 1px solid #dee2e6;
+            padding: 8px 10px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .dept-group-header {
+            background: #1e4c8c !important;
+            /* Dark Blue like Salary Detail */
+            color: white !important;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 10px 15px;
+        }
+
+        .branch-header {
+            background: #ffffff;
+            color: #1e4c8c;
+            font-weight: 900;
+            text-transform: uppercase;
+            text-align: center;
+            font-size: 1.1rem;
+            padding: 15px;
+            border-bottom: 2px solid #1e4c8c;
+        }
+
+        .total-row {
+            background: #e2e8f0 !important;
+            /* Grey background for totals */
+            font-weight: 800;
+            color: #1e4c8c;
+            border-top: 2px solid #cbd5e1;
+        }
+
+        .grand-total-row {
+            background: #1e4c8c !important;
+            font-weight: 900;
+            font-size: 0.9rem;
+        }
+
+        .grand-total-row td {
+            color: white !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            /* Subtle white border */
+        }
+
+        /* Buttons */
+        .btn-view {
+            background: #28a745;
+            color: white;
+            border: 1.5px solid white;
+            padding: 0 25px;
+            height: 38px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .btn-reset,
+        .btn-print {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+        }
+
+        /* Print Styles */
+        @media print {
+            @page {
+                size: portrait;
+                margin: 5mm;
+            }
+
+            .filter-panel,
+            #sidebar,
+            #sidebarToggle,
+            .sidebar-backdrop,
+            .btn-view,
+            .btn-reset,
+            .btn-print,
+            .page-header {
+                display: none !important;
+            }
+
+            body,
+            .main-content,
+            .data-panel,
+            .container-fluid {
+                background: #ffffff !important;
+                background-color: #ffffff !important;
+                box-shadow: none !important;
+                border: none !important;
+            }
+
+            .main-content {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .data-table {
+                font-size: 0.6rem !important;
+                /* Decreased font size */
+                width: 100% !important;
+                table-layout: auto !important;
+                border: 1px solid #000000 !important;
+                /* Black outer border */
+            }
+
+            .table-responsive {
+                overflow: visible !important;
+                width: 100% !important;
+            }
+
+            .data-table thead th {
+                background: #000000 !important;
+                color: #ffffff !important;
+                border: 1px solid #ffffff !important;
+                /* White inner separators */
+                font-size: 0.55rem !important;
+                padding: 10px 2px !important;
+                white-space: normal !important;
+                line-height: 1.3;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .data-table thead th:first-child {
+                border-left: 1px solid #000000 !important;
+                /* Black outer corner */
+            }
+
+            .data-table thead th:last-child {
+                border-right: 1px solid #000000 !important;
+                /* Black outer corner */
+            }
+
+            .code-col {
+                width: 35px !important;
+            }
+
+            .date-col {
+                text-align: center !important;
+            }
+
+            .data-table tbody td {
+                padding: 4px 2px !important;
+                border: 1px solid #000000 !important;
+            }
+
+            .dept-group-header {
+                background: #eeeeee !important;
+                color: #000000 !important;
+                text-align: center !important;
+                font-weight: 800;
+                font-size: 0.75rem !important;
+                padding: 5px !important;
+                border: 1px solid #000000 !important;
+                /* Added black border */
+                border-bottom: none !important;
+                /* Prevent double border with table thead */
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .branch-header {
+                background: #ffffff !important;
+                color: #000000 !important;
+                border: 1px solid #000000 !important;
+                border-bottom: 2px solid #000000 !important;
+                padding: 10px !important;
+                font-size: 1rem !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .total-row {
+                display: none !important;
+            }
+
+            .grand-total-row {
+                display: none !important;
+            }
+        }
+
+        .print-header {
+            display: none;
+        }
+
+        @media print {
+            .print-header {
+                display: block;
+                text-align: center;
+                margin-bottom: 10px;
+            }
+
+            .print-header h2 {
+                font-weight: 900;
+                text-transform: uppercase;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main-content">
+        <div class="page-header px-3 d-flex align-items-center position-relative" style="height: 50px;">
+            <i class="fas fa-bars" id="sidebarToggle"
+                style="cursor:pointer; font-size: 1rem; position: absolute; left: 15px;"></i>
+            <div class="w-100 text-center">
+                <h5 class="mb-0 fw-bold" style="color: #1e4c8c; text-transform: uppercase;">Employee Increment Detail
+                </h5>
+            </div>
+        </div>
+
+        <div class="container-fluid p-3">
+            <div class="filter-panel">
+                <div class="filter-row">
+                    <div class="filter-group small">
+                        <label>Month-Year</label>
+                        <input type="month" class="form-control" id="monthFilter">
+                    </div>
+                    <div class="filter-group">
+                        <label>Branch</label>
+                        <select class="form-select" id="branchFilter">
+                            <option value="All Branches">All Branches</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Department</label>
+                        <select class="form-select" id="deptFilter">
+                            <option value="">All Departments</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label>Designation</label>
+                        <select class="form-select" id="desigFilter">
+                            <option value="">All Designations</option>
+                        </select>
+                    </div>
+                    <div class="filter-group small">
+                        <label>Code</label>
+                        <input type="text" class="form-control" id="codeSearch" placeholder="Code..">
+                    </div>
+                    <div class="filter-group" style="position: relative;">
+                        <label>Employee</label>
+                        <input type="text" class="form-control" id="empSearch" placeholder="Search name..">
+                        <input type="hidden" id="selectedEmpId">
+                        <div id="suggestionsBox"></div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-view" onclick="generateReport()">View Report</button>
+                        <button class="btn btn-print" onclick="window.print()"><i class="fas fa-print"></i></button>
+                        <button class="btn btn-reset" onclick="resetFilters()"><i class="fas fa-redo"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="data-panel" id="reportContent">
+                <div class="text-center py-5 text-muted">
+                    <i class="fas fa-search fa-3x mb-3 opacity-25"></i>
+                    <p>Select criteria and click "View Report".</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244472"></script>
+    <script>
+        const token = localStorage.getItem('token');
+        let allEmployees = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const now = new Date();
+            const monthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+            document.getElementById('monthFilter').value = monthStr;
+            loadFilters();
+            setupSearch();
+        });
+
+        async function loadFilters() {
+            try {
+                // 1. Fetch Branches (Standardized with dashboard fallback)
+                let branchRes = await window.pageAccess.authenticatedFetch('/api/v1/stores');
+                if (!branchRes.ok) {
+                    branchRes = await window.pageAccess.authenticatedFetch('/api/v1/sub-branches');
+                }
+
+                const [branchData, deptRes, desigRes, empRes] = await Promise.all([
+                    branchRes.json(),
+                    window.pageAccess.authenticatedFetch('/api/v1/employee-departments'),
+                    window.pageAccess.authenticatedFetch('/api/v1/designations'),
+                    window.pageAccess.authenticatedFetch('/api/v1/employees?limit=2000')
+                ]);
+
+                const deptData = await deptRes.json();
+                const desigData = await desigRes.json();
+                const empData = await empRes.json();
+
+                if (branchData.success && branchData.data) {
+                    const sel = document.getElementById('branchFilter');
+                    sel.innerHTML = '<option value="All Branches">All Branches</option>';
+
+                    const rawNames = branchData.data.map(item => (item.name || item.branchName || '').trim());
+                    const uniqueBranches = [...new Set(rawNames)].filter(n => n !== '').sort();
+
+                    uniqueBranches.forEach(name => {
+                        const opt = document.createElement('option');
+                        opt.value = name;
+                        opt.textContent = name;
+                        sel.appendChild(opt);
+                    });
+                }
+                if (deptData.success) {
+                    const sel = document.getElementById('deptFilter');
+                    deptData.data.forEach(d => sel.innerHTML += `<option value="${d.name}">${d.name}</option>`);
+                }
+                if (desigData.success) {
+                    const sel = document.getElementById('desigFilter');
+                    desigData.data.forEach(d => sel.innerHTML += `<option value="${d.name}">${d.name}</option>`);
+                }
+                if (empData.success) allEmployees = empData.data;
+            } catch (err) { console.error(err); }
+        }
+
+        function setupSearch() {
+            const input = document.getElementById('empSearch');
+            const box = document.getElementById('suggestionsBox');
+            input.addEventListener('input', () => {
+                const val = input.value.toLowerCase().trim();
+                if (!val) { box.style.display = 'none'; return; }
+                const filtered = allEmployees.filter(e => e.name.toLowerCase().includes(val) || e.code.includes(val)).slice(0, 10);
+                box.innerHTML = filtered.map(e => `<div class="suggestion-item" onclick="selectEmp('${e._id}', '${e.name}')"><strong>${e.code}</strong> - ${e.name}</div>`).join('');
+                box.style.display = filtered.length ? 'block' : 'none';
+            });
+        }
+
+        function selectEmp(id, name) {
+            document.getElementById('selectedEmpId').value = id;
+            document.getElementById('empSearch').value = name;
+            document.getElementById('suggestionsBox').style.display = 'none';
+        }
+
+        function resetFilters() {
+            location.reload();
+        }
+
+        async function generateReport() {
+            const content = document.getElementById('reportContent');
+            content.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
+
+            const filters = {
+                month: document.getElementById('monthFilter').value,
+                branch: document.getElementById('branchFilter').value,
+                dept: document.getElementById('deptFilter').value,
+                desig: document.getElementById('desigFilter').value,
+                code: document.getElementById('codeSearch').value,
+                employeeId: document.getElementById('selectedEmpId').value
+            };
+
+            try {
+                // Fetching all employees and filtering on frontend for maximum accuracy in logic application
+                const res = await window.pageAccess.authenticatedFetch('/api/v1/employees?limit=5000');
+                const data = await res.json();
+                if (!data.success) throw new Error(data.message);
+
+                let employees = data.data;
+
+                // Apply Filters
+                if (filters.branch !== 'All Branches') employees = employees.filter(e => e.branch === filters.branch);
+                if (filters.dept) employees = employees.filter(e => {
+                    const deptVal = typeof e.department === 'object' ? e.department.name : e.department;
+                    return deptVal === filters.dept;
+                });
+                if (filters.desig) employees = employees.filter(e => {
+                    const desigVal = typeof e.designation === 'object' ? e.designation.name : e.designation;
+                    return desigVal === filters.desig;
+                });
+                if (filters.code) employees = employees.filter(e => e.code.includes(filters.code));
+                if (filters.employeeId) employees = employees.filter(e => e._id === filters.employeeId);
+
+                // Target Month Filtering: Show only those whose increment is due
+                const targetDate = new Date(filters.month + '-01');
+                const targetYear = targetDate.getFullYear();
+                const targetMonth = targetDate.getMonth();
+
+                employees = employees.filter(e => {
+                    const lastDate = e.incrDate ? new Date(e.incrDate) : (e.joiningDate ? new Date(e.joiningDate) : null);
+                    if (!lastDate) return false;
+
+                    const nextDueYear = lastDate.getFullYear() + 1;
+                    const nextDueMonth = lastDate.getMonth();
+
+                    // Show if next due date matches our target month/year
+                    // Or if it's overdue (Year < TargetYear but same Month)
+                    return nextDueYear === targetYear && nextDueMonth === targetMonth;
+                });
+
+                renderTable(employees, filters.month);
+            } catch (err) {
+                content.innerHTML = `<div class="alert alert-danger">${err.message}</div>`;
+            }
+        }
+
+        function calculateServiceTime(joinDateStr, targetMonthStr) {
+            if (!joinDateStr) return 'N/A';
+            const join = new Date(joinDateStr);
+            const mParts = targetMonthStr.split('-');
+            const target = new Date(mParts[0], mParts[1], 0); // Last day of target month for as-of calculation
+
+            let years = target.getFullYear() - join.getFullYear();
+            let months = target.getMonth() - join.getMonth();
+            let days = target.getDate() - join.getDate();
+
+            if (days < 0) {
+                months--;
+                const lastMonth = new Date(target.getFullYear(), target.getMonth(), 0);
+                days += lastMonth.getDate();
+            }
+            if (months < 0) {
+                years--;
+                months += 12;
+            }
+
+            const parts = [];
+            if (years > 0) parts.push(`${years} Year${years > 1 ? 's' : ''}`);
+            if (months > 0) parts.push(`${months} Month${months > 1 ? 's' : ''}`);
+            if (days > 0) parts.push(`${days} Day${days > 1 ? 's' : ''}`);
+
+            return parts.length ? parts.join(' ') : '0 Days';
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return 'N/A';
+            const d = new Date(dateStr);
+            return `${String(d.getDate()).padStart(2, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}-${d.getFullYear()}`;
+        }
+
+        function renderTable(employees, targetMonth) {
+            const content = document.getElementById('reportContent');
+            if (!employees.length) {
+                content.innerHTML = '<div class="alert alert-info m-3">No employees found for the selected criteria.</div>';
+                return;
+            }
+
+            // Group by Branch then Dept
+            const grouped = {};
+            employees.forEach(e => {
+                const b = e.branch || 'OTHER';
+                const d = typeof e.department === 'object' ? e.department.name : (e.department || 'OTHER');
+                if (!grouped[b]) grouped[b] = {};
+                if (!grouped[b][d]) grouped[b][d] = [];
+                grouped[b][d].push(e);
+            });
+
+            const monthParts = targetMonth.split('-');
+            const displayMonth = `${monthParts[1]}-${monthParts[0]}`;
+
+            let html = '';
+            let totalBasic = 0;
+            let totalAllow = 0;
+            let totalNet = 0;
+
+            for (const [branch, depts] of Object.entries(grouped)) {
+                // Branch Header (Center Aligned as requested)
+                html += `<div class="branch-header">(${branch})</div>`;
+
+                for (const [dept, emps] of Object.entries(depts)) {
+                    html += `
+                        <div class="dept-group-header py-2"><i class="fas fa-building me-2"></i>${dept}</div>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th class="code-col">Code</th>
+                                        <th class="name-col">Name</th>
+                                        <th class="service-col">Service Time</th>
+                                        <th class="amount-col">Basic Salary</th>
+                                        <th class="amount-col">Allowance</th>
+                                        <th class="amount-col">Net Salary</th>
+                                        <th class="date-col">Last Inc Date</th>
+                                        <th class="date-col">Next Inc Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                    `;
+
+                    let subTotalBasic = 0;
+                    let subTotalAllow = 0;
+                    let subTotalNet = 0;
+
+                    emps.sort((a, b) => a.code.localeCompare(b.code)).forEach(e => {
+                        const service = calculateServiceTime(e.joiningDate, targetMonth);
+                        const basic = e.basicSalary || 0;
+                        const allow = (e.fixAllowance || 0) + (e.stLoss || 0) + (e.otherAllowance || 0);
+                        const net = basic + allow;
+
+                        // Next Inc Date is 1 year after Last Inc Date
+                        let nextInc = 'N/A';
+                        if (e.incrDate) {
+                            const d = new Date(e.incrDate);
+                            d.setFullYear(d.getFullYear() + 1);
+                            nextInc = formatDate(d);
+                        }
+
+                        subTotalBasic += basic;
+                        subTotalAllow += allow;
+                        subTotalNet += net;
+
+                        html += `
+                            <tr>
+                                <td class="code-col text-center">${e.code}</td>
+                                <td class="name-col">${e.name}</td>
+                                <td class="service-col">${service}</td>
+                                <td class="amount-col">${basic.toLocaleString()}</td>
+                                <td class="amount-col">${allow.toLocaleString()}</td>
+                                <td class="amount-col fw-bold">${net.toLocaleString()}</td>
+                                <td class="date-col">${formatDate(e.incrDate)}</td>
+                                <td class="date-col">${nextInc}</td>
+                            </tr>
+                        `;
+                    });
+
+                    html += `
+                        <tr class="total-row">
+                            <td class="code-col"></td>
+                            <td class="name-col text-end fw-bold">SUBTOTAL (${dept})</td>
+                            <td class="service-col"></td>
+                            <td class="amount-col fw-bold">${subTotalBasic.toLocaleString()}</td>
+                            <td class="amount-col fw-bold">${subTotalAllow.toLocaleString()}</td>
+                            <td class="amount-col fw-bold">${subTotalNet.toLocaleString()}</td>
+                            <td class="date-col"></td>
+                            <td class="date-col"></td>
+                        </tr>
+                    `;
+
+                    totalBasic += subTotalBasic;
+                    totalAllow += subTotalAllow;
+                    totalNet += subTotalNet;
+
+                    html += `</tbody></table></div>`;
+                }
+            }
+
+            // Grand Total Row
+            html += `
+                <div class="table-responsive mt-2">
+                    <table class="data-table">
+                        <tr class="grand-total-row">
+                            <td class="code-col"></td>
+                            <td class="name-col text-end fw-bold">GRAND TOTAL</td>
+                            <td class="service-col"></td>
+                            <td class="amount-col fw-bold">${totalBasic.toLocaleString()}</td>
+                            <td class="amount-col fw-bold">${totalAllow.toLocaleString()}</td>
+                            <td class="amount-col fw-bold">${totalNet.toLocaleString()}</td>
+                            <td class="date-col"></td>
+                            <td class="date-col"></td>
+                        </tr>
+                    </table>
+                </div>
+            `;
+
+            const finalHtml = `
+                <div class="print-header">
+                    <h2 style="color: #1e4c8c;">Employee Increment Detail</h2>
+                    <div class="d-flex justify-content-center gap-4 mt-1" style="font-size: 0.8rem;">
+                        <span>Date: ${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                        <span class="fw-bold">Month: ${displayMonth}</span>
+                    </div>
+                </div>
+                ${html}
+            `;
+
+            content.innerHTML = finalHtml;
+        }
+    </script>
+</body>
+
+</html>
+

@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Invoice - Bilal Accounting System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Naskh+Arabic:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <style>
+        :root {
+            --bas-blue: #1e4c8c;
+            --bas-gold: #f0a500;
+            --bas-green: #10b981;
+            --bas-red: #ef4444;
+            --bas-border: #d2d6de;
+            --card-bg: #fff;
+            --bg-light: #f4f7fa;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            font-size: 0.85rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .main-content {
+            margin-left: 0 !important;
+            padding-top: 0 !important;
+        }
+
+        /* ── TABS ── */
+        .fi-tabs {
+            display: flex;
+            background: var(--bas-blue);
+            border-bottom: 3px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .fi-tab {
+            padding: 11px 20px;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.82rem;
+            letter-spacing: 0.3px;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -3px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .fi-tab:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .fi-tab.active {
+            color: #fff;
+            border-bottom-color: var(--bas-gold);
+        }
+
+        .fi-tab i {
+            margin-right: 6px;
+        }
+
+        /* ── PANEL ── */
+        .fi-panel {
+            display: none;
+            padding: 18px;
+        }
+
+        .fi-panel.active {
+            display: block;
+        }
+
+        /* ── CARD ── */
+        .fi-card {
+            background: #fff;
+            border: 1px solid var(--bas-border);
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .fi-card-header {
+            background: var(--bas-blue);
+            color: #fff;
+            padding: 9px 15px;
+            border-radius: 8px 8px 0 0;
+            font-weight: 700;
+            font-size: 0.82rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .fi-card-body {
+            padding: 15px;
+        }
+
+        /* ── CATEGORY LEGEND ── */
+        .cat-legend {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+
+        .cat-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border: 1px solid;
+        }
+
+        .cat-senior {
+            background: #dbeafe;
+            border-color: #3b82f6;
+            color: #1d4ed8;
+        }
+
+        .cat-filpino {
+            background: #ede9fe;
+            border-color: #7c3aed;
+            color: #5b21b6;
+        }
+
+        .cat-arabic {
+            background: #d1fae5;
+            border-color: #059669;
+            color: #065f46;
+        }
+
+        .cat-junior {
+            background: #ffedd5;
+            border-color: #d97706;
+            color: #92400e;
+        }
+
+        .cat-labour {
+            background: #fee2e2;
+            border-color: #dc2626;
+            color: #991b1b;
+        }
+
+        /* ── MEAL SECTIONS ── */
+        .meal-sections {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .meal-box {
+            border: 1px solid var(--bas-border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .meal-box-head {
+            padding: 7px 12px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .meal-bf {
+            background: linear-gradient(135deg, #fef3c7, #fffbeb);
+            color: #92400e;
+            border-bottom: 2px solid #f59e0b;
+        }
+
+        .meal-lu {
+            background: linear-gradient(135deg, #d1fae5, #f0fdf4);
+            color: #065f46;
+            border-bottom: 2px solid #10b981;
+        }
+
+        .meal-di {
+            background: linear-gradient(135deg, #ede9fe, #faf5ff);
+            color: #5b21b6;
+            border-bottom: 2px solid #7c3aed;
+        }
+
+        .meal-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 5px 12px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .meal-row:last-child {
+            border-bottom: none;
+        }
+
+        .meal-row label {
+            margin: 0;
+            font-size: 0.78rem;
+            color: #555;
+        }
+
+        .meal-input {
+            width: 72px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 4px 6px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.2s;
+        }
+
+        .meal-input:focus {
+            outline: none;
+            border-color: var(--bas-blue);
+            box-shadow: 0 0 0 2px rgba(30, 76, 140, 0.1);
+        }
+
+        /* ── PREVIEW TABLE ── */
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+
+        .preview-table th {
+            background: var(--bas-blue);
+            color: #fff;
+            padding: 6px 10px;
+            text-align: center;
+            border: 1px solid #2c5ba9;
+        }
+
+        .preview-table td {
+            padding: 6px 10px;
+            border: 1px solid #e5e7eb;
+            text-align: center;
+        }
+
+        .preview-table tr:nth-child(even) td {
+            background: #f9fafb;
+        }
+
+        .preview-table .cat-col {
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .preview-table .total-col {
+            font-weight: 700;
+            color: var(--bas-blue);
+        }
+
+        /* ── RECORDS TABLE ── */
+        .records-wrap {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid var(--bas-border);
+        }
+
+        .records-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.76rem;
+            min-width: 900px;
+        }
+
+        .records-table thead th {
+            background: var(--bas-blue);
+            color: #fff;
+            padding: 8px 6px;
+            text-align: center;
+            border: 1px solid #2c5ba9;
+            font-size: 0.72rem;
+        }
+
+        .records-table tbody td {
+            padding: 6px;
+            border: 1px solid #e5e7eb;
+            text-align: center;
+        }
+
+        .records-table tbody tr:hover td {
+            background: #f0f4ff;
+        }
+
+        .records-table tfoot td {
+            background: #1e4c8c22;
+            font-weight: 700;
+            color: var(--bas-blue);
+            border-top: 2px solid var(--bas-blue);
+            padding: 7px 6px;
+            text-align: center;
+        }
+
+        /* ── SUMMARY CHIPS ── */
+        .summary-chips {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+
+        .summary-chip {
+            background: #fff;
+            border: 1px solid var(--bas-border);
+            border-radius: 8px;
+            padding: 8px 14px;
+            min-width: 130px;
+        }
+
+        .summary-chip .sc-label {
+            font-size: 0.7rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            font-weight: 600;
+        }
+
+        .summary-chip .sc-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--bas-blue);
+        }
+
+        /* ── INVOICE CONFIG ── */
+        .inv-config-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+
+        .inv-config-section {
+            background: #fff;
+            border: 1px solid var(--bas-border);
+            border-radius: 8px;
+            padding: 14px;
+        }
+
+        .inv-config-section h6 {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--bas-blue);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            margin-bottom: 10px;
+            padding-bottom: 7px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .qty-preview-table {
+            width: 100%;
+            font-size: 0.78rem;
+        }
+
+        .qty-preview-table td {
+            padding: 4px 6px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .qty-preview-table td:last-child {
+            text-align: right;
+            font-weight: 700;
+            color: var(--bas-blue);
+        }
+
+        /* ── ACTION BUTTONS ── */
+        .btn-bas {
+            background: var(--bas-blue);
+            color: #fff;
+            border: none;
+            padding: 6px 18px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-bas:hover {
+            background: #153a73;
+            color: #fff;
+        }
+
+        .btn-bas-gold {
+            background: var(--bas-gold);
+            color: #fff;
+        }
+
+        .btn-bas-gold:hover {
+            background: #d97706;
+            color: #fff;
+        }
+
+        .btn-bas-green {
+            background: var(--bas-green);
+            color: #fff;
+        }
+
+        .btn-bas-green:hover {
+            background: #059669;
+            color: #fff;
+        }
+
+        .btn-bas-danger {
+            background: var(--bas-red);
+            color: #fff;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+
+        /* ── MODAL ── */
+        .fi-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 16px;
+            overflow-y: auto;
+            backdrop-filter: blur(3px);
+        }
+
+        .fi-modal-box {
+            background: #fff;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 950px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+        }
+
+        .fi-modal-toolbar {
+            background: var(--bas-blue);
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .fi-modal-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .fi-modal-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .fi-modal-content {
+            max-height: 82vh;
+            overflow-y: auto;
+            background: #fff;
+        }
+
+        /* ── FORM CONTROLS ── */
+        .form-label-sm {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 3px;
+        }
+
+        .form-control-sm,
+        .form-select-sm {
+            border-radius: 5px;
+            border-color: #d1d5db;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-control-sm:focus,
+        .form-select-sm:focus {
+            border-color: var(--bas-blue);
+            box-shadow: 0 0 0 2px rgba(30, 76, 140, 0.1);
+        }
+
+        /* ── ACTION ROW ── */
+        .action-row {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            padding-top: 12px;
+            border-top: 1px solid #e5e7eb;
+            margin-top: 12px;
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 900px) {
+            .meal-sections {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .inv-config-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .fi-tabs {
+                overflow-x: auto;
+            }
+        }
+
+        /* ════ INVOICE PRINT DOCUMENT ════ */
+        .inv-doc {
+            font-family: Arial, sans-serif;
+            font-size: 10.5px;
+            color: #222;
+            background: #fff;
+            padding: 18px 22px;
+            display: flex;
+            flex-direction: column;
+            min-height: 262mm; /* Reduced to fit better on one page */
+        }
+
+        .inv-ribbon {
+            background: #8B0000;
+            color: #fff;
+            padding: 10px 22px;
+            margin: -18px -22px 14px -22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .inv-ribbon-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .inv-ribbon-logo {
+            width: 54px;
+            height: 54px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .inv-ribbon-name-en {
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: underline;
+            font-style: italic;
+        }
+
+        .inv-ribbon-name-ar {
+            font-family: 'Noto Naskh Arabic', serif;
+            font-size: 11px;
+            direction: rtl;
+            opacity: 0.9;
+        }
+
+        .inv-title-section {
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .inv-title {
+            font-size: 17px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #222;
+        }
+
+        .inv-info-qr {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            gap: 16px;
+        }
+
+        .inv-info-table {
+            border-collapse: collapse;
+        }
+
+        .inv-info-table td {
+            padding: 3px 7px;
+            border: 1px solid #ccc;
+            font-size: 10px;
+        }
+
+        .inv-info-table td:first-child {
+            background: #f0f0f0;
+            font-weight: 600;
+            color: #555;
+            white-space: nowrap;
+        }
+
+        .inv-period-table {
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+
+        .inv-period-table td {
+            padding: 4px 10px;
+            border: 1px solid #ccc;
+            font-size: 10px;
+        }
+
+        .inv-period-table td:first-child {
+            background: #f0f0f0;
+            font-weight: 700;
+        }
+
+        .inv-parties {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+            font-size: 10px;
+        }
+
+        .inv-parties th {
+            background: #ccc;
+            padding: 4px 8px;
+            border: 1px solid #bbb;
+            font-weight: 700;
+        }
+
+        .inv-parties td {
+            border: 1px solid #ccc;
+            padding: 4px 8px;
+            vertical-align: top;
+        }
+
+        .inv-parties .lbl {
+            background: #f5f5f5;
+            font-weight: 600;
+            color: #555;
+            width: 100px;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .inv-subject {
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 7px;
+        }
+
+        .inv-items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+            font-size: 10px;
+        }
+
+        .inv-items-header {
+            background: #2c3e50;
+            color: #fff;
+            padding: 4px 8px;
+            font-weight: 700;
+            font-size: 10.5px;
+        }
+
+        .inv-items-table th {
+            background: #3d5a80;
+            color: #fff;
+            padding: 5px 7px;
+            text-align: center;
+            border: 1px solid #2c3e50;
+        }
+
+        .inv-items-table td {
+            border: 1px solid #ccc;
+            padding: 4px 7px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .inv-items-table tr:nth-child(even) td {
+            background: #f9f9f9;
+        }
+
+        .inv-amts {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+            font-size: 10px;
+        }
+
+        .inv-amts .hdr {
+            background: #2c3e50;
+            color: #fff;
+            padding: 4px 8px;
+            font-weight: 700;
+        }
+
+        .inv-amts td {
+            border: 1px solid #ccc;
+            padding: 4px 8px;
+        }
+
+        .inv-amts .lbl {
+            background: #f5f5f5;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .inv-amts .val {
+            font-weight: 700;
+        }
+
+        .inv-tax-summary {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+            font-size: 10px;
+        }
+
+        .inv-tax-summary .tbl-hdr-title {
+            background: #e5e7eb;
+            padding: 4px 8px;
+            font-weight: 700;
+            font-size: 10.5px;
+        }
+
+        .inv-tax-summary th {
+            background: #3d5a80;
+            color: #fff;
+            padding: 4px 8px;
+            border: 1px solid #ccc;
+        }
+
+        .inv-tax-summary td {
+            border: 1px solid #ccc;
+            padding: 4px 8px;
+        }
+
+        .inv-tax-summary .total-row {
+            background: #f0f0f0;
+            font-weight: 700;
+        }
+
+        .inv-bank {
+            font-size: 10px;
+            line-height: 1.7;
+            margin-bottom: 10px;
+        }
+
+        .inv-note {
+            font-size: 9px;
+            color: #666;
+            font-style: italic;
+            margin-bottom: 8px;
+        }
+
+        .inv-sig-row {
+            font-size: 10px;
+            display: flex;
+            gap: 12px;
+            margin-bottom: 5px;
+        }
+
+        .inv-sig-line {
+            display: inline-block;
+            border-bottom: 1px solid #555;
+            width: 160px;
+            margin-left: 4px;
+        }
+
+        /* ════ SUMMARY PRINT ════ */
+        .sum-doc {
+            font-family: Arial, sans-serif;
+            font-size: 10.5px;
+            color: #222;
+            background: #fff;
+            padding: 18px 22px;
+            display: flex;
+            flex-direction: column;
+            min-height: 262mm; /* Reduced to fit better on one page */
+        }
+
+        .sum-ribbon-top {
+            height: 4px;
+            background: #8B0000;
+            margin: -18px -22px 0 -22px;
+        }
+
+        .sum-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 10px 0;
+            border-bottom: 2px solid #8B0000;
+            margin-bottom: 12px;
+            justify-content: space-between;
+        }
+
+        .sum-company-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: #8B0000;
+            font-style: italic;
+            text-decoration: underline;
+        }
+
+        .sum-company-ar {
+            font-family: 'Noto Naskh Arabic', serif;
+            font-size: 12px;
+            font-weight: 700;
+            color: #333;
+            direction: rtl;
+        }
+
+        .sum-title-box {
+            border: 1px solid #ccc;
+            text-align: center;
+            padding: 6px;
+            margin-bottom: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            background: #f5f5f5;
+        }
+
+        .sum-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10.5px;
+            margin-bottom: 14px;
+        }
+
+        .sum-table th {
+            background: #d4d4d4;
+            border: 1px solid #aaa;
+            padding: 5px 7px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .sum-table td {
+            border: 1px solid #ccc;
+            padding: 5px 7px;
+            text-align: center;
+        }
+
+        .sum-table tr:nth-child(even) td {
+            background: #f9f9f9;
+        }
+
+        .sum-totals-wrap {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 16px;
+        }
+
+        .sum-totals-table {
+            border-collapse: collapse;
+            font-size: 10.5px;
+            min-width: 270px;
+        }
+
+        .sum-totals-table td {
+            border: 1px solid #ccc;
+            padding: 5px 10px;
+        }
+
+        .sum-totals-table .lbl {
+            background: #f0f0f0;
+            font-weight: 600;
+        }
+
+        .sum-totals-table .val {
+            font-weight: 700;
+            text-align: right;
+        }
+
+        .sum-totals-table .vat-val {
+            color: #1a73e8;
+            font-weight: 700;
+            text-align: right;
+        }
+
+        .sum-totals-table .total-row td {
+            background: #f5f5f5;
+            font-weight: 700;
+            font-size: 11px;
+        }
+
+        .sum-sigs {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+            margin-bottom: 30px;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 0 40px;
+        }
+
+        .sum-sig {
+            text-align: center;
+            width: 120px;
+        }
+
+        .sum-sig-line {
+            border-bottom: 1px solid #333;
+            margin-top: 5px;
+            height: 1px;
+        }
+
+        .sum-footer {
+            border-top: 2px solid #8B0000;
+            color: #444;
+            text-align: center;
+            margin: auto -22px -18px -22px;
+            padding: 12px 22px;
+            font-size: 10px;
+            line-height: 1.6;
+        }
+
+        @media print {
+
+            .fi-modal-toolbar,
+            .sidebar-container,
+            .page-header,
+            #sidebar,
+            #sidebarBackdrop {
+                display: none !important;
+            }
+
+            .fi-modal-overlay {
+                position: static;
+                padding: 0;
+                background: none;
+                backdrop-filter: none;
+            }
+
+            .fi-modal-box {
+                box-shadow: none;
+                border-radius: 0;
+            }
+
+            .fi-modal-content {
+                max-height: none;
+                overflow: visible;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main-content">
+        <!-- Page Header -->
+        <div class="page-header px-3">
+            <div style="flex:1; display:flex; align-items:center;">
+                <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size:1rem;"></i>
+                <h4 class="mb-0">Food Service Invoice</h4>
+            </div>
+            <div style="flex:1; display:flex; justify-content:flex-end; align-items:center;">
+                <div class="dropdown">
+                    <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown" style="cursor:pointer;">
+                        <div class="avatar-circle me-2 bg-primary text-white d-flex align-items-center justify-content-center"
+                            style="width:35px; height:35px; border-radius:50%;">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <span id="userName" class="me-2">User</span>
+                        <i class="fas fa-chevron-down" style="font-size:0.7rem;"></i>
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                        <li><a class="dropdown-item logout-btn" href="#"><i
+                                    class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="fi-tabs">
+            <div class="fi-tab active" onclick="switchTab('dataEntry')" id="tab-dataEntry">
+                <i class="fas fa-edit"></i> Data Entry
+            </div>
+            <div class="fi-tab" onclick="switchTab('records')" id="tab-records">
+                <i class="fas fa-table"></i> Records
+            </div>
+            <div class="fi-tab" onclick="switchTab('invoice')" id="tab-invoice">
+                <i class="fas fa-file-invoice"></i> Generate Invoice
+            </div>
+            <div class="fi-tab" onclick="switchTab('genList')" id="tab-genList">
+                <i class="fas fa-history"></i> Generated Invoices
+            </div>
+            <div class="fi-tab" onclick="switchTab('settings')" id="tab-settings">
+                <i class="fas fa-cog"></i> Settings
+            </div>
+        </div>
+
+        <!-- ══════════ TAB: DATA ENTRY ══════════ -->
+        <div class="fi-panel active" id="panel-dataEntry">
+            <div class="fi-card">
+                <div class="fi-card-header">
+                    <span><i class="fas fa-calendar-day me-2"></i>Daily Food Data Entry</span>
+                    <div class="d-flex align-items-center gap-2">
+                        <label class="mb-0 text-white" style="font-size:0.77rem;">Date:</label>
+                        <input type="date" id="entryDate" class="form-control form-control-sm" style="width:150px;" />
+                        <label class="mb-0 text-white" style="font-size:0.77rem;">Month:</label>
+                        <input type="month" id="periodMonth" class="form-control form-control-sm"
+                            style="width:140px;" />
+                    </div>
+                </div>
+                <div class="fi-card-body">
+                    <!-- Category Legend -->
+                    <div class="cat-legend">
+                        <span class="cat-badge cat-senior">01 SENIOR FOOD | SAR 19.75</span>
+                        <span class="cat-badge cat-junior">02 JUNIOR FOOD | SAR 17.96</span>
+                        <span class="cat-badge cat-labour">03 LABOUR FOOD | SAR 16.85</span>
+                        <span class="cat-badge cat-filpino">04 FILIPINO FOOD | SAR 19.75</span>
+                        <span class="cat-badge cat-arabic">05 ARABIC FOOD | SAR 19.75</span>
+                    </div>
+
+                    <!-- Meal Sections -->
+                    <div class="meal-sections">
+                        <div class="meal-box">
+                            <div class="meal-box-head meal-bf">🌅 BREAKFAST</div>
+                            <div class="meal-row"><label>01 Senior Food</label><input type="number" min="0"
+                                    id="bf_senior" class="meal-input" placeholder="0" oninput="calcLivePreview()"></div>
+                            <div class="meal-row"><label>02 Junior Food</label><input type="number" min="0"
+                                    id="bf_junior" class="meal-input" placeholder="0" oninput="calcLivePreview()"></div>
+                            <div class="meal-row"><label>03 Labour Food</label><input type="number" min="0"
+                                    id="bf_labour" class="meal-input" placeholder="0" oninput="calcLivePreview()"></div>
+                            <div class="meal-row"><label>04 Filipino Food</label><input type="number" min="0"
+                                    id="bf_filpino" class="meal-input" placeholder="0" oninput="calcLivePreview()">
+                            </div>
+                            <div class="meal-row"><label>05 Arabic Food</label><input type="number" min="0"
+                                    id="bf_arabic" class="meal-input" placeholder="0" oninput="calcLivePreview()"></div>
+                        </div>
+                        <div class="meal-box">
+                            <div class="meal-box-head meal-lu">☀️ LUNCH</div>
+                            <div class="meal-row"><label>01 Senior Food</label><input type="number" min="0"
+                                    id="lu_senior" class="meal-input" placeholder="0" oninput="calcLivePreview()"></div>
+                            <div class="meal-row"><label>02 Junior Food</label><input type="number" min="0"
+                                    id="lu_junior" class="meal-input" placeholder="0" oninput="calcLivePreview()"></div>
+                            <div class="meal-row"><label>03 Labour Food</label><input type="number" min="0"
+                                    id="lu_labour" class="meal-input" placeholder="0" oninput="calcLivePreview()"></div>
+                            <div class="meal-row"><label>04 Filipino Food</label><input type="number" min="0"
+                                    id="lu_filpino" class="meal-input" placeholder="0" oninput="calcLivePreview()">
+                            </div>
+                            <div class="meal-row"><label>05 Arabic Food</label><input type="number" min="0"
+                                    id="lu_arabic" class="meal-input" placeholder="0" oninput="calcLivePreview()"></div>
+                        </div>
+                        <div class="meal-box">
+                            <div class="meal-box-head meal-di">🌙 DINNER</div>
+                            <div class="meal-row"><label>01 Senior Food</label><input type="number" min="0"
+                                    id="di_senior" class="meal-input" placeholder="0" oninput="calcLivePreview()"></div>
+                            <div class="meal-row"><label>02 Junior Food</label><input type="number" min="0"
+                                    id="di_junior" class="meal-input" placeholder="0" oninput="calcLivePreview()"></div>
+                            <div class="meal-row"><label>03 Labour Food</label><input type="number" min="0"
+                                    id="di_labour" class="meal-input" placeholder="0" oninput="calcLivePreview()"></div>
+                            <div class="meal-row"><label>04 Filipino Food</label><input type="number" min="0"
+                                    id="di_filpino" class="meal-input" placeholder="0" oninput="calcLivePreview()">
+                            </div>
+                            <div class="meal-row"><label>05 Arabic Food</label><input type="number" min="0"
+                                    id="di_arabic" class="meal-input" placeholder="0" oninput="calcLivePreview()"></div>
+                        </div>
+                    </div>
+
+                    <!-- Live Preview -->
+                    <div class="fi-card" style="margin-bottom:0;">
+                        <div class="fi-card-header" style="background:#374151;">
+                            <span><i class="fas fa-chart-bar me-2"></i>Day Summary Preview</span>
+                        </div>
+                        <div class="fi-card-body" style="padding:10px;">
+                            <div class="table-responsive">
+                                <table class="preview-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="text-align:left;">#</th>
+                                            <th style="text-align:left;">Food Category</th>
+                                            <th style="background:#7c3d12;color:#fff;border-color:#7c3d12;">Breakfast</th>
+                                            <th style="background:#065f46;color:#fff;border-color:#065f46;">Lunch</th>
+                                            <th style="background:#3b0764;color:#fff;border-color:#3b0764;">Dinner</th>
+                                            <th style="background:#8B0000;color:#fff;border-color:#8B0000;">Day Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="previewTbody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="action-row">
+                        <button class="btn btn-sm btn-outline-secondary" onclick="clearEntryForm()"><i
+                                class="fas fa-times me-1"></i>Clear</button>
+                        <button class="btn-bas btn" onclick="saveEntry()"><i class="fas fa-save me-1"></i>Save Day
+                            Entry (Alt+S)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════ TAB: RECORDS ══════════ -->
+        <div class="fi-panel" id="panel-records">
+            <div class="fi-card">
+                <div class="fi-card-header">
+                    <span><i class="fas fa-database me-2"></i>Saved Records</span>
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <label class="mb-0 text-white" style="font-size:0.77rem;">Filter Month:</label>
+                        <input type="month" id="filterMonth" class="form-control form-control-sm" style="width:140px;"
+                            onchange="loadRecords()">
+                        <button class="btn btn-sm btn-warning" onclick="printRecords()" title="Print Records">
+                            <i class="fas fa-print me-1"></i>Print
+                        </button>
+                        <button class="btn btn-sm btn-success" onclick="downloadRecordsPDF()" title="Download PDF">
+                            <i class="fas fa-file-pdf me-1"></i>PDF
+                        </button>
+                    </div>
+                </div>
+                <div class="fi-card-body">
+                    <div class="summary-chips" id="recordsSummaryChips"></div>
+                    <div class="records-wrap">
+                        <table class="records-table">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2" style="min-width:80px;">Date</th>
+                                    <th colspan="6" style="background:#7c3d12;">🌅 BREAKFAST</th>
+                                    <th colspan="6" style="background:#065f46;">☀️ LUNCH</th>
+                                    <th colspan="6" style="background:#3b0764;">🌙 DINNER</th>
+                                    <th rowspan="2" style="background:#8B0000;color:#fff;min-width:65px;">Grand Total
+                                    </th>
+                                    <th rowspan="2">Action</th>
+                                </tr>
+                                <tr>
+                                    <th>Senior</th>
+                                    <th>Junior</th>
+                                    <th>Labour</th>
+                                    <th>Filipino</th>
+                                    <th>Arabic</th>
+                                    <th style="background:#2563eb;color:#fff;">Sub</th>
+                                    <th>Senior</th>
+                                    <th>Junior</th>
+                                    <th>Labour</th>
+                                    <th>Filipino</th>
+                                    <th>Arabic</th>
+                                    <th style="background:#2563eb;color:#fff;">Sub</th>
+                                    <th>Senior</th>
+                                    <th>Junior</th>
+                                    <th>Labour</th>
+                                    <th>Filipino</th>
+                                    <th>Arabic</th>
+                                    <th style="background:#2563eb;color:#fff;">Sub</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recordsTbody"></tbody>
+                            <tfoot id="recordsTfoot"></tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════ TAB: INVOICE ══════════ -->
+        <div class="fi-panel" id="panel-invoice">
+            <div class="inv-config-grid">
+                <!-- Invoice Details -->
+                <div class="inv-config-section">
+                    <h6><i class="fas fa-file-invoice me-1"></i> Invoice Details</h6>
+                    <div class="mb-2">
+                        <div class="form-label-sm d-flex justify-content-between align-items-center">
+                            <span>Invoice Number <span class="text-muted">(Auto)</span></span>
+                            <button class="btn btn-link btn-sm p-0 text-decoration-none" onclick="fetchNextInvoiceNumber()" title="Refresh Number">
+                                <i class="fas fa-sync-alt" style="font-size:0.6rem;"></i>
+                            </button>
+                        </div>
+                        <input type="text" id="invNumber" class="form-control form-control-sm"
+                            placeholder="Calculating next number...">
+                    </div>
+                    <div class="mb-2">
+                        <div class="form-label-sm">Invoice Issue Date</div>
+                        <input type="date" id="invIssueDate" class="form-control form-control-sm">
+                    </div>
+                    <div class="mb-2">
+                        <div class="form-label-sm">Due Date</div>
+                        <input type="date" id="invDueDate" class="form-control form-control-sm">
+                    </div>
+                    <div class="mb-2">
+                        <div class="form-label-sm">Terms</div>
+                        <input type="text" id="invTerms" class="form-control form-control-sm" value="NET 30">
+                    </div>
+                    <div class="mb-2">
+                        <div class="form-label-sm">P.O.#</div>
+                        <input type="text" id="invPO" class="form-control form-control-sm" placeholder="e.g. RP-10337">
+                    </div>
+                    <div class="mb-2">
+                        <div class="form-label-sm">Transaction Type</div>
+                        <input type="text" id="invTransType" class="form-control form-control-sm" value="Normal Supply">
+                    </div>
+                    <div class="mb-2">
+                        <div class="form-label-sm">Period From</div>
+                        <input type="date" id="invPeriodFrom" class="form-control form-control-sm">
+                    </div>
+                    <div class="mb-2">
+                        <div class="form-label-sm">Period To</div>
+                        <input type="date" id="invPeriodTo" class="form-control form-control-sm">
+                    </div>
+                </div>
+
+                <!-- Data Selection -->
+                <div class="inv-config-section">
+                    <h6><i class="fas fa-database me-1"></i> Data Selection</h6>
+                    <div class="mb-2">
+                        <div class="form-label-sm">Select Month</div>
+                        <input type="month" id="invoiceDataMonth" class="form-control form-control-sm"
+                            onchange="loadInvoiceQty()">
+                    </div>
+                    <div class="mb-2">
+                        <div class="form-label-sm">Or Custom Range From</div>
+                        <input type="date" id="invDataFrom" class="form-control form-control-sm"
+                            onchange="loadInvoiceQty()">
+                    </div>
+                    <div class="mb-2">
+                        <div class="form-label-sm">Custom Range To</div>
+                        <input type="date" id="invDataTo" class="form-control form-control-sm"
+                            onchange="loadInvoiceQty()">
+                    </div>
+                    <div
+                        style="background:#f0f4ff; border:1px solid #c3d9ff; border-radius:6px; padding:8px 10px; margin-top:10px; margin-bottom:6px;">
+                        <div style="font-size:0.7rem; font-weight:700; text-transform:uppercase; color:#1e4c8c; margin-bottom:6px;">
+                            <i class="fas fa-calculator me-1"></i> Qty Calculation Type
+                        </div>
+                        <div id="calcTypeSelectors">
+                            <!-- Rendered by JS via renderCalcTypeSelectors() -->
+                        </div>
+                    </div>
+                    <div
+                        style="background:#f9fafb; border:1px solid #e5e7eb; border-radius:6px; padding:10px; margin-top:4px;">
+                        <div
+                            style="font-size:0.72rem; font-weight:700; text-transform:uppercase; color:#6b7280; margin-bottom:7px;">
+                            Calculated Quantities</div>
+                        <table class="qty-preview-table" id="qtyPreviewTable"></table>
+                    </div>
+                </div>
+
+                <!-- Buyer Info -->
+                <div class="inv-config-section">
+                    <h6><i class="fas fa-building me-1"></i> Buyer Information</h6>
+                    <div class="mb-2">
+                        <div class="form-label-sm">Buyer Name</div>
+                        <input type="text" id="buyerName" class="form-control form-control-sm"
+                            value="RAPCO for Contracting &amp; Industrial Services company">
+                    </div>
+                    <div class="mb-2">
+                        <div class="form-label-sm">Buyer Address</div>
+                        <input type="text" id="buyerAddress" class="form-control form-control-sm"
+                            value="RasTanurah Industrial Area, Zaafran Street, 3">
+                    </div>
+                    <div class="mb-2">
+                        <div class="form-label-sm">Buyer City</div>
+                        <input type="text" id="buyerCity" class="form-control form-control-sm" value="RASTANURAH">
+                    </div>
+                    <div class="mb-2">
+                        <div class="form-label-sm">Buyer Country</div>
+                        <input type="text" id="buyerCountry" class="form-control form-control-sm" value="Saudi Arabia">
+                    </div>
+                    <div class="mb-2">
+                        <div class="form-label-sm">Buyer ZIP/Postal</div>
+                        <input type="text" id="buyerZIP" class="form-control form-control-sm" value="31941">
+                    </div>
+                    <div class="mb-2">
+                        <div class="form-label-sm">Buyer VAT Number</div>
+                        <input type="text" id="buyerVAT" class="form-control form-control-sm" value="300408391900003">
+                    </div>
+                    <div class="mb-2">
+                        <div class="form-label-sm">Buyer Other ID</div>
+                        <input type="text" id="buyerOtherID" class="form-control form-control-sm" value="2066001774">
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2 justify-content-center flex-wrap">
+                <button class="btn btn-bas btn-bas-orange" onclick="saveAndPreviewInvoice('tax')">
+                    <i class="fas fa-save me-1"></i>Save & Preview Tax Invoice
+                </button>
+                <button class="btn-bas btn" onclick="openInvoiceModal('tax')">
+                    <i class="fas fa-file-invoice me-1"></i>Preview Only
+                </button>
+                <button class="btn-bas btn-bas-green btn" onclick="openInvoiceModal('summary')">
+                    <i class="fas fa-list-alt me-1"></i>Summary
+                </button>
+            </div>
+        </div>
+
+        <!-- ══════════ TAB: GENERATED LIST ══════════ -->
+        <div class="fi-panel" id="panel-genList">
+            <div class="fi-card">
+                <div class="fi-card-header">
+                    <span><i class="fas fa-history me-2"></i>History of Generated Invoices</span>
+                    <button class="btn btn-sm btn-light" onclick="loadGeneratedInvoices()">
+                        <i class="fas fa-sync-alt me-1"></i>Refresh
+                    </button>
+                </div>
+                <div class="fi-card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0" style="font-size:0.8rem;">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Inv #</th>
+                                    <th>Issue Date</th>
+                                    <th>PO #</th>
+                                    <th>Period</th>
+                                    <th>Buyer</th>
+                                    <th class="text-end">Total (SAR)</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="generatedListBody">
+                                <!-- Loaded via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════ TAB: SETTINGS ══════════ -->
+        <div class="fi-panel" id="panel-settings">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="fi-card">
+                        <div class="fi-card-header"><i class="fas fa-building me-2"></i>Seller Information</div>
+                        <div class="fi-card-body">
+                            <div class="mb-3 text-center">
+                                <div class="form-label-sm mb-2 text-muted">Company Logo</div>
+                                <div style="width:110px;height:110px;border:1px dashed #ccc;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;border-radius:12px;overflow:hidden;background:#fdfdfd;">
+                                    <img id="sellerLogoPreview" src="" style="width:100%;height:100%;object-fit:contain;display:none;">
+                                    <span id="logoPlaceholder" style="font-size:0.7rem;color:#aaa;"><i class="fas fa-image mb-1 d-block" style="font-size:1.4rem;"></i>No Logo</span>
+                                </div>
+                                <input type="file" id="sellerLogoInput" class="form-control form-control-sm" accept="image/*" onchange="handleLogoUpload(this)">
+                            </div>
+                            <div class="mb-2">
+                                <div class="form-label-sm">Company Name (English)</div><input type="text"
+                                    id="sellerName" class="form-control form-control-sm" value="AnumHasanat Company">
+                            </div>
+                            <div class="mb-2">
+                                <div class="form-label-sm">Company Name (Arabic)</div><input type="text"
+                                    id="sellerNameAr" class="form-control form-control-sm"
+                                    value="شركة أنعم حسنات للمطاعم والتموين والخدمات العامة" dir="rtl">
+                            </div>
+                            <div class="mb-2">
+                                <div class="form-label-sm">Address</div><input type="text" id="sellerAddress"
+                                    class="form-control form-control-sm"
+                                    value="Al Usaytah Dist. Makkah 24423 Saudi Arabia">
+                            </div>
+                            <div class="mb-2">
+                                <div class="form-label-sm">City</div><input type="text" id="sellerCity"
+                                    class="form-control form-control-sm" value="Makkah">
+                            </div>
+                            <div class="mb-2">
+                                <div class="form-label-sm">Country</div><input type="text" id="sellerCountry"
+                                    class="form-control form-control-sm" value="Saudi Arabia">
+                            </div>
+                            <div class="mb-2">
+                                <div class="form-label-sm">ZIP/Postal Code</div><input type="text" id="sellerZIP"
+                                    class="form-control form-control-sm" value="24423">
+                            </div>
+                            <div class="mb-2">
+                                <div class="form-label-sm">VAT Number</div><input type="text" id="sellerVAT"
+                                    class="form-control form-control-sm" value="314431541300003">
+                            </div>
+                            <div class="mb-2">
+                                <div class="form-label-sm">Other Seller ID</div><input type="text" id="sellerOtherID"
+                                    class="form-control form-control-sm" value="7052686040">
+                            </div>
+                            <div class="mb-2">
+                                <div class="form-label-sm">Mobile</div><input type="text" id="sellerMobile"
+                                    class="form-control form-control-sm" value="0595618343">
+                            </div>
+                            <div class="mb-2">
+                                <div class="form-label-sm">Email</div><input type="text" id="sellerEmail"
+                                    class="form-control form-control-sm" value="anumhasanat@gmail.com">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="fi-card" style="border-color: #1e4c8c;">
+                        <div class="fi-card-header" style="background: white; color: #1e4c8c; border-bottom: 2px solid #1e4c8c;">
+                            <i class="fas fa-search-dollar me-2"></i>Tax QR Verification Tool
+                        </div>
+                        <div class="p-3">
+                            <p class="text-muted" style="font-size: 0.7rem; margin-bottom: 8px;">
+                                Paste your <b>Professional QR code string</b> (the long code starting with AR...) below to verify its hidden tax content:
+                            </p>
+                            <textarea id="qrVerifyInput" class="form-control form-control-sm mb-2" rows="3" placeholder="Paste AR... string here" style="font-size: 0.72rem; border-color: #eee;"></textarea>
+                            <button class="btn btn-bas btn-sm w-100 mb-2" onclick="verifyZatcaQR()">
+                                <i class="fas fa-check-circle me-1"></i>Verify Professional Data
+                            </button>
+                            <div id="qrVerifyResult" class="p-2 rounded border-0" style="display:none; background: #f0f7ff; font-size: 0.75rem; line-height: 1.6;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="fi-card">
+                        <div class="fi-card-header"><i class="fas fa-dollar-sign me-2"></i>Unit Prices & Bank Details
+                        </div>
+                        <div class="fi-card-body">
+                            <div class="mb-2">
+                                <div class="form-label-sm">Senior Food Price (SAR)</div><input type="number" step="0.01"
+                                    id="priceSenior" class="form-control form-control-sm" value="19.75">
+                            </div>
+                            <div class="mb-2">
+                                <div class="form-label-sm">Filpino Food Price (SAR)</div><input type="number"
+                                    step="0.01" id="priceFilpino" class="form-control form-control-sm" value="19.75">
+                            </div>
+                            <div class="mb-2">
+                                <div class="form-label-sm">Arabic Food Price (SAR)</div><input type="number" step="0.01"
+                                    id="priceArabic" class="form-control form-control-sm" value="19.75">
+                            </div>
+                            <div class="mb-2">
+                                <div class="form-label-sm">Junior Food Price (SAR)</div><input type="number" step="0.01"
+                                    id="priceJunior" class="form-control form-control-sm" value="17.96">
+                            </div>
+                            <div class="mb-2">
+                                <div class="form-label-sm">Labour Food Price (SAR)</div><input type="number" step="0.01"
+                                    id="priceLabour" class="form-control form-control-sm" value="16.85">
+                            </div>
+                            <div class="mb-2">
+                                <div class="form-label-sm">VAT Rate (%)</div><input type="number" step="0.01"
+                                    id="vatRate" class="form-control form-control-sm" value="15">
+                            </div>
+                            <hr>
+                            <div class="mb-2">
+                                <div class="form-label-sm">Beneficiary Name</div><input type="text" id="bankBeneficiary"
+                                    class="form-control form-control-sm"
+                                    value="AnumHasanat Company (شركة أنو محسنات) Bank">
+                            </div>
+                            <div class="mb-2">
+                                <div class="form-label-sm">Bank Name</div><input type="text" id="bankName"
+                                    class="form-control form-control-sm" value="Al Rajhi Bank">
+                            </div>
+                            <div class="mb-2">
+                                <div class="form-label-sm">A/C Number</div><input type="text" id="bankAC"
+                                    class="form-control form-control-sm" value="608018033252">
+                            </div>
+                            <div class="mb-2">
+                                <div class="form-label-sm">IBAN Number</div><input type="text" id="bankIBAN"
+                                    class="form-control form-control-sm" value="SA82 8000 0311 6080 1803 3252">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="fi-card">
+                        <div class="fi-card-header" style="background:var(--bas-green);"><i class="fas fa-user-tie me-2"></i>Default Invoice & Buyer Details</div>
+                        <div class="fi-card-body">
+                             <div class="mb-2">
+                                <div class="form-label-sm">Default P.O.#</div><input type="text" id="settingDefaultPO"
+                                    class="form-control form-control-sm" value="RP-10337">
+                            </div>
+                             <div class="mb-2">
+                                <div class="form-label-sm">Default Buyer Name</div><input type="text" id="settingBuyerName"
+                                    class="form-control form-control-sm" value="RAPCO for Contracting & Industrial Services company">
+                            </div>
+                             <div class="mb-2">
+                                <div class="form-label-sm">Default Buyer Address</div><input type="text" id="settingBuyerAddress"
+                                    class="form-control form-control-sm" value="RasTanurah Industrial Area, Zaafran Street, 3">
+                            </div>
+                             <div class="mb-2">
+                                <div class="form-label-sm">Default Buyer City</div><input type="text" id="settingBuyerCity"
+                                    class="form-control form-control-sm" value="RASTANURAH">
+                            </div>
+                             <div class="mb-2">
+                                <div class="form-label-sm">Default Buyer VAT</div><input type="text" id="settingBuyerVAT"
+                                    class="form-control form-control-sm" value="300408391900003">
+                            </div>
+                             <div class="mb-2">
+                                <div class="form-label-sm">Default Buyer Other ID</div><input type="text" id="settingBuyerOtherID"
+                                    class="form-control form-control-sm" value="2066001774">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-2">
+                        <button class="btn-bas btn" onclick="saveSettings()"><i class="fas fa-save me-1"></i>Save
+                            Settings</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════ INVOICE MODAL ══════════ -->
+    <div class="fi-modal-overlay" id="invoiceModal" style="display:none;">
+        <div class="fi-modal-box">
+            <div class="fi-modal-toolbar">
+                <span class="fi-modal-title"><i class="fas fa-file-invoice me-2"></i>Invoice Preview</span>
+                <div class="fi-modal-actions">
+                    <button class="btn btn-sm btn-outline-light" onclick="switchModalType('tax')">Tax Invoice</button>
+                    <button class="btn btn-sm btn-outline-light" onclick="switchModalType('summary')">Summary</button>
+                    <button class="btn btn-sm btn-warning" onclick="printModal()"><i
+                            class="fas fa-print me-1"></i>Print</button>
+                    <button class="btn btn-sm btn-success" onclick="downloadPDF()"><i
+                            class="fas fa-download me-1"></i>PDF</button>
+                    <button class="btn btn-sm btn-danger" onclick="closeModal()">✕</button>
+                </div>
+            </div>
+            <div class="fi-modal-content" id="modalContent"></div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="fi-toast"
+        style="position:fixed;bottom:20px;right:20px;z-index:9999;background:#1e4c8c;color:#fff;padding:10px 18px;border-radius:8px;font-size:0.82rem;transform:translateY(80px);opacity:0;transition:all 0.3s;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,0.3);">
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244486"></script>
+    <script src="/js/connection-monitor.js"></script>
+    <script src="/js/food-invoice.js"></script>
+</body>
+
+</html>

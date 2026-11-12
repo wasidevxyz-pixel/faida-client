@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipts Management - Bilal Accounting System (BAS)</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Page Access Control -->
+    <script src="js/pageAccess.js"></script>
+    <style>
+        /* Mobile Specific Overrides */
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                display: none;
+                /* Add toggle logic if needed, or keep hidden */
+            }
+
+            .sidebar.active {
+                display: block;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .top-nav {
+                flex-direction: column;
+                gap: 10px;
+                height: auto;
+                padding: 10px;
+            }
+
+            .top-nav-left,
+            .top-nav-right {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .actions-bar {
+                flex-direction: column;
+                gap: 15px;
+                height: auto;
+            }
+
+            .actions-left,
+            .actions-right {
+                flex-direction: column;
+                width: 100%;
+                gap: 10px;
+            }
+
+            .actions-left button,
+            .actions-right input,
+            .actions-right select,
+            .search-box {
+                width: 100%;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+
+            /* Modal Mobile Styles */
+            .modal-content {
+                width: 95%;
+                margin: 10px auto;
+            }
+
+            .form-row {
+                flex-direction: column;
+            }
+
+            .form-group {
+                width: 100%;
+            }
+        }
+    </style>
+    <link href="/css/desktop-style.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-chart-line"></i> SalesPro</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="main" class="nav-link"><i class="fas fa-home"></i> Home Page</a></li>
+                    <li><a href="items" class="nav-link"><i class="fas fa-box"></i> Items</a></li>
+                    <li><a href="parties" class="nav-link"><i class="fas fa-users"></i> Parties</a></li>
+                    <li><a href="sales" class="nav-link"><i class="fas fa-shopping-cart"></i> Sales</a></li>
+                    <li><a href="purchases" class="nav-link"><i class="fas fa-truck"></i> Purchases</a></li>
+                    <li><a href="payments" class="nav-link"><i class="fas fa-money-bill-wave"></i> Payments</a>
+                    </li>
+                    <li><a href="#receipts" class="nav-link active"><i class="fas fa-receipt"></i> Receipts</a></li>
+                    <li><a href="expenses" class="nav-link"><i class="fas fa-chart-pie"></i> Expenses</a></li>
+                    <li><a href="stock" class="nav-link"><i class="fas fa-warehouse"></i> Stock</a></li>
+                    <li><a href="reports" class="nav-link"><i class="fas fa-file-alt"></i> Reports</a></li>
+                    <li><a href="settings" class="nav-link"><i class="fas fa-cog"></i> Settings</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="btn btn-danger btn-sm"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Standardized Page Header -->
+            <div class="page-header px-3">
+                <div style="flex: 1; display: flex; align-items: center;">
+                    <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+                    <h4 class="mb-0">Receipts Management</h4>
+                </div>
+                <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
+                    <div class="dropdown">
+                        <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown"
+                            style="cursor: pointer;">
+                            <div class="avatar-circle me-2 bg-primary text-white d-flex align-items-center justify-content-center"
+                                style="width: 35px; height: 35px; border-radius: 50%; font-weight: bold;">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <span id="userName" class="me-2">User</span>
+                            <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                        </div>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                            <li><a class="dropdown-item logout-btn" href="#"><i
+                                        class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Receipts Content -->
+            <div class="receipts-content">
+                <!-- Actions Bar -->
+                <div class="actions-bar">
+                    <div class="actions-left">
+                        <button id="addReceiptBtn" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> New Receipt
+                        </button>
+                        <button id="printReceiptBtn" class="btn btn-secondary" disabled>
+                            <i class="fas fa-print"></i> Print Receipt
+                        </button>
+                        <button id="exportReceiptsBtn" class="btn btn-secondary">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                    <div class="actions-right">
+                        <div class="search-box">
+                            <input type="text" id="searchInput" placeholder="Search receipts...">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <input type="date" id="startDate" class="form-control">
+                        <input type="date" id="endDate" class="form-control">
+                        <select id="statusFilter" class="form-control">
+                            <option value="">All Status</option>
+                            <option value="draft">Draft</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Receipts Table -->
+                <div class="table-container">
+                    <table class="data-table" id="receiptsTable">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" id="selectAll"></th>
+                                <th>Receipt #</th>
+                                <th>Date</th>
+                                <th>Customer</th>
+                                <th>Payment Mode</th>
+                                <th>Reference</th>
+                                <th>Amount</th>
+                                <th>Discount</th>
+                                <th>Net Amount</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="receiptsTableBody">
+                            <!-- Receipts will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination" id="pagination">
+                    <!-- Pagination will be loaded here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Receipt Modal -->
+    <div id="receiptModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">New Receipt</h3>
+                <span class="close" id="closeModal">&times;</span>
+            </div>
+            <form id="receiptForm" class="modal-body">
+                <input type="hidden" id="receiptId">
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="customer">Customer *</label>
+                        <select id="customer" class="form-control" required>
+                            <option value="">Select Customer</option>
+                            <!-- Customers will be loaded here -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="receiptDate">Receipt Date *</label>
+                        <input type="date" id="receiptDate" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="paymentMode">Payment Mode *</label>
+                        <select id="paymentMode" class="form-control" required>
+                            <option value="">Select Mode</option>
+                            <option value="cash">Cash</option>
+                            <option value="bank">Bank Transfer</option>
+                            <option value="cheque">Cheque</option>
+                            <option value="card">Credit/Debit Card</option>
+                            <option value="online">Online Payment</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="referenceNumber">Reference Number</label>
+                        <input type="text" id="referenceNumber" class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="amount">Amount *</label>
+                        <input type="number" id="amount" class="form-control" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="discount">Discount</label>
+                        <input type="number" id="discount" class="form-control" step="0.01" min="0" value="0">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="paymentDetails">Payment Details</label>
+                    <textarea id="paymentDetails" class="form-control" rows="3"
+                        placeholder="Enter payment details like bank name, cheque number, etc."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">Notes</label>
+                    <textarea id="notes" class="form-control" rows="2"></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" data-action="save">Save Receipt</button>
+                    <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/receipts.js"></script>
+</body>
+
+</html>
+

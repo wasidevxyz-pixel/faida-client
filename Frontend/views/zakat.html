@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zakat Entry - Bilal Accounting System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <style>
+        :root {
+            --bas-blue: #2c5ba9;
+            --bas-green: #00a65a;
+            --bas-light-blue: #f4f7fa;
+            --bas-border: #d2d6de;
+        }
+
+        body {
+            background-color: #dce4ec;
+            font-size: 0.85rem;
+        }
+
+        .main-content {
+            margin-left: 0 !important;
+            padding-top: 0 !important;
+        }
+
+        .bas-header {
+            background-color: var(--bas-blue);
+            color: white;
+            padding: 8px 15px;
+            text-align: center;
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        .bas-container {
+            padding: 15px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 2px;
+            font-size: 0.8rem;
+        }
+
+        .form-control-sm,
+        .form-select-sm {
+            border-radius: 2px;
+            border-color: var(--bas-border);
+        }
+
+        .btn-bas-save {
+            background-color: #1e4c8c;
+            color: white;
+            border: none;
+            padding: 4px 20px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .btn-bas-clear {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 4px 20px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .btn-bas-search {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 4px 15px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .btn-bas-report {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 4px 15px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .entry-panel {
+            background: white;
+            border: 1px solid var(--bas-border);
+            padding: 15px;
+            height: 100%;
+        }
+
+        .report-panel {
+            background: white;
+            border: 1px solid var(--bas-border);
+            height: 100%;
+        }
+
+        .filter-row {
+            background: #f8f9fa;
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--bas-border);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-row label {
+            font-weight: 600;
+            margin-bottom: 0;
+            font-size: 0.8rem;
+        }
+
+        .table-container {
+            height: calc(100vh - 250px);
+            overflow-y: auto;
+        }
+
+        .table-bas {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-bas thead th {
+            background-color: #17a2b8;
+            color: white;
+            position: sticky;
+            top: 0;
+            font-weight: normal;
+            padding: 8px 10px;
+            text-align: left;
+            font-size: 0.85rem;
+        }
+
+        .table-bas tbody td {
+            padding: 6px 10px;
+            border-bottom: 1px solid #f1f1f1;
+            font-size: 0.8rem;
+        }
+
+        .table-bas tbody tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .table-bas tbody tr.selected {
+            background-color: #e3f2fd;
+        }
+
+        .total-row {
+            background-color: #17a2b8 !important;
+            color: white;
+            font-weight: bold;
+        }
+
+        .total-row td {
+            border: none !important;
+        }
+
+        .search-box {
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--bas-border);
+        }
+
+        .search-box input {
+            width: 100%;
+        }
+
+        .from-branch-row {
+            display: none;
+        }
+
+        .from-branch-row.show {
+            display: block;
+        }
+
+        :root {
+            --bas-blue: #2c5ba9;
+            --bas-green: #00a65a;
+            --bas-light-blue: #f4f7fa;
+            --bas-border: #d2d6de;
+        }
+
+        body {
+            background-color: #dce4ec;
+            font-size: 0.85rem;
+        }
+
+        .main-content {
+            margin-left: 0 !important;
+            padding-top: 0 !important;
+        }
+
+        .bas-header {
+            background-color: var(--bas-blue);
+            color: white;
+            padding: 8px 15px;
+            text-align: center;
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        .bas-container {
+            padding: 15px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 2px;
+            font-size: 0.8rem;
+        }
+
+        .form-control-sm,
+        .form-select-sm {
+            border-radius: 2px;
+            border-color: var(--bas-border);
+        }
+
+        .btn-bas-save {
+            background-color: #1e4c8c;
+            color: white;
+            border: none;
+            padding: 4px 20px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .btn-bas-clear {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 4px 20px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .btn-bas-search {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 4px 15px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .btn-bas-report {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 4px 15px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .entry-panel {
+            background: white;
+            border: 1px solid var(--bas-border);
+            padding: 15px;
+            height: 100%;
+        }
+
+        .report-panel {
+            background: white;
+            border: 1px solid var(--bas-border);
+            height: 100%;
+        }
+
+        .filter-row {
+            background: #f8f9fa;
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--bas-border);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-row label {
+            font-weight: 600;
+            margin-bottom: 0;
+            font-size: 0.8rem;
+        }
+
+        .table-container {
+            height: calc(100vh - 250px);
+            overflow-y: auto;
+        }
+
+        .table-bas {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-bas thead th {
+            background-color: #17a2b8;
+            color: white;
+            position: sticky;
+            top: 0;
+            font-weight: normal;
+            padding: 8px 10px;
+            text-align: left;
+            font-size: 0.85rem;
+        }
+
+        .table-bas tbody td {
+            padding: 6px 10px;
+            border-bottom: 1px solid #f1f1f1;
+            font-size: 0.8rem;
+        }
+
+        .table-bas tbody tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .table-bas tbody tr.selected {
+            background-color: #e3f2fd;
+        }
+
+        .total-row {
+            background-color: #17a2b8 !important;
+            color: white;
+            font-weight: bold;
+        }
+
+        .total-row td {
+            border: none !important;
+        }
+
+        .search-box {
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--bas-border);
+        }
+
+        .search-box input {
+            width: 100%;
+        }
+
+        .from-branch-row {
+            display: none;
+        }
+
+        .from-branch-row.show {
+            display: block;
+        }
+
+        /* Professional Mobile Enhancements */
+        @media (max-width: 768px) {
+            .page-header {
+                padding: 0.5rem 1rem !important;
+                background-color: var(--bas-blue) !important;
+            }
+
+            .bas-container {
+                padding: 10px !important;
+                padding-bottom: 80px !important;
+            }
+
+            .row.g-0 {
+                display: block !important;
+            }
+
+            .col-lg-4,
+            .col-lg-8 {
+                width: 100% !important;
+                padding: 0 !important;
+                margin-bottom: 15px !important;
+            }
+
+            .entry-panel,
+            .report-panel {
+                border-radius: 12px !important;
+                border: none !important;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
+            }
+
+            .form-label,
+            .filter-row label {
+                font-size: 0.75rem !important;
+                color: #64748b !important;
+                font-weight: 600 !important;
+            }
+
+            .form-control,
+            .form-select {
+                height: 38px !important;
+                font-size: 0.85rem !important;
+                border-radius: 8px !important;
+            }
+
+            .filter-row {
+                padding: 10px !important;
+                gap: 10px !important;
+                display: block !important;
+            }
+
+            .filter-row>div {
+                width: 100% !important;
+                margin-bottom: 8px !important;
+            }
+
+            .filter-row>div input,
+            .filter-row>div select {
+                width: 100% !important;
+                flex: 1;
+            }
+
+            .table-container {
+                height: calc(100vh - 420px) !important;
+                border-radius: 0 0 12px 12px !important;
+            }
+
+            /* Bottom Action Bar */
+            .action-bar-mobile {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: white;
+                display: flex !important;
+                justify-content: space-around;
+                padding: 8px 5px;
+                box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.1);
+                z-index: 1050;
+                border-top: 1px solid #e2e8f0;
+                height: 65px;
+            }
+
+            .action-btn-mobile {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                background: none;
+                border: none;
+                color: #64748b;
+                font-size: 0.65rem;
+                font-weight: 600;
+                flex: 1;
+                transition: all 0.2s;
+            }
+
+            .action-btn-mobile i {
+                font-size: 1.25rem;
+                margin-bottom: 3px;
+            }
+
+            .action-btn-mobile:active {
+                color: var(--bas-blue);
+            }
+
+            .btn-save-mobile i {
+                color: #10b981;
+            }
+
+            .btn-report-mobile i {
+                color: #8b5cf6;
+            }
+
+            .btn-toggle-mobile i {
+                color: #3b82f6;
+            }
+
+            .d-flex.gap-3,
+            .filter-row button {
+                display: none !important;
+                /* Hide desktop buttons */
+            }
+
+            /* Toggle panels on mobile */
+            #entryPanelWrapper {
+                display: block;
+            }
+
+            #reportPanelWrapper {
+                display: none;
+            }
+        }
+
+        @media (max-width: 992px) {
+
+            .row.g-0>.col-lg-4,
+            .row.g-0>.col-lg-8 {
+                padding: 0 !important;
+            }
+
+            .entry-panel {
+                margin-bottom: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main-content">
+        <!-- Standardized Page Header -->
+        <div class="page-header px-3">
+            <div style="flex: 1; display: flex; align-items: center;">
+                <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+                <h4 class="mb-0">Zakat Entry</h4>
+            </div>
+            <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
+                <div class="dropdown">
+                    <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown"
+                        style="cursor: pointer;">
+                        <div class="avatar-circle me-2 bg-primary text-white d-flex align-items-center justify-content-center"
+                            style="width: 35px; height: 35px; border-radius: 50%; font-weight: bold;">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <span id="userName" class="me-2 d-none d-md-inline">User</span>
+                        <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                        <li><a class="dropdown-item logout-btn" href="#"><i
+                                    class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="bas-container">
+            <div class="row g-0">
+                <!-- Left: Entry Form -->
+                <div class="col-lg-4 pe-lg-2 mb-3 mb-lg-0" id="entryPanelWrapper">
+                    <div class="entry-panel shadow-sm">
+                        <div class="mb-3">
+                            <label class="form-label">Type</label>
+                            <select id="zakatType" class="form-select form-select-sm" onchange="onTypeChange()">
+                                <option value="Pay">Pay</option>
+                                <option value="Receive">Receive</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Date</label>
+                            <input type="date" id="zakatDate" class="form-control form-control-sm">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Branch</label>
+                            <input type="text" id="zakatBranch" class="form-control form-control-sm" value="F-6"
+                                readonly style="background-color: #e9ecef;">
+                        </div>
+                        <!-- From Branch - Only shows for Receive type -->
+                        <div class="mb-3 from-branch-row" id="fromBranchRow">
+                            <label class="form-label">From</label>
+                            <select id="fromBranch" class="form-select form-select-sm">
+                                <option value="">Select Branch</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Amount</label>
+                            <input type="number" id="zakatAmount" class="form-control form-control-sm" step="0.01"
+                                min="0">
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">Remarks</label>
+                            <textarea id="zakatRemarks" class="form-control form-control-sm" rows="2"></textarea>
+                        </div>
+                        <div class="d-flex gap-3">
+                            <button class="btn btn-bas-save" id="saveBtn" onclick="saveZakat()">Save</button>
+                            <button class="btn btn-bas-clear" onclick="clearForm()">Clear</button>
+                        </div>
+                        <input type="hidden" id="editingZakatId">
+                    </div>
+                </div>
+
+                <!-- Right: Report Panel -->
+                <div class="col-lg-8 ps-lg-2" id="reportPanelWrapper">
+                    <div class="report-panel shadow-sm">
+                        <!-- Filter Row -->
+                        <div class="filter-row">
+                            <div class="d-flex align-items-center gap-2">
+                                <label>From</label>
+                                <input type="date" id="filterFromDate" class="form-control form-control-sm"
+                                    style="width: 130px;">
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <label>To</label>
+                                <input type="date" id="filterToDate" class="form-control form-control-sm"
+                                    style="width: 130px;">
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <label>Branch</label>
+                                <select id="filterBranch" class="form-select form-select-sm" style="width: 130px;">
+                                    <option value="all">All Branches</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-bas-search" onclick="searchZakats()">Search</button>
+                            <button class="btn btn-bas-report" onclick="viewReport()">View Report</button>
+                            <button class="btn btn-info btn-sm text-white" onclick="generateZakatSMS()"
+                                title="Generate SMS">
+                                <i class="fas fa-sms me-1"></i>SMS
+                            </button>
+                        </div>
+
+                        <!-- Search Box -->
+                        <div class="search-box">
+                            <input type="text" id="tableSearch" class="form-control form-control-sm"
+                                placeholder="Search" onkeyup="filterTable()">
+                        </div>
+
+                        <!-- Table -->
+                        <div class="table-container">
+                            <table class="table-bas" id="zakatTable">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 15%">Dated</th>
+                                        <th style="width: 12%">Type</th>
+                                        <th style="width: 15%">Amount</th>
+                                        <th style="width: 15%">From</th>
+                                        <th style="width: 28%">Remarks</th>
+                                        <th style="width: 15%">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="zakatTableBody">
+                                    <tr class="total-row">
+                                        <td></td>
+                                        <td>Total</td>
+                                        <td id="totalAmount">0</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Action Bar -->
+    <div class="action-bar-mobile d-none">
+        <button type="button" class="action-btn-mobile btn-toggle-mobile" id="mobileToggleBtn"
+            onclick="toggleMobileView()">
+            <i class="fas fa-list"></i>
+            <span id="toggleText">View Report</span>
+        </button>
+        <button type="button" class="action-btn-mobile btn-save-mobile" onclick="saveZakat()">
+            <i class="fas fa-save"></i>
+            <span>Save</span>
+        </button>
+        <button type="button" class="action-btn-mobile btn-report-mobile" onclick="viewReport()">
+            <i class="fas fa-file-alt"></i>
+            <span>Report</span>
+        </button>
+        <button type="button" class="action-btn-mobile btn-clear-mobile" onclick="clearForm()">
+            <i class="fas fa-redo"></i>
+            <span>Clear</span>
+        </button>
+    </div>
+
+    <script>
+        function toggleMobileView() {
+            const entryPanel = document.getElementById('entryPanelWrapper');
+            const reportPanel = document.getElementById('reportPanelWrapper');
+            const toggleText = document.getElementById('toggleText');
+            const toggleIcon = document.querySelector('#mobileToggleBtn i');
+
+            if (entryPanel.style.display !== 'none') {
+                entryPanel.style.setProperty('display', 'none', 'important');
+                reportPanel.style.setProperty('display', 'block', 'important');
+                toggleText.innerText = 'View Entry';
+                toggleIcon.className = 'fas fa-edit';
+            } else {
+                entryPanel.style.setProperty('display', 'block', 'important');
+                reportPanel.style.setProperty('display', 'none', 'important');
+                toggleText.innerText = 'View Report';
+                toggleIcon.className = 'fas fa-list';
+            }
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244568"></script>
+    <script src="/js/connection-monitor.js"></script>
+    <script src="/js/zakat.js"></script>
+</body>
+
+</html>
+

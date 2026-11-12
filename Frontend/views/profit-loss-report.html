@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profit & Loss Report - Bilal Accounting System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/desktop-style.css" rel="stylesheet">
+    <link href="/css/sidebar.css" rel="stylesheet">
+    <style>
+        .report-container {
+            padding: 15px;
+            height: calc(100vh - 60px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-panel {
+            background: linear-gradient(135deg, #1a5f7a 0%, #0288d1 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            color: white;
+        }
+
+        .filter-panel label {
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .filter-panel .form-control,
+        .filter-panel .form-select {
+            border: none;
+            border-radius: 5px;
+        }
+
+        .quick-filters {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .quick-filters .btn {
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .data-panel {
+            flex: 1;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .data-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .data-header h5 {
+            margin: 0;
+            color: #1a5f7a;
+        }
+
+        .summary-cards {
+            display: flex;
+            gap: 15px;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .summary-card {
+            flex: 1;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .summary-card.revenue {
+            background: linear-gradient(135deg, #2e7d32 0%, #4caf50 100%);
+            color: white;
+        }
+
+        .summary-card.cost {
+            background: linear-gradient(135deg, #c62828 0%, #e53935 100%);
+            color: white;
+        }
+
+        .summary-card.gross {
+            background: linear-gradient(135deg, #1a5f7a 0%, #0288d1 100%) !important;
+            color: white;
+        }
+
+        .summary-card.expenses {
+            background: linear-gradient(135deg, #f57c00 0%, #ff9800 100%);
+            color: white;
+        }
+
+        .summary-card.net-profit {
+            background: linear-gradient(135deg, #1a5f7a 0%, #0288d1 100%);
+            color: white;
+        }
+
+        .summary-card .label {
+            font-size: 12px;
+            opacity: 0.9;
+            text-transform: uppercase;
+        }
+
+        .summary-card .value {
+            font-size: 22px;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+
+        .table-container {
+            flex: 1;
+            overflow: auto;
+            padding: 0;
+        }
+
+        .pnl-section {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .pnl-section h6 {
+            color: #1a5f7a;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            font-size: 14px;
+        }
+
+        .pnl-table {
+            width: 100%;
+        }
+
+        .pnl-table td {
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+
+        .pnl-table .item-row td {
+            border-bottom: 1px solid #eee;
+        }
+
+        .pnl-table .total-row {
+            background: #e0f2f1;
+            font-weight: 600;
+        }
+
+        .pnl-table .grand-total {
+            background: linear-gradient(135deg, #1a5f7a 0%, #0288d1 100%);
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .amount-positive {
+            color: #2e7d32;
+            font-weight: 600;
+        }
+
+        .amount-negative {
+            color: #c62828;
+            font-weight: 600;
+        }
+
+        .no-data {
+            padding: 50px;
+            text-align: center;
+            color: #666;
+        }
+
+        .no-data i {
+            font-size: 50px;
+            color: #ddd;
+            margin-bottom: 15px;
+        }
+
+        .loading {
+            padding: 50px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .filter-panel .row>div {
+                margin-bottom: 10px;
+            }
+
+            .summary-cards {
+                flex-direction: column;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: white !important;
+            }
+
+            .page-header,
+            .filter-panel,
+            .quick-filters {
+                display: none !important;
+            }
+
+            .print-header {
+                display: block !important;
+            }
+
+            .report-container {
+                padding: 0 !important;
+                height: auto !important;
+            }
+
+            .data-panel {
+                box-shadow: none !important;
+                border-radius: 0 !important;
+            }
+
+            .data-header {
+                background: none !important;
+                border-bottom: 2px solid #333 !important;
+            }
+
+            .summary-cards {
+                display: none !important;
+            }
+
+            .table-container {
+                overflow: visible !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="print-header" style="display:none; text-align:center; margin-bottom:20px;">
+        <h2 style="margin:0; text-transform:uppercase; letter-spacing:1px;">Bilal Accounting System</h2>
+        <h4 id="printBranchName" style="margin:5px 0 0; color:#555;">All Branches</h4>
+        <h5 id="printReportTitle"
+            style="margin:5px 0; border-bottom:1px solid #ccc; display:inline-block; padding-bottom:5px;">Profit & Loss
+            Report</h5>
+        <p id="printDateRange" style="margin:5px 0 0; font-size:12px; color:#666;">-</p>
+    </div>
+
+    <div class="page-header px-3">
+        <div style="flex: 1; display: flex; align-items: center;">
+
+            <i class="fas fa-bars me-3" id="sidebarToggle" style="cursor:pointer; font-size: 1rem;"></i>
+            <i class="fas fa-calculator me-2"></i> Profit & Loss Report
+        </div>
+        <div style="flex: 1; display: flex; justify-content: flex-end; align-items: center;">
+            <div class="dropdown">
+                <div class="d-flex align-items-center text-white" data-bs-toggle="dropdown" style="cursor: pointer;">
+                    <i class="fas fa-user-circle me-2" style="font-size: 1.2rem;"></i>
+                    <span id="userName" class="me-2">User</span>
+                    <i class="fas fa-chevron-down" style="font-size: 0.7rem;"></i>
+                </div>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                    <li><a class="dropdown-item logout-btn" href="#"><i
+                                class="fas fa-sign-out-alt me-2 text-danger"></i>Sign Out</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="report-container">
+        <div class="filter-panel">
+            <div class="row g-3">
+                <div class="col-md-2">
+                    <label>From Date</label>
+                    <input type="date" id="filterFromDate" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-2">
+                    <label>To Date</label>
+                    <input type="date" id="filterToDate" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-2">
+                    <label>Branch</label>
+                    <select id="filterBranch" class="form-select form-select-sm">
+                        <option value="">All Branches</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end gap-2">
+                    <button class="btn btn-light btn-sm" onclick="loadReport()"><i class="fas fa-sync me-1"></i>
+                        Generate</button>
+                    <button class="btn btn-warning btn-sm" onclick="printReport()"><i class="fas fa-print me-1"></i>
+                        Print</button>
+                    <button class="btn btn-success btn-sm" onclick="exportExcel()"><i
+                            class="fas fa-file-excel me-1"></i> Excel</button>
+                </div>
+            </div>
+            <div class="quick-filters">
+                <span class="me-2"><i class="fas fa-clock me-1"></i> Quick:</span>
+                <button class="btn btn-outline-light btn-sm" onclick="setDateRange('today')">Today</button>
+                <button class="btn btn-outline-light btn-sm" onclick="setDateRange('week')">This Week</button>
+                <button class="btn btn-outline-light btn-sm" onclick="setDateRange('month')">This Month</button>
+                <button class="btn btn-outline-light btn-sm" onclick="setDateRange('lastMonth')">Last Month</button>
+                <button class="btn btn-outline-light btn-sm" onclick="setDateRange('quarter')">This Quarter</button>
+                <button class="btn btn-outline-light btn-sm" onclick="setDateRange('year')">This Year</button>
+            </div>
+        </div>
+
+        <div class="data-panel">
+            <div class="data-header">
+                <h5><i class="fas fa-chart-pie me-2"></i>Profit & Loss Statement</h5>
+                <div id="reportPeriod" class="text-muted">-</div>
+            </div>
+
+            <div class="summary-cards">
+                <div class="summary-card revenue">
+                    <div class="label"><i class="fas fa-arrow-down me-1"></i> Revenue</div>
+                    <div class="value" id="totalRevenue">0</div>
+                </div>
+                <div class="summary-card cost">
+                    <div class="label"><i class="fas fa-arrow-up me-1"></i> Cost of Sales</div>
+                    <div class="value" id="totalCost">0</div>
+                </div>
+                <div class="summary-card gross">
+                    <div class="label"><i class="fas fa-chart-line me-1"></i> Gross Profit</div>
+                    <div class="value" id="grossProfit">0</div>
+                </div>
+                <div class="summary-card expenses">
+                    <div class="label"><i class="fas fa-receipt me-1"></i> Expenses</div>
+                    <div class="value" id="totalExpenses">0</div>
+                </div>
+                <div class="summary-card net-profit">
+                    <div class="label"><i class="fas fa-trophy me-1"></i> Net Profit</div>
+                    <div class="value" id="netProfit">0</div>
+                </div>
+            </div>
+
+            <div class="table-container" id="reportContent">
+                <div class="no-data">
+                    <i class="fas fa-chart-pie"></i>
+                    <p>Click "Generate" to view Profit & Loss Statement</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/pageAccess.js"></script>
+    <script src="/js/sidebar.js?v=1789486244522"></script>
+    <script src="/js/desktop-ui.js?v=12"></script>
+    <script>
+        function formatCurrency(amt) { return new Intl.NumberFormat('en-PK', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amt || 0); }
+        function formatDate(d) { if (!d) return '-'; return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }); }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            if (!localStorage.getItem('token')) { window.location.href = 'login'; return; }
+            setDateRange('month');
+            loadFilters();
+        });
+
+        function setDateRange(range) {
+            const today = new Date();
+            let from = new Date(), to = new Date();
+            switch (range) {
+                case 'today': from = to = today; break;
+                case 'week': from = new Date(today); from.setDate(today.getDate() - today.getDay()); to = new Date(from); to.setDate(from.getDate() + 6); break;
+                case 'month': from = new Date(today.getFullYear(), today.getMonth(), 1); to = new Date(today.getFullYear(), today.getMonth() + 1, 0); break;
+                case 'lastMonth': from = new Date(today.getFullYear(), today.getMonth() - 1, 1); to = new Date(today.getFullYear(), today.getMonth(), 0); break;
+                case 'quarter':
+                    const quarter = Math.floor(today.getMonth() / 3);
+                    from = new Date(today.getFullYear(), quarter * 3, 1);
+                    to = new Date(today.getFullYear(), (quarter + 1) * 3, 0);
+                    break;
+                case 'year': from = new Date(today.getFullYear(), 0, 1); to = new Date(today.getFullYear(), 11, 31); break;
+            }
+            document.getElementById('filterFromDate').value = from.toISOString().split('T')[0];
+            document.getElementById('filterToDate').value = to.toISOString().split('T')[0];
+        }
+
+        async function loadFilters() {
+            const token = localStorage.getItem('token');
+            try {
+                const res = await fetch('/api/v1/stores', { headers: { 'Authorization': `Bearer ${token}` } });
+                if (res.ok) { const d = await res.json(); (d.data || []).forEach(s => document.getElementById('filterBranch').innerHTML += `<option value="${s._id}">${s.name}</option>`); }
+            } catch (e) { }
+        }
+
+        async function loadReport() {
+            const token = localStorage.getItem('token');
+            const startDate = document.getElementById('filterFromDate').value;
+            const endDate = document.getElementById('filterToDate').value;
+            const branch = document.getElementById('filterBranch').value;
+
+            document.getElementById('reportPeriod').textContent = `${formatDate(startDate)} to ${formatDate(endDate)}`;
+            document.getElementById('reportContent').innerHTML = `<div class="loading"><div class="spinner-border" style="color:#00796b"></div><p class="mt-2 text-muted">Calculating...</p></div>`;
+
+            // Update Print Header
+            const branchText = branch ? document.querySelector(`#filterBranch option[value="${branch}"]`)?.text : 'All Branches';
+            if (document.getElementById('printBranchName')) document.getElementById('printBranchName').textContent = branchText;
+            if (document.getElementById('printDateRange')) document.getElementById('printDateRange').textContent = `Period: ${formatDate(startDate)} to ${formatDate(endDate)}`;
+
+            try {
+                // Fetch Sales
+                let salesQuery = `?startDate=${startDate}&endDate=${endDate}&limit=10000`;
+                if (branch) salesQuery += `&store=${branch}`;
+                const salesRes = await fetch(`/api/v1/sales${salesQuery}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const salesData = salesRes.ok ? await salesRes.json() : { data: [] };
+
+                // Fetch Purchases
+                let purchaseQuery = `?startDate=${startDate}&endDate=${endDate}&limit=10000`;
+                if (branch) purchaseQuery += `&store=${branch}`;
+                const purchaseRes = await fetch(`/api/v1/purchases${purchaseQuery}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const purchaseData = purchaseRes.ok ? await purchaseRes.json() : { data: [] };
+
+                // Fetch Expenses
+                let expenseQuery = `?startDate=${startDate}&endDate=${endDate}&limit=10000`;
+                if (branch) expenseQuery += `&branch=${branch}`;
+                const expenseRes = await fetch(`/api/v1/expenses${expenseQuery}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const expenseData = expenseRes.ok ? await expenseRes.json() : { data: [] };
+
+                // Calculate totals
+                let totalSales = 0, totalPurchases = 0, totalExpenses = 0, totalReceipts = 0;
+
+                (salesData.data || []).forEach(s => {
+                    totalSales += s.grandTotal || s.totalAmount || 0;
+                });
+
+                (purchaseData.data || []).forEach(p => {
+                    totalPurchases += p.grandTotal || p.totalAmount || 0;
+                });
+
+                // Group expenses by head
+                const expensesByHead = {};
+                (expenseData.data || []).forEach(e => {
+                    const head = e.head || 'Miscellaneous';
+                    if (e.type === 'receipt') {
+                        totalReceipts += Math.abs(e.amount || 0);
+                    } else {
+                        if (!expensesByHead[head]) expensesByHead[head] = 0;
+                        expensesByHead[head] += Math.abs(e.amount || 0);
+                        totalExpenses += Math.abs(e.amount || 0);
+                    }
+                });
+
+                const grossProfit = totalSales - totalPurchases;
+                const netProfit = grossProfit - totalExpenses + totalReceipts;
+
+                // Update summary cards
+                document.getElementById('totalRevenue').textContent = formatCurrency(totalSales);
+                document.getElementById('totalCost').textContent = formatCurrency(totalPurchases);
+                document.getElementById('grossProfit').textContent = formatCurrency(grossProfit);
+                document.getElementById('totalExpenses').textContent = formatCurrency(totalExpenses);
+                document.getElementById('netProfit').textContent = formatCurrency(netProfit);
+
+                // Render P&L statement
+                let html = `
+                    <div class="pnl-section">
+                        <h6><i class="fas fa-arrow-down me-2"></i>Revenue</h6>
+                        <table class="pnl-table">
+                            <tr class="item-row"><td>Sales Revenue</td><td class="text-end amount-positive" style="width:150px">${formatCurrency(totalSales)}</td></tr>
+                            <tr class="item-row"><td>Other Income (Receipts)</td><td class="text-end amount-positive">${formatCurrency(totalReceipts)}</td></tr>
+                            <tr class="total-row"><td>Total Revenue</td><td class="text-end">${formatCurrency(totalSales + totalReceipts)}</td></tr>
+                        </table>
+                    </div>
+
+                    <div class="pnl-section">
+                        <h6><i class="fas fa-arrow-up me-2"></i>Cost of Sales</h6>
+                        <table class="pnl-table">
+                            <tr class="item-row"><td>Purchases</td><td class="text-end amount-negative" style="width:150px">${formatCurrency(totalPurchases)}</td></tr>
+                            <tr class="total-row"><td>Cost of Goods Sold</td><td class="text-end">${formatCurrency(totalPurchases)}</td></tr>
+                        </table>
+                    </div>
+
+                    <div class="pnl-section">
+                        <table class="pnl-table">
+                            <tr class="total-row" style="background:#bbdefb"><td><strong>Gross Profit</strong></td><td class="text-end ${grossProfit >= 0 ? 'amount-positive' : 'amount-negative'}" style="width:150px"><strong>${formatCurrency(grossProfit)}</strong></td></tr>
+                        </table>
+                    </div>
+
+                    <div class="pnl-section">
+                        <h6><i class="fas fa-receipt me-2"></i>Operating Expenses</h6>
+                        <table class="pnl-table">
+                `;
+
+                Object.keys(expensesByHead).sort().forEach(head => {
+                    html += `<tr class="item-row"><td>${head}</td><td class="text-end amount-negative" style="width:150px">${formatCurrency(expensesByHead[head])}</td></tr>`;
+                });
+
+                if (Object.keys(expensesByHead).length === 0) {
+                    html += `<tr class="item-row"><td colspan="2" class="text-muted">No expenses recorded</td></tr>`;
+                }
+
+                html += `
+                            <tr class="total-row"><td>Total Operating Expenses</td><td class="text-end">${formatCurrency(totalExpenses)}</td></tr>
+                        </table>
+                    </div>
+
+                    <div class="pnl-section">
+                        <table class="pnl-table">
+                            <tr class="grand-total"><td><i class="fas fa-trophy me-2"></i>Net Profit/Loss</td><td class="text-end" style="width:150px">${formatCurrency(netProfit)}</td></tr>
+                        </table>
+                    </div>
+                `;
+
+                document.getElementById('reportContent').innerHTML = html;
+
+            } catch (e) {
+                console.error(e);
+                document.getElementById('reportContent').innerHTML = `<div class="no-data text-danger"><i class="fas fa-exclamation-triangle"></i><p>Error: ${e.message}</p></div>`;
+            }
+        }
+
+        function printReport() { window.print(); }
+        function exportExcel() { alert('Excel export coming soon!'); }
+    </script>
+</body>
+
+</html>
+

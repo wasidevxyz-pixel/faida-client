@@ -5,12 +5,14 @@
   const queueStatus = document.getElementById('queueStatus');
   const money = (value) => `Rs. ${Number(value || 0).toFixed(2)}`;
 
+  let currentTab = 'Pending Approval';
+
   async function apiRequest(url, options = {}) {
     const response = await fetch(url, {
       ...options,
       headers: {
         ...(options.body ? { 'Content-Type': 'application/json' } : {}),
-        ...(localStorage.getItem('token') ? { Authorization: `******'token')}` } : {}),
+        ...(localStorage.getItem('token') ? { Authorization: `Bearer ${localStorage.getItem('token')}` } : {}),
         ...(options.headers || {})
       }
     });
@@ -57,7 +59,10 @@
   function renderQueue(returns) {
     queueList.replaceChildren();
     if (!returns.length) {
-      appendText(queueList, 'div', 'No POS return requests are waiting for approval.', 'text-center text-muted py-5');
+      const msg = currentTab === 'Pending Approval'
+        ? 'No POS return requests are waiting for approval.'
+        : (currentTab === 'Posted' ? 'No approved / posted returns found.' : 'No rejected returns found.');
+      appendText(queueList, 'div', msg, 'text-center text-muted py-5');
       return;
     }
 
@@ -76,14 +81,15 @@
       appendText(titleWrap, 'div', saleInvoiceNo, 'approval-card-meta');
       heading.appendChild(titleWrap);
       const submittedOn = saleReturn.createdAt ? new Date(saleReturn.createdAt).toLocaleString() : '—';
-      appendText(heading, 'div', `Submitted ${submittedOn}`, 'approval-card-meta');
+      appendText(heading, 'div', `Date: ${submittedOn}`, 'approval-card-meta');
       card.appendChild(heading);
 
       const meta = document.createElement('div');
       meta.className = 'approval-card-meta mt-2';
       const customer = saleReturn.customer?.customerName || saleReturn.customer?.name || 'Walk-in Customer';
       const requester = saleReturn.createdBy?.name || saleReturn.createdBy?.email || 'Unknown user';
-      meta.textContent = `Customer: ${customer} · Requested by: ${requester}`;
+      const reviewer = saleReturn.reviewedBy?.name ? ` · Reviewed by: ${saleReturn.reviewedBy.name}` : '';
+      meta.textContent = `Customer: ${customer} · Requested by: ${requester}${reviewer}`;
       card.appendChild(meta);
 
       const lines = document.createElement('div');
@@ -94,37 +100,82 @@
       if (saleReturn.remarks) {
         appendText(card, 'div', `Remarks: ${saleReturn.remarks}`, 'approval-card-meta mb-2');
       }
+
       const footer = document.createElement('div');
       footer.className = 'approval-card-footer';
-      appendText(footer, 'div', `Refund: ${money(saleReturn.netTotal)}`, 'approval-card-total');
+      appendText(footer, 'div', `Refund Total: ${money(saleReturn.netTotal || saleReturn.refundAmount)}`, 'approval-card-total');
+
       const actions = document.createElement('div');
       actions.className = 'approval-actions';
-      const reject = document.createElement('button');
-      reject.type = 'button';
-      reject.className = 'btn btn-outline-danger btn-sm';
-      reject.dataset.action = 'reject';
-      reject.textContent = 'Reject';
-      const approve = document.createElement('button');
-      approve.type = 'button';
-      approve.className = 'btn btn-success btn-sm';
-      approve.dataset.action = 'approve';
-      approve.innerHTML = '<i class="fas fa-check me-1"></i>Approve &amp; Post';
-      actions.append(reject, approve);
+
+      if (saleReturn.status === 'Pending Approval') {
+        const reject = document.createElement('button');
+        reject.type = 'button';
+        reject.className = 'btn btn-outline-danger btn-sm';
+        reject.dataset.action = 'reject';
+        reject.textContent = 'Reject';
+
+        const approve = document.createElement('button');
+        approve.type = 'button';
+        approve.className = 'btn btn-success btn-sm';
+        approve.dataset.action = 'approve';
+        approve.innerHTML = '<i class="fas fa-check me-1"></i>Approve &amp; Post';
+
+        actions.append(reject, approve);
+      } else if (saleReturn.status === 'Posted') {
+        const badge = document.createElement('span');
+        badge.className = 'badge bg-success py-2 px-3';
+        badge.innerHTML = '<i class="fas fa-check-double me-1"></i>Approved &amp; Stock Returned';
+
+        const printBtn = document.createElement('a');
+        printBtn.href = `/print-invoice?type=wh-sale-return&id=${encodeURIComponent(saleReturn._id)}&format=thermal`;
+        printBtn.target = '_blank';
+        printBtn.className = 'btn btn-sm btn-outline-primary ms-2';
+        printBtn.innerHTML = '<i class="fas fa-print me-1"></i>Print Credit Note';
+
+        actions.append(badge, printBtn);
+      } else {
+        const badge = document.createElement('span');
+        badge.className = 'badge bg-danger py-2 px-3';
+        badge.innerHTML = '<i class="fas fa-times-circle me-1"></i>Rejected / Cancelled';
+        actions.appendChild(badge);
+      }
+
       footer.appendChild(actions);
       card.appendChild(footer);
       queueList.appendChild(card);
     });
   }
 
+  async function loadCounts() {
+    try {
+      const [pendingRes, postedRes, rejectedRes] = await Promise.all([
+        apiRequest('/api/v1/wh-sales/pos-return-queue?status=Pending%20Approval'),
+        apiRequest('/api/v1/wh-sales/pos-return-queue?status=Posted'),
+        apiRequest('/api/v1/wh-sales/pos-return-queue?status=Cancelled')
+      ]);
+      const pendingEl = document.getElementById('pendingCount');
+      const postedEl = document.getElementById('postedCount');
+      const rejectedEl = document.getElementById('rejectedCount');
+
+      if (pendingEl) pendingEl.textContent = pendingRes.count || 0;
+      if (postedEl) postedEl.textContent = postedRes.count || 0;
+      if (rejectedEl) rejectedEl.textContent = rejectedRes.count || 0;
+    } catch (e) {
+      console.error('Count load error:', e);
+    }
+  }
+
   async function loadQueue() {
-    queueStatus.textContent = 'Loading pending requests…';
+    queueStatus.textContent = `Loading ${currentTab.toLowerCase()} requests…`;
     queueStatus.className = 'approval-status';
     try {
-      const result = await apiRequest('/api/v1/wh-sales/pos-return-queue');
+      const result = await apiRequest(`/api/v1/wh-sales/pos-return-queue?status=${encodeURIComponent(currentTab)}`);
       renderQueue(result.data || []);
-      queueStatus.textContent = `${result.count || 0} pending return request${result.count === 1 ? '' : 's'}.`;
+      queueStatus.textContent = `${result.count || 0} ${currentTab.toLowerCase()} request${result.count === 1 ? '' : 's'}.`;
+      loadCounts();
     } catch (error) {
-      queueStatus.textContent = `Could not load approval queue: ${error.message}`;
+      queueStatus.textContent = `Could not load returns: ${error.message}`;
       queueStatus.className = 'approval-status error';
       queueList.replaceChildren();
     }
@@ -163,11 +214,23 @@
   }
 
   document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('refreshQueue').addEventListener('click', loadQueue);
+    document.getElementById('refreshQueue')?.addEventListener('click', loadQueue);
+
+    // Tab buttons
+    document.querySelectorAll('.queue-tab-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.queue-tab-btn').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentTab = btn.dataset.status;
+        loadQueue();
+      });
+    });
+
     queueList.addEventListener('click', (event) => {
       const button = event.target.closest('button[data-action]');
       if (button) reviewRequest(button);
     });
+
     loadQueue();
   });
 })();

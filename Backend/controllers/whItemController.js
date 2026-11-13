@@ -45,27 +45,30 @@ exports.getWHItems = async (req, res) => {
             delete queryObj.showInactive;
         }
 
-        if (req.user && req.user.role !== 'admin') {
-            if (req.user.allowedWHItemCategories && req.user.allowedWHItemCategories.length > 0) {
-                if (queryObj.category) {
-                    if (queryObj.category.$in) {
-                        const requestedCats = Array.isArray(queryObj.category.$in) ? queryObj.category.$in : [queryObj.category.$in];
-                        const allowedIds = req.user.allowedWHItemCategories.map(id => id.toString());
-                        const isAllowed = requestedCats.every(catId => allowedIds.includes(catId.toString()));
-                        if (!isAllowed) {
-                            return res.status(200).json({ success: true, count: 0, totalCount: 0, data: [] });
-                        }
-                    } else {
-                        const allowedIds = req.user.allowedWHItemCategories.map(id => id.toString());
-                        if (!allowedIds.includes(queryObj.category.toString())) {
-                            return res.status(200).json({ success: true, count: 0, totalCount: 0, data: [] });
-                        }
+        const isAdmin = req.user && (
+            req.user.role === 'admin' ||
+            req.user.role === 'administrator' ||
+            req.user.role === 'superadmin' ||
+            (req.user.groupId && req.user.groupId.isAdmin)
+        );
+
+        if (!isAdmin && req.user && req.user.allowedWHItemCategories && req.user.allowedWHItemCategories.length > 0) {
+            if (queryObj.category) {
+                if (queryObj.category.$in) {
+                    const requestedCats = Array.isArray(queryObj.category.$in) ? queryObj.category.$in : [queryObj.category.$in];
+                    const allowedIds = req.user.allowedWHItemCategories.map(id => id.toString());
+                    const isAllowed = requestedCats.every(catId => allowedIds.includes(catId.toString()));
+                    if (!isAllowed) {
+                        return res.status(200).json({ success: true, count: 0, totalCount: 0, data: [] });
                     }
                 } else {
-                    queryObj.category = { $in: req.user.allowedWHItemCategories };
+                    const allowedIds = req.user.allowedWHItemCategories.map(id => id.toString());
+                    if (!allowedIds.includes(queryObj.category.toString())) {
+                        return res.status(200).json({ success: true, count: 0, totalCount: 0, data: [] });
+                    }
                 }
-            } else if (!req.posCatalog) {
-                return res.status(200).json({ success: true, count: 0, totalCount: 0, data: [] });
+            } else {
+                queryObj.category = { $in: req.user.allowedWHItemCategories };
             }
         }
 
@@ -146,12 +149,14 @@ exports.getWHItemByBarcode = async (req, res) => {
                 { itemsCode: { $regex: `^${escapedCode}$`, $options: 'i' } }
             ]
         };
-        if (req.user && req.user.role !== 'admin') {
-            const allowedCategories = req.user.allowedWHItemCategories || [];
-            if (allowedCategories.length === 0) {
-                return res.status(404).json({ success: false, message: `Item not found for code ${code}` });
-            }
-            query.category = { $in: allowedCategories };
+        const isUserAdmin = req.user && (
+            req.user.role === 'admin' ||
+            req.user.role === 'administrator' ||
+            req.user.role === 'superadmin' ||
+            (req.user.groupId && req.user.groupId.isAdmin)
+        );
+        if (!isUserAdmin && req.user && req.user.allowedWHItemCategories && req.user.allowedWHItemCategories.length > 0) {
+            query.category = { $in: req.user.allowedWHItemCategories };
         }
 
         const item = await WHItem.findOne(query).lean();
@@ -172,15 +177,17 @@ exports.createWHItem = async (req, res) => {
     try {
         req.body.createdBy = req.user.id;
 
-        // Enforce category restrictions for non-admins
-        if (req.user && req.user.role !== 'admin') {
-            if (req.user.allowedWHItemCategories && req.user.allowedWHItemCategories.length > 0) {
-                const allowedIds = req.user.allowedWHItemCategories.map(id => id.toString());
-                if (!allowedIds.includes(req.body.category.toString())) {
-                    return res.status(403).json({ success: false, message: 'You are not authorized to create items in this category' });
-                }
-            } else {
-                return res.status(403).json({ success: false, message: 'You are not authorized to create items in any category' });
+        // Enforce category restrictions for non-admins if assigned
+        const isUserAdmin = req.user && (
+            req.user.role === 'admin' ||
+            req.user.role === 'administrator' ||
+            req.user.role === 'superadmin' ||
+            (req.user.groupId && req.user.groupId.isAdmin)
+        );
+        if (!isUserAdmin && req.user && req.user.allowedWHItemCategories && req.user.allowedWHItemCategories.length > 0) {
+            const allowedIds = req.user.allowedWHItemCategories.map(id => id.toString());
+            if (req.body.category && !allowedIds.includes(req.body.category.toString())) {
+                return res.status(403).json({ success: false, message: 'You are not authorized to create items in this category' });
             }
         }
 
@@ -209,14 +216,16 @@ exports.updateWHItem = async (req, res) => {
         }
 
         // Enforce category restrictions for non-admins if they try to change the category
-        if (req.body.category && req.user && req.user.role !== 'admin') {
-            if (req.user.allowedWHItemCategories && req.user.allowedWHItemCategories.length > 0) {
-                const allowedIds = req.user.allowedWHItemCategories.map(id => id.toString());
-                if (!allowedIds.includes(req.body.category.toString())) {
-                    return res.status(403).json({ success: false, message: 'You are not authorized to move item to this category' });
-                }
-            } else {
-                return res.status(403).json({ success: false, message: 'You are not authorized to assign items to any category' });
+        const isItemAdmin = req.user && (
+            req.user.role === 'admin' ||
+            req.user.role === 'administrator' ||
+            req.user.role === 'superadmin' ||
+            (req.user.groupId && req.user.groupId.isAdmin)
+        );
+        if (req.body.category && !isItemAdmin && req.user && req.user.allowedWHItemCategories && req.user.allowedWHItemCategories.length > 0) {
+            const allowedIds = req.user.allowedWHItemCategories.map(id => id.toString());
+            if (!allowedIds.includes(req.body.category.toString())) {
+                return res.status(403).json({ success: false, message: 'You are not authorized to move item to this category' });
             }
         }
 

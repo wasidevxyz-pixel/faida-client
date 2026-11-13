@@ -1,261 +1,388 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>POS Sale | BW Software Agency</title>
+  <title>POS Cash Sale | Desktop ERP</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link rel="stylesheet" href="/css/desktop-style.css">
   <link rel="stylesheet" href="/css/sidebar.css">
-  <link rel="stylesheet" href="/css/pos-sale.css?v=20261112-pos-lists">
+  <link rel="stylesheet" href="/css/pos-erp.css?v=20261112-classic">
 </head>
-<body>
-  <header class="pos-topbar">
-    <div class="d-flex align-items-center gap-3">
-      <button type="button" class="btn btn-outline-light btn-sm" id="sidebarToggle" aria-label="Toggle navigation">
-        <i class="fas fa-bars"></i>
-      </button>
-      <div>
-        <h1 class="h5 mb-0">POS Sale</h1>
-        <small>Cash sales and invoice-linked returns</small>
-      </div>
-    </div>
-    <div class="d-flex align-items-center gap-3">
-      <span class="pos-cashier"><i class="fas fa-user me-1"></i><span id="cashierName">Cashier</span></span>
-      <div class="btn-group btn-group-sm" role="group" aria-label="POS mode">
-        <button type="button" class="btn btn-light" id="saleModeButton" aria-pressed="true">Sale</button>
-        <button type="button" class="btn btn-outline-light" id="returnModeButton" aria-pressed="false">Sale Return</button>
-      </div>
-      <button type="button" class="btn btn-outline-light btn-sm" id="salesListButton" aria-expanded="false">
-        <i class="fas fa-list me-1"></i><span>Sales List</span>
-      </button>
-      <button type="button" class="btn btn-outline-light btn-sm" id="returnsListButton" aria-expanded="false">
-        <i class="fas fa-arrow-rotate-left me-1"></i><span>Returns List</span>
-      </button>
-      <a class="btn btn-outline-light btn-sm logout-btn" href="#"><i class="fas fa-right-from-bracket me-1"></i>Sign out</a>
-    </div>
-  </header>
 
-  <main class="pos-layout" id="posLayout">
-    <section class="pos-catalog panel">
-      <div id="returnLookup" class="pos-return-lookup d-none">
-        <label for="returnInvoiceNumber">Original sale invoice number</label>
-        <div class="pos-return-lookup-control">
-          <input id="returnInvoiceNumber" type="text" autocomplete="off" placeholder="Enter cash sale invoice number">
-          <button type="button" class="btn btn-primary" id="loadReturnInvoice">Load Invoice</button>
-        </div>
-        <div id="returnInvoiceStatus" class="pos-return-status" role="status" aria-live="polite"></div>
-        <div id="returnInvoiceDetails" class="pos-return-details d-none"></div>
-      </div>
-      <div class="pos-search-row">
-        <label class="visually-hidden" for="itemSearch">Scan barcode or search item</label>
-        <div class="pos-search-input">
-          <i class="fas fa-barcode" aria-hidden="true"></i>
-          <input id="itemSearch" type="search" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="itemGrid" placeholder="Scan barcode or search item name / code">
-          <kbd>Enter</kbd>
-        </div>
-        <div id="itemGrid" class="pos-search-dropdown" role="listbox" aria-label="Warehouse item suggestions" aria-live="polite"></div>
-        <div id="emptyCatalog" class="pos-search-empty d-none" role="status"></div>
-      </div>
-      <div class="pos-catalog-heading" id="catalogHeading">
-        <div>
-          <h2 class="h6 mb-1">Items</h2>
-          <p class="text-muted small mb-0" id="catalogStatus">Loading warehouse inventory…</p>
-        </div>
-        <button type="button" id="refreshItems" class="btn btn-sm btn-outline-secondary" title="Refresh inventory">
-          <i class="fas fa-rotate"></i><span class="ms-1">Refresh</span>
+<body class="pos-erp-body">
+  <div class="erp-pos-container">
+    <!-- Top Bar -->
+    <header class="erp-topbar">
+      <div class="erp-topbar-title">
+        <button type="button" class="btn btn-sm btn-outline-light me-2" id="sidebarToggle" title="Menu">
+          <i class="fas fa-bars"></i>
         </button>
+        <i class="fas fa-cash-register me-1"></i>
+        <span>POINT OF SALE</span>
+        <small style="font-size: 11px; opacity: 0.85; font-weight: normal; margin-left: 8px;">(Retail &amp; General
+          Store)</small>
       </div>
-    </section>
 
-    <section class="pos-checkout panel">
-      <div class="pos-cart-heading">
-        <div>
-          <h2 class="h6 mb-1"><i class="fas fa-basket-shopping me-2 text-primary"></i><span id="cartTitle">Current Sale</span></h2>
-          <p class="text-muted small mb-0" id="cartCustomer">Customer: Walk-in Customer</p>
+      <div class="erp-topbar-actions">
+        <span style="font-size: 12px; margin-right: 8px;">
+          <i class="fas fa-user-circle me-1"></i><strong id="cashierName">Cashier</strong>
+        </span>
+        <button type="button" class="erp-btn-sm active" id="saleModeButton">Sale</button>
+        <button type="button" class="erp-btn-sm" id="returnModeButton">Return</button>
+        <button type="button" class="erp-btn-sm" id="salesListButton"><i class="fas fa-list me-1"></i>Invoices</button>
+        <button type="button" class="erp-btn-sm" id="returnsListButton"><i
+            class="fas fa-rotate-left me-1"></i>Returns</button>
+        <a class="erp-btn-danger-sm logout-btn" href="#" style="text-decoration: none;"><i
+            class="fas fa-power-off me-1"></i>Exit</a>
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="erp-workspace" id="posWorkspace">
+      <!-- Return Invoice Lookup Strip (Visible in Return Mode) -->
+      <div id="returnLookupStrip" class="erp-box d-none" style="margin-bottom: 4px;">
+        <div class="erp-box-header" style="background: linear-gradient(180deg, #d35400 0%, #a04000 100%);">
+          <i class="fas fa-rotate-left"></i>
+          <span>Sale Return (Direct or with Invoice)</span>
         </div>
-        <button type="button" id="clearCart" class="btn btn-sm btn-outline-danger" disabled>
-          <i class="fas fa-trash-can me-1"></i>Clear
-        </button>
+        <div class="erp-box-body"
+          style="padding: 6px 12px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+          <label for="returnInvoiceNumber" style="font-weight: 700; font-size: 12.5px;">Original Invoice # (Optional):</label>
+          <input type="text" id="returnInvoiceNumber" class="erp-input" style="width: 200px;"
+            placeholder="Optional: e.g. 1001">
+          <button type="button" class="erp-btn-sm" id="loadReturnInvoice"
+            style="background: #27ae60; color: #fff; border-color: #1e8449;">
+            <i class="fas fa-download me-1"></i>Load Invoice
+          </button>
+          <button type="button" class="erp-btn-sm d-none" id="clearReturnInvoice"
+            style="background: #6c757d; color: #fff; border-color: #5a6268;">
+            <i class="fas fa-rotate-left me-1"></i>Switch to Direct Return
+          </button>
+          <div id="returnInvoiceStatus" style="font-size: 12px; font-weight: 600;"></div>
+          <div id="returnInvoiceDetails" class="d-none" style="font-size: 12px; font-weight: 600; color: #003366;">
+          </div>
+          <span class="ms-auto badge bg-light text-dark border" style="font-size: 11.5px; padding: 4px 8px;">
+            <i class="fas fa-bolt text-warning me-1"></i><strong>Direct Return:</strong> Select or scan items directly below without loading invoice!
+          </span>
+        </div>
       </div>
 
-      <div class="pos-cart-table-wrap">
-        <table class="table table-sm align-middle pos-cart-table">
-          <thead>
-            <tr><th>Item</th><th class="text-center" id="quantityHeader">Qty</th><th class="text-end">Price</th><th class="text-end">Total</th><th></th></tr>
-          </thead>
-          <tbody id="cartRows">
-            <tr class="pos-cart-empty"><td colspan="5">Scan or choose an item to add it here.</td></tr>
-          </tbody>
-        </table>
-      </div>
+      <div id="saleWorkspacePanels">
+        <!-- Upper Section: 2 Rounded Boxes (Detail & Item List) -->
+        <div class="erp-top-panels">
+          <!-- Box 1: Detail -->
+          <div class="erp-box">
+            <div class="erp-box-header">
+              <i class="fas fa-file-invoice"></i>
+              <span>Detail</span>
+            </div>
+            <div class="erp-box-body">
+              <div class="erp-detail-grid">
+                <span class="erp-label">Inv. No:</span>
+                <input type="text" class="erp-input" id="erpInvoiceNo" value="AUTO" readonly>
 
-      <div class="pos-totals">
-        <div><span id="subtotalLabel">Subtotal</span><strong id="subtotal">Rs. 0.00</strong></div>
-        <div id="taxTotalRow"><span>Tax</span><strong id="taxTotal">Rs. 0.00</strong></div>
-        <div id="saleAdjustments">
-          <div class="pos-adjustment-inputs">
-            <label for="posDiscountPercent">Discount (%)</label>
-            <div class="pos-adjustment-control">
-              <input id="posDiscountPercent" type="number" min="0" max="100" step="0.01" value="0" inputmode="decimal">
-              <span>%</span>
-            </div>
-            <label for="posDiscountAmount">Flat discount</label>
-            <div class="pos-adjustment-control">
-              <span>Rs.</span>
-              <input id="posDiscountAmount" type="number" min="0" step="0.01" value="0.00" inputmode="decimal">
-            </div>
-            <label for="posMiscCharges">Misc. charges</label>
-            <div class="pos-adjustment-control">
-              <span>Rs.</span>
-              <input id="posMiscCharges" type="number" min="0" step="0.01" value="0.00" inputmode="decimal">
+                <span class="erp-label">Date:</span>
+                <input type="date" class="erp-input" id="erpInvoiceDate">
+
+                <span class="erp-label">Customer:</span>
+                <div style="display: flex; gap: 4px;">
+                  <input type="text" class="erp-input" id="erpCustomerName" value="Walk-in Customer"
+                    style="font-weight: 700; color: #b30000;">
+                  <button type="button" class="erp-btn-sm" style="padding: 2px 7px;" title="Select Customer"
+                    id="erpPickCustomer">...</button>
+                </div>
+
+                <span class="erp-label">Pay Mode:</span>
+                <select class="erp-input" id="erpPayMode">
+                  <option value="Cash" selected>Cash</option>
+                  <option value="Bank">Bank / Card</option>
+                  <option value="Credit">Credit</option>
+                </select>
+
+                <span class="erp-label">Ref #:</span>
+                <input type="text" class="erp-input" id="erpRefNo" placeholder="Reference / PO #">
+
+                <span class="erp-label">Remarks:</span>
+                <input type="text" class="erp-input" id="erpRemarks" placeholder="Note or customer contact">
+              </div>
             </div>
           </div>
-          <div id="adjustmentMessage" class="pos-adjustment-message" role="status" aria-live="polite"></div>
-        </div>
-        <div id="discountTotalRow"><span>Total discount</span><strong id="discountTotal">Rs. 0.00</strong></div>
-        <div id="miscChargesRow"><span>Misc. charges</span><strong id="miscChargesTotal">Rs. 0.00</strong></div>
-        <div class="pos-grand-total"><span id="grandTotalLabel">Total</span><strong id="grandTotal">Rs. 0.00</strong></div>
-        <div id="cashReceivedSection">
-          <label for="cashReceived" id="cashReceivedLabel">Cash received</label>
-          <div class="pos-cash-input"><span>Rs.</span><input id="cashReceived" type="number" min="0" step="0.01" value="0.00" inputmode="decimal"></div>
-          <div class="pos-change"><span>Change</span><strong id="changeDue">Rs. 0.00</strong></div>
-        </div>
-      </div>
 
-      <button type="button" id="completeSale" class="btn btn-primary pos-complete-sale" disabled>
-        <i class="fas fa-receipt me-2"></i><span id="completeSaleLabel">Complete Sale &amp; Print 80mm Receipt</span>
-      </button>
-      <div id="posMessage" class="pos-message" role="status" aria-live="polite"></div>
-      <a id="printLastSale" class="btn btn-outline-primary w-100 d-none" target="_blank" rel="noopener">
-        <i class="fas fa-print me-2"></i><span id="printLastLabel">Print Last Receipt</span>
-      </a>
-    </section>
+          <!-- Box 2: Item Search & Live Lookup Table -->
+          <div class="erp-box">
+            <div class="erp-box-header">
+              <i class="fas fa-magnifying-glass"></i>
+              <span>Item Lookup / Inventory</span>
+              <span id="catalogCountBadge"
+                style="margin-left: auto; font-size: 11px; background: rgba(0,0,0,0.25); padding: 1px 7px; border-radius: 10px; font-weight: normal;">Loading
+                items…</span>
+            </div>
+            <div class="erp-box-body">
+              <div class="erp-search-bar">
+                <div class="erp-search-input-wrap">
+                  <i class="fas fa-barcode"></i>
+                  <input type="search" class="erp-input" id="itemSearch" autocomplete="off"
+                    placeholder="Scan Barcode or Search Item by Name, Code, Company...">
+                </div>
+                <button type="button" class="erp-btn-sm" id="refreshItems" title="Reload Inventory">
+                  <i class="fas fa-rotate"></i>
+                </button>
+              </div>
 
-    <section class="pos-sales-list panel d-none" id="salesListPanel" aria-labelledby="salesListTitle">
-      <div class="pos-sales-list-heading">
-        <div>
-          <h2 class="h5 mb-1" id="salesListTitle">POS Sales Invoices</h2>
-          <p class="text-muted small mb-0">Browse posted cash invoices, print receipts, or start a return.</p>
+              <!-- Lookup Results Mini Grid -->
+              <div class="erp-lookup-table-wrap">
+                <table class="erp-lookup-table" id="erpLookupTable">
+                  <thead>
+                    <tr>
+                      <th>Item Name</th>
+                      <th style="width: 75px;">Code</th>
+                      <th style="width: 65px; text-align: center;">Stock</th>
+                      <th style="width: 80px; text-align: right;">Price</th>
+                      <th style="width: 110px;">Company</th>
+                    </tr>
+                  </thead>
+                  <tbody id="erpLookupRows">
+                    <tr>
+                      <td colspan="5" class="text-center text-muted py-3">Type above to search or scan a barcode…</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </div>
-        <div id="salesListStatus" class="small text-muted" role="status" aria-live="polite"></div>
-      </div>
-      <div class="pos-sales-list-filters">
-        <label class="visually-hidden" for="salesListSearch">Search invoice or customer</label>
-        <input id="salesListSearch" type="search" placeholder="Search invoice, customer, or remarks" autocomplete="off">
-        <label for="salesListStartDate">From</label>
-        <input id="salesListStartDate" type="date">
-        <label for="salesListEndDate">To</label>
-        <input id="salesListEndDate" type="date">
-        <button type="button" id="refreshSalesList" class="btn btn-primary btn-sm">
-          <i class="fas fa-magnifying-glass me-1"></i>Search
-        </button>
-      </div>
-      <div class="pos-sales-list-table-wrap">
-        <table class="table table-sm table-hover align-middle pos-sales-list-table">
-          <thead>
-            <tr>
-              <th>Invoice</th>
-              <th>Customer</th>
-              <th>Date</th>
-              <th>Status</th>
-              <th class="text-end">Net Amount</th>
-              <th>User</th>
-              <th>Remarks</th>
-              <th>Original Date</th>
-              <th class="text-end">Total Returns</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="salesListRows">
-            <tr><td colspan="10" class="text-center text-muted py-4">Load invoices to get started.</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="pos-sales-list-footer">
-        <span id="salesListPageStatus" class="small text-muted"></span>
-        <div class="d-flex gap-2">
-          <button type="button" id="salesListPrev" class="btn btn-sm btn-outline-secondary" disabled>Previous</button>
-          <button type="button" id="salesListNext" class="btn btn-sm btn-outline-secondary" disabled>Next</button>
-        </div>
-      </div>
-    </section>
 
-    <section class="pos-sales-list panel d-none" id="returnsListPanel" aria-labelledby="returnsListTitle">
-      <div class="pos-sales-list-heading">
-        <div>
-          <h2 class="h5 mb-1" id="returnsListTitle">Sale Returns</h2>
-          <p class="text-muted small mb-0">Review submitted, approved, and rejected warehouse sale returns.</p>
-        </div>
-        <div id="returnsListStatus" class="small text-muted" role="status" aria-live="polite"></div>
-      </div>
-      <div class="pos-sales-list-filters">
-        <label class="visually-hidden" for="returnsListSearch">Search return, invoice, or customer</label>
-        <input id="returnsListSearch" type="search" placeholder="Search return, invoice, customer, or remarks" autocomplete="off">
-        <label for="returnsListStartDate">From</label>
-        <input id="returnsListStartDate" type="date">
-        <label for="returnsListEndDate">To</label>
-        <input id="returnsListEndDate" type="date">
-        <label class="visually-hidden" for="returnsListStatusFilter">Return status</label>
-        <select id="returnsListStatusFilter" aria-label="Filter by return status">
-          <option value="All">All statuses</option>
-          <option value="Pending Approval">Pending Approval</option>
-          <option value="Posted">Approved / Posted</option>
-          <option value="Cancelled">Rejected</option>
-          <option value="Draft">Draft</option>
-        </select>
-        <button type="button" id="refreshReturnsList" class="btn btn-primary btn-sm">
-          <i class="fas fa-magnifying-glass me-1"></i>Search
-        </button>
-      </div>
-      <div class="pos-sales-list-table-wrap">
-        <table class="table table-sm table-hover align-middle pos-sales-list-table pos-returns-list-table">
-          <thead>
-            <tr>
-              <th>Return No.</th>
-              <th>Original Invoice</th>
-              <th>Customer</th>
-              <th>Return Date</th>
-              <th>Status</th>
-              <th class="text-end">Refund Amount</th>
-              <th>Requested By</th>
-              <th>Reviewed By</th>
-              <th>Remarks</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="returnsListRows">
-            <tr><td colspan="10" class="text-center text-muted py-4">Load returns to get started.</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="pos-sales-list-footer">
-        <span id="returnsListPageStatus" class="small text-muted"></span>
-        <div class="d-flex gap-2">
-          <button type="button" id="returnsListPrev" class="btn btn-sm btn-outline-secondary" disabled>Previous</button>
-          <button type="button" id="returnsListNext" class="btn btn-sm btn-outline-secondary" disabled>Next</button>
-        </div>
-      </div>
-    </section>
-  </main>
+        <!-- Center Main Sale Table Grid -->
+        <div class="erp-cart-section">
+          <div class="erp-box-header" style="background: var(--erp-header-grad);">
+            <i class="fas fa-cart-shopping"></i>
+            <span id="cartHeaderTitle">Sale Items Cart</span>
+            <span style="margin-left: 10px; font-weight: normal; font-size: 11.5px; opacity: 0.9;"
+              id="cartItemCountDisplay">(0 items in cart)</span>
+            <button type="button" id="clearCart" class="erp-btn-sm ms-auto"
+              style="background: #ffffff; color: #b30000; border-color: #ff9999;" disabled>
+              <i class="fas fa-trash-can me-1"></i>Clear All
+            </button>
+          </div>
 
+          <div class="erp-cart-table-wrap">
+            <table class="erp-cart-table">
+              <thead>
+                <tr>
+                  <th style="width: 35px;" class="text-center">#</th>
+                  <th style="width: 120px;">Barcode / Code</th>
+                  <th>Item Description</th>
+                  <th style="width: 120px;" class="text-center">Available</th>
+                  <th style="width: 90px;" class="text-center">Quantity</th>
+                  <th style="width: 95px;" class="text-end">Price</th>
+                  <th style="width: 110px;" class="text-end">Total Amount</th>
+                  <th style="width: 45px;" class="text-center">Act</th>
+                </tr>
+              </thead>
+              <tbody id="cartRows">
+                <tr>
+                  <td colspan="8" class="text-center text-muted py-5" style="font-size: 13.5px;">
+                    <i class="fas fa-barcode me-2"></i>Scan a barcode or double-click an item above to add it to this
+                    sale.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Bottom Panel: Financial Calculations, Grand Display & Complete Sale -->
+        <div class="erp-bottom-panel">
+          <!-- Calculation Controls -->
+          <div class="erp-discounts-box">
+            <span class="erp-label">Gross Total:</span>
+            <input type="text" class="erp-input" id="subtotal" value="0.00" readonly style="font-weight: 700;">
+
+            <span class="erp-label">Disc %:</span>
+            <input type="number" class="erp-input" id="posDiscountPercent" min="0" max="100" step="0.01" value="0">
+
+            <span class="erp-label">Flat Disc:</span>
+            <input type="number" class="erp-input" id="posDiscountAmount" min="0" step="0.01" value="0.00">
+
+            <span class="erp-label">Misc Charges:</span>
+            <input type="number" class="erp-input" id="posMiscCharges" min="0" step="0.01" value="0.00">
+
+            <span class="erp-label">Cash Received:</span>
+            <input type="number" class="erp-input" id="cashReceived" min="0" step="0.01" value="0.00"
+              style="font-weight: 700; color: #004d00; background: #f0fff0;">
+
+            <span class="erp-label">Change Due:</span>
+            <input type="text" class="erp-input" id="changeDue" value="0.00" readonly
+              style="font-weight: 700; color: #990000;">
+          </div>
+
+          <!-- Big Bold Digital Display -->
+          <div class="erp-big-sales-display">
+            <div class="erp-big-sales-label">NET SALE:</div>
+            <div class="erp-big-sales-value">Rs. <span id="grandTotal">0.00</span></div>
+          </div>
+
+          <!-- Action Complete & Print Button -->
+          <div class="erp-action-column">
+            <button type="button" id="completeSale" class="erp-btn-complete" disabled>
+              <i class="fas fa-print"></i>
+              <span id="completeSaleLabel">Post &amp; Print</span>
+            </button>
+            <a id="printLastSale" class="erp-btn-sm text-center d-none" style="text-decoration: none; padding: 5px;"
+              target="_blank" rel="noopener">
+              <i class="fas fa-receipt me-1"></i>Print Last Receipt
+            </a>
+            <div id="posMessage" style="font-size: 11.5px; font-weight: 600; text-align: center; min-height: 18px;">
+            </div>
+          </div>
+        </div>
+      </div><!-- /saleWorkspacePanels -->
+
+      <!-- Section: Posted Sales List Panel -->
+      <section class="erp-box d-none" id="salesListPanel" style="flex: 1; margin-top: 4px;">
+        <div class="erp-box-header">
+          <i class="fas fa-list"></i>
+          <span>Posted Sales Invoices</span>
+          <span id="salesListStatus" style="margin-left: auto; font-size: 11.5px; opacity: 0.9;"></span>
+        </div>
+        <div class="erp-box-body" style="padding: 10px;">
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; align-items: center;">
+            <input type="search" id="salesListSearch" class="erp-input" style="flex: 1 1 200px;"
+              placeholder="Search invoice #, customer name...">
+            <label style="font-weight: 600; font-size: 12px;">From:</label>
+            <input type="date" id="salesListStartDate" class="erp-input" style="width: 140px;">
+            <label style="font-weight: 600; font-size: 12px;">To:</label>
+            <input type="date" id="salesListEndDate" class="erp-input" style="width: 140px;">
+            <button type="button" id="refreshSalesList" class="erp-btn-sm" style="background: #0055a5; color: #fff;">
+              <i class="fas fa-magnifying-glass me-1"></i>Search
+            </button>
+          </div>
+          <div class="erp-cart-table-wrap" style="max-height: calc(100vh - 280px);">
+            <table class="erp-cart-table">
+              <thead>
+                <tr>
+                  <th style="width: 100px;">Invoice #</th>
+                  <th>Customer</th>
+                  <th style="width: 110px;">Date</th>
+                  <th style="width: 80px;">Status</th>
+                  <th style="width: 110px;" class="text-end">Net Amount</th>
+                  <th style="width: 100px;">Cashier</th>
+                  <th>Remarks</th>
+                  <th style="width: 100px;" class="text-end">Returns</th>
+                  <th style="width: 120px;" class="text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="salesListRows">
+                <tr>
+                  <td colspan="9" class="text-center text-muted py-4">Click search to load posted invoices.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+            <span id="salesListPageStatus" style="font-size: 12px; color: #555;"></span>
+            <div style="display: flex; gap: 6px;">
+              <button type="button" id="salesListPrev" class="erp-btn-sm" disabled>Previous</button>
+              <button type="button" id="salesListNext" class="erp-btn-sm" disabled>Next</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Returns List Panel -->
+      <section class="erp-box d-none" id="returnsListPanel" style="flex: 1; margin-top: 4px;">
+        <div class="erp-box-header" style="background: linear-gradient(180deg, #d35400 0%, #a04000 100%);">
+          <i class="fas fa-rotate-left"></i>
+          <span>Sale Returns List</span>
+          <span id="returnsListStatus" style="margin-left: auto; font-size: 11.5px; opacity: 0.9;"></span>
+        </div>
+        <div class="erp-box-body" style="padding: 10px;">
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; align-items: center;">
+            <input type="search" id="returnsListSearch" class="erp-input" style="flex: 1 1 200px;"
+              placeholder="Search return #, original invoice, customer...">
+            <label style="font-weight: 600; font-size: 12px;">From:</label>
+            <input type="date" id="returnsListStartDate" class="erp-input" style="width: 140px;">
+            <label style="font-weight: 600; font-size: 12px;">To:</label>
+            <input type="date" id="returnsListEndDate" class="erp-input" style="width: 140px;">
+            <select id="returnsListStatusFilter" class="erp-input" style="width: 140px;">
+              <option value="All">All statuses</option>
+              <option value="Pending Approval">Pending Approval</option>
+              <option value="Posted">Posted</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+            <button type="button" id="refreshReturnsList" class="erp-btn-sm" style="background: #a04000; color: #fff;">
+              <i class="fas fa-magnifying-glass me-1"></i>Search
+            </button>
+          </div>
+          <div class="erp-cart-table-wrap" style="max-height: calc(100vh - 280px);">
+            <table class="erp-cart-table">
+              <thead>
+                <tr>
+                  <th style="width: 100px;">Return #</th>
+                  <th style="width: 100px;">Original Inv</th>
+                  <th>Customer</th>
+                  <th style="width: 110px;">Date</th>
+                  <th style="width: 90px;">Status</th>
+                  <th style="width: 110px;" class="text-end">Refund Amt</th>
+                  <th style="width: 100px;">User</th>
+                  <th>Remarks</th>
+                  <th style="width: 80px;" class="text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody id="returnsListRows">
+                <tr>
+                  <td colspan="9" class="text-center text-muted py-4">Click search to load returns.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+            <span id="returnsListPageStatus" style="font-size: 12px; color: #555;"></span>
+            <div style="display: flex; gap: 6px;">
+              <button type="button" id="returnsListPrev" class="erp-btn-sm" disabled>Previous</button>
+              <button type="button" id="returnsListNext" class="erp-btn-sm" disabled>Next</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer System Strip -->
+    <footer class="erp-status-strip">
+      <span><i class="fas fa-building me-1"></i>BW Software Systems</span>
+      <span><i class="fas fa-keyboard me-1"></i>[Alt+A / F4] Search Items | [▲/▼] Navigate | [Enter] Add to Cart |
+        [Alt+S / F2] Save &amp; Post</span>
+      <span id="erpSystemClock">00:00:00</span>
+    </footer>
+  </div>
+
+  <!-- Password Security Modal -->
   <div class="modal fade" id="posPasswordModal" tabindex="-1" aria-labelledby="posPasswordTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-      <form class="modal-content" id="posPasswordForm">
-        <div class="modal-header">
-          <h2 class="modal-title fs-5" id="posPasswordTitle">Confirm your password</h2>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cancel"></button>
+      <form class="modal-content" id="posPasswordForm" style="border: 2px solid #0055a5; border-radius: 8px;">
+        <div class="modal-header" style="background: var(--erp-header-grad); color: #fff;">
+          <h2 class="modal-title fs-5" id="posPasswordTitle" style="font-size: 15px !important; font-weight: bold;">
+            <i class="fas fa-shield-halved me-2"></i>Security Authorization
+          </h2>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cancel"></button>
         </div>
-        <div class="modal-body">
-          <p class="text-muted small" id="posPasswordPrompt">Enter your login password to continue.</p>
-          <label class="form-label" for="posPasswordInput">Current login password</label>
-          <input class="form-control" id="posPasswordInput" type="password" autocomplete="current-password" aria-describedby="posPasswordError" required>
-          <div class="small text-danger d-none" id="posPasswordError" role="alert"></div>
+        <div class="modal-body" style="background: #f7faff;">
+          <p class="text-muted small mb-2" id="posPasswordPrompt">Enter your login password to post this sale.</p>
+          <label class="form-label fw-bold" for="posPasswordInput" style="font-size: 12.5px;">User Login
+            Password</label>
+          <input class="form-control" id="posPasswordInput" type="password" autocomplete="current-password" required
+            style="border: 1.5px solid #89a9cf;">
+          <div class="small text-danger d-none mt-2" id="posPasswordError" role="alert"></div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">Confirm &amp; Continue</button>
+        <div class="modal-footer" style="background: #eef4fb;">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel (Esc)</button>
+          <button type="submit" id="posPasswordSubmitBtn" class="btn btn-primary btn-sm"
+            style="background: #0055a5; font-weight: bold;">
+            <i class="fas fa-check me-1"></i>Confirm &amp; Post Sale <kbd
+              style="background: #003366; font-size: 10px; margin-left: 4px; padding: 2px 5px;">Enter ↵</kbd>
+          </button>
         </div>
       </form>
     </div>
@@ -265,6 +392,25 @@
   <script src="/js/pageAccess.js"></script>
   <script src="/js/sidebar.js"></script>
   <script src="/js/desktop-ui.js"></script>
-  <script src="/js/pos-sale.js?v=20261112-pos-lists"></script>
+  <script src="/js/pos-sale.js?v=20261113-enter"></script>
+  <script>
+    // Live footer clock
+    function updateClock() {
+      const el = document.getElementById('erpSystemClock');
+      if (el) {
+        const now = new Date();
+        el.textContent = now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
+      }
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Default invoice date
+    const dateInput = document.getElementById('erpInvoiceDate');
+    if (dateInput) {
+      dateInput.value = new Date().toISOString().split('T')[0];
+    }
+  </script>
 </body>
+
 </html>

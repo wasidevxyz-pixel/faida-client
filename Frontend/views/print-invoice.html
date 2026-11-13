@@ -40,66 +40,164 @@
             min-height: 420mm;
         }
 
-        /* Thermal Printer Format (80mm width) */
-        .format-thermal {
-            width: 80mm;
-            min-height: auto;
-            padding: 10px !important;
-            font-size: 12px;
-            page: thermal;
+        /* Standard layout elements */
+        .format-thermal .standard-details {
+            display: none !important;
         }
 
-        .format-thermal .invoice-title {
-            font-size: 1.2rem;
-        }
-
-        .format-thermal .company-logo {
-            max-width: 60mm;
-            max-height: 40px;
-        }
-
-        .format-thermal .main-table th,
-        .format-thermal .main-table td {
-            padding: 5px 3px;
-            font-size: 11px;
-        }
-
-        .format-thermal .info-box {
-            padding: 8px;
-            font-size: 11px;
-        }
-
-        .format-thermal h5,
-        .format-thermal h6 {
-            font-size: 0.9rem;
-        }
-
-        .format-thermal .totals-table {
-            width: 100%;
-        }
-
-        /* Hide thermal layout in standard formats */
         .format-a4 .thermal-details,
         .format-a3 .thermal-details {
-            display: none;
+            display: none !important;
         }
 
-        /* Hide standard layout in thermal format */
-        .format-thermal .standard-details {
-            display: none;
-        }
-
-        /* Hide terms and signatures in thermal format */
-        .format-thermal .terms-box,
         .format-thermal .footer-section {
-            display: none;
+            display: none !important;
         }
 
-        /* Compact margins for thermal */
-        .format-thermal .row {
-            margin-bottom: 0.5rem !important;
+        /* ================= THERMAL RECEIPT STYLING ================= */
+        .format-thermal {
+            width: 76mm !important;
+            max-width: 76mm !important;
+            min-height: auto !important;
+            padding: 4px 2px !important;
+            margin: 0 auto !important;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+            color: #000000 !important;
+            font-size: 11.5px !important;
+            font-weight: 600 !important;
+            line-height: 1.2 !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
         }
 
+        .format-thermal * {
+            color: #000000 !important;
+        }
+
+        .format-thermal .thermal-header {
+            text-align: center;
+            margin-bottom: 3px;
+        }
+
+        .format-thermal .thermal-company-name {
+            font-size: 16px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 1px;
+        }
+
+        .format-thermal .thermal-meta {
+            font-size: 11px;
+            font-weight: 600;
+            line-height: 1.2;
+            margin-bottom: 2px;
+        }
+
+        .format-thermal .thermal-divider {
+            border-top: 1px dashed #000000;
+            margin: 4px 0;
+        }
+
+        .format-thermal .thermal-info-grid {
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .format-thermal .thermal-info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1px;
+        }
+
+        .format-thermal .thermal-items-table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+            table-layout: fixed !important;
+            font-size: 11.5px !important;
+            margin: 3px 0 !important;
+        }
+
+        .format-thermal .thermal-items-table th {
+            border-top: 1px dashed #000000;
+            border-bottom: 1px dashed #000000;
+            padding: 2px 1px;
+            font-size: 11px;
+            font-weight: 800;
+            background: transparent !important;
+            color: #000000 !important;
+            text-transform: uppercase;
+        }
+
+        .format-thermal .thermal-items-table td {
+            padding: 2px 1px;
+            vertical-align: top;
+            border: none !important;
+        }
+
+        .format-thermal .thermal-item-name {
+            font-weight: 700;
+            font-size: 11.5px;
+            line-height: 1.25;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+            white-space: normal;
+        }
+
+        .format-thermal .thermal-item-code {
+            font-size: 10px;
+            color: #333333;
+            font-family: monospace, monospace;
+            word-break: break-all;
+            line-height: 1.1;
+            margin-top: 1px;
+        }
+
+        .format-thermal .thermal-totals {
+            width: 100%;
+            font-size: 11.5px;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        .format-thermal .thermal-totals-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 1px 0;
+        }
+
+        .format-thermal .thermal-payable {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: 900;
+            border-top: 1px dashed #000000;
+            border-bottom: 1px dashed #000000;
+            padding: 3px 0;
+            margin: 3px 0;
+        }
+
+        .format-thermal .thermal-terms {
+            font-size: 9.5px;
+            font-weight: 600;
+            line-height: 1.2;
+            margin-top: 4px;
+            padding-top: 3px;
+            border-top: 1px dashed #000000;
+        }
+
+        .format-thermal .thermal-dev-footer {
+            text-align: center;
+            font-size: 9.5px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-top: 4px;
+            padding-top: 3px;
+            border-top: 1px dashed #000000;
+        }
+
+        /* Standard A4/A3 tables */
         .invoice-header {
             border-bottom: 2px solid var(--primary-color);
             padding-bottom: 20px;
@@ -133,11 +231,6 @@
             font-size: 0.85rem;
             text-transform: uppercase;
             margin-bottom: 5px;
-        }
-
-        .info-value {
-            font-weight: 500;
-            color: #333;
         }
 
         .main-table {
@@ -214,19 +307,6 @@
             margin: 10px auto;
         }
 
-        .watermark {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-45deg);
-            font-size: 8rem;
-            color: rgba(0, 0, 0, 0.05);
-            z-index: 0;
-            pointer-events: none;
-            white-space: nowrap;
-        }
-
-        /* Print Controls */
         .print-controls {
             position: fixed;
             top: 20px;
@@ -238,47 +318,98 @@
             z-index: 1000;
         }
 
+        @page {
+            margin: 0 !important;
+        }
+
         @media print {
-            body {
-                background: white;
+            @page {
+                size: auto;
+                margin: 0mm !important;
+            }
+
+            html, body {
+                background: white !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+                height: auto !important;
+                min-height: 0 !important;
+                max-height: none !important;
+                overflow: visible !important;
+            }
+
+            .print-controls,
+            .no-print,
+            .print-tip-banner {
+                display: none !important;
             }
 
             .page-container {
-                box-shadow: none;
-                margin: 0;
-                padding: 0;
+                box-shadow: none !important;
+                border: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                height: auto !important;
+                min-height: 0 !important;
+                max-height: none !important;
                 width: 100% !important;
             }
 
-            .print-controls {
-                display: none;
+            .page-container.format-thermal {
+                width: 76mm !important;
+                max-width: 76mm !important;
+                margin: 0 auto !important;
+                padding: 1.5mm 1mm 2mm 1mm !important;
+                font-size: 11.5px !important;
+                font-weight: 600 !important;
+                color: #000000 !important;
+                height: auto !important;
+                min-height: 0 !important;
+                max-height: none !important;
+                overflow: visible !important;
+                page-break-inside: auto !important;
+                break-inside: auto !important;
+            }
+
+            .format-thermal .thermal-items-table {
+                width: 100% !important;
+                table-layout: fixed !important;
+            }
+
+            .format-thermal .thermal-items-table tr {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+
+            .format-thermal .thermal-header,
+            .format-thermal .thermal-info-grid,
+            .format-thermal .thermal-totals,
+            .format-thermal .thermal-terms,
+            .format-thermal .thermal-dev-footer {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
             }
 
             .format-a4 {
-                width: 100%;
-                min-height: auto;
+                width: 100% !important;
             }
 
             .format-a3 {
-                width: 100%;
-                min-height: auto;
+                width: 100% !important;
             }
-
-            .format-thermal {
-                width: 80mm;
-                min-height: auto;
-                padding: 5mm !important;
-            }
-        }
-
-        @page thermal {
-            size: 80mm auto;
-            margin: 0;
         }
     </style>
+    <style id="pagePrintStyle"></style>
 </head>
 
 <body>
+
+    <!-- Thermal Print Instruction Banner (Screen Only) -->
+    <div class="print-tip-banner no-print alert alert-info py-2 px-3 mx-auto mt-2 text-center" style="max-width: 780px; font-size: 12.5px; border-left: 4px solid #0d6efd; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <i class="fas fa-lightbulb text-warning me-1"></i>
+        <strong>POS Thermal Print Setting:</strong> In Chrome Print Dialog &rarr; Click <strong>"More settings"</strong> &rarr; Set <strong>Margins: "None"</strong> &amp; <strong>Uncheck "Headers and footers"</strong> to eliminate blank white space at top and bottom.
+    </div>
 
     <!-- Print Controls -->
     <div class="print-controls no-print">
@@ -300,7 +431,6 @@
 
     <!-- Invoice Container -->
     <div id="invoiceContent" class="page-container format-a4">
-        <!-- Content loaded dynamically -->
         <div class="text-center py-5">
             <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Loading...</span>
@@ -317,7 +447,6 @@
             const id = urlParams.get('id');
             const format = urlParams.get('format') || 'a4';
 
-            // Set initial format
             document.getElementById('formatSelect').value = format;
             changeFormat(format);
 
@@ -327,7 +456,6 @@
             }
 
             try {
-                // Determine endpoint based on type
                 let endpoint = '';
                 let title = '';
 
@@ -368,6 +496,10 @@
                         endpoint = `/api/v1/customer-payments/${id}`;
                         title = 'RECEIPT VOUCHER';
                         break;
+                    case 'wh-customer-payment':
+                        endpoint = `/api/v1/wh-customer-payments/${id}`;
+                        title = 'WH RECEIPT VOUCHER';
+                        break;
                     case 'voucher':
                         endpoint = `/api/v1/vouchers/${id}`;
                         title = 'JOURNAL VOUCHER';
@@ -376,16 +508,7 @@
                         endpoint = `/api/v1/expenses/${id}`;
                         title = 'EXPENSE VOUCHER';
                         break;
-                    case 'customer-demand':
-                        endpoint = `/api/v1/customer-demands/${id}`;
-                        title = 'CUSTOMER DEMAND';
-                        break;
-                    case 'wh-customer-payment':
-                        endpoint = `/api/v1/wh-customer-payments/${id}`;
-                        title = 'WH RECEIPT VOUCHER';
-                        break;
                     default:
-
                         throw new Error('Invalid document type');
                 }
 
@@ -399,14 +522,16 @@
                 const responseData = await response.json();
                 const data = responseData.data;
 
-                // Load Company Settings
                 const companyResponse = await fetch('/api/v1/settings/company-info', {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const companyData = await companyResponse.json();
                 const company = companyData.data || {};
 
-                renderInvoice(data, type, title, company);
+                renderInvoice(data, type, title, company, format);
+                if (format === 'thermal') {
+                    updateThermalHeight();
+                }
                 if (urlParams.get('autoprint') === '1') {
                     setTimeout(() => window.print(), 400);
                 }
@@ -417,10 +542,54 @@
             }
         });
 
+        function updateThermalHeight() {
+            const pagePrintStyle = document.getElementById('pagePrintStyle');
+            if (!pagePrintStyle) return;
+
+            // In POS thermal roll printing: size 80mm auto with 0 margins ensures continuous
+            // roll feed for any item count (1 to 20+) and cuts right after developer footer with NO blank gap.
+            pagePrintStyle.innerHTML = `
+                @page {
+                    size: 80mm auto !important;
+                    margin: 0mm !important;
+                }
+            `;
+        }
+
+        window.addEventListener('beforeprint', () => {
+            const format = document.getElementById('formatSelect') ? document.getElementById('formatSelect').value : 'a4';
+            if (format === 'thermal') {
+                updateThermalHeight();
+            }
+        });
+
         function changeFormat(format) {
             const container = document.getElementById('invoiceContent');
             container.classList.remove('format-a4', 'format-a3', 'format-thermal');
             container.classList.add(`format-${format}`);
+
+            const pagePrintStyle = document.getElementById('pagePrintStyle');
+            if (format === 'thermal') {
+                updateThermalHeight();
+            } else if (format === 'a3') {
+                if (pagePrintStyle) {
+                    pagePrintStyle.innerHTML = `
+                        @page {
+                            size: A3 portrait;
+                            margin: 10mm;
+                        }
+                    `;
+                }
+            } else {
+                if (pagePrintStyle) {
+                    pagePrintStyle.innerHTML = `
+                        @page {
+                            size: A4 portrait;
+                            margin: 10mm;
+                        }
+                    `;
+                }
+            }
         }
 
         function showError(msg) {
@@ -432,305 +601,304 @@
             `;
         }
 
-        function renderInvoice(doc, type, title, company) {
-            const isReturn = type.includes('return');
-            const isPurchase = type.includes('purchase');
-
-            // Map fields based on document type
+        function renderInvoice(doc, type, title, company, activeFormat) {
+            const isThermal = (activeFormat === 'thermal') || (document.getElementById('formatSelect').value === 'thermal');
             const docNo = doc.invoiceNumber || doc.invoiceNo || doc.returnInvoiceNo || doc.returnNo || doc.paymentNo || doc.receiptNo || doc.voucherNo || doc.expenseNo || 'N/A';
-            const docDate = new Date(doc.date || doc.invoiceDate || doc.createdAt).toLocaleDateString();
+            const docDate = new Date(doc.date || doc.invoiceDate || doc.createdAt).toLocaleDateString('en-GB');
+            const docTime = new Date(doc.date || doc.invoiceDate || doc.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-            // Party details
             let party = doc.customer || doc.customerId || doc.party || doc.supplier || doc.supplierId || {};
-            // For Vouchers/Expenses, party might not exist or be different
-            if (type === 'voucher' || type === 'expense') {
-                // Determine party or payee
-                party = { name: doc.payee || doc.paidTo || doc.head || 'General', address: '' };
-            }
+            const partyName = party.name || party.customerName || 'Walk-in Customer';
+            const createdBy = doc.createdBy?.name || 'System';
+            const payMode = doc.paymentMode || doc.payMode || doc.returnMode || 'CASH';
 
-            const partyName = party.name || party.customerName || 'Unknown Party';
-            let partyAddress = 'Address Not Available';
-            if (party.address) {
-                if (typeof party.address === 'object') {
-                    const addr = party.address;
-                    const parts = [];
-
-                    // Add street
-                    if (addr.street) parts.push(addr.street);
-                    if (addr.country) parts.push(addr.country);
-
-                    partyAddress = parts.filter(part => part).join(', ');
-                } else {
-                    partyAddress = party.address;
-                }
-            }
-            const partyPhone = party.phone || 'N/A';
-            const partyEmail = party.email || 'N/A';
-
-            // Items
             let items = doc.items || [];
+            let totalQty = 0;
 
-            // Normalize Items for Voucher/Expense/Payment
-            if (type === 'supplier-payment' || type === 'customer-payment' || type === 'wh-customer-payment') {
-                items = [{
-                    name: 'Payment Amount',
+            const itemsRows = items.map((item, index) => {
+                const itemData = item.itemId || item.item || {};
+                const name = itemData.name || item.name || 'Item';
+                const code = item.barcode || itemData.barcode || itemData.sku || itemData.itemsCode || '';
+                const qty = Number(item.quantity || item.returnQty || 0);
+                totalQty += qty;
+                const price = Number(item.price || item.rate || item.retailPrice || item.pcsPrice || item.salePrice || 0);
+                const total = Number(item.total || item.amount || item.netTotal || item.subTotal || (qty * price) || 0);
 
-                    quantity: 1,
-                    price: doc.amount,
-                    total: doc.amount
-                }];
-                if (doc.discountAmount > 0) {
-                    items.push({
-                        name: 'Discount/Adjustment',
-                        quantity: 1,
-                        price: doc.discountAmount,
-                        total: doc.discountAmount
-                    });
-                }
-            } else if (type === 'expense') {
-                items = [{
-                    name: doc.head + (doc.subHead ? ` - ${doc.subHead}` : ''),
-                    quantity: 1,
-                    price: doc.amount,
-                    total: doc.amount
-                }];
-            } else if (type === 'cash-sale') {
-                items = [{
-                    name: 'Cash Sale - ' + (doc.department ? doc.department.name : ''),
-                    quantity: 1,
-                    price: doc.sales || doc.totalAmount,
-                    total: doc.sales || doc.totalAmount
-                }];
-            } else if (type === 'voucher' && doc.entries) {
-                items = doc.entries.map(e => ({
-                    name: e.account + (e.detail ? ` (${e.detail})` : ''),
-                    quantity: 1,
-                    price: e.debit > 0 ? e.debit : 0, // Showing Debit as price?? 
-                    // Voucher needs specific layout usually. Mapping to regular table for now.
-                    // Let's show Debit in Price, and skip Total? Or show Credit?
-                    // Better: Description | Debit | Credit
-                    // But current table is Qty | Price | Total
-                    // Let's force: Name = Account, Qty = '', Price = Debit, Total = Credit (hacky)
-                    isVoucher: true,
-                    debit: e.debit,
-                    credit: e.credit
-                }));
-            }
+                return {
+                    num: index + 1,
+                    name,
+                    code,
+                    qty,
+                    price: price.toFixed(2),
+                    total: total.toFixed(2)
+                };
+            });
 
-            // Totals
             const subTotalValue = Number(doc.subtotal || doc.subTotal || doc.totalAmount || doc.amount || 0);
             const subTotal = subTotalValue.toFixed(2);
-            const taxTotal = (doc.taxAmount || doc.globalTaxAmount || 0).toFixed(2);
-            const grandTotal = (doc.grandTotal || doc.netTotal || doc.totalReturnAmount || doc.amount || 0).toFixed(2);
-            const percentageDiscount = Number(doc.globalDiscountPercent || 0);
+            const grandTotal = Number(doc.grandTotal || doc.netTotal || doc.totalReturnAmount || doc.amount || 0).toFixed(2);
             const flatDiscount = Number(doc.globalDiscountAmount || 0);
+            const percentageDiscount = Number(doc.globalDiscountPercent || 0);
             const percentageDiscountAmount = Math.round((subTotalValue * percentageDiscount / 100 + Number.EPSILON) * 100) / 100;
-            const adjustmentRows = ['wh-sale', 'wh-sale-return'].includes(type) ? `
-                ${percentageDiscountAmount > 0 ? `<tr><td>Discount (${percentageDiscount.toFixed(2)}%)</td><td class="text-end fw-bold">${percentageDiscountAmount.toFixed(2)}</td></tr>` : ''}
-                ${flatDiscount > 0 ? `<tr><td>Flat discount</td><td class="text-end fw-bold">${flatDiscount.toFixed(2)}</td></tr>` : ''}
-                ${Number(doc.miscCharges || 0) > 0 ? `<tr><td>Misc. charges</td><td class="text-end fw-bold">${Number(doc.miscCharges).toFixed(2)}</td></tr>` : ''}
-            ` : '';
-            const createdBy = doc.createdBy?.name || 'System';
+            const totalDiscount = (flatDiscount + percentageDiscountAmount).toFixed(2);
+            const paidAmount = Number(doc.paidAmount || 0).toFixed(2);
+            const cashReceived = Number(doc.cashReceived || doc.paidAmount || 0).toFixed(2);
+            const changeAmount = Number(doc.changeAmount || 0).toFixed(2);
 
-            let itemsHtml = items.map((item, index) => {
-                if (item.isVoucher) {
-                    // Voucher Specific Row
-                    return `
+            let html = '';
+
+            if (isThermal) {
+                // ================= COMPACT PHARMACY-STYLE THERMAL RECEIPT =================
+                const itemsTableRows = itemsRows.map(it => `
                     <tr>
-                        <td class="text-center">${index + 1}</td>
-                        <td>
-                            <div class="fw-bold">${item.name}</div>
+                        <td style="width: 16px; vertical-align: top; padding: 2px 1px;">${it.num}</td>
+                        <td style="vertical-align: top; padding: 2px 2px;">
+                            <div class="thermal-item-name">${it.name}</div>
+                            ${it.code ? `<div class="thermal-item-code">${it.code}</div>` : ''}
                         </td>
-                        <td class="text-center">-</td>
-                        <td class="text-end">${item.debit > 0 ? item.debit.toFixed(2) + ' Dr' : ''}</td>
-                        <td class="text-end">${item.credit > 0 ? item.credit.toFixed(2) + ' Cr' : ''}</td>
+                        <td style="text-align: center; vertical-align: top; width: 30px; padding: 2px 1px;">${it.qty}</td>
+                        <td style="text-align: right; vertical-align: top; width: 48px; padding: 2px 1px;">${it.price}</td>
+                        <td style="text-align: right; vertical-align: top; width: 54px; font-weight: 700; padding: 2px 1px;">${it.total}</td>
                     </tr>
-                    `;
-                }
+                `).join('');
 
-                // Regular Invoice Row
-                const itemData = item.itemId || item.item || {};
-                const name = itemData.name || item.name || 'Unknown Item';
-                const code = item.barcode || itemData.barcode || itemData.sku || itemData.itemsCode || itemData.itemCode || '';
-                const qty = item.quantity || item.returnQty || 0;
-                const price = item.price || item.rate || item.retailPrice || item.pcsPrice || item.salePrice || item.purchasePrice || item.cost || 0;
-                const total = item.total || item.amount || item.netTotal || item.subTotal || item.returnAmount || (qty * price) || 0;
-
-                return `
-                    <tr>
-                        <td class="text-center">${index + 1}</td>
-                        <td>
-                            <div class="fw-bold">${name}</div>
-                            <small class="text-muted">${code}</small>
-                        </td>
-                        <td class="text-center">${qty}</td>
-                        <td class="text-end">${parseFloat(price).toFixed(2)}</td>
-                        <td class="text-end">${parseFloat(total).toFixed(2)}</td>
-                    </tr>
-                `;
-            }).join('');
-
-            const html = `
-                <!-- Header Title Row -->
-                <div class="d-flex justify-content-between align-items-start mb-3 border-bottom pb-2">
-                    <div>
-                         ${company.logo ? `<img src="${company.logo}" class="company-logo" alt="Logo">` : ''}
-                    </div>
-                    <div class="text-end">
-                        <div class="invoice-title">${title}</div>
-                        <div class="text-muted small">Original Copy</div>
-                    </div>
-                </div>
-
-                <!-- From/To Details Row - Thermal Optimized -->
-                <div class="row mb-3 thermal-details">
-                    <div class="col-12 mb-2">
-                        <div class="p-2 bg-light rounded">
-                            <div class="fw-bold small text-muted mb-1">FROM:</div>
-                            <div class="fw-bold">${company.companyName || 'My Company'}</div>
-                            <div class="small">${company.address || ''}</div>
-                            <div class="small">PAN: ${company.pan || 'N/A'} | GSTIN: ${company.taxNumber || 'N/A'}</div>
+                html = `
+                    <div class="thermal-header">
+                        ${company.logo ? `<div class="mb-1"><img src="${company.logo}" style="max-height: 48px; max-width: 100%; object-fit: contain;" alt="Logo"></div>` : ''}
+                        <div class="thermal-company-name">${company.companyName || 'H&S COSMETICS AND UG'}</div>
+                        <div class="thermal-meta">
+                            ${company.address ? `<div>${company.address}</div>` : ''}
+                            ${company.phone ? `<div>Phone: ${company.phone}</div>` : ''}
                         </div>
                     </div>
-                    <div class="col-12">
-                        <div class="p-2 bg-light rounded">
-                            <div class="fw-bold small text-muted mb-1">TO:</div>
-                            <div class="fw-bold">${partyName}</div>
-                            <div class="small">${partyAddress}</div>
-                            <div class="small">PAN: ${party.panNumber || 'N/A'} | GSTIN: ${party.taxNumber || 'N/A'}</div>
+
+                    <div class="thermal-divider"></div>
+
+                    <div class="thermal-info-grid">
+                        <div class="thermal-info-row">
+                            <span><strong>Invoice #:</strong> ${docNo}</span>
+                            <span><strong>Date:</strong> ${docDate} ${docTime}</span>
+                        </div>
+                        <div class="thermal-info-row">
+                            <span><strong>Cashier:</strong> ${createdBy}</span>
+                            <span><strong>Pay Mode:</strong> ${payMode}</span>
+                        </div>
+                        <div class="thermal-info-row">
+                            <span><strong>Customer:</strong> ${partyName}</span>
                         </div>
                     </div>
-                </div>
 
-                <!-- Standard From/To Details Row - For A4/A3 -->
-                <div class="row mb-4 standard-details">
-                    <div class="col-6">
-                        <div class="p-3 bg-light rounded h-100">
-                            <h6 class="text-uppercase text-muted mb-2 small fw-bold">From:</h6>
-                            <h5 class="mb-1 text-primary">${company.companyName || 'My Company'}</h5>
-                            <p class="mb-0 text-muted small">
-                                ${company.address || ''}<br>
-                                Phone: ${company.phone || ''} | Email: ${company.email || ''}<br>
-                                GSTIN: ${company.taxNumber || 'N/A'} | PAN: ${company.pan || 'N/A'}
-                            </p>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="p-3 bg-light rounded h-100 text-end">
-                            <h6 class="text-uppercase text-muted mb-2 small fw-bold">To:</h6>
-                            <h5 class="mb-1 text-primary">${partyName}</h5>
-                            <p class="mb-0 text-muted small">
-                                ${partyAddress}<br>
-                                Phone: ${partyPhone} | Email: ${partyEmail}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Invoice Meta Data Row -->
-                <div class="info-box mb-4">
-                    <div class="row text-center">
-                        <div class="col-3 border-end">
-                            <div class="info-label small text-muted text-uppercase fw-bold">Invoice No</div>
-                            <div class="fw-bold text-dark">${docNo}</div>
-                        </div>
-                        ${type === 'wh-sale-return' && doc.originalSale?.invoiceNo ? `
-                        <div class="alert alert-light py-2 mb-3">Original sale invoice: <strong>${doc.originalSale.invoiceNo}</strong></div>
-                        ` : ''}
-                        <div class="col-3 border-end">
-                            <div class="info-label small text-muted text-uppercase fw-bold">Date</div>
-                            <div class="fw-bold text-dark">${docDate}</div>
-                        </div>
-                        <div class="col-3 border-end">
-                            <div class="info-label small text-muted text-uppercase fw-bold">Payment Mode</div>
-                            <div class="fw-bold text-dark text-uppercase">${doc.paymentMode || doc.payMode || doc.returnMode || 'Cash'}</div>
-                        </div>
-                        <div class="col-3">
-                            <div class="info-label small text-muted text-uppercase fw-bold">Created By</div>
-                            <div class="fw-bold text-dark">${createdBy}</div>
-                        </div>
-                    </div>
-                </div>
-
-                <table class="main-table">
-                    <thead>
-                        <tr>
-                            <th class="text-center" style="width: 50px;">#</th>
-                            <th>Item Description</th>
-                            <th class="text-center" style="width: 100px;">Qty</th>
-                            <th class="text-end" style="width: 150px;">Price</th>
-                            <th class="text-end" style="width: 150px;">Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${itemsHtml}
-                    </tbody>
-                </table>
-
-                <div class="totals-section">
-                    <table class="totals-table">
-                        <tr>
-                            <td>Sub Total</td>
-                            <td class="text-end fw-bold">${subTotal}</td>
-                        </tr>
-                        <tr>
-                            <td>Tax</td>
-                            <td class="text-end fw-bold">${taxTotal}</td>
-                        </tr>
-                        ${adjustmentRows}
-                        <tr>
-                            <td class="grand-total">Grand Total</td>
-                            <td class="text-end grand-total">${grandTotal}</td>
-                        </tr>
-                        ${type === 'wh-sale-return' ? `
-                        <tr>
-                            <td>Cash refunded</td>
-                            <td class="text-end fw-bold">${Number(doc.paidAmount || doc.netTotal || 0).toFixed(2)}</td>
-                        </tr>` : ''}
-                        ${((type === 'sale' && doc.paymentMode === 'cash') || (type === 'wh-sale' && doc.payMode === 'Cash')) ? `
-                        <tr>
-                            <td>Paid</td>
-                            <td class="text-end fw-bold">${Number(doc.paidAmount || 0).toFixed(2)}</td>
-                        </tr>
-                        <tr>
-                            <td>Cash received</td>
-                            <td class="text-end fw-bold">${Number(doc.cashReceived || doc.paidAmount || 0).toFixed(2)}</td>
-                        </tr>
-                        <tr>
-                            <td>Change</td>
-                            <td class="text-end fw-bold">${Number(doc.changeAmount || 0).toFixed(2)}</td>
-                        </tr>` : ''}
+                    <table class="thermal-items-table">
+                        <colgroup>
+                            <col style="width: 16px;">
+                            <col style="width: auto;">
+                            <col style="width: 30px;">
+                            <col style="width: 48px;">
+                            <col style="width: 54px;">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th style="width: 16px;">#</th>
+                                <th>Item</th>
+                                <th style="text-align: center; width: 30px;">Qty</th>
+                                <th style="text-align: right; width: 48px;">Price</th>
+                                <th style="text-align: right; width: 54px;">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${itemsTableRows}
+                        </tbody>
                     </table>
-                </div>
 
-                <div class="row mt-4">
-                    <div class="col-12">
-                        <div class="terms-box">
-                            <strong class="d-block mb-2">Terms & Conditions:</strong>
-                            <ol class="mb-0 ps-3 small text-muted">
-                                <li>Goods once sold will not be taken back.</li>
-                                <li>Interest @18% p.a. will be charged if payment is not made within the due date.</li>
-                                <li>Subject to local jurisdiction only.</li>
-                            </ol>
-                        </div>
-                    </div>
-                </div>
+                    <div class="thermal-divider"></div>
 
-                <div class="row footer-section">
-                    <div class="col-6">
-                        <div class="signature-box text-start">
-                             <div class="signature-line ms-0"></div>
-                             <p>Customer's Signature</p>
+                    <div class="thermal-totals">
+                        <div class="thermal-totals-row">
+                            <span>Total Qty:</span>
+                            <strong>${totalQty}</strong>
+                        </div>
+                        <div class="thermal-totals-row">
+                            <span>Sub Total:</span>
+                            <span>${subTotal}</span>
+                        </div>
+                        ${Number(totalDiscount) > 0 ? `
+                        <div class="thermal-totals-row">
+                            <span>Discount:</span>
+                            <span>-${totalDiscount}</span>
+                        </div>` : ''}
+                        ${Number(doc.miscCharges || 0) > 0 ? `
+                        <div class="thermal-totals-row">
+                            <span>Misc. Charges:</span>
+                            <span>${Number(doc.miscCharges).toFixed(2)}</span>
+                        </div>` : ''}
+
+                        <div class="thermal-payable">
+                            <span>NET PAYABLE:</span>
+                            <span>Rs. ${grandTotal}</span>
+                        </div>
+
+                        ${((type === 'sale' && doc.paymentMode === 'cash') || (type === 'wh-sale' && doc.payMode === 'Cash')) ? `
+                        <div class="thermal-totals-row">
+                            <span>Cash Received:</span>
+                            <span>Rs. ${cashReceived}</span>
+                        </div>
+                        <div class="thermal-totals-row">
+                            <span>Change Returned:</span>
+                            <span>Rs. ${changeAmount}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+
+                    <div class="thermal-terms">
+                        <strong>Terms & Conditions:</strong><br>
+                        • Goods once sold will not be returned without bill.<br>
+                        • Exchange possible within 2 days with original receipt.<br>
+                        • Cosmetics and opened items are non-returnable.
+                    </div>
+
+                    <div class="thermal-dev-footer">
+                        <strong>Software Developed by BW Software Agencies</strong><br>
+                        Contact: +923192173398
+                    </div>
+                `;
+            } else {
+                // ================= STANDARD A4 / A3 LAYOUT =================
+                const standardItemsHtml = itemsRows.map(it => `
+                    <tr>
+                        <td class="text-center">${it.num}</td>
+                        <td>
+                            <div class="fw-bold">${it.name}</div>
+                            ${it.code ? `<small class="text-muted">${it.code}</small>` : ''}
+                        </td>
+                        <td class="text-center">${it.qty}</td>
+                        <td class="text-end">${it.price}</td>
+                        <td class="text-end">${it.total}</td>
+                    </tr>
+                `).join('');
+
+                html = `
+                    <div class="d-flex justify-content-between align-items-start mb-3 border-bottom pb-2">
+                        <div>
+                            ${company.logo ? `<img src="${company.logo}" class="company-logo" alt="Logo">` : `<h3>${company.companyName || ''}</h3>`}
+                        </div>
+                        <div class="text-end">
+                            <div class="invoice-title">${title}</div>
+                            <div class="text-muted small">Original Copy</div>
                         </div>
                     </div>
-                    <div class="col-6">
-                         <div class="signature-box text-end">
-                             <div class="signature-line ms-auto"></div>
-                             <p>Authorized Signatory</p>
+
+                    <div class="row mb-4">
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded h-100">
+                                <h6 class="text-uppercase text-muted mb-2 small fw-bold">From:</h6>
+                                <h5 class="mb-1 text-primary">${company.companyName || 'My Company'}</h5>
+                                <p class="mb-0 text-muted small">
+                                    ${company.address || ''}<br>
+                                    Phone: ${company.phone || ''} | Email: ${company.email || ''}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded h-100 text-end">
+                                <h6 class="text-uppercase text-muted mb-2 small fw-bold">To:</h6>
+                                <h5 class="mb-1 text-primary">${partyName}</h5>
+                                <p class="mb-0 text-muted small">
+                                    Phone: ${party.phone || 'N/A'}
+                                </p>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `;
+
+                    <div class="info-box mb-4">
+                        <div class="row text-center">
+                            <div class="col-3 border-end">
+                                <div class="info-label small text-muted text-uppercase fw-bold">Invoice No</div>
+                                <div class="fw-bold text-dark">${docNo}</div>
+                            </div>
+                            <div class="col-3 border-end">
+                                <div class="info-label small text-muted text-uppercase fw-bold">Date</div>
+                                <div class="fw-bold text-dark">${docDate}</div>
+                            </div>
+                            <div class="col-3 border-end">
+                                <div class="info-label small text-muted text-uppercase fw-bold">Payment Mode</div>
+                                <div class="fw-bold text-dark text-uppercase">${payMode}</div>
+                            </div>
+                            <div class="col-3">
+                                <div class="info-label small text-muted text-uppercase fw-bold">Created By</div>
+                                <div class="fw-bold text-dark">${createdBy}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <table class="main-table">
+                        <thead>
+                            <tr>
+                                <th class="text-center" style="width: 50px;">#</th>
+                                <th>Item Description</th>
+                                <th class="text-center" style="width: 100px;">Qty</th>
+                                <th class="text-end" style="width: 150px;">Price</th>
+                                <th class="text-end" style="width: 150px;">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${standardItemsHtml}
+                        </tbody>
+                    </table>
+
+                    <div class="totals-section">
+                        <table class="totals-table">
+                            <tr>
+                                <td>Sub Total</td>
+                                <td class="text-end fw-bold">${subTotal}</td>
+                            </tr>
+                            ${Number(totalDiscount) > 0 ? `
+                            <tr>
+                                <td>Discount</td>
+                                <td class="text-end fw-bold">-${totalDiscount}</td>
+                            </tr>` : ''}
+                            <tr>
+                                <td class="grand-total">Grand Total</td>
+                                <td class="text-end grand-total">Rs. ${grandTotal}</td>
+                            </tr>
+                            <tr>
+                                <td>Paid</td>
+                                <td class="text-end fw-bold">Rs. ${paidAmount}</td>
+                            </tr>
+                            <tr>
+                                <td>Cash Received</td>
+                                <td class="text-end fw-bold">Rs. ${cashReceived}</td>
+                            </tr>
+                            <tr>
+                                <td>Change</td>
+                                <td class="text-end fw-bold">Rs. ${changeAmount}</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="terms-box mt-4">
+                        <strong class="d-block mb-2">Terms & Conditions:</strong>
+                        <ol class="mb-0 ps-3 small text-muted">
+                            <li>Goods once sold will not be taken back without receipt.</li>
+                            <li>All disputes subject to local jurisdiction only.</li>
+                        </ol>
+                    </div>
+
+                    <div class="row footer-section mt-5">
+                        <div class="col-6">
+                            <div class="signature-box text-start">
+                                <div class="signature-line ms-0"></div>
+                                <p>Customer's Signature</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="signature-box text-end">
+                                <div class="signature-line ms-auto"></div>
+                                <p>Authorized Signatory</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
 
             document.getElementById('invoiceContent').innerHTML = html;
         }

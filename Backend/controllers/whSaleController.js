@@ -503,6 +503,21 @@ exports.getWHPOSReturnInvoice = async (req, res) => {
             return res.status(400).json({ success: false, message: 'POS returns are only available for cash sale invoices.' });
         }
 
+        // Enforce: An invoice can only be returned once. If already returned or pending in queue, do not allow again.
+        const existingReturn = await WHSaleReturn.findOne({
+            originalSale: sale._id,
+            status: { $in: ['Posted', 'Pending Approval'] }
+        })
+            .select('returnNo status createdAt')
+            .lean();
+
+        if (existingReturn) {
+            return res.status(400).json({
+                success: false,
+                message: `Invoice #${invoiceNo} has already been returned (Return #${existingReturn.returnNo}, Status: ${existingReturn.status}). Re-returning this invoice is not allowed.`
+            });
+        }
+
         const postedReturns = await WHSaleReturn.find({
             originalSale: sale._id,
             status: { $in: ['Posted', 'Pending Approval'] }
@@ -569,10 +584,7 @@ exports.getWHPOSReturnInvoice = async (req, res) => {
 exports.createWHPOSReturn = async (req, res) => {
     try {
         await verifyPOSPassword(req);
-        const { originalSaleId, items: inputLines } = req.body;
-        if (!mongoose.Types.ObjectId.isValid(String(originalSaleId || ''))) {
-            return res.status(400).json({ success: false, message: 'Select a valid original sale invoice.' });
-        }
+        const { originalSaleId, items: inputLines, remarks } = req.body;
         if (!Array.isArray(inputLines) || !inputLines.length) {
             return res.status(400).json({ success: false, message: 'Select at least one item quantity to return.' });
         }
@@ -589,90 +601,175 @@ exports.createWHPOSReturn = async (req, res) => {
 
         let returnId;
         await executeWithOptionalSession(async (session) => {
-            let saleQuery = WHSale.findById(originalSaleId);
-            if (session) saleQuery = saleQuery.session(session);
-            const sale = await saleQuery;
-            if (!sale || sale.status !== 'Posted') {
-                throw Object.assign(new Error('The original posted sale invoice was not found.'), { statusCode: 404 });
-            }
-            if (sale.payMode !== 'Cash') {
-                throw Object.assign(new Error('POS returns are only available for cash sale invoices.'), { statusCode: 400 });
-            }
+            let sale = null;
+            let customerId = null;
 
-            let returnsQuery = WHSaleReturn.find({
-                originalSale: sale._id,
-                status: { $in: ['Posted', 'Pending Approval'] }
-            }).select('items');
-            if (session) returnsQuery = returnsQuery.session(session);
-            const postedReturns = await returnsQuery;
-            const returnedByItem = new Map();
-            postedReturns.forEach((saleReturn) => saleReturn.items.forEach((line) => {
-                const itemId = String(line.item?._id || line.item);
-                returnedByItem.set(itemId, (returnedByItem.get(itemId) || 0) + Number(line.quantity || 0));
-            }));
-
-            const soldByItem = new Map();
-            sale.items.forEach((line) => {
-                const itemId = String(line.item?._id || line.item);
-                const quantity = Number(line.quantity || 0);
-                const pcsPrice = Number(line.pcsPrice || line.retailPrice || 0);
-                const lineTotal = Number(line.subTotal ?? line.totalBeforeIncentive ?? (pcsPrice * quantity));
-                const existing = soldByItem.get(itemId);
-                if (existing) {
-                    existing.quantity += quantity;
-                    existing.subTotal += lineTotal;
-                } else {
-                    soldByItem.set(itemId, {
-                        item: line.item,
-                        name: line.name || line.itemName || 'Item',
-                        barcode: line.barcode || '',
-                        quantity,
-                        subTotal: lineTotal,
-                        pcsPrice: quantity ? lineTotal / quantity : pcsPrice
-                    });
+            if (originalSaleId && mongoose.Types.ObjectId.isValid(String(originalSaleId))) {
+                let saleQuery = WHSale.findById(originalSaleId);
+                if (session) saleQuery = saleQuery.session(session);
+                sale = await saleQuery;
+                if (!sale || sale.status !== 'Posted') {
+                    throw Object.assign(new Error('The original posted sale invoice was not found.'), { statusCode: 404 });
                 }
-            });
+                if (sale.payMode !== 'Cash') {
+                    throw Object.assign(new Error('POS returns are only available for cash sale invoices.'), { statusCode: 400 });
+                }
+
+                // Enforce: An invoice can only be returned once. If already returned or pending approval, reject immediately.
+                let existingReturnQuery = WHSaleReturn.findOne({
+                    originalSale: sale._id,
+                    status: { $in: ['Posted', 'Pending Approval'] }
+                }).select('returnNo status');
+                if (session) existingReturnQuery = existingReturnQuery.session(session);
+                const existingReturn = await existingReturnQuery;
+                if (existingReturn) {
+                    throw Object.assign(
+                        new Error(`Invoice #${sale.invoiceNo} has already been returned (Return #${existingReturn.returnNo}, Status: ${existingReturn.status}). Re-returning this invoice is not allowed.`),
+                        { statusCode: 400 }
+                    );
+                }
+                customerId = sale.customer;
+            } else {
+                // Direct Return without invoice: Find or create default Walk-in Customer
+                let customerQuery = WHCustomer.findOne({ isCash: true, customerName: 'Walk-in Customer' });
+                if (session) customerQuery = customerQuery.session(session);
+                let customer = await customerQuery;
+                if (!customer) {
+                    const customerData = {
+                        customerName: 'Walk-in Customer',
+                        customerNTN: 'N/A',
+                        isCash: true,
+                        customerCategory: null,
+                        address: 'POS Counter',
+                        phone: 'N/A',
+                        balance: 0
+                    };
+                    [customer] = session
+                        ? await WHCustomer.create([customerData], { session })
+                        : await WHCustomer.create([customerData]);
+                }
+                customerId = customer._id;
+            }
 
             const selectedLines = [];
             let totalQuantity = 0;
             let totalAmount = 0;
-            for (const [itemId, quantity] of requestedByItem) {
-                const original = soldByItem.get(itemId);
-                const remaining = original ? original.quantity - (returnedByItem.get(itemId) || 0) : 0;
-                if (!original || quantity > remaining + 0.000001) {
-                    throw Object.assign(
-                        new Error(`Return quantity exceeds the remaining sold quantity for ${original?.name || 'an item'}. Remaining: ${Math.max(0, remaining)}.`),
-                        { statusCode: 400 }
-                    );
-                }
-                const returnedSubTotal = Math.round((original.subTotal * quantity / original.quantity + Number.EPSILON) * 100) / 100;
-                selectedLines.push({
-                    item: original.item,
-                    name: original.name,
-                    itemName: original.name,
-                    barcode: original.barcode,
-                    quantity,
-                    pcsPrice: original.pcsPrice,
-                    retailPrice: original.pcsPrice,
-                    subTotal: returnedSubTotal,
-                    totalBeforeIncentive: returnedSubTotal,
-                    netTotal: returnedSubTotal
+            let discountPercent = 0;
+            let flatDiscount = 0;
+            let taxAmount = 0;
+            let refundTotal = 0;
+
+            if (sale) {
+                // Invoice-based validation
+                let returnsQuery = WHSaleReturn.find({
+                    originalSale: sale._id,
+                    status: { $in: ['Posted', 'Pending Approval'] }
+                }).select('items');
+                if (session) returnsQuery = returnsQuery.session(session);
+                const postedReturns = await returnsQuery;
+                const returnedByItem = new Map();
+                postedReturns.forEach((saleReturn) => saleReturn.items.forEach((line) => {
+                    const itemId = String(line.item?._id || line.item);
+                    returnedByItem.set(itemId, (returnedByItem.get(itemId) || 0) + Number(line.quantity || 0));
+                }));
+
+                const soldByItem = new Map();
+                sale.items.forEach((line) => {
+                    const itemId = String(line.item?._id || line.item);
+                    const quantity = Number(line.quantity || 0);
+                    const pcsPrice = Number(line.pcsPrice || line.retailPrice || 0);
+                    const lineTotal = Number(line.subTotal ?? line.totalBeforeIncentive ?? (pcsPrice * quantity));
+                    const existing = soldByItem.get(itemId);
+                    if (existing) {
+                        existing.quantity += quantity;
+                        existing.subTotal += lineTotal;
+                    } else {
+                        soldByItem.set(itemId, {
+                            item: line.item,
+                            name: line.name || line.itemName || 'Item',
+                            barcode: line.barcode || '',
+                            quantity,
+                            subTotal: lineTotal,
+                            pcsPrice: quantity ? lineTotal / quantity : pcsPrice
+                        });
+                    }
                 });
-                totalQuantity += quantity;
-                totalAmount += returnedSubTotal;
+
+                for (const [itemId, quantity] of requestedByItem) {
+                    const original = soldByItem.get(itemId);
+                    const remaining = original ? original.quantity - (returnedByItem.get(itemId) || 0) : 0;
+                    if (!original || quantity > remaining + 0.000001) {
+                        throw Object.assign(
+                            new Error(`Return quantity exceeds the remaining sold quantity for ${original?.name || 'an item'}. Remaining: ${Math.max(0, remaining)}.`),
+                            { statusCode: 400 }
+                        );
+                    }
+                    const returnedSubTotal = Math.round((original.subTotal * quantity / original.quantity + Number.EPSILON) * 100) / 100;
+                    selectedLines.push({
+                        item: original.item,
+                        name: original.name,
+                        itemName: original.name,
+                        barcode: original.barcode,
+                        quantity,
+                        pcsPrice: original.pcsPrice,
+                        retailPrice: original.pcsPrice,
+                        subTotal: returnedSubTotal,
+                        totalBeforeIncentive: returnedSubTotal,
+                        netTotal: returnedSubTotal
+                    });
+                    totalQuantity += quantity;
+                    totalAmount += returnedSubTotal;
+                }
+
+                totalAmount = Math.round((totalAmount + Number.EPSILON) * 100) / 100;
+                const originalSubtotal = Number(sale.totalAmount || 0);
+                discountPercent = Number(sale.globalDiscountPercent || 0);
+                flatDiscount = originalSubtotal > 0
+                    ? Math.round((Number(sale.globalDiscountAmount || 0) * totalAmount / originalSubtotal + Number.EPSILON) * 100) / 100
+                    : 0;
+                const percentDiscountAmount = Math.round((totalAmount * discountPercent / 100 + Number.EPSILON) * 100) / 100;
+                taxAmount = originalSubtotal > 0
+                    ? Math.round((Number(sale.globalTaxAmount || 0) * totalAmount / originalSubtotal + Number.EPSILON) * 100) / 100
+                    : 0;
+                refundTotal = Math.round((Math.max(0, totalAmount - percentDiscountAmount - flatDiscount + taxAmount) + Number.EPSILON) * 100) / 100;
+            } else {
+                // Direct Return without invoice: Look up items directly from WHItem catalog
+                const itemIds = Array.from(requestedByItem.keys());
+                let itemsQuery = WHItem.find({ _id: { $in: itemIds } });
+                if (session) itemsQuery = itemsQuery.session(session);
+                const warehouseItems = await itemsQuery;
+                const itemMap = new Map(warehouseItems.map(it => [String(it._id), it]));
+
+                for (const line of inputLines) {
+                    const itemId = String(line.item || '').trim();
+                    const quantity = Number(line.quantity || 0);
+                    const whItem = itemMap.get(itemId);
+                    if (!whItem) throw Object.assign(new Error(`Item with ID ${itemId} was not found.`), { statusCode: 404 });
+                    const customPrice = Number(line.pcsPrice);
+                    const pcsPrice = (Number.isFinite(customPrice) && customPrice >= 0)
+                        ? customPrice
+                        : Number(whItem.retailPrice || whItem.salePrice || 0);
+                    const lineTotal = Math.round((pcsPrice * quantity + Number.EPSILON) * 100) / 100;
+                    selectedLines.push({
+                        item: whItem._id,
+                        name: whItem.name,
+                        itemName: whItem.name,
+                        barcode: whItem.barcode || whItem.itemsCode || '',
+                        quantity,
+                        pcsPrice,
+                        retailPrice: pcsPrice,
+                        subTotal: lineTotal,
+                        totalBeforeIncentive: lineTotal,
+                        netTotal: lineTotal
+                    });
+                    totalQuantity += quantity;
+                    totalAmount += lineTotal;
+                }
+
+                totalAmount = Math.round((totalAmount + Number.EPSILON) * 100) / 100;
+                refundTotal = totalAmount;
             }
 
-            totalAmount = Math.round((totalAmount + Number.EPSILON) * 100) / 100;
-            const originalSubtotal = Number(sale.totalAmount || 0);
-            const discountPercent = Number(sale.globalDiscountPercent || 0);
-            const flatDiscount = originalSubtotal > 0
-                ? Math.round((Number(sale.globalDiscountAmount || 0) * totalAmount / originalSubtotal + Number.EPSILON) * 100) / 100
-                : 0;
-            const percentDiscountAmount = Math.round((totalAmount * discountPercent / 100 + Number.EPSILON) * 100) / 100;
-            const taxAmount = originalSubtotal > 0
-                ? Math.round((Number(sale.globalTaxAmount || 0) * totalAmount / originalSubtotal + Number.EPSILON) * 100) / 100
-                : 0;
-            const refundTotal = Math.round((Math.max(0, totalAmount - percentDiscountAmount - flatDiscount + taxAmount) + Number.EPSILON) * 100) / 100;
             if (refundTotal <= 0) {
                 throw Object.assign(new Error('The selected return has no refundable amount.'), { statusCode: 400 });
             }
@@ -681,16 +778,16 @@ exports.createWHPOSReturn = async (req, res) => {
             let itemsQuery = WHItem.find({ _id: { $in: itemIds } });
             if (session) itemsQuery = itemsQuery.session(session);
             const warehouseItems = await itemsQuery;
-            if (warehouseItems.length !== itemIds.length) {
+            if (warehouseItems.length !== new Set(itemIds.map(String)).size) {
                 throw Object.assign(new Error('One or more returned warehouse items no longer exist.'), { statusCode: 404 });
             }
 
             const returnData = {
                 returnNo: 'AUTO',
                 returnDate: new Date(),
-                originalSale: sale._id,
-                customer: sale.customer,
-                remarks: `POS return against invoice ${sale.invoiceNo}`,
+                originalSale: sale ? sale._id : null,
+                customer: customerId,
+                remarks: remarks || (sale ? `POS return against invoice ${sale.invoiceNo}` : 'Direct POS return without invoice'),
                 items: selectedLines,
                 totalQuantity,
                 totalAmount,
@@ -725,14 +822,23 @@ exports.createWHPOSReturn = async (req, res) => {
 
 exports.getWHPOSReturnQueue = async (req, res) => {
     try {
-        const pending = await WHSaleReturn.find({ status: 'Pending Approval' })
+        const statusFilter = req.query.status;
+        const query = {};
+        if (statusFilter && statusFilter !== 'All') {
+            query.status = statusFilter;
+        } else if (!statusFilter) {
+            query.status = 'Pending Approval';
+        }
+
+        const returns = await WHSaleReturn.find(query)
             .populate('customer', 'customerName name phone')
             .populate('originalSale', 'invoiceNo invoiceDate')
             .populate('createdBy', 'name email')
+            .populate('reviewedBy', 'name email')
             .populate('items.item', 'name barcode itemsCode')
-            .sort({ createdAt: 1 })
+            .sort({ createdAt: -1 })
             .lean();
-        res.status(200).json({ success: true, count: pending.length, data: pending });
+        res.status(200).json({ success: true, count: returns.length, data: returns });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

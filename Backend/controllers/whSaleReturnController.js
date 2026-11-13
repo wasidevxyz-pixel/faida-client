@@ -9,6 +9,19 @@ const { addLedgerEntry, deleteLedgerEntry } = require('../utils/whLedgerUtils');
 // @route   POST /api/v1/wh-sale-returns
 exports.createWHSaleReturn = async (req, res) => {
     try {
+        if (req.body.originalSale) {
+            const existingReturn = await WHSaleReturn.findOne({
+                originalSale: req.body.originalSale,
+                status: { $in: ['Posted', 'Pending Approval'] }
+            }).select('returnNo status');
+            if (existingReturn) {
+                return res.status(400).json({
+                    success: false,
+                    error: `This sale invoice has already been returned (Return #${existingReturn.returnNo}, Status: ${existingReturn.status}). Further returns are not allowed.`
+                });
+            }
+        }
+
         const requestedStatus = String(req.body.status || 'Posted').toLowerCase();
         const returnData = {
             ...req.body,

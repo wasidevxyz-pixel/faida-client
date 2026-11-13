@@ -5,12 +5,15 @@ const WHItemCategory = require('../models/WHItemCategory');
 exports.getCategories = async (req, res) => {
     try {
         let query = {};
-        if (req.user && req.user.role !== 'admin') {
-            if (req.user.allowedWHItemCategories && req.user.allowedWHItemCategories.length > 0) {
-                query._id = { $in: req.user.allowedWHItemCategories };
-            } else {
-                return res.status(200).json({ success: true, count: 0, data: [] });
-            }
+        const isAdmin = req.user && (
+            req.user.role === 'admin' ||
+            req.user.role === 'administrator' ||
+            req.user.role === 'superadmin' ||
+            (req.user.groupId && req.user.groupId.isAdmin)
+        );
+        // Only restrict if user is not admin AND has specific categories assigned
+        if (!isAdmin && req.user && req.user.allowedWHItemCategories && req.user.allowedWHItemCategories.length > 0) {
+            query._id = { $in: req.user.allowedWHItemCategories };
         }
         const categories = await WHItemCategory.find(query).sort({ name: 1 });
         res.status(200).json({ success: true, count: categories.length, data: categories });

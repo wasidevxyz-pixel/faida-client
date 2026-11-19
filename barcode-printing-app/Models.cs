@@ -46,11 +46,19 @@ namespace BarcodePrintingApp
     {
         public string _id { get; set; } = "";
         public string invoiceNo { get; set; } = "";
+        public int? postingNumber { get; set; }
         public DateTime invoiceDate { get; set; }
-        public SupplierModel? supplier { get; set; }
+        public object? supplier { get; set; }
+        public string supplierName { get; set; } = "";
         public string status { get; set; } = "";
         public decimal totalAmount { get; set; }
         public List<PurchaseItemModel> items { get; set; } = new();
+
+        public string GetSupplierName()
+        {
+            if (!string.IsNullOrEmpty(supplierName)) return supplierName;
+            return SupplierModel.GetName(supplier);
+        }
     }
 
     public class SupplierModel
@@ -61,7 +69,11 @@ namespace BarcodePrintingApp
         public static string GetName(object? obj)
         {
             if (obj == null) return "";
-            if (obj is Newtonsoft.Json.Linq.JObject jo) return jo["supplierName"]?.ToString() ?? "";
+            if (obj is string s) return s;
+            if (obj is Newtonsoft.Json.Linq.JObject jo)
+            {
+                return jo["supplierName"]?.ToString() ?? jo["name"]?.ToString() ?? "";
+            }
             return "";
         }
     }
@@ -70,17 +82,24 @@ namespace BarcodePrintingApp
     {
         public string _id { get; set; } = "";
         public object? item { get; set; }
+        public string name { get; set; } = "";
+        public string itemName { get; set; } = "";
+        public string barcode { get; set; } = "";
         public decimal quantity { get; set; }
+        public decimal bonus { get; set; }
         public decimal costPrice { get; set; }
+        public decimal salePrice { get; set; }
+        public decimal retailPrice { get; set; }
         public decimal total { get; set; }
 
         public WHItem? GetWHItem()
         {
             if (item == null) return null;
             if (item is WHItem wh) return wh;
-            if (item is Newtonsoft.Json.Linq.JObject jo) return jo.ToObject<WHItem>();
-            // If it's just a string ID, we can't get the details here without another API call,
-            // but at least it won't crash.
+            if (item is Newtonsoft.Json.Linq.JObject jo)
+            {
+                try { return jo.ToObject<WHItem>(); } catch { return null; }
+            }
             return null;
         }
     }

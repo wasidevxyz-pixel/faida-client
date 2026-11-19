@@ -318,11 +318,15 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-md-12 mb-3">
-                                        <label for="companyLogo" class="form-label">Company Logo</label>
+                                        <label for="companyLogo" class="form-label fw-bold">Company Logo</label>
                                         <input type="file" class="form-control" id="companyLogo" accept="image/*">
-                                        <div class="mt-2">
+                                        <small class="text-muted d-block mt-1">Logo displays on POS thermal receipts, return invoices, and reports. Supports PNG/JPG.</small>
+                                        <div class="mt-2" id="logoPreviewContainer" style="display: none; align-items: center; gap: 12px; background: #f8f9fa; border: 1px dashed #ced4da; padding: 8px 12px; border-radius: 6px; width: fit-content;">
                                             <img id="logoPreview" src="" alt="Logo Preview"
-                                                style="max-width: 200px; display: none;">
+                                                style="max-height: 70px; max-width: 220px; object-fit: contain;">
+                                            <button type="button" class="btn btn-outline-danger btn-sm" id="removeLogoBtn" title="Remove logo">
+                                                <i class="fas fa-trash-alt me-1"></i>Remove
+                                            </button>
                                         </div>
                                     </div>
                                 </div>

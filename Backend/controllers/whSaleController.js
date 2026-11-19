@@ -7,6 +7,8 @@ const WHStockLog = require('../models/WHStockLog');
 const WHPOSCounter = require('../models/WHPOSCounter');
 const User = require('../models/User');
 const mongoose = require('mongoose');
+const WHItemCategory = require('../models/WHItemCategory');
+const Settings = require('../models/Settings');
 require('../models/WHItemClass');
 require('../models/WHItemCompany');
 const { addLedgerEntry, deleteLedgerEntry } = require('../utils/whLedgerUtils');
@@ -1425,5 +1427,332 @@ exports.getNextInvoiceNumber = async (req, res) => {
         res.status(200).json({ success: true, data: nextNo, nextInvoiceNo: nextNo });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
+    }
+};
+
+// @desc    Get Allowed Category Wise Net Sale Report
+// @route   GET /api/v1/wh-sales/reports/category-net-sales
+// @access  Private (POS / Sales / Reports)
+exports.getWHCategorySalesReport = async (req, res) => {
+    try {
+        const { startDate, endDate, showAll } = req.query;
+
+        // Helper date formatter matching Waseela V9: DD/MM/YY HH:MM:SS
+        const formatReportDate = (d) => {
+            if (!d || Number.isNaN(new Date(d).getTime())) return '';
+            const dt = new Date(d);
+            const day = String(dt.getDate()).padStart(2, '0');
+            const month = String(dt.getMonth() + 1).padStart(2, '0');
+            const year = String(dt.getFullYear()).slice(-2);
+            const hours = String(dt.getHours()).padStart(2, '0');
+            const mins = String(dt.getMinutes()).padStart(2, '0');
+            const secs = String(dt.getSeconds()).padStart(2, '0');
+            return `${day}/${month}/${year} ${hours}:${mins}:${secs}`;
+        };
+
+        // Determine start and end date boundaries
+        let start = new Date();
+        if (startDate) {
+            const parts = String(startDate).trim().split('-');
+            if (parts.length === 3 && parts[0] && parts[1] && parts[2]) {
+                start = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]), 0, 0, 0, 0);
+            } else {
+                start = new Date(startDate);
+                start.setHours(0, 0, 0, 0);
+            }
+        } else {
+            start.setHours(0, 0, 0, 0);
+        }
+
+        let end = new Date();
+        if (endDate) {
+            const parts = String(endDate).trim().split('-');
+            if (parts.length === 3 && parts[0] && parts[1] && parts[2]) {
+                end = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]), 23, 59, 59, 999);
+            } else {
+                end = new Date(endDate);
+                end.setHours(23, 59, 59, 999);
+            }
+        } else {
+            end.setHours(23, 59, 59, 999);
+        }
+
+        // Fetch company / store details
+        let company = {
+            companyName: 'Pharmacy & Super Store',
+            address: 'Main Commercial Area',
+            phone: '',
+            email: '',
+            taxNumber: '',
+            logo: ''
+        };
+        try {
+            const settings = await Settings.getSettings();
+            if (settings) {
+                if (settings.companyName) company.companyName = settings.companyName;
+                const addrParts = [settings.address, settings.city, settings.state].filter(Boolean);
+                if (addrParts.length) company.address = addrParts.join(', ');
+                if (settings.phone) company.phone = settings.phone;
+                if (settings.email) company.email = settings.email;
+                if (settings.taxNumber) company.taxNumber = settings.taxNumber;
+                if (settings.logo) company.logo = settings.logo;
+            }
+        } catch (setErr) {
+            // ignore fallback
+        }
+
+        // Fetch all categories for lookup
+        const allCategories = await WHItemCategory.find({ isActive: { $ne: false } })
+            .select('name')
+            .lean();
+        const categoryLookup = new Map();
+        for (const cat of allCategories) {
+            categoryLookup.set(String(cat._id), cat.name);
+        }
+
+        // Fetch Posted Sales in the date range
+        const sales = await WHSale.find({
+            invoiceDate: { $gte: start, $lte: end },
+            status: 'Posted'
+        })
+            .select('invoiceNo invoiceDate items totalAmount globalDiscountPercent globalDiscountAmount globalTaxAmount globalTaxPercent payMode')
+            .populate({
+                path: 'items.item',
+                select: 'name itemsCode barcode category costPrice retailPrice salePrice'
+            })
+            .lean();
+
+        // Fetch Posted Returns in the date range
+        const returns = await WHSaleReturn.find({
+            returnDate: { $gte: start, $lte: end },
+            status: 'Posted'
+        })
+            .select('returnNo returnDate items totalAmount globalDiscountPercent globalDiscountAmount globalTaxAmount')
+            .populate({
+                path: 'items.item',
+                select: 'name itemsCode barcode category costPrice retailPrice salePrice'
+            })
+            .lean();
+
+        // Map to accumulate per-category statistics
+        // Key: categoryName
+        const categoryStats = new Map();
+
+        const getCategoryData = (catName) => {
+            const name = (catName || 'General / Uncategorized').trim();
+            let data = categoryStats.get(name);
+            if (!data) {
+                data = {
+                    categoryName: name,
+                    grossValue: 0,
+                    discount: 0,
+                    salesValue: 0,
+                    returnValue: 0,
+                    netGstValue: 0,
+                    netSaleValue: 0,
+                    costOfNetSale: 0,
+                    // Track items for Cost of Net Sale = (Sold Qty - Return Qty) * Cost Price
+                    itemsMap: new Map() // itemId -> { soldQty: 0, returnQty: 0, costPrice: 0 }
+                };
+                categoryStats.set(name, data);
+            }
+            return data;
+        };
+
+        // Initialize with all active categories if showAll is requested
+        if (String(showAll).toLowerCase() === 'true') {
+            for (const cat of allCategories) {
+                if (cat.name) getCategoryData(cat.name);
+            }
+        }
+
+        // Process Sales
+        for (const sale of sales) {
+            const saleGrossTotal = Number(sale.totalAmount || 0);
+            const globalFlatDisc = Number(sale.globalDiscountAmount || 0);
+            const globalDiscPercent = Number(sale.globalDiscountPercent || 0);
+            const globalTaxAmt = Number(sale.globalTaxAmount || 0);
+            const globalTaxPercent = Number(sale.globalTaxPercent || 0);
+
+            for (const line of (sale.items || [])) {
+                const whItem = line.item;
+                let catName = 'General / Uncategorized';
+                if (whItem && whItem.category) {
+                    const catIdStr = String(whItem.category._id || whItem.category);
+                    catName = categoryLookup.get(catIdStr) || whItem.category.name || catName;
+                }
+
+                const catData = getCategoryData(catName);
+
+                const qty = Number(line.quantity || 0);
+                const retailPrice = Number(line.retailPrice || line.pcsPrice || 0);
+                const lineGross = Number(line.subTotal ?? (qty * retailPrice));
+
+                // Line discount calculation (explicit line discount + proportional global discount)
+                let lineDisc = Number(line.discountAmount || 0);
+                if (globalFlatDisc > 0 && saleGrossTotal > 0) {
+                    lineDisc += (globalFlatDisc * lineGross) / saleGrossTotal;
+                } else if (globalDiscPercent > 0) {
+                    lineDisc += (lineGross * globalDiscPercent) / 100;
+                }
+
+                // Line GST / Tax calculation
+                let lineTax = Number(line.taxAmount || 0);
+                if (globalTaxAmt > 0 && saleGrossTotal > 0) {
+                    lineTax += (globalTaxAmt * lineGross) / saleGrossTotal;
+                } else if (globalTaxPercent > 0) {
+                    lineTax += (lineGross * globalTaxPercent) / 100;
+                }
+
+                catData.grossValue += lineGross;
+                catData.discount += lineDisc;
+                catData.netGstValue += lineTax;
+
+                // Track item quantity and cost
+                const itemId = whItem ? String(whItem._id) : (line.barcode || line.name || 'unknown');
+                const costPrice = Number(whItem?.costPrice || 0);
+                let itemTracker = catData.itemsMap.get(itemId);
+                if (!itemTracker) {
+                    itemTracker = { soldQty: 0, returnQty: 0, costPrice };
+                    catData.itemsMap.set(itemId, itemTracker);
+                }
+                itemTracker.soldQty += qty;
+                if (!itemTracker.costPrice && costPrice) {
+                    itemTracker.costPrice = costPrice;
+                }
+            }
+        }
+
+        // Process Returns
+        for (const ret of returns) {
+            const retGrossTotal = Number(ret.totalAmount || 0);
+            const globalTaxAmt = Number(ret.globalTaxAmount || 0);
+
+            for (const line of (ret.items || [])) {
+                const whItem = line.item;
+                let catName = 'General / Uncategorized';
+                if (whItem && whItem.category) {
+                    const catIdStr = String(whItem.category._id || whItem.category);
+                    catName = categoryLookup.get(catIdStr) || whItem.category.name || catName;
+                }
+
+                const catData = getCategoryData(catName);
+
+                const qty = Number(line.quantity || 0);
+                const refundLineValue = Number(line.netTotal ?? line.subTotal ?? (qty * Number(line.pcsPrice || 0)));
+
+                // Return GST / Tax (deducted from Net GST Value)
+                let returnLineTax = Number(line.taxAmount || 0);
+                if (globalTaxAmt > 0 && retGrossTotal > 0) {
+                    returnLineTax += (globalTaxAmt * refundLineValue) / retGrossTotal;
+                }
+
+                catData.returnValue += refundLineValue;
+                catData.netGstValue -= returnLineTax;
+
+                // Track item return quantity
+                const itemId = whItem ? String(whItem._id) : (line.barcode || line.name || 'unknown');
+                const costPrice = Number(whItem?.costPrice || 0);
+                let itemTracker = catData.itemsMap.get(itemId);
+                if (!itemTracker) {
+                    itemTracker = { soldQty: 0, returnQty: 0, costPrice };
+                    catData.itemsMap.set(itemId, itemTracker);
+                }
+                itemTracker.returnQty += qty;
+                if (!itemTracker.costPrice && costPrice) {
+                    itemTracker.costPrice = costPrice;
+                }
+            }
+        }
+
+        // Build report rows and compute totals
+        const rows = [];
+        let totalGross = 0;
+        let totalDiscount = 0;
+        let totalSalesValue = 0;
+        let totalReturnValue = 0;
+        let totalNetGst = 0;
+        let totalNetSaleValue = 0;
+        let totalCostOfNetSale = 0;
+
+        for (const [, catData] of categoryStats) {
+            const hasActivity = catData.grossValue > 0 || catData.discount > 0 || catData.returnValue > 0 || catData.netGstValue !== 0 || catData.itemsMap.size > 0;
+            // If showAll is false, skip categories with completely zero activity
+            if (!hasActivity && String(showAll).toLowerCase() !== 'true') {
+                continue;
+            }
+
+            const grossValue = Math.round((catData.grossValue + Number.EPSILON) * 100) / 100;
+            const discount = Math.round((catData.discount + Number.EPSILON) * 100) / 100;
+            const salesValue = Math.round(((grossValue - discount) + Number.EPSILON) * 100) / 100;
+            const returnValue = Math.round((catData.returnValue + Number.EPSILON) * 100) / 100;
+            const netGstValue = Math.round((catData.netGstValue + Number.EPSILON) * 100) / 100;
+            const netSaleValue = Math.round(((salesValue - returnValue + netGstValue) + Number.EPSILON) * 100) / 100;
+
+            // Cost of Net Sale = sum of ((soldQty - returnQty) * costPrice)
+            let categoryCost = 0;
+            for (const [, tracker] of catData.itemsMap) {
+                const netQty = tracker.soldQty - tracker.returnQty;
+                categoryCost += (netQty * tracker.costPrice);
+            }
+            const costOfNetSale = Math.round((categoryCost + Number.EPSILON) * 100) / 100;
+
+            rows.push({
+                categoryName: catData.categoryName,
+                grossValue,
+                discount,
+                salesValue,
+                returnValue,
+                netGstValue,
+                netSaleValue,
+                costOfNetSale
+            });
+
+            totalGross += grossValue;
+            totalDiscount += discount;
+            totalSalesValue += salesValue;
+            totalReturnValue += returnValue;
+            totalNetGst += netGstValue;
+            totalNetSaleValue += netSaleValue;
+            totalCostOfNetSale += costOfNetSale;
+        }
+
+        // Sort by category name numerically/alphabetically (e.g. 1-HERBAL, 1-HOMEOPATHIC, 2-COSMETICS, etc.)
+        rows.sort((a, b) => a.categoryName.localeCompare(b.categoryName, undefined, { numeric: true }));
+
+        // Assign S.No.
+        rows.forEach((row, idx) => {
+            row.sNo = idx + 1;
+        });
+
+        const totals = {
+            grossValue: Math.round((totalGross + Number.EPSILON) * 100) / 100,
+            discount: Math.round((totalDiscount + Number.EPSILON) * 100) / 100,
+            salesValue: Math.round((totalSalesValue + Number.EPSILON) * 100) / 100,
+            returnValue: Math.round((totalReturnValue + Number.EPSILON) * 100) / 100,
+            netGstValue: Math.round((totalNetGst + Number.EPSILON) * 100) / 100,
+            netSaleValue: Math.round((totalNetSaleValue + Number.EPSILON) * 100) / 100,
+            costOfNetSale: Math.round((totalCostOfNetSale + Number.EPSILON) * 100) / 100
+        };
+
+        const responsePayload = {
+            reportTitle: 'Category Wise Net Sales',
+            company,
+            fromDate: formatReportDate(start),
+            toDate: formatReportDate(end),
+            generatedAt: formatReportDate(new Date()),
+            salesCount: sales.length,
+            returnsCount: returns.length,
+            rows,
+            totals
+        };
+
+        res.status(200).json({
+            success: true,
+            data: responsePayload
+        });
+    } catch (error) {
+        console.error('Error in getWHCategorySalesReport:', error);
+        res.status(500).json({ success: false, message: error.message });
     }
 };

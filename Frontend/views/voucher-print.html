@@ -210,6 +210,9 @@
     <div class="voucher-container" id="voucherPrint">
         <div class="header-section">
             <div class="company-info">
+                <div id="cLogoWrap" style="display: none; margin-bottom: 6px;">
+                    <img id="cLogo" src="" style="max-height: 55px; max-width: 180px; object-fit: contain;" alt="Logo">
+                </div>
                 <h1 class="company-name" id="cName">COMPANY NAME</h1>
                 <div class="company-slogan" id="cSlogan">Company Slogan</div>
                 <div class="company-contacts" id="cDetails">
@@ -296,6 +299,12 @@
                         ${c.address || ''}<br>
                         Phone: ${c.phone || ''} | Email: ${c.email || ''}
                     `;
+                    if (c.logo) {
+                        const logoEl = document.getElementById('cLogo');
+                        const logoWrap = document.getElementById('cLogoWrap');
+                        if (logoEl) logoEl.src = c.logo;
+                        if (logoWrap) logoWrap.style.display = 'block';
+                    }
                 }
 
                 // 2. Fetch Data (Voucher or Expense)

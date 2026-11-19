@@ -28,7 +28,7 @@ namespace BarcodePrintingApp
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1000, 700);
             this.Name = "MainForm";
-            this.Text = "BAS Barcode Printing App";
+            this.Text = "BW-SOFTWARE AGENCY";
             this.ResumeLayout(false);
         }
     }

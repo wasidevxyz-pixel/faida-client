@@ -13,7 +13,8 @@ const {
     getWHPOSReturnInvoice,
     createWHPOSReturn,
     getWHPOSReturnQueue,
-    reviewWHPOSReturn
+    reviewWHPOSReturn,
+    getWHCategorySalesReport
 } = require('../controllers/whSaleController');
 const { protect, authorize } = require('../middleware/auth');
 
@@ -30,6 +31,7 @@ router.get('/pos-return/invoice/:invoiceNo', protect, authorize('wh_pos_sale'), 
 router.post('/pos-return', protect, authorize('wh_pos_sale'), createWHPOSReturn);
 router.get('/pos-return-queue', protect, authorize('wh_pos_return_approve'), getWHPOSReturnQueue);
 router.post('/pos-return-queue/:id/:action', protect, authorize('wh_pos_return_approve'), reviewWHPOSReturn);
+router.get('/reports/category-net-sales', protect, authorize('wh_pos_sale', 'wh_sale', 'view_reports', 'admin'), getWHCategorySalesReport);
 
 router.route('/:id')
     .get(protect, getWHSale)

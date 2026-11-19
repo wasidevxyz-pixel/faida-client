@@ -9,6 +9,12 @@ namespace BarcodePrintingApp
         public string ServerUrl { get; set; } = "https://bas.dwatson.online";
         public string SecretKey { get; set; } = "";
         public string Branch { get; set; } = "";
+        public string SelectedPrinter { get; set; } = "";
+        public string SelectedLabelSize { get; set; } = "38mm x 25mm (1.5\" x 1.0\") - Standard Tag (Matches Photo)";
+        public string CompanyHeader { get; set; } = "D Watson Pharmacy & Super Sto";
+        public int LabelWidthMm { get; set; } = 38;
+        public int LabelHeightMm { get; set; } = 25;
+        public int TopOffsetMm { get; set; } = 0;
 
         public static string GetConfigPath()
         {
@@ -51,6 +57,16 @@ namespace BarcodePrintingApp
                 config = new Config();
             }
 
+            if (!string.IsNullOrWhiteSpace(config.ServerUrl))
+            {
+                config.ServerUrl = config.ServerUrl.Trim();
+                if (!config.ServerUrl.StartsWith("http://", StringComparison.OrdinalIgnoreCase) && 
+                    !config.ServerUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+                {
+                    config.ServerUrl = "https://" + config.ServerUrl;
+                }
+            }
+
             // Allow environment variables to override
             string envUrl = Environment.GetEnvironmentVariable("BAS_SERVER_URL");
             if (!string.IsNullOrWhiteSpace(envUrl)) config.ServerUrl = envUrl.Trim();
@@ -60,6 +76,9 @@ namespace BarcodePrintingApp
 
             string envBranch = Environment.GetEnvironmentVariable("BAS_BRANCH");
             if (!string.IsNullOrWhiteSpace(envBranch)) config.Branch = envBranch.Trim();
+
+            string envPrinter = Environment.GetEnvironmentVariable("BAS_PRINTER");
+            if (!string.IsNullOrWhiteSpace(envPrinter)) config.SelectedPrinter = envPrinter.Trim();
 
             if (!File.Exists(configPath))
             {

@@ -34,6 +34,8 @@
         <button type="button" class="erp-btn-sm" id="salesListButton"><i class="fas fa-list me-1"></i>Invoices</button>
         <button type="button" class="erp-btn-sm" id="returnsListButton"><i
             class="fas fa-rotate-left me-1"></i>Returns</button>
+        <button type="button" class="erp-btn-sm" id="categoryReportButton"><i
+            class="fas fa-chart-line me-1"></i>Report</button>
         <a class="erp-btn-danger-sm logout-btn" href="#" style="text-decoration: none;"><i
             class="fas fa-power-off me-1"></i>Exit</a>
       </div>
@@ -343,6 +345,92 @@
             <div style="display: flex; gap: 6px;">
               <button type="button" id="returnsListPrev" class="erp-btn-sm" disabled>Previous</button>
               <button type="button" id="returnsListNext" class="erp-btn-sm" disabled>Next</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section: Category Wise Net Sales Report Panel -->
+      <section class="erp-box d-none" id="categoryReportPanel" style="flex: 1; margin-top: 4px;">
+        <div class="erp-box-header" style="background: linear-gradient(180deg, #0b4f8a 0%, #003366 100%);">
+          <i class="fas fa-chart-line"></i>
+          <span>Report: Allowed Category Wise Net Sale</span>
+          <span id="categoryReportStatus" style="margin-left: auto; font-size: 11.5px; opacity: 0.9;"></span>
+        </div>
+        <div class="erp-box-body" style="padding: 10px;">
+          <!-- Filter Controls Strip -->
+          <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; align-items: center; background: #eaf1f8; padding: 6px 10px; border-radius: 6px; border: 1px solid #c3d7ea;">
+            <label style="font-weight: 700; font-size: 12px; color: #003366;">From Date:</label>
+            <input type="date" id="catReportStartDate" class="erp-input" style="width: 140px;">
+            <label style="font-weight: 700; font-size: 12px; color: #003366;">To Date:</label>
+            <input type="date" id="catReportEndDate" class="erp-input" style="width: 140px;">
+            <div class="form-check form-switch ms-2 d-inline-flex align-items-center mb-0">
+              <input class="form-check-input me-1" type="checkbox" id="catReportShowAll">
+              <label class="form-check-label" for="catReportShowAll" style="font-size: 11.5px; font-weight: 600; cursor: pointer;">Show All Categories</label>
+            </div>
+            <button type="button" id="refreshCatReport" class="erp-btn-sm ms-2" style="background: #0055a5; color: #fff;">
+              <i class="fas fa-rotate me-1"></i>Run Report
+            </button>
+            <button type="button" id="printCatReport" class="erp-btn-sm" style="background: #27ae60; color: #fff; border-color: #1e8449;">
+              <i class="fas fa-print me-1"></i>Print Report
+            </button>
+            <button type="button" id="exportCatReportCsv" class="erp-btn-sm" style="background: #6c757d; color: #fff; border-color: #5a6268;">
+              <i class="fas fa-file-csv me-1"></i>Export CSV
+            </button>
+          </div>
+
+          <!-- Printable & Viewable Report Sheet Container -->
+          <div class="category-report-sheet" id="categoryReportPrintArea" style="background: #ffffff; border: 1px solid #c0d3e8; border-radius: 4px; padding: 12px;">
+            <!-- Report Document Header Matching Waseela V9 -->
+            <div class="text-center mb-3 report-doc-header">
+              <div id="catReportLogoWrap" class="mb-2 d-none">
+                <img id="catReportLogoImg" src="" style="max-height: 55px; max-width: 180px; object-fit: contain;" alt="Logo">
+              </div>
+              <h4 style="margin: 0; font-size: 18px; font-weight: 800; color: #002b5c; letter-spacing: 0.5px;">Category Wise Net Sales</h4>
+              <div id="catReportCompanyName" style="font-size: 14px; font-weight: 700; color: #222; margin-top: 2px;">Pharmacy &amp; Super Store</div>
+              <div id="catReportCompanyAddress" style="font-size: 12px; color: #555;">Main Store</div>
+              <div class="d-flex justify-content-between align-items-center mt-2 px-1" style="font-size: 11.5px; font-weight: 700; color: #333; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc; padding: 4px 0;">
+                <div>From Date: <span id="catReportFromDateLabel" class="fw-normal">--</span></div>
+                <div>To Date: <span id="catReportToDateLabel" class="fw-normal">--</span></div>
+                <div>Page 1 of 1</div>
+              </div>
+            </div>
+
+            <!-- Table Container -->
+            <div class="erp-cart-table-wrap" style="max-height: calc(100vh - 350px); overflow-y: auto;">
+              <table class="erp-cart-table cat-report-table" id="catReportTable" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                  <tr style="background: #003366; color: #ffffff;">
+                    <th style="width: 50px; text-align: center;">S.No.</th>
+                    <th style="text-align: left;">Item Category</th>
+                    <th style="width: 120px; text-align: right;">Gross Value</th>
+                    <th style="width: 100px; text-align: right;">Discount</th>
+                    <th style="width: 120px; text-align: right;">Sales Value</th>
+                    <th style="width: 115px; text-align: right;">Return Value</th>
+                    <th style="width: 115px; text-align: right;">Net GST Value</th>
+                    <th style="width: 130px; text-align: right;">Net Sale Value</th>
+                    <th style="width: 130px; text-align: right;">Cost of Net Sale</th>
+                  </tr>
+                </thead>
+                <tbody id="catReportRows">
+                  <tr>
+                    <td colspan="9" class="text-center text-muted py-4">Click "Run Report" to load Category Wise Net Sales.</td>
+                  </tr>
+                </tbody>
+                <tfoot id="catReportFoot" style="font-weight: 800; background: #eaf2fb; border-top: 2px solid #003366; border-bottom: 3px double #003366;">
+                  <tr>
+                    <td></td>
+                    <td style="text-align: left; font-size: 12px; color: #002b5c;">Report. Total:</td>
+                    <td style="text-align: right;" id="catTotalGross">0.00</td>
+                    <td style="text-align: right;" id="catTotalDiscount">0.00</td>
+                    <td style="text-align: right;" id="catTotalSalesValue">0.00</td>
+                    <td style="text-align: right;" id="catTotalReturn">0.00</td>
+                    <td style="text-align: right;" id="catTotalNetGst">0.00</td>
+                    <td style="text-align: right;" id="catTotalNetSale">0.00</td>
+                    <td style="text-align: right;" id="catTotalCostOfSale">0.00</td>
+                  </tr>
+                </tfoot>
+              </table>
             </div>
           </div>
         </div>

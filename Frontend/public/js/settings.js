@@ -211,8 +211,22 @@ function initSettingsPage() {
     document.getElementById('invoiceForm').addEventListener('submit', handleInvoiceSubmit);
     document.getElementById('taxForm').addEventListener('submit', handleTaxSubmit);
 
-    // Logo preview
+    // Logo preview & remove
     document.getElementById('companyLogo').addEventListener('change', handleLogoChange);
+    const removeBtn = document.getElementById('removeLogoBtn');
+    if (removeBtn) {
+        removeBtn.addEventListener('click', () => {
+            const fileInput = document.getElementById('companyLogo');
+            if (fileInput) fileInput.value = '';
+            const prev = document.getElementById('logoPreview');
+            if (prev) {
+                prev.src = '';
+                prev.style.display = 'none';
+            }
+            const wrap = document.getElementById('logoPreviewContainer');
+            if (wrap) wrap.style.display = 'none';
+        });
+    }
 
     // Add scroll-to-view functionality for all tabs
     setupTabScrolling();
@@ -277,9 +291,20 @@ function populateCompanySettings(data) {
     document.getElementById('companyGSTIN').value = settings.taxNumber || '';
     document.getElementById('companyPAN').value = settings.pan || '';
 
+    const logoPreview = document.getElementById('logoPreview');
+    const logoContainer = document.getElementById('logoPreviewContainer');
     if (settings.logo) {
-        document.getElementById('logoPreview').src = settings.logo;
-        document.getElementById('logoPreview').style.display = 'block';
+        if (logoPreview) {
+            logoPreview.src = settings.logo;
+            logoPreview.style.display = 'block';
+        }
+        if (logoContainer) logoContainer.style.display = 'inline-flex';
+    } else {
+        if (logoPreview) {
+            logoPreview.src = '';
+            logoPreview.style.display = 'none';
+        }
+        if (logoContainer) logoContainer.style.display = 'none';
     }
 }
 
@@ -335,9 +360,20 @@ async function loadCompanySettings() {
             document.getElementById('companyPAN').value = settings.pan || '';
 
             // Show logo if exists
+            const logoPreview = document.getElementById('logoPreview');
+            const logoContainer = document.getElementById('logoPreviewContainer');
             if (settings.logo) {
-                document.getElementById('logoPreview').src = settings.logo;
-                document.getElementById('logoPreview').style.display = 'block';
+                if (logoPreview) {
+                    logoPreview.src = settings.logo;
+                    logoPreview.style.display = 'block';
+                }
+                if (logoContainer) logoContainer.style.display = 'inline-flex';
+            } else {
+                if (logoPreview) {
+                    logoPreview.src = '';
+                    logoPreview.style.display = 'none';
+                }
+                if (logoContainer) logoContainer.style.display = 'none';
             }
         }
     } catch (error) {
@@ -430,8 +466,10 @@ async function handleCompanySubmit(e) {
 
         // Handle logo upload
         const logoPreview = document.getElementById('logoPreview');
-        if (logoPreview && logoPreview.src && logoPreview.style.display !== 'none' && logoPreview.src.startsWith('data:image')) {
+        if (logoPreview && logoPreview.style.display !== 'none' && logoPreview.src) {
             formData.logo = logoPreview.src;
+        } else {
+            formData.logo = '';
         }
 
         const response = await fetch('/api/v1/settings', {
@@ -578,14 +616,39 @@ async function handleBackupSettingsSubmit(e) {
     }
 }
 
-// Handle logo change
+// Handle logo change with automatic optimization
 function handleLogoChange(e) {
     const file = e.target.files[0];
     if (file) {
         const reader = new FileReader();
-        reader.onload = function (e) {
-            document.getElementById('logoPreview').src = e.target.result;
-            document.getElementById('logoPreview').style.display = 'block';
+        reader.onload = function (event) {
+            const img = new Image();
+            img.onload = function () {
+                const maxW = 500;
+                const maxH = 250;
+                let w = img.width;
+                let h = img.height;
+                if (w > maxW || h > maxH) {
+                    const ratio = Math.min(maxW / w, maxH / h);
+                    w = Math.round(w * ratio);
+                    h = Math.round(h * ratio);
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = w;
+                canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, w, h);
+                const optimizedDataUrl = canvas.toDataURL(file.type === 'image/jpeg' ? 'image/jpeg' : 'image/png', 0.92);
+
+                const logoPreview = document.getElementById('logoPreview');
+                if (logoPreview) {
+                    logoPreview.src = optimizedDataUrl;
+                    logoPreview.style.display = 'block';
+                }
+                const logoContainer = document.getElementById('logoPreviewContainer');
+                if (logoContainer) logoContainer.style.display = 'inline-flex';
+            };
+            img.src = event.target.result;
         };
         reader.readAsDataURL(file);
     }

@@ -481,3 +481,37 @@ body.pos-erp-body:not(.sidebar-mini):not(.sidebar-full) {
   gap: 4px;
 }
 
+/* Category Wise Net Sales Report */
+.category-report-sheet {
+  background: #ffffff;
+  border: 1px solid #b8cee4;
+  border-radius: 4px;
+  box-shadow: 0 1px 4px rgba(0, 30, 60, 0.08);
+}
+
+.cat-report-table th {
+  background: #003366 !important;
+  color: #ffffff !important;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 6px 8px;
+  border: 1px solid #002244;
+}
+
+.cat-report-table td {
+  padding: 5px 8px;
+  font-size: 12px;
+  vertical-align: middle;
+}
+
+.cat-report-table tbody tr:hover {
+  background: #f0f7ff;
+}
+
+.cat-report-table tfoot td {
+  padding: 6px 8px;
+  font-size: 12px;
+  font-family: 'Consolas', 'Courier New', monospace;
+  color: #002b5c;
+}
+

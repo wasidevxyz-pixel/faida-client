@@ -23,7 +23,8 @@
     returnsListPages: 0,
     returnsListRequestId: 0,
     returnsListTimer: null,
-    activeList: null, // null, 'sales', or 'returns'
+    activeList: null, // null, 'sales', 'returns', or 'categoryReport'
+    catReportData: null,
     passwordModal: null,
     passwordResolver: null,
     selectedIndex: 0,
@@ -595,15 +596,20 @@
       if (slPanel) slPanel.classList.toggle('d-none', list !== 'sales');
       const rlPanel = byId('returnsListPanel');
       if (rlPanel) rlPanel.classList.toggle('d-none', list !== 'returns');
+      const crPanel = byId('categoryReportPanel');
+      if (crPanel) crPanel.classList.toggle('d-none', list !== 'categoryReport');
 
       // Update button states
       const slBtn = byId('salesListButton');
       if (slBtn) slBtn.classList.toggle('active', list === 'sales');
       const rlBtn = byId('returnsListButton');
       if (rlBtn) rlBtn.classList.toggle('active', list === 'returns');
+      const crBtn = byId('categoryReportButton');
+      if (crBtn) crBtn.classList.toggle('active', list === 'categoryReport');
 
       if (list === 'sales') loadSalesList();
       if (list === 'returns') loadReturnsList();
+      if (list === 'categoryReport') loadCategorySalesReport();
     }
 
     async function loadReturnInvoice() {
@@ -802,6 +808,251 @@
         if (status) status.textContent = 'Failed to load returns';
         tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-danger py-4">${error.message}</td></tr>`;
       }
+    }
+
+    async function loadCategorySalesReport() {
+      const tableBody = byId('catReportRows');
+      const status = byId('categoryReportStatus');
+      if (!tableBody) return;
+
+      const startDateInput = byId('catReportStartDate');
+      const endDateInput = byId('catReportEndDate');
+      const showAllInput = byId('catReportShowAll');
+
+      const startDate = startDateInput ? startDateInput.value : '';
+      const endDate = endDateInput ? endDateInput.value : '';
+      const showAll = showAllInput ? showAllInput.checked : false;
+
+      const query = new URLSearchParams();
+      if (startDate) query.set('startDate', startDate);
+      if (endDate) query.set('endDate', endDate);
+      if (showAll) query.set('showAll', 'true');
+
+      if (status) status.textContent = 'Generating report…';
+      tableBody.innerHTML = '<tr><td colspan="9" class="text-center text-muted py-4"><i class="fas fa-spinner fa-spin me-2"></i>Loading category sales data…</td></tr>';
+
+      try {
+        const result = await apiRequest(`/api/v1/wh-sales/reports/category-net-sales?${query}`);
+        const data = result.data || {};
+        state.catReportData = data;
+
+        // Update headers
+        const company = data.company || {};
+        if (byId('catReportCompanyName')) byId('catReportCompanyName').textContent = company.companyName || 'Pharmacy & Super Store';
+        if (byId('catReportCompanyAddress')) byId('catReportCompanyAddress').textContent = company.address || 'Main Store';
+        if (byId('catReportFromDateLabel')) byId('catReportFromDateLabel').textContent = data.fromDate || '--';
+        if (byId('catReportToDateLabel')) byId('catReportToDateLabel').textContent = data.toDate || '--';
+
+        if (company.logo) {
+          if (byId('catReportLogoImg')) byId('catReportLogoImg').src = company.logo;
+          if (byId('catReportLogoWrap')) byId('catReportLogoWrap').classList.remove('d-none');
+        } else {
+          if (byId('catReportLogoWrap')) byId('catReportLogoWrap').classList.add('d-none');
+        }
+
+        const rows = data.rows || [];
+        const totals = data.totals || {};
+
+        if (status) status.textContent = `${rows.length} categories | ${data.salesCount || 0} sales | ${data.returnsCount || 0} returns`;
+
+        if (!rows.length) {
+          tableBody.innerHTML = '<tr><td colspan="9" class="text-center text-muted py-4">No category sales data found for the selected date range.</td></tr>';
+          updateCatReportTotals({});
+          return;
+        }
+
+        tableBody.innerHTML = rows.map((r) => `
+          <tr style="border-bottom: 1px solid #e1eaf2;">
+            <td style="text-align: center; font-weight: 600; color: #555;">${r.sNo}</td>
+            <td style="font-weight: 700; color: #002b5c;">${r.categoryName}</td>
+            <td style="text-align: right; font-family: monospace;">${money(r.grossValue)}</td>
+            <td style="text-align: right; font-family: monospace; color: #b30000;">${money(r.discount)}</td>
+            <td style="text-align: right; font-family: monospace; font-weight: 600;">${money(r.salesValue)}</td>
+            <td style="text-align: right; font-family: monospace; color: #a04000;">${money(r.returnValue)}</td>
+            <td style="text-align: right; font-family: monospace;">${money(r.netGstValue)}</td>
+            <td style="text-align: right; font-family: monospace; font-weight: 700; color: #003366;">${money(r.netSaleValue)}</td>
+            <td style="text-align: right; font-family: monospace;">${money(r.costOfNetSale)}</td>
+          </tr>
+        `).join('');
+
+        updateCatReportTotals(totals);
+      } catch (err) {
+        if (status) status.textContent = 'Error loading report';
+        tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-danger py-4">${err.message || 'Failed to load report.'}</td></tr>`;
+        updateCatReportTotals({});
+      }
+    }
+
+    function updateCatReportTotals(t) {
+      if (byId('catTotalGross')) byId('catTotalGross').textContent = money(t.grossValue || 0);
+      if (byId('catTotalDiscount')) byId('catTotalDiscount').textContent = money(t.discount || 0);
+      if (byId('catTotalSalesValue')) byId('catTotalSalesValue').textContent = money(t.salesValue || 0);
+      if (byId('catTotalReturn')) byId('catTotalReturn').textContent = money(t.returnValue || 0);
+      if (byId('catTotalNetGst')) byId('catTotalNetGst').textContent = money(t.netGstValue || 0);
+      if (byId('catTotalNetSale')) byId('catTotalNetSale').textContent = money(t.netSaleValue || 0);
+      if (byId('catTotalCostOfSale')) byId('catTotalCostOfSale').textContent = money(t.costOfNetSale || 0);
+    }
+
+    function printCategorySalesReport() {
+      const data = state.catReportData;
+      if (!data || !data.rows || !data.rows.length) {
+        alert('Please run the report first before printing.');
+        return;
+      }
+
+      const company = data.company || {};
+      const printWindow = window.open('', '_blank', 'width=950,height=750');
+      if (!printWindow) {
+        alert('Please allow popups to print the report.');
+        return;
+      }
+
+      const rowsHtml = data.rows.map((r) => `
+        <tr>
+          <td style="text-align: center; border: 1px solid #777; padding: 4px;">${r.sNo}</td>
+          <td style="text-align: left; border: 1px solid #777; padding: 4px; font-weight: bold;">${r.categoryName}</td>
+          <td style="text-align: right; border: 1px solid #777; padding: 4px;">${money(r.grossValue)}</td>
+          <td style="text-align: right; border: 1px solid #777; padding: 4px;">${money(r.discount)}</td>
+          <td style="text-align: right; border: 1px solid #777; padding: 4px;">${money(r.salesValue)}</td>
+          <td style="text-align: right; border: 1px solid #777; padding: 4px;">${money(r.returnValue)}</td>
+          <td style="text-align: right; border: 1px solid #777; padding: 4px;">${money(r.netGstValue)}</td>
+          <td style="text-align: right; border: 1px solid #777; padding: 4px; font-weight: bold;">${money(r.netSaleValue)}</td>
+          <td style="text-align: right; border: 1px solid #777; padding: 4px;">${money(r.costOfNetSale)}</td>
+        </tr>
+      `).join('');
+
+      const totals = data.totals || {};
+
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Category Wise Net Sales - ${data.fromDate}</title>
+          <style>
+            @page { size: A4 portrait; margin: 8mm; }
+            body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 11.5px; color: #000; margin: 0; padding: 10px; }
+            .header-container { text-align: center; margin-bottom: 12px; }
+            .title { font-size: 17px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 2px; }
+            .company { font-size: 14px; font-weight: bold; margin-bottom: 2px; }
+            .address { font-size: 12px; color: #333; margin-bottom: 6px; }
+            .date-strip { display: flex; justify-content: space-between; font-weight: bold; font-size: 11px; border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 3px 0; margin-bottom: 8px; }
+            table { width: 100%; border-collapse: collapse; font-size: 11px; }
+            th { border: 1px solid #000; background: #f2f2f2; padding: 4px; text-align: right; font-weight: bold; }
+            th:first-child { text-align: center; }
+            th:nth-child(2) { text-align: left; }
+            td { font-family: 'Consolas', 'Courier New', monospace; }
+            td:first-child, td:nth-child(2) { font-family: inherit; }
+            tfoot tr td { font-weight: bold; border-top: 2px solid #000; border-bottom: 3px double #000; padding: 5px 4px; }
+            @media print {
+              body { padding: 0; }
+              .no-print { display: none; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="no-print" style="margin-bottom: 10px; display: flex; gap: 10px; align-items: center;">
+            <button onclick="window.print()" style="padding: 6px 14px; background: #0055a5; color: #fff; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">Print</button>
+            <button onclick="window.close()" style="padding: 6px 14px; background: #666; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Close</button>
+          </div>
+          <div class="header-container">
+            ${company.logo ? `<div style="margin-bottom: 6px;"><img src="${company.logo}" style="max-height: 55px; max-width: 180px; object-fit: contain;" alt="Logo"></div>` : ''}
+            <div class="title">Category Wise Net Sales</div>
+            <div class="company">${company.companyName || 'D Watson Pharmacy & Super Store'}</div>
+            <div class="address">${company.address || 'Main Double Road, PWD Islamabad'}</div>
+            <div class="date-strip">
+              <div>From Date: &nbsp; ${data.fromDate}</div>
+              <div>To: &nbsp; ${data.toDate}</div>
+              <div>Page 1 of 1</div>
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 40px;">S.No.</th>
+                <th>Item Category</th>
+                <th style="width: 95px;">Gross Value</th>
+                <th style="width: 80px;">Discount</th>
+                <th style="width: 95px;">Sales Value</th>
+                <th style="width: 85px;">Return Value</th>
+                <th style="width: 85px;">Net GST Value</th>
+                <th style="width: 100px;">Net Sale Value</th>
+                <th style="width: 100px;">Cost of Net Sale</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td></td>
+                <td style="text-align: left;">Report. Total:</td>
+                <td style="text-align: right;">${money(totals.grossValue || 0)}</td>
+                <td style="text-align: right;">${money(totals.discount || 0)}</td>
+                <td style="text-align: right;">${money(totals.salesValue || 0)}</td>
+                <td style="text-align: right;">${money(totals.returnValue || 0)}</td>
+                <td style="text-align: right;">${money(totals.netGstValue || 0)}</td>
+                <td style="text-align: right;">${money(totals.netSaleValue || 0)}</td>
+                <td style="text-align: right;">${money(totals.costOfNetSale || 0)}</td>
+              </tr>
+            </tfoot>
+          </table>
+          <script>
+            window.onload = function() {
+              window.print();
+            };
+          </script>
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
+    }
+
+    function exportCategorySalesReportCsv() {
+      const data = state.catReportData;
+      if (!data || !data.rows || !data.rows.length) {
+        alert('Please run the report first before exporting.');
+        return;
+      }
+
+      const headers = ['S.No.', 'Item Category', 'Gross Value', 'Discount', 'Sales Value', 'Return Value', 'Net GST Value', 'Net Sale Value', 'Cost of Net Sale'];
+      const csvRows = [headers.join(',')];
+
+      data.rows.forEach((r) => {
+        csvRows.push([
+          r.sNo,
+          `"${(r.categoryName || '').replace(/"/g, '""')}"`,
+          r.grossValue.toFixed(2),
+          r.discount.toFixed(2),
+          r.salesValue.toFixed(2),
+          r.returnValue.toFixed(2),
+          r.netGstValue.toFixed(2),
+          r.netSaleValue.toFixed(2),
+          r.costOfNetSale.toFixed(2)
+        ].join(','));
+      });
+
+      const totals = data.totals || {};
+      csvRows.push([
+        '',
+        '"Report. Total:"',
+        (totals.grossValue || 0).toFixed(2),
+        (totals.discount || 0).toFixed(2),
+        (totals.salesValue || 0).toFixed(2),
+        (totals.returnValue || 0).toFixed(2),
+        (totals.netGstValue || 0).toFixed(2),
+        (totals.netSaleValue || 0).toFixed(2),
+        (totals.costOfNetSale || 0).toFixed(2)
+      ].join(','));
+
+      const blob = new Blob([csvRows.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `Category_Wise_Net_Sales_${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
     }
 
     function requestPOSPassword(action) {
@@ -1081,6 +1332,26 @@
                   const next = state.activeList === 'returns' ? null : 'returns';
                   setListView(next);
                 });
+
+                addListener('categoryReportButton', 'click', () => {
+                  const next = state.activeList === 'categoryReport' ? null : 'categoryReport';
+                  setListView(next);
+                });
+
+                // Category Wise Net Sales Report controls
+                addListener('refreshCatReport', 'click', loadCategorySalesReport);
+                addListener('printCatReport', 'click', printCategorySalesReport);
+                addListener('exportCatReportCsv', 'click', exportCategorySalesReportCsv);
+                addListener('catReportShowAll', 'change', loadCategorySalesReport);
+                addListener('catReportStartDate', 'change', loadCategorySalesReport);
+                addListener('catReportEndDate', 'change', loadCategorySalesReport);
+
+                // Initialize default report dates
+                const todayIso = new Date().toISOString().split('T')[0];
+                const crStartEl = byId('catReportStartDate');
+                if (crStartEl && !crStartEl.value) crStartEl.value = todayIso;
+                const crEndEl = byId('catReportEndDate');
+                if (crEndEl && !crEndEl.value) crEndEl.value = todayIso;
 
                 // Return invoice lookup
                   addListener('loadReturnInvoice', 'click', loadReturnInvoice);

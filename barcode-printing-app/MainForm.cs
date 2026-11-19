@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -30,15 +33,55 @@ namespace BarcodePrintingApp
             _token = token;
             _user = user;
             _config = Config.Load();
-            _client = new RestClient(_config.ServerUrl);
-            
-            this.Text = "WASEELA V9 : BAS Barcode Label Printing (Label: 1.5\" x 1.1\")";
-            this.Size = new Size(1100, 750);
+            string cleanServer = (_config.ServerUrl ?? "").Trim();
+            if (!cleanServer.StartsWith("http://", StringComparison.OrdinalIgnoreCase) && 
+                !cleanServer.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            {
+                cleanServer = "https://" + cleanServer;
+            }
+            _client = new RestClient(cleanServer);
+
+            this.Text = "BW-SOFTWARE AGENCY - Barcode & Label Thermal Printing System";
+            this.Size = new Size(1180, 780);
+            this.MinimumSize = new Size(1000, 680);
             this.StartPosition = FormStartPosition.CenterScreen;
-            this.BackColor = Color.FromArgb(235, 235, 225); // Legacy ERP background color
+            this.BackColor = Color.FromArgb(235, 235, 225);
+            this.KeyPreview = true;
 
             SetupUI();
-            LoadPrinters();
+            LoadPrinters(false);
+            UpdatePreview();
+            RegisterShortcuts();
+        }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (keyData == (Keys.Control | Keys.P) || keyData == Keys.F5)
+            {
+                PrintReport(false);
+                return true;
+            }
+            if (keyData == Keys.F2)
+            {
+                OpenItemSearch();
+                return true;
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+
+        private void RegisterShortcuts()
+        {
+            this.KeyDown += (s, e) => {
+                if (e.KeyCode == Keys.Delete)
+                {
+                    var grid = (DataGridView?)this.Controls.Find("dgvPrint", true).FirstOrDefault();
+                    if (grid != null && grid.Focused)
+                    {
+                        RemoveSelectedFromQueue();
+                        e.Handled = true;
+                    }
+                }
+            };
         }
 
         private void SetupUI()
@@ -47,161 +90,472 @@ namespace BarcodePrintingApp
             this.BackColor = Color.FromArgb(235, 235, 225);
 
             // --- TOP HEADER ---
-            var pnlHead = new Panel { 
-                Dock = DockStyle.Top, 
-                Height = 40, 
+            var pnlHead = new Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 44,
                 BackColor = Color.FromArgb(43, 88, 118)
             };
-            var lblAppTitle = new Label { 
-                Text = "WASEELA V9 - BarCode Label Printing", 
-                ForeColor = Color.White, 
-                Font = new Font("Segoe UI Semibold", 11F), 
-                Location = new Point(15, 8), 
-                AutoSize = true 
+
+            var lblAppTitle = new Label
+            {
+                Text = "🏷️ BW-SOFTWARE AGENCY - Barcode Label & Thermal Printing System",
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI Semibold", 11.5F, FontStyle.Bold),
+                Location = new Point(15, 10),
+                AutoSize = true
             };
+
+            var lblUser = new Label
+            {
+                Text = _user != null ? $"User: {_user.name} ({_user.role})" : "User: Administrator",
+                ForeColor = Color.FromArgb(220, 235, 252),
+                Font = new Font("Segoe UI", 9.5F),
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                Location = new Point(880, 12),
+                AutoSize = true
+            };
+
             pnlHead.Controls.Add(lblAppTitle);
+            pnlHead.Controls.Add(lblUser);
             this.Controls.Add(pnlHead);
 
+            // --- BOTTOM FOOTER ---
+            var pnlFooter = new Panel
+            {
+                Dock = DockStyle.Bottom,
+                Height = 32,
+                BackColor = Color.FromArgb(43, 88, 118)
+            };
+
+            var lblFooterDev = new Label
+            {
+                Text = "SOFTWARE DEVELOPED BY BW-SOFTWARE AGENCY   |   CONTACT: +923192173398",
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI Semibold", 9.5F, FontStyle.Bold),
+                Dock = DockStyle.Fill,
+                TextAlign = ContentAlignment.MiddleCenter
+            };
+            pnlFooter.Controls.Add(lblFooterDev);
+            this.Controls.Add(pnlFooter);
+
             // --- TABS (Main Content Area) ---
-            var tabs = new TabControl { 
-                Dock = DockStyle.Fill, 
-                Padding = new Point(15, 6), 
+            var tabs = new TabControl
+            {
+                Dock = DockStyle.Fill,
+                Padding = new Point(15, 6),
                 Font = new Font("Segoe UI Semibold", 10F),
                 Name = "mainTabs"
             };
             this.Controls.Add(tabs);
-            
-            // Critical docking order fix
+
             pnlHead.BringToFront();
+            pnlFooter.BringToFront();
             tabs.SendToBack();
 
-            var tabDetail = new TabPage { Text = "     Detail     ", BackColor = Color.FromArgb(235, 235, 225) };
-            var tabList = new TabPage { Text = "     List / Search     ", BackColor = Color.FromArgb(235, 235, 225) };
+            var tabDetail = new TabPage { Text = "     Detail & Printing     ", BackColor = Color.FromArgb(235, 235, 225) };
+            var tabList = new TabPage { Text = "     Browse Catalog & Invoices     ", BackColor = Color.FromArgb(235, 235, 225) };
 
             tabs.TabPages.Add(tabDetail);
             tabs.TabPages.Add(tabList);
 
-            // --- DETAIL TAB LAYOUT ---
+            // =========================================================================
+            // TAB 1: DETAIL & PRINTING (Split 42% Controls / 58% Print Queue)
+            // =========================================================================
             var detailLayout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2 };
-            detailLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 40));
-            detailLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 60));
+            detailLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 450));
+            detailLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
 
-            // Detail Inputs (Left)
-            var pnlInputs = new Panel { Dock = DockStyle.Fill, Padding = new Padding(10) };
-            
-            var lblSearchTitle = new Label { Text = "DATA LOOKUP / SEARCH:", Font = new Font("Segoe UI", 9F, FontStyle.Bold), Location = new Point(10, 10), AutoSize = true };
-            
-            var btnOpenSearch = new Button { 
-                Text = "🔍 SEARCH ITEM BY NAME / CODE", 
-                Location = new Point(10, 35), 
-                Width = 380, Height = 45, 
-                BackColor = Color.FromArgb(43, 88, 118), 
+            // LEFT PANEL: Controls & Settings
+            var pnlLeft = new Panel { Dock = DockStyle.Fill, AutoScroll = true, Padding = new Padding(8) };
+
+            // 1. Search Buttons
+            var btnOpenSearch = new Button
+            {
+                Text = "🔍 SEARCH ITEM BY NAME / CODE  [F2]",
+                Location = new Point(8, 8),
+                Width = 416,
+                Height = 38,
+                BackColor = Color.FromArgb(43, 88, 118),
                 ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat, Font = new Font("Segoe UI Bold", 10F) 
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI Bold", 9.5F),
+                Cursor = Cursors.Hand
             };
             btnOpenSearch.Click += (s, e) => OpenItemSearch();
 
-            var btnOpenPurchases = new Button { 
-                Text = "📄 SELECT PURCHASE INVOICE FROM LIST", 
-                Location = new Point(10, 85), 
-                Width = 380, Height = 45, 
-                BackColor = Color.FromArgb(108, 117, 125), 
+            var btnOpenPurchases = new Button
+            {
+                Text = "📄 LOAD FROM PURCHASE INVOICE",
+                Location = new Point(8, 50),
+                Width = 416,
+                Height = 34,
+                BackColor = Color.FromArgb(108, 117, 125),
                 ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat, Font = new Font("Segoe UI Bold", 10F) 
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI Bold", 9F),
+                Cursor = Cursors.Hand
             };
             btnOpenPurchases.Click += (s, e) => OpenPurchaseSearch();
 
-            // --- Manual Add Section ---
-            var gbManual = new GroupBox { Text = "Quick Manual Entry", Width = 380, Height = 100, Location = new Point(10, 145), Font = new Font("Segoe UI", 9F, FontStyle.Bold) };
-            var lblMBc = new Label { Text = "Barcode / Code:", Location = new Point(10, 25), AutoSize = true, Font = new Font("Segoe UI", 9F, FontStyle.Regular) };
-            var txtManualBc = new TextBox { Name = "txtManualBc", Width = 150, Location = new Point(10, 45) };
-            var lblMQty = new Label { Text = "Qty:", Location = new Point(170, 25), AutoSize = true, Font = new Font("Segoe UI", 9F, FontStyle.Regular) };
-            var txtManualQty = new TextBox { Name = "txtManualQty", Width = 50, Location = new Point(170, 45), Text = "1" };
-            var btnManualAdd = new Button { 
-                Text = "ADD", Location = new Point(230, 43), Width = 140, Height = 28,
-                BackColor = Color.FromArgb(25, 135, 84), ForeColor = Color.White, FlatStyle = FlatStyle.Flat 
+            // 2. Quick Manual Entry GroupBox
+            var gbManual = new GroupBox
+            {
+                Text = "⚡ Quick Barcode / Item Code Scanner",
+                Width = 416,
+                Height = 78,
+                Location = new Point(8, 90),
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold)
+            };
+            var lblMBc = new Label { Text = "Barcode / Code:", Location = new Point(10, 22), AutoSize = true, Font = new Font("Segoe UI", 8.5F) };
+            var txtManualBc = new TextBox { Name = "txtManualBc", Width = 180, Location = new Point(10, 42), Font = new Font("Segoe UI", 10F) };
+            var lblMQty = new Label { Text = "Qty:", Location = new Point(200, 22), AutoSize = true, Font = new Font("Segoe UI", 8.5F) };
+            var txtManualQty = new TextBox { Name = "txtManualQty", Width = 55, Location = new Point(200, 42), Text = "1", Font = new Font("Segoe UI", 10F) };
+            var btnManualAdd = new Button
+            {
+                Text = "➕ ADD",
+                Location = new Point(265, 40),
+                Width = 140,
+                Height = 28,
+                BackColor = Color.FromArgb(25, 135, 84),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI Bold", 9F),
+                Cursor = Cursors.Hand
             };
             btnManualAdd.Click += async (s, e) => await AddManualBarcode(txtManualBc.Text, txtManualQty.Text);
             txtManualBc.KeyDown += async (s, e) => { if (e.KeyCode == Keys.Enter) await AddManualBarcode(txtManualBc.Text, txtManualQty.Text); };
+            txtManualQty.KeyDown += async (s, e) => { if (e.KeyCode == Keys.Enter) await AddManualBarcode(txtManualBc.Text, txtManualQty.Text); };
             gbManual.Controls.AddRange(new Control[] { lblMBc, txtManualBc, lblMQty, txtManualQty, btnManualAdd });
 
-            var lblInv = new Label { Text = "Active Invoice:", Location = new Point(10, 265), AutoSize = true };
-            var txtInv = new TextBox { Name = "txtInv", Width = 150, Location = new Point(110, 263), ReadOnly = true, BackColor = Color.WhiteSmoke };
-            
-            var lblAlias = new Label { Text = "Alias Name:", Location = new Point(10, 295), AutoSize = true };
-            var txtAlias = new TextBox { Name = "txtAlias", Width = 250, Location = new Point(110, 293) };
+            // 3. Printer & Label Configuration GroupBox
+            var gbPrinter = new GroupBox
+            {
+                Text = "🖨️ Printer & Tag Size Configuration",
+                Width = 416,
+                Height = 210,
+                Location = new Point(8, 174),
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold)
+            };
 
-            var lblDate = new Label { Text = "Date:", Location = new Point(10, 325), AutoSize = true };
-            var txtDate = new TextBox { Name = "txtDate", Width = 150, Location = new Point(110, 323), ReadOnly = true, Text = DateTime.Now.ToString("dd/MM/yyyy") };
+            var lblPrinter = new Label { Text = "Target Printer (Local / Network / Thermal):", Location = new Point(10, 20), AutoSize = true, Font = new Font("Segoe UI", 8.5F) };
+            var cmbPrinters = new ComboBox
+            {
+                Name = "cmbPrinters",
+                Width = 285,
+                Location = new Point(10, 40),
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Font = new Font("Segoe UI", 9.5F)
+            };
+            cmbPrinters.SelectedIndexChanged += (s, e) => {
+                string sel = cmbPrinters.SelectedItem?.ToString() ?? "";
+                if (!string.IsNullOrEmpty(sel))
+                {
+                    _config.SelectedPrinter = sel;
+                    Config.Save(_config);
+                    UpdatePrinterStatusLabel(sel);
+                }
+            };
 
-            var lblPrinter = new Label { Text = "Printer:", Location = new Point(10, 355), AutoSize = true };
-            var cmbPrinters = new ComboBox { Name = "cmbPrinters", Width = 250, Location = new Point(110, 353), DropDownStyle = ComboBoxStyle.DropDownList };
-
-            var btnPrint = new Button { 
-                Text = "PRINT BARCODES", 
-                Location = new Point(110, 400), 
-                Width = 250, 
-                Height = 45,
-                BackColor = Color.FromArgb(43, 88, 118), 
+            var btnSyncPrinters = new Button
+            {
+                Name = "btnSyncPrinters",
+                Text = "🔄 Sync",
+                Location = new Point(302, 38),
+                Width = 104,
+                Height = 28,
+                BackColor = Color.FromArgb(43, 88, 118),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
-                Font = new Font("Segoe UI Bold", 10F)
+                Font = new Font("Segoe UI Bold", 9F),
+                Cursor = Cursors.Hand
             };
-            btnPrint.Click += (s, e) => PrintReport();
+            btnSyncPrinters.Click += (s, e) => LoadPrinters(true);
 
-            var btnClear = new Button { 
-                Text = "CLEAR QUEUE", 
-                Location = new Point(110, 455), 
-                Width = 250, 
-                Height = 35,
+            var lblPrinterStatus = new Label
+            {
+                Name = "lblPrinterStatus",
+                Text = "● Checking printers...",
+                Location = new Point(10, 70),
+                Size = new Size(396, 18),
+                ForeColor = Color.FromArgb(43, 88, 118),
+                Font = new Font("Segoe UI Semibold", 8.5F)
+            };
+
+            var lblLabelSize = new Label { Text = "Tag Preset:", Location = new Point(10, 92), AutoSize = true, Font = new Font("Segoe UI", 8.5F) };
+            var cmbLabelSize = new ComboBox
+            {
+                Name = "cmbLabelSize",
+                Width = 215,
+                Location = new Point(10, 110),
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Font = new Font("Segoe UI", 9F)
+            };
+            cmbLabelSize.Items.AddRange(new object[] {
+                "38mm x 25mm (1.5\" x 1.0\") - Standard Tag (Matches Photo)",
+                "38mm x 28mm (1.5\" x 1.1\") - Pharmacy Tag",
+                "38mm x 20mm (1.5\" x 0.8\") - Compact Tag",
+                "40mm x 25mm - Medium Tag",
+                "50mm x 25mm (2.0\" x 1.0\") - Wide Retail"
+            });
+            int labelIdx = cmbLabelSize.Items.IndexOf(_config.SelectedLabelSize);
+            cmbLabelSize.SelectedIndex = labelIdx >= 0 ? labelIdx : 0;
+
+            var lblCompany = new Label { Text = "Store Header:", Location = new Point(235, 92), AutoSize = true, Font = new Font("Segoe UI", 8.5F) };
+            var txtCompany = new TextBox
+            {
+                Name = "txtCompany",
+                Width = 171,
+                Location = new Point(235, 110),
+                Text = string.IsNullOrEmpty(_config.CompanyHeader) ? "D Watson Pharmacy & Super Sto" : _config.CompanyHeader,
+                Font = new Font("Segoe UI", 9F)
+            };
+            txtCompany.TextChanged += (s, e) => {
+                _config.CompanyHeader = txtCompany.Text.Trim();
+                Config.Save(_config);
+                UpdatePreview();
+            };
+
+            // Row 4: Exact Dimensions & Alignment (Width, Height, Offset, Active Invoice)
+            var lblW = new Label { Text = "W(mm):", Location = new Point(10, 142), AutoSize = true, Font = new Font("Segoe UI", 8F) };
+            var numWidth = new NumericUpDown { Name = "numWidth", Location = new Point(10, 160), Width = 62, Minimum = 20, Maximum = 120, Value = _config.LabelWidthMm, Font = new Font("Segoe UI", 9F) };
+
+            var lblH = new Label { Text = "H(mm):", Location = new Point(82, 142), AutoSize = true, Font = new Font("Segoe UI", 8F) };
+            var numHeight = new NumericUpDown { Name = "numHeight", Location = new Point(82, 160), Width = 62, Minimum = 15, Maximum = 100, Value = _config.LabelHeightMm, Font = new Font("Segoe UI", 9F) };
+
+            var lblOffset = new Label { Text = "Offset(mm):", Location = new Point(154, 142), AutoSize = true, Font = new Font("Segoe UI", 8F) };
+            var numOffset = new NumericUpDown { Name = "numOffset", Location = new Point(154, 160), Width = 65, Minimum = -15, Maximum = 25, Value = _config.TopOffsetMm, Font = new Font("Segoe UI", 9F) };
+
+            var lblInv = new Label { Text = "Active Invoice:", Location = new Point(235, 142), AutoSize = true, Font = new Font("Segoe UI", 8F) };
+            var txtInv = new TextBox { Name = "txtInv", Width = 171, Location = new Point(235, 159), ReadOnly = true, BackColor = Color.WhiteSmoke, Font = new Font("Segoe UI", 9F) };
+
+            cmbLabelSize.SelectedIndexChanged += (s, e) => {
+                string sel = cmbLabelSize.SelectedItem?.ToString() ?? "";
+                _config.SelectedLabelSize = sel;
+                if (sel.Contains("38mm x 25mm")) { numWidth.Value = 38; numHeight.Value = 25; }
+                else if (sel.Contains("38mm x 28mm")) { numWidth.Value = 38; numHeight.Value = 28; }
+                else if (sel.Contains("38mm x 20mm")) { numWidth.Value = 38; numHeight.Value = 20; }
+                else if (sel.Contains("40mm x 25mm")) { numWidth.Value = 40; numHeight.Value = 25; }
+                else if (sel.Contains("50mm x 25mm")) { numWidth.Value = 50; numHeight.Value = 25; }
+                Config.Save(_config);
+                UpdatePreview();
+            };
+
+            numWidth.ValueChanged += (s, e) => {
+                _config.LabelWidthMm = (int)numWidth.Value;
+                Config.Save(_config);
+                UpdatePreview();
+            };
+
+            numHeight.ValueChanged += (s, e) => {
+                _config.LabelHeightMm = (int)numHeight.Value;
+                Config.Save(_config);
+                UpdatePreview();
+            };
+
+            numOffset.ValueChanged += (s, e) => {
+                _config.TopOffsetMm = (int)numOffset.Value;
+                Config.Save(_config);
+                UpdatePreview();
+            };
+
+            gbPrinter.Controls.AddRange(new Control[] {
+                lblPrinter, cmbPrinters, btnSyncPrinters, lblPrinterStatus,
+                lblLabelSize, cmbLabelSize, lblCompany, txtCompany,
+                lblW, numWidth, lblH, numHeight, lblOffset, numOffset,
+                lblInv, txtInv
+            });
+
+            // 4. Live Label Preview GroupBox
+            var gbPreview = new GroupBox
+            {
+                Text = "👁️ Live Barcode Label Preview (WYSIWYG)",
+                Width = 416,
+                Height = 175,
+                Location = new Point(8, 395),
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold)
+            };
+
+            var picPreview = new PictureBox
+            {
+                Name = "picPreview",
+                Location = new Point(95, 20),
+                Size = new Size(225, 145),
+                BorderStyle = BorderStyle.FixedSingle,
+                BackColor = Color.White,
+                SizeMode = PictureBoxSizeMode.CenterImage
+            };
+            gbPreview.Controls.Add(picPreview);
+
+            // 5. Action Buttons (Test Print & Print All)
+            var btnTestPrint = new Button
+            {
+                Name = "btnTestPrint",
+                Text = "🖨️ TEST PRINT (1 LABEL)",
+                Location = new Point(8, 578),
+                Width = 195,
+                Height = 44,
+                BackColor = Color.FromArgb(108, 117, 125),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI Bold", 9.5F),
+                Cursor = Cursors.Hand
+            };
+            btnTestPrint.Click += (s, e) => PrintReport(true);
+
+            var btnPrint = new Button
+            {
+                Name = "btnPrint",
+                Text = "🖨️ PRINT ALL BARCODES  [Ctrl+P]",
+                Location = new Point(210, 578),
+                Width = 214,
+                Height = 44,
+                BackColor = Color.FromArgb(43, 88, 118),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI Bold", 10F),
+                Cursor = Cursors.Hand
+            };
+            btnPrint.Click += (s, e) => PrintReport(false);
+
+            pnlLeft.Controls.AddRange(new Control[] {
+                btnOpenSearch, btnOpenPurchases, gbManual, gbPrinter, gbPreview, btnTestPrint, btnPrint
+            });
+
+            // RIGHT PANEL: Print Queue Grid
+            var pnlRight = new Panel { Dock = DockStyle.Fill, Padding = new Padding(8) };
+
+            var pnlQueueHeader = new Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 40,
+                BackColor = Color.FromArgb(220, 225, 230),
+                Padding = new Padding(6)
+            };
+
+            var lblQueueTitle = new Label
+            {
+                Text = "PRINT QUEUE",
+                Font = new Font("Segoe UI Bold", 10F),
+                ForeColor = Color.FromArgb(43, 88, 118),
+                Location = new Point(8, 10),
+                AutoSize = true
+            };
+
+            var lblQueueCount = new Label
+            {
+                Name = "lblQueueCount",
+                Text = "Total Items: 0   |   Total Labels to Print: 0",
+                Font = new Font("Segoe UI Semibold", 9.5F),
+                ForeColor = Color.FromArgb(30, 40, 50),
+                Location = new Point(130, 11),
+                AutoSize = true
+            };
+
+            var btnRemoveSelected = new Button
+            {
+                Text = "❌ Remove",
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                Location = new Point(410, 6),
+                Width = 100,
+                Height = 28,
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Color.FromArgb(220, 53, 69),
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI Bold", 8.5F),
+                Cursor = Cursors.Hand
+            };
+            btnRemoveSelected.Click += (s, e) => RemoveSelectedFromQueue();
+
+            var btnClear = new Button
+            {
+                Text = "🗑️ Clear All",
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                Location = new Point(516, 6),
+                Width = 95,
+                Height = 28,
                 FlatStyle = FlatStyle.Flat,
                 BackColor = Color.FromArgb(108, 117, 125),
-                ForeColor = Color.White
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 8.5F),
+                Cursor = Cursors.Hand
             };
-            btnClear.Click += (s, e) => { _printList.Clear(); RefreshPrintGrid(); };
+            btnClear.Click += (s, e) => {
+                if (_printList.Count > 0 && MessageBox.Show("Clear all items from the print queue?", "Confirm Clear", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    _printList.Clear();
+                    RefreshPrintGrid();
+                }
+            };
 
-            pnlInputs.Controls.AddRange(new Control[] { lblSearchTitle, btnOpenSearch, btnOpenPurchases, gbManual, lblInv, txtInv, lblAlias, txtAlias, lblDate, txtDate, lblPrinter, cmbPrinters, btnPrint, btnClear });
+            pnlQueueHeader.Controls.AddRange(new Control[] { lblQueueTitle, lblQueueCount, btnRemoveSelected, btnClear });
 
-            // Print Queue Grid (Right)
-            var dgvPrint = new DataGridView { 
-                Name = "dgvPrint", 
+            var dgvPrint = new DataGridView
+            {
+                Name = "dgvPrint",
                 Dock = DockStyle.Fill,
                 AllowUserToAddRows = false,
                 BackgroundColor = Color.White,
                 BorderStyle = BorderStyle.Fixed3D,
                 AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                SelectionMode = DataGridViewSelectionMode.CellSelect,
-                EditMode = DataGridViewEditMode.EditOnEnter
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                MultiSelect = true,
+                EditMode = DataGridViewEditMode.EditOnEnter,
+                RowTemplate = { Height = 28 },
+                Font = new Font("Segoe UI", 9.5F)
             };
+
             dgvPrint.CellEndEdit += (s, e) => {
-                if (e.ColumnIndex == 2) { // Qty Column
-                    var val = dgvPrint.Rows[e.RowIndex].Cells[2].Value?.ToString();
-                    if (int.TryParse(val, out int q)) _printList[e.RowIndex].Qty = q;
+                if (e.ColumnIndex >= 0 && dgvPrint.Columns[e.ColumnIndex].DataPropertyName == "Qty")
+                {
+                    var val = dgvPrint.Rows[e.RowIndex].Cells[e.ColumnIndex].Value?.ToString();
+                    if (int.TryParse(val, out int q) && q >= 0)
+                    {
+                        if (e.RowIndex < _printList.Count) _printList[e.RowIndex].Qty = q;
+                    }
+                    UpdateQueueSummary();
                 }
             };
-            detailLayout.Controls.Add(pnlInputs, 0, 0);
-            detailLayout.Controls.Add(dgvPrint, 1, 0);
+
+            dgvPrint.SelectionChanged += (s, e) => UpdatePreview();
+
+            pnlRight.Controls.Add(dgvPrint);
+            pnlRight.Controls.Add(pnlQueueHeader);
+
+            detailLayout.Controls.Add(pnlLeft, 0, 0);
+            detailLayout.Controls.Add(pnlRight, 1, 0);
             tabDetail.Controls.Add(detailLayout);
 
-            // --- LIST TAB LAYOUT (Purchases & Items) ---
+            // =========================================================================
+            // TAB 2: LIST / SEARCH (Catalog & Invoices)
+            // =========================================================================
             var listLayout = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 2 };
-            listLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 40)); // Top: Invoices
-            listLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 60)); // Bottom: Items
+            listLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 40));
+            listLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 60));
 
-            // INVOICE SEARCH PANEL
+            // Top: Invoices
             var pnlInvSearch = new Panel { Dock = DockStyle.Fill, Padding = new Padding(10) };
             var lblIS = new Label { Text = "SEARCH PURCHASES:", Font = new Font("Segoe UI", 9F, FontStyle.Bold), Location = new Point(10, 10), AutoSize = true };
-            var txtISear = new TextBox { Name = "txtISear", Width = 200, Location = new Point(10, 35) };
-            var btnISear = new Button { Text = "GET INVOICES", Location = new Point(220, 33), Width = 120, Height = 28, BackColor = Color.FromArgb(43, 88, 118), ForeColor = Color.White, FlatStyle = FlatStyle.Flat };
-            var dgvInvoices = new DataGridView { 
-                Name = "dgvInvoices", Location = new Point(10, 70), Width = 950, Height = 180, 
-                AllowUserToAddRows = false, ReadOnly = true, SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                BackgroundColor = Color.White, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
+            var txtISear = new TextBox { Name = "txtISear", Width = 220, Location = new Point(10, 35), Font = new Font("Segoe UI", 9.5F) };
+            var btnISear = new Button { Text = "GET INVOICES", Location = new Point(240, 33), Width = 120, Height = 28, BackColor = Color.FromArgb(43, 88, 118), ForeColor = Color.White, FlatStyle = FlatStyle.Flat };
+            var dgvInvoices = new DataGridView
+            {
+                Name = "dgvInvoices",
+                Location = new Point(10, 70),
+                Width = 1000,
+                Height = 180,
+                AllowUserToAddRows = false,
+                ReadOnly = true,
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                BackgroundColor = Color.White,
+                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom
             };
             btnISear.Click += async (s, e) => await FetchInvoices(txtISear.Text);
+            txtISear.KeyDown += async (s, e) => { if (e.KeyCode == Keys.Enter) await FetchInvoices(txtISear.Text); };
             dgvInvoices.DoubleClick += async (s, e) => {
-                if (dgvInvoices.SelectedRows.Count > 0) {
+                if (dgvInvoices.SelectedRows.Count > 0)
+                {
                     var id = dgvInvoices.SelectedRows[0].Cells["_id"].Value?.ToString();
                     if (!string.IsNullOrEmpty(id)) await FetchPurchaseItems(id);
                     tabs.SelectedTab = tabDetail;
@@ -209,18 +563,26 @@ namespace BarcodePrintingApp
             };
             pnlInvSearch.Controls.AddRange(new Control[] { lblIS, txtISear, btnISear, dgvInvoices });
 
-            // ITEM SEARCH PANEL
+            // Bottom: Items
             var pnlItemSearch = new Panel { Dock = DockStyle.Fill, Padding = new Padding(10) };
-            var lblItemS = new Label { Text = "FIND SINGLE ITEM / BARCODE:", Font = new Font("Segoe UI", 9F, FontStyle.Bold), Location = new Point(10, 10), AutoSize = true };
-            var txtSearch = new TextBox { Name = "txtSearch", Width = 200, Location = new Point(10, 35) };
-            var btnFetch = new Button { Text = "SEARCH ITEMS", Location = new Point(220, 33), Width = 120, Height = 28, BackColor = Color.FromArgb(43, 88, 118), ForeColor = Color.White, FlatStyle = FlatStyle.Flat };
-            var dgvItems = new DataGridView { 
-                Name = "dgvItems", Location = new Point(10, 70), Width = 950, Height = 350, 
-                AllowUserToAddRows = false, ReadOnly = true, SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                BackgroundColor = Color.White, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+            var lblItemS = new Label { Text = "FIND PRODUCT CATALOG / BARCODE:", Font = new Font("Segoe UI", 9F, FontStyle.Bold), Location = new Point(10, 10), AutoSize = true };
+            var txtSearch = new TextBox { Name = "txtSearch", Width = 220, Location = new Point(10, 35), Font = new Font("Segoe UI", 9.5F) };
+            var btnFetch = new Button { Text = "SEARCH ITEMS", Location = new Point(240, 33), Width = 120, Height = 28, BackColor = Color.FromArgb(43, 88, 118), ForeColor = Color.White, FlatStyle = FlatStyle.Flat };
+            var dgvItems = new DataGridView
+            {
+                Name = "dgvItems",
+                Location = new Point(10, 70),
+                Width = 1000,
+                Height = 280,
+                AllowUserToAddRows = false,
+                ReadOnly = true,
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                BackgroundColor = Color.White,
+                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
                 Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom
             };
             btnFetch.Click += async (s, e) => await FetchItems(txtSearch.Text);
+            txtSearch.KeyDown += async (s, e) => { if (e.KeyCode == Keys.Enter) await FetchItems(txtSearch.Text); };
             dgvItems.DoubleClick += (s, e) => {
                 AddToPrintList(dgvItems.SelectedRows);
                 tabs.SelectedTab = tabDetail;
@@ -234,31 +596,520 @@ namespace BarcodePrintingApp
             this.Controls.Add(tabs);
         }
 
-        private void LoadPrinters()
+        // =========================================================================
+        // PRINTER SYNCHRONIZATION & CONFIGURATION
+        // =========================================================================
+        public void LoadPrinters(bool notifyUser = false)
         {
-            var cmb = (ComboBox)this.Controls.Find("cmbPrinters", true)[0];
-            foreach (string printer in System.Drawing.Printing.PrinterSettings.InstalledPrinters)
+            var cmb = (ComboBox?)this.Controls.Find("cmbPrinters", true).FirstOrDefault();
+            var lblStatus = (Label?)this.Controls.Find("lblPrinterStatus", true).FirstOrDefault();
+            if (cmb == null) return;
+
+            string previouslySelected = cmb.SelectedItem?.ToString() ?? _config.SelectedPrinter;
+            cmb.Items.Clear();
+
+            var installed = System.Drawing.Printing.PrinterSettings.InstalledPrinters;
+            foreach (string printer in installed)
             {
                 cmb.Items.Add(printer);
             }
+
             if (cmb.Items.Count > 0)
             {
-                // Select default printer if available
-                var settings = new System.Drawing.Printing.PrinterSettings();
-                int idx = cmb.Items.IndexOf(settings.PrinterName);
+                int idx = -1;
+                if (!string.IsNullOrEmpty(previouslySelected))
+                {
+                    idx = cmb.Items.IndexOf(previouslySelected);
+                }
+
+                if (idx < 0)
+                {
+                    var defaultSettings = new System.Drawing.Printing.PrinterSettings();
+                    idx = cmb.Items.IndexOf(defaultSettings.PrinterName);
+                }
+
                 cmb.SelectedIndex = idx >= 0 ? idx : 0;
+                string active = cmb.SelectedItem?.ToString() ?? "";
+                _config.SelectedPrinter = active;
+                Config.Save(_config);
+
+                if (lblStatus != null)
+                {
+                    lblStatus.Text = $"● {cmb.Items.Count} Printer(s) Synced | Active: {active}";
+                    lblStatus.ForeColor = Color.FromArgb(25, 135, 84);
+                }
+
+                if (notifyUser)
+                {
+                    MessageBox.Show(
+                        $"Printers synchronized successfully!\n\nDetected {cmb.Items.Count} printer(s):\n• " + 
+                        string.Join("\n• ", installed.Cast<string>()) + 
+                        $"\n\nActive Printer: {active}",
+                        "Printers Synchronized", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            else
+            {
+                if (lblStatus != null)
+                {
+                    lblStatus.Text = "⚠️ No printers detected on this computer!";
+                    lblStatus.ForeColor = Color.Crimson;
+                }
+                if (notifyUser)
+                {
+                    MessageBox.Show("No installed printers found. Please ensure your thermal or USB printer is plugged in and installed in Windows.", 
+                        "No Printers Detected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
             }
         }
 
-        private void RoundPanel(Panel pnl, int radius)
+        private void UpdatePrinterStatusLabel(string printerName)
         {
-            System.Drawing.Drawing2D.GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath();
-            path.AddArc(0, 0, radius, radius, 180, 90);
-            path.AddArc(pnl.Width - radius, 0, radius, radius, 270, 90);
-            path.AddArc(pnl.Width - radius, pnl.Height - radius, radius, radius, 0, 90);
-            path.AddArc(0, pnl.Height - radius, radius, radius, 90, 90);
-            path.CloseFigure();
-            pnl.Region = new Region(path);
+            var lblStatus = (Label?)this.Controls.Find("lblPrinterStatus", true).FirstOrDefault();
+            var cmb = (ComboBox?)this.Controls.Find("cmbPrinters", true).FirstOrDefault();
+            if (lblStatus != null && cmb != null)
+            {
+                lblStatus.Text = $"● {cmb.Items.Count} Printer(s) Synced | Active: {printerName}";
+                lblStatus.ForeColor = Color.FromArgb(25, 135, 84);
+            }
+        }
+
+        // =========================================================================
+        // LIVE BARCODE PREVIEW (WYSIWYG)
+        // =========================================================================
+        private void UpdatePreview()
+        {
+            var pic = (PictureBox?)this.Controls.Find("picPreview", true).FirstOrDefault();
+            if (pic == null) return;
+
+            try
+            {
+                var item = GetActiveOrDemoItem();
+                var (width, height) = GetCurrentLabelDimensions();
+                
+                // Calculate scale to fit nicely within picPreview (225 x 145) with padding
+                float scaleW = (pic.ClientSize.Width - 12f) / width;
+                float scaleH = (pic.ClientSize.Height - 12f) / height;
+                float scale = Math.Min(scaleW, scaleH);
+                if (scale < 0.5f) scale = 0.5f;
+                if (scale > 2.0f) scale = 2.0f;
+
+                var bmp = GenerateLabelBitmap(item, width, height, scale, drawBorder: true);
+                
+                var old = pic.Image;
+                pic.Image = bmp;
+                old?.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Preview error: " + ex.Message);
+            }
+        }
+
+        private Bitmap GenerateLabelBitmap(BarcodePrintItem item, int width, int height, float scale = 1.0f, bool drawBorder = false)
+        {
+            int bmpWidth = (int)(width * scale);
+            int bmpHeight = (int)(height * scale);
+            var bmp = new Bitmap(bmpWidth, bmpHeight);
+            using (var g = Graphics.FromImage(bmp))
+            {
+                g.Clear(Color.White);
+                if (drawBorder)
+                {
+                    using var pen = new Pen(Color.FromArgb(170, 180, 190), 1);
+                    g.DrawRectangle(pen, 0, 0, bmpWidth - 1, bmpHeight - 1);
+                }
+                g.ScaleTransform(scale, scale);
+                DrawLabel(g, item, width, height);
+            }
+            return bmp;
+        }
+
+        private BarcodePrintItem GetActiveOrDemoItem()
+        {
+            var grid = (DataGridView?)this.Controls.Find("dgvPrint", true).FirstOrDefault();
+            if (grid != null && grid.SelectedRows.Count > 0)
+            {
+                int idx = grid.SelectedRows[0].Index;
+                if (idx >= 0 && idx < _printList.Count) return _printList[idx];
+            }
+            if (_printList.Count > 0) return _printList[0];
+
+            return new BarcodePrintItem
+            {
+                ItemId = "DEMO-001",
+                Name = "TRIMETABOL SYP 150ML",
+                Code = "143219",
+                Barcode = "143219",
+                CompanyName = string.IsNullOrWhiteSpace(_config.CompanyHeader) ? "D Watson Pharmacy & Super Sto" : _config.CompanyHeader,
+                Price = 235.00m,
+                Qty = 1
+            };
+        }
+
+        private (int Width, int Height) GetCurrentLabelDimensions()
+        {
+            int wMm = _config.LabelWidthMm > 0 ? _config.LabelWidthMm : 38;
+            int hMm = _config.LabelHeightMm > 0 ? _config.LabelHeightMm : 25;
+
+            // 1 mm = 100 / 25.4 = 3.93701 hundredths of an inch
+            int w = (int)Math.Round(wMm * 3.93701);
+            int h = (int)Math.Round(hMm * 3.93701);
+
+            if (w < 80) w = 150;
+            if (h < 50) h = 100;
+            return (w, h);
+        }
+
+        // =========================================================================
+        // BARCODE RENDERING & LABEL GRAPHICS (FULL TAG FIT & BALANCED CENTERING)
+        // =========================================================================
+        private void DrawLabel(Graphics g, BarcodePrintItem item, float width = 150, float height = 100)
+        {
+            // Crisp, high-contrast settings for thermal dot printers
+            g.InterpolationMode = InterpolationMode.NearestNeighbor;
+            g.SmoothingMode = SmoothingMode.None;
+            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
+
+            using Font fontCompany = new Font("Arial", 6.8f, FontStyle.Bold);
+            using Font fontID = new Font("Arial", 7.5f, FontStyle.Bold);
+            using Font fontName = new Font("Arial", 8.2f, FontStyle.Bold);
+            using Font fontNameSmall = new Font("Arial Narrow", 7.0f, FontStyle.Bold);
+            using Font fontPrice = new Font("Arial", 11.5f, FontStyle.Bold);
+
+            // User configurable top offset in mm
+            float topOffset = _config.TopOffsetMm * 3.937f;
+
+            // 1. Company / Store Name (Top Center - Always Constant Store Header)
+            string comp = !string.IsNullOrWhiteSpace(_config.CompanyHeader) ? _config.CompanyHeader : "D Watson Pharmacy & Super Sto";
+            var compSize = g.MeasureString(comp, fontCompany);
+            float compX = Math.Max(2f, (width - compSize.Width) / 2f);
+            float compY = topOffset + Math.Max(2f, height * 0.035f);
+            g.DrawString(comp, fontCompany, Brushes.Black, compX, compY);
+
+            // 2. Barcode Graphic (Fills width nicely, leaving ~2.5mm margin each side)
+            float barcodeW = Math.Min(128f, width - 20f);
+            float barcodeH = Math.Min(30f, Math.Max(22f, height * 0.28f));
+            float barcodeY = compY + Math.Max(10f, height * 0.12f);
+
+            string rawCode = !string.IsNullOrWhiteSpace(item.Barcode) ? item.Barcode : item.Code;
+            if (string.IsNullOrWhiteSpace(rawCode)) rawCode = "00000000";
+
+            string cleanCode = new string(rawCode.Where(c => c >= 32 && c <= 126).ToArray());
+            if (string.IsNullOrEmpty(cleanCode)) cleanCode = "00000000";
+
+            try
+            {
+                var writer = new BarcodeWriterPixelData
+                {
+                    Format = BarcodeFormat.CODE_128,
+                    Options = new EncodingOptions
+                    {
+                        Height = (int)barcodeH,
+                        Width = (int)barcodeW,
+                        Margin = 0,
+                        PureBarcode = true
+                    }
+                };
+
+                var pixelData = writer.Write(cleanCode);
+                using var bitmap = new Bitmap(pixelData.Width, pixelData.Height, PixelFormat.Format32bppRgb);
+                var bitmapData = bitmap.LockBits(
+                    new Rectangle(0, 0, pixelData.Width, pixelData.Height),
+                    ImageLockMode.WriteOnly,
+                    PixelFormat.Format32bppRgb);
+                try
+                {
+                    Marshal.Copy(pixelData.Pixels, 0, bitmapData.Scan0, pixelData.Pixels.Length);
+                }
+                finally
+                {
+                    bitmap.UnlockBits(bitmapData);
+                }
+
+                float barcodeX = (width - barcodeW) / 2f;
+                g.DrawImage(bitmap, barcodeX, barcodeY, barcodeW, barcodeH);
+            }
+            catch
+            {
+                var errSize = g.MeasureString("BARCODE ERROR", fontID);
+                g.DrawString("BARCODE ERROR", fontID, Brushes.Red, (width - errSize.Width) / 2f, barcodeY + 4f);
+            }
+
+            // 3. Human-Readable Barcode / Code Digits (Right under barcode)
+            float digitsY = barcodeY + barcodeH + Math.Max(1.5f, height * 0.02f);
+            string displayId = !string.IsNullOrWhiteSpace(item.Barcode) ? item.Barcode : item.Code;
+            if (string.IsNullOrWhiteSpace(displayId)) displayId = "-";
+            var idSize = g.MeasureString(displayId, fontID);
+            float idX = Math.Max(2f, (width - idSize.Width) / 2f);
+            g.DrawString(displayId, fontID, Brushes.Black, idX, digitsY);
+
+            // 4. Item Name (Right under digits)
+            float nameY = digitsY + Math.Max(10.5f, height * 0.12f);
+            string name = (item.Name ?? "").Trim();
+            Font activeFont = fontName;
+            var nameSize = g.MeasureString(name, activeFont);
+            if (nameSize.Width > width - 8f)
+            {
+                activeFont = fontNameSmall;
+                nameSize = g.MeasureString(name, activeFont);
+            }
+            if (nameSize.Width > width - 6f && name.Length > 26)
+            {
+                name = name.Substring(0, 24) + "..";
+                nameSize = g.MeasureString(name, activeFont);
+            }
+            float nameX = Math.Max(2f, (width - nameSize.Width) / 2f);
+            g.DrawString(name, activeFont, Brushes.Black, nameX, nameY);
+
+            // 5. Retail Price (Bold, prominent, fills bottom of tag)
+            float priceY = nameY + Math.Max(12.5f, height * 0.14f);
+            string pStr = "Rs: " + item.Price.ToString("N2");
+            var priceSize = g.MeasureString(pStr, fontPrice);
+            float priceX = Math.Max(2f, (width - priceSize.Width) / 2f);
+            g.DrawString(pStr, fontPrice, Brushes.Black, priceX, priceY);
+        }
+
+        // =========================================================================
+        // PRINTING EXECUTION ENGINE
+        // =========================================================================
+        private void PrintReport(bool isTestPrint = false)
+        {
+            var cmb = (ComboBox?)this.Controls.Find("cmbPrinters", true).FirstOrDefault();
+            string? selectedPrinter = cmb?.SelectedItem?.ToString();
+
+            if (string.IsNullOrWhiteSpace(selectedPrinter))
+            {
+                MessageBox.Show("Please select or sync a printer first.", "Printer Required", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Verify printer exists in installed printers list
+            bool printerExists = false;
+            foreach (string p in System.Drawing.Printing.PrinterSettings.InstalledPrinters)
+            {
+                if (string.Equals(p, selectedPrinter, StringComparison.OrdinalIgnoreCase))
+                {
+                    printerExists = true;
+                    break;
+                }
+            }
+
+            if (!printerExists)
+            {
+                MessageBox.Show(
+                    $"Printer '{selectedPrinter}' is not recognized by Windows.\n\nPlease click 'Sync' to refresh installed printers.", 
+                    "Printer Not Recognized", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            List<BarcodePrintItem> itemsToPrint;
+            if (isTestPrint)
+            {
+                var activeItem = GetActiveOrDemoItem();
+                itemsToPrint = new List<BarcodePrintItem>
+                {
+                    new BarcodePrintItem
+                    {
+                        ItemId = "TEST",
+                        Name = activeItem.Name,
+                        Code = activeItem.Code,
+                        Barcode = activeItem.Barcode,
+                        CompanyName = !string.IsNullOrWhiteSpace(_config.CompanyHeader) ? _config.CompanyHeader : "D.WATSON",
+                        Price = activeItem.Price,
+                        Qty = 1
+                    }
+                };
+            }
+            else
+            {
+                if (_printList.Count == 0)
+                {
+                    MessageBox.Show("Print list is empty. Please add items to print.", "Queue Empty", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+                itemsToPrint = _printList.Where(p => p.Qty > 0).ToList();
+                if (itemsToPrint.Count == 0)
+                {
+                    MessageBox.Show("All items in the queue have Qty = 0.", "Zero Quantity", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+            }
+
+            var (paperWidth, paperHeight) = GetCurrentLabelDimensions();
+
+            var pd = new System.Drawing.Printing.PrintDocument();
+            pd.PrinterSettings.PrinterName = selectedPrinter;
+            pd.OriginAtMargins = false;
+            pd.DefaultPageSettings.PaperSize = new System.Drawing.Printing.PaperSize("CustomLabel", paperWidth, paperHeight);
+            pd.DefaultPageSettings.Margins = new System.Drawing.Printing.Margins(0, 0, 0, 0);
+
+            int currentItemIdx = 0;
+            int currentQtyDone = 0;
+
+            pd.PrintPage += (s, ev) => {
+                if (ev.Graphics == null) return;
+                var item = itemsToPrint[currentItemIdx];
+                DrawLabel(ev.Graphics, item, paperWidth, paperHeight);
+
+                currentQtyDone++;
+                if (currentQtyDone >= item.Qty)
+                {
+                    currentItemIdx++;
+                    currentQtyDone = 0;
+                }
+
+                ev.HasMorePages = (currentItemIdx < itemsToPrint.Count);
+            };
+
+            try
+            {
+                pd.Print();
+                string msg = isTestPrint 
+                    ? $"Test label sent successfully to {selectedPrinter}!" 
+                    : $"Printing job sent successfully!\n\nTotal labels: {itemsToPrint.Sum(p => p.Qty)}\nPrinter: {selectedPrinter}";
+                MessageBox.Show(msg, "Printing Sent", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Printing Error: {ex.Message}\n\nPlease check if printer '{selectedPrinter}' is powered on and loaded with label rolls.", "Print Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // =========================================================================
+        // DATA ACCESS & QUEUE MANAGEMENT
+        // =========================================================================
+        private void RefreshPrintGrid()
+        {
+            var grid = (DataGridView?)this.Controls.Find("dgvPrint", true).FirstOrDefault();
+            if (grid == null) return;
+
+            grid.DataSource = null;
+
+            var bindingList = new BindingList<PrintGridRow>(
+                _printList.Select(p => new PrintGridRow
+                {
+                    Name = p.Name,
+                    Barcode = p.Barcode,
+                    Code = p.Code,
+                    Price = p.Price,
+                    Qty = p.Qty
+                }).ToList()
+            );
+
+            grid.DataSource = bindingList;
+
+            if (grid.Columns.Count >= 5)
+            {
+                grid.Columns[0].ReadOnly = true;  // Name
+                grid.Columns[1].ReadOnly = true;  // Barcode
+                grid.Columns[2].ReadOnly = true;  // Code
+                grid.Columns[3].ReadOnly = true;  // Price
+                grid.Columns[4].ReadOnly = false; // Qty editable
+            }
+
+            UpdateQueueSummary();
+            UpdatePreview();
+        }
+
+        private void UpdateQueueSummary()
+        {
+            var lblCount = (Label?)this.Controls.Find("lblQueueCount", true).FirstOrDefault();
+            if (lblCount != null)
+            {
+                int totalItems = _printList.Count;
+                int totalLabels = _printList.Sum(p => p.Qty);
+                lblCount.Text = $"Total Items: {totalItems}   |   Total Labels to Print: {totalLabels}";
+            }
+        }
+
+        private void RemoveSelectedFromQueue()
+        {
+            var grid = (DataGridView?)this.Controls.Find("dgvPrint", true).FirstOrDefault();
+            if (grid != null && grid.SelectedRows.Count > 0)
+            {
+                var indices = grid.SelectedRows.Cast<DataGridViewRow>()
+                    .Select(r => r.Index)
+                    .OrderByDescending(i => i)
+                    .ToList();
+
+                foreach (int idx in indices)
+                {
+                    if (idx >= 0 && idx < _printList.Count)
+                    {
+                        _printList.RemoveAt(idx);
+                    }
+                }
+                RefreshPrintGrid();
+            }
+            else
+            {
+                MessageBox.Show("Please select an item in the queue to remove.", "Selection Required", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        private async Task AddManualBarcode(string barcode, string qtyStr)
+        {
+            if (string.IsNullOrWhiteSpace(barcode)) return;
+            if (!int.TryParse(qtyStr, out int qty) || qty <= 0) qty = 1;
+
+            barcode = barcode.Trim();
+
+            try
+            {
+                var request = new RestRequest("/api/v1/wh-items", Method.Get);
+                AddAuthHeaders(request);
+                request.AddQueryParameter("search", barcode);
+
+                var response = await _client.ExecuteAsync(request);
+                if (response.IsSuccessful)
+                {
+                    var result = JsonConvert.DeserializeObject<ApiListResponse<WHItem>>(response.Content);
+                    var item = result?.data.FirstOrDefault(i => i.barcode == barcode || i.itemsCode == barcode || i.name.Contains(barcode, StringComparison.OrdinalIgnoreCase));
+                    if (item != null)
+                    {
+                        var existing = _printList.FirstOrDefault(p => p.ItemId == item._id);
+                        if (existing != null)
+                        {
+                            existing.Qty += qty;
+                        }
+                        else
+                        {
+                            _printList.Add(new BarcodePrintItem
+                            {
+                                ItemId = item._id,
+                                Name = item.name,
+                                Code = item.itemsCode,
+                                Barcode = item.barcode,
+                                CompanyName = !string.IsNullOrWhiteSpace(_config.CompanyHeader) ? _config.CompanyHeader : "D Watson Pharmacy & Super Sto",
+                                Price = item.retailPrice,
+                                Qty = qty
+                            });
+                        }
+                        RefreshPrintGrid();
+
+                        var txt = (TextBox?)this.Controls.Find("txtManualBc", true).FirstOrDefault();
+                        if (txt != null)
+                        {
+                            txt.Text = "";
+                            txt.Focus();
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show($"No product found with barcode or code: {barcode}", "Item Not Found", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show($"Server Error: {response.StatusDescription}", "Lookup Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lookup Error: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private async Task FetchItems(string search)
@@ -267,7 +1118,7 @@ namespace BarcodePrintingApp
             {
                 var request = new RestRequest("/api/v1/wh-items", Method.Get);
                 AddAuthHeaders(request);
-                
+
                 if (!string.IsNullOrEmpty(search)) request.AddQueryParameter("search", search);
 
                 var response = await _client.ExecuteAsync(request);
@@ -275,7 +1126,7 @@ namespace BarcodePrintingApp
                 {
                     var result = JsonConvert.DeserializeObject<ApiListResponse<WHItem>>(response.Content);
                     _allItems = result?.data ?? new();
-                    
+
                     var grid = (DataGridView)this.Controls.Find("dgvItems", true)[0];
                     grid.DataSource = _allItems.Select(i => new {
                         i._id,
@@ -321,24 +1172,53 @@ namespace BarcodePrintingApp
                     }).ToList();
                     if (grid.Columns["_id"] != null) grid.Columns["_id"].Visible = false;
                 }
-            } catch (Exception ex) { MessageBox.Show("Inv Error: " + ex.Message); }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Inv Error: " + ex.Message);
+            }
         }
 
         private void OpenItemSearch()
         {
-            var search = new SearchForm(_config.ServerUrl, _token, false);
-            if (search.ShowDialog() == DialogResult.OK && search.SelectedResult != null) {
+            var search = new SearchForm(_config.ServerUrl, _token ?? "", false);
+            if (search.ShowDialog() == DialogResult.OK && search.SelectedResult != null)
+            {
                 dynamic res = search.SelectedResult;
-                var item = _allItems.FirstOrDefault(i => i._id == res._id);
-                if (item == null) {
-                    // Item might not be in _allItems cache, add manually
-                    _printList.Add(new BarcodePrintItem {
-                        ItemId = res._id, Name = res.Name, Code = res.Code, Barcode = res.Barcode, Price = res.Price, Qty = 1
+                string resId = res._id?.ToString() ?? "";
+                string resName = res.Name?.ToString() ?? "";
+                string resCode = res.Code?.ToString() ?? "";
+                string resBarcode = res.Barcode?.ToString() ?? "";
+                string resCompany = "";
+                try { resCompany = res.Company?.ToString() ?? ""; } catch {}
+                decimal resPrice = 0;
+                try { resPrice = Convert.ToDecimal(res.Price); } catch {}
+
+                var item = _allItems.FirstOrDefault(i => i._id == resId);
+                if (item == null)
+                {
+                    _printList.Add(new BarcodePrintItem
+                    {
+                        ItemId = resId,
+                        Name = resName,
+                        Code = resCode,
+                        Barcode = resBarcode,
+                        CompanyName = !string.IsNullOrWhiteSpace(_config.CompanyHeader) ? _config.CompanyHeader : "D Watson Pharmacy & Super Sto",
+                        Price = resPrice,
+                        Qty = 1
                     });
-                } else {
-                    _printList.Add(new BarcodePrintItem {
-                        ItemId = item._id, Name = item.name, Code = item.itemsCode, Barcode = item.barcode, 
-                        CompanyName = item.GetCompanyName(), Price = item.retailPrice, Qty = 1
+                }
+                else
+                {
+                    _printList.Add(new BarcodePrintItem
+                    {
+                        ItemId = item._id,
+                        Name = item.name,
+                        Code = item.itemsCode,
+                        Barcode = item.barcode,
+                        CompanyName = !string.IsNullOrWhiteSpace(_config.CompanyHeader) ? _config.CompanyHeader : "D Watson Pharmacy & Super Sto",
+                        Price = item.retailPrice,
+                        Qty = 1
                     });
                 }
                 RefreshPrintGrid();
@@ -347,50 +1227,22 @@ namespace BarcodePrintingApp
 
         private async void OpenPurchaseSearch()
         {
-            var search = new SearchForm(_config.ServerUrl, _token, true);
-            if (search.ShowDialog() == DialogResult.OK && search.SelectedResult != null) {
+            var search = new SearchForm(_config.ServerUrl, _token ?? "", true);
+            if (search.ShowDialog() == DialogResult.OK && search.SelectedResult != null)
+            {
                 dynamic res = search.SelectedResult;
-                await FetchPurchaseItems(res._id);
-            }
-        }
-
-        private async Task AddManualBarcode(string barcode, string qtyStr)
-        {
-            if (string.IsNullOrEmpty(barcode)) return;
-            if (!int.TryParse(qtyStr, out int qty)) qty = 1;
-
-            try {
-                var request = new RestRequest("/api/v1/wh-items", Method.Get);
-                AddAuthHeaders(request);
-                request.AddQueryParameter("search", barcode);
-                
-                var response = await _client.ExecuteAsync(request);
-                if (response.IsSuccessful) {
-                    var result = JsonConvert.DeserializeObject<ApiListResponse<WHItem>>(response.Content);
-                    var item = result?.data.FirstOrDefault(i => i.barcode == barcode || i.itemsCode == barcode);
-                    if (item != null) {
-                        var existing = _printList.FirstOrDefault(p => p.ItemId == item._id);
-                        if (existing != null) existing.Qty += qty;
-                        else _printList.Add(new BarcodePrintItem {
-                            ItemId = item._id, Name = item.name, Code = item.itemsCode, Barcode = item.barcode, 
-                            CompanyName = item.GetCompanyName(), Price = item.retailPrice, Qty = qty 
-                        });
-                        RefreshPrintGrid();
-                        // Clear manual input for next scan
-                        var txt = (TextBox)this.Controls.Find("txtManualBc", true)[0];
-                        txt.Text = "";
-                        txt.Focus();
-                    } else { MessageBox.Show("Item not found with that barcode/code."); }
+                string purchaseId = res._id?.ToString() ?? "";
+                if (!string.IsNullOrEmpty(purchaseId))
+                {
+                    await FetchPurchaseItems(purchaseId);
                 }
-            } catch (Exception ex) { MessageBox.Show("Error: " + ex.Message); }
+            }
         }
 
         private async Task FetchPurchaseItems(string purchaseId)
         {
             try
             {
-                // Note: purchaseId here should be the MongoDB ID or we search by invoiceNo
-                // For simplicity, let's assume we search by keyword first or provide direct ID
                 var request = new RestRequest($"/api/v1/wh-purchases/{purchaseId}", Method.Get);
                 AddAuthHeaders(request);
 
@@ -401,31 +1253,63 @@ namespace BarcodePrintingApp
                     var purchase = result?.data;
                     if (purchase != null && purchase.items.Count > 0)
                     {
-                        var txtInv = (TextBox)this.Controls.Find("txtInv", true)[0];
-                        txtInv.Text = purchase.invoiceNo;
-                        
+                        var txtInv = (TextBox?)this.Controls.Find("txtInv", true).FirstOrDefault();
+                        if (txtInv != null) txtInv.Text = purchase.invoiceNo;
+
+                        var txtDate = (TextBox?)this.Controls.Find("txtDate", true).FirstOrDefault();
+                        if (txtDate != null) txtDate.Text = purchase.invoiceDate.ToString("dd/MM/yyyy");
+
+                        // Open selected invoice's items: clear queue and load all invoice items
+                        _printList.Clear();
+
+                        string storeHeader = !string.IsNullOrWhiteSpace(_config.CompanyHeader) ? _config.CompanyHeader : "D Watson Pharmacy & Super Sto";
+
                         foreach (var pItem in purchase.items)
                         {
-                            var item = pItem.GetWHItem();
-                            if (item == null) continue;
-                            
-                            var existing = _printList.FirstOrDefault(x => x.ItemId == item._id);
-                            if (existing != null) {
-                                existing.Qty += (int)pItem.quantity;
-                            } else {
-                                _printList.Add(new BarcodePrintItem {
-                                    ItemId = item._id,
-                                    Name = item.name,
-                                    Code = item.itemsCode,
-                                    Barcode = item.barcode,
-                                    CompanyName = item.GetCompanyName(),
-                                    Price = item.retailPrice,
-                                    Qty = (int)pItem.quantity
-                                });
+                            string itemId = pItem._id;
+                            string itemName = "";
+                            string itemCode = "";
+                            string itemBarcode = "";
+                            decimal itemPrice = 0;
+                            int itemQty = (int)Math.Max(1, Math.Round(pItem.quantity));
+
+                            var wh = pItem.GetWHItem();
+                            if (wh != null)
+                            {
+                                itemId = wh._id;
+                                itemName = wh.name;
+                                itemCode = wh.itemsCode;
+                                itemBarcode = wh.barcode;
+                                itemPrice = wh.retailPrice > 0 ? wh.retailPrice : (wh.salePrice > 0 ? wh.salePrice : pItem.salePrice);
                             }
+
+                            if (string.IsNullOrEmpty(itemName)) itemName = !string.IsNullOrEmpty(pItem.name) ? pItem.name : pItem.itemName;
+                            if (string.IsNullOrEmpty(itemBarcode)) itemBarcode = pItem.barcode;
+                            if (string.IsNullOrEmpty(itemCode)) itemCode = itemBarcode;
+                            if (itemPrice <= 0) itemPrice = pItem.salePrice > 0 ? pItem.salePrice : pItem.costPrice;
+
+                            _printList.Add(new BarcodePrintItem
+                            {
+                                ItemId = itemId,
+                                Name = itemName,
+                                Code = itemCode,
+                                Barcode = itemBarcode,
+                                CompanyName = storeHeader,
+                                Price = itemPrice,
+                                Qty = itemQty
+                            });
                         }
+
                         RefreshPrintGrid();
-                        MessageBox.Show($"Loaded {purchase.items.Count} items from Purchase {purchase.invoiceNo}");
+                        int totalLabels = _printList.Sum(p => p.Qty);
+                        MessageBox.Show(
+                            $"Successfully loaded {purchase.items.Count} items ({totalLabels} total labels to print) from Invoice #{purchase.invoiceNo}.\n\n" +
+                            "Press [Ctrl + P] or [F5] anytime to print all barcodes.", 
+                            "Invoice Items Loaded", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show("This purchase invoice does not have any items.", "Empty Invoice", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                 }
                 else
@@ -441,6 +1325,8 @@ namespace BarcodePrintingApp
 
         private void AddAuthHeaders(RestRequest request)
         {
+            request.AddHeader("ngrok-skip-browser-warning", "69420");
+            request.AddHeader("User-Agent", "BarcodeApp/1.0");
             if (!string.IsNullOrEmpty(_token))
             {
                 request.AddHeader("Authorization", "Bearer " + _token);
@@ -455,6 +1341,7 @@ namespace BarcodePrintingApp
         {
             foreach (DataGridViewRow row in rows)
             {
+                if (row.Index < 0 || row.Index >= _allItems.Count) continue;
                 var item = _allItems[row.Index];
                 var existing = _printList.FirstOrDefault(p => p.ItemId == item._id);
                 if (existing != null)
@@ -463,160 +1350,19 @@ namespace BarcodePrintingApp
                 }
                 else
                 {
-                    _printList.Add(new BarcodePrintItem {
+                    _printList.Add(new BarcodePrintItem
+                    {
                         ItemId = item._id,
                         Name = item.name,
                         Code = item.itemsCode,
                         Barcode = item.barcode,
-                        CompanyName = item.GetCompanyName(),
+                        CompanyName = !string.IsNullOrWhiteSpace(_config.CompanyHeader) ? _config.CompanyHeader : "D Watson Pharmacy & Super Sto",
                         Price = item.retailPrice,
                         Qty = 1
                     });
                 }
             }
             RefreshPrintGrid();
-        }
-
-        private void RefreshPrintGrid()
-        {
-            var grid = (DataGridView)this.Controls.Find("dgvPrint", true)[0];
-            grid.DataSource = null;
-            
-            // Fix: Use a concrete class instead of anonymous object to allow editing Qty
-            var bindingList = new System.ComponentModel.BindingList<PrintGridRow>(
-                _printList.Select(p => new PrintGridRow {
-                    Name = p.Name,
-                    Price = p.Price,
-                    Qty = p.Qty
-                }).ToList()
-            );
-            
-            grid.DataSource = bindingList;
-            
-            if (grid.Columns.Count > 0) {
-                grid.Columns[0].ReadOnly = true; 
-                grid.Columns[1].ReadOnly = true; 
-                grid.Columns[2].ReadOnly = false; // Qty Edit is now safe
-            }
-        }
-
-        private void PrintReport()
-        {
-            if (_printList.Count == 0)
-            {
-                MessageBox.Show("Print list is empty.");
-                return;
-            }
-
-            var cmb = (ComboBox)this.Controls.Find("cmbPrinters", true)[0];
-            string selectedPrinter = cmb.SelectedItem?.ToString() ?? "Default";
-
-            // We use direct printing for precision and immediate use.
-            // Crystal Reports files (.rpt) are binary and require the designer to create.
-            // This built-in engine prints perfectly to 1.5" x 1.1" labels.
-
-            var pd = new System.Drawing.Printing.PrintDocument();
-            pd.PrinterSettings.PrinterName = selectedPrinter;
-            
-            // Set Page Size to 1.5" x 1.1" (150 x 110 in 1/100th inch units)
-            pd.DefaultPageSettings.PaperSize = new System.Drawing.Printing.PaperSize("Custom", 150, 110);
-            pd.DefaultPageSettings.Margins = new System.Drawing.Printing.Margins(5, 5, 5, 5);
-
-            int currentItemIdx = 0;
-            int currentQtyDone = 0;
-
-            pd.PrintPage += (s, ev) => {
-                var item = _printList[currentItemIdx];
-                DrawLabel(ev.Graphics, item);
-
-                currentQtyDone++;
-                if (currentQtyDone >= item.Qty) {
-                    currentItemIdx++;
-                    currentQtyDone = 0;
-                }
-
-                ev.HasMorePages = (currentItemIdx < _printList.Count);
-            };
-
-            try {
-                pd.Print();
-                MessageBox.Show("Printing task sent successfully.");
-            } catch (Exception ex) {
-                MessageBox.Show("Printing Error: " + ex.Message);
-            }
-        }
-
-        private void DrawLabel(Graphics g, BarcodePrintItem item)
-        {
-            // REFINE DESIGN TO MATCH ERP QUALITY (1.5" x 1.1")
-            float width = 150;
-            float height = 110;
-
-            // Set high quality for barcode rendering (No smoothing/blurring)
-            g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
-            g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
-
-            Font fontCompany = new Font("Arial", 6f, FontStyle.Bold);
-            Font fontID = new Font("Arial Bold", 7.5f, FontStyle.Bold); 
-            Font fontName = new Font("Arial Narrow", 7.5f, FontStyle.Bold);
-            Font fontPrice = new Font("Arial Bold", 11f, FontStyle.Bold);
-
-            // 1. Company Name (Top Center)
-            string comp = string.IsNullOrEmpty(item.CompanyName) ? "D.WATSON" : item.CompanyName;
-            var compSize = g.MeasureString(comp, fontCompany);
-            g.DrawString(comp, fontCompany, Brushes.Black, (width - compSize.Width) / 2, 1);
-
-            // 2. Barcode (Center upper part) - BOLD MEDICINE STYLE
-            try {
-                var writer = new BarcodeWriterPixelData
-                {
-                    Format = BarcodeFormat.CODE_128,
-                    Options = new EncodingOptions
-                    {
-                        Height = 42,  // Reduced slightly to avoid overlap
-                        Width = 125,
-                        Margin = 0,
-                        PureBarcode = true 
-                    }
-                };
-
-                var pixelData = writer.Write(item.Barcode);
-                using (var bitmap = new Bitmap(pixelData.Width, pixelData.Height, System.Drawing.Imaging.PixelFormat.Format32bppRgb))
-                {
-                    var bitmapData = bitmap.LockBits(
-                        new Rectangle(0, 0, pixelData.Width, pixelData.Height),
-                        System.Drawing.Imaging.ImageLockMode.WriteOnly,
-                        System.Drawing.Imaging.PixelFormat.Format32bppRgb);
-                    try {
-                        System.Runtime.InteropServices.Marshal.Copy(pixelData.Pixels, 0, bitmapData.Scan0, pixelData.Pixels.Length);
-                    } finally {
-                        bitmap.UnlockBits(bitmapData);
-                    }
-                    // Draw at Y=11 to allow more gap from text
-                    g.DrawImage(bitmap, (width - 125) / 2, 11);
-                }
-            } catch {
-                g.DrawString("BC ERR", fontID, Brushes.Red, 15, 15);
-            }
-
-            // 3. Barcode Number (Human-Readable) - Show full 13-14 digits
-            // We prioritize the scannable barcode string so it matches the lines
-            string displayId = !string.IsNullOrEmpty(item.Barcode) ? item.Barcode : item.Code;
-            if (string.IsNullOrEmpty(displayId)) displayId = "-";
-
-            // If the number is very long, reduce font size slightly to fit width
-            Font fontIDFinal = displayId.Length > 12 ? new Font("Arial Bold", 6.5f, FontStyle.Bold) : fontID;
-            g.DrawString(displayId, fontIDFinal, Brushes.Black, 10, 57);
-
-            // 4. Item Name
-            string name = item.Name;
-            if (name.Length > 30) name = name.Substring(0, 28) + "..";
-            g.DrawString(name, fontName, Brushes.Black, 10, 69);
-
-            // 5. Retail Price (Bottom persistent Rs format)
-            string pStr = "Rs: " + item.Price.ToString("N0") + ".00";
-            g.DrawString(pStr, fontPrice, Brushes.Black, 10, 89);
         }
     }
 
@@ -634,6 +1380,8 @@ namespace BarcodePrintingApp
     public class PrintGridRow
     {
         public string Name { get; set; } = "";
+        public string Barcode { get; set; } = "";
+        public string Code { get; set; } = "";
         public decimal Price { get; set; }
         public int Qty { get; set; }
     }

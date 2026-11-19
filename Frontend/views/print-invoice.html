@@ -665,10 +665,12 @@
                 html = `
                     <div class="thermal-header">
                         ${company.logo ? `<div class="mb-1"><img src="${company.logo}" style="max-height: 48px; max-width: 100%; object-fit: contain;" alt="Logo"></div>` : ''}
-                        <div class="thermal-company-name">${company.companyName || 'H&S COSMETICS AND UG'}</div>
+                        <div class="thermal-company-name">${company.companyName || 'BAS POS Store'}</div>
                         <div class="thermal-meta">
                             ${company.address ? `<div>${company.address}</div>` : ''}
                             ${company.phone ? `<div>Phone: ${company.phone}</div>` : ''}
+                            ${company.email ? `<div>Email: ${company.email}</div>` : ''}
+                            ${company.taxNumber ? `<div>STRN/GST: ${company.taxNumber}</div>` : ''}
                         </div>
                     </div>
 
@@ -794,7 +796,8 @@
                                 <h5 class="mb-1 text-primary">${company.companyName || 'My Company'}</h5>
                                 <p class="mb-0 text-muted small">
                                     ${company.address || ''}<br>
-                                    Phone: ${company.phone || ''} | Email: ${company.email || ''}
+                                    Phone: ${company.phone || ''} | Email: ${company.email || ''}<br>
+                                    ${company.taxNumber ? `STRN: ${company.taxNumber}` : ''} ${company.pan ? `| NTN: ${company.pan}` : ''}
                                 </p>
                             </div>
                         </div>

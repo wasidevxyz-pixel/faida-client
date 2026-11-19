@@ -12,6 +12,8 @@ publish_output*/
 portable-app*/
 Barcode-App-V*/
 v1-app/
+releases*/
+release*/
 
 # IDE / Visual Studio user settings
 .vs/
